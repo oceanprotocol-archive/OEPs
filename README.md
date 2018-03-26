@@ -44,5 +44,5 @@ The process to add or change a OEP is the following:
 
 Short Name    | Title                                                        | Type     | Status     | Editor
 --------------|--------------------------------------------------------------|----------|------------|-------
-[1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft      | Alberto Granzotto
-[2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Alberto Granzotto
+[1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft      | Dimitri De Jonghe
+[2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
