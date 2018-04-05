@@ -2,15 +2,14 @@
 shortname: 3/SONAR
 name: Searchable OceaN Asset Registry 
 type: Standard
-status: Draft
-editor: Dimitri De Jonghe <dimi@oceanprotocol.com>
-contributors: Aitor Argomaniz <aitor@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Samer Sallam <samer@oceanprotocol.com>, Kiran Karkera <kiran.karkera@dex.sg>
+status: Raw
+editor: Aitor Argomaniz <aitor@oceanprotocol.com>
+contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Samer Sallam <samer@oceanprotocol.com>, Kiran Karkera <kiran.karkera@dex.sg>
 ```
 
 ## Abstract
 
-The SONAR OEP is any software, protocol or interaction that allows actors
-to publish and discover assets such as data sets, algorithms, infrastructure and so on.
+The SONAR OEP is a specification for Ocean Protocol to publish and discover assets such as data sets, algorithms, infrastructure and so on.
 
 This OEP does not focus on metadata structure, staking or curation. 
 It's purely the mechanics of publishing and retrieval of assets.
@@ -20,6 +19,16 @@ Optionally this might contain a basic framework for the actor registry without t
 
 Ocean network aims to power marketplaces for relevant AI-related data services. 
 The data services require to be discoverable and queryable, as well as consumable.
+
+ASSETS are DATA objects describing RESOURCES & SERVICES under control of a PUBLISHER.
+A PUBLISHER is incentivized to PUBLISH ASSETS in order to make them discoverable for third parties.
+A PROVIDER can discover ASSETS and give access to those ASSETS getting tokens in reward.
+
+ASSETS metadata are STORED on a decentralized REGISTRY.
+ASSETS metadata can be UPDATED. Optionally with versioning.
+ASSETS metadata can be RETRIEVED from the REGISTRY.
+ASSETS content can be RETRIEVED from the PROVIDER.
+ASSETS can have a status of DISABLED, which implies that the ASSET cannot be CONSUMED anymore.
 
 ## Specification
 
