@@ -24,11 +24,21 @@ ASSETS are DATA objects describing RESOURCES & SERVICES under control of a PUBLI
 A PUBLISHER is incentivized to PUBLISH ASSETS in order to make them discoverable for third parties.
 A PROVIDER can discover ASSETS and give access to those ASSETS getting tokens in reward.
 
+PUBLISHER publishes ASSET METADATA on OCEAN DB
+CONSUMER queries OCEAN DB and finds ASSET METADATA
+CONSUMER resolves PROVIDER for ASSET METADATA
+CONSUMER creates ASSET SERVICE_AGREEMENT(token, proofs, ...) with PROVIDER
+CONSUMER consumes ASSET SERVICE from PROVIDER
+
 ASSETS metadata are STORED on a decentralized REGISTRY.
 ASSETS metadata can be UPDATED. Optionally with versioning.
 ASSETS metadata can be RETRIEVED from the REGISTRY.
 ASSETS content can be RETRIEVED from the PROVIDER.
 ASSETS can have a status of DISABLED, which implies that the ASSET cannot be CONSUMED anymore.
+
+PROVIDER provides SERVICE and PROOF
+VERIFIER validates PROOF
+
 
 ## Specification
 
