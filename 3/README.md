@@ -48,7 +48,7 @@ The **Assets** information should be managed using an API. This API should expos
 * Get an Asset
 * Update an Asset
 * Disabling an Asset
-* Adding a Provider to an Asset
+* Make an Asset available through a Provider
 
 The information or Metadata of the Assets should be registered on-chain.
 
