@@ -9,36 +9,28 @@ contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Mike Anderson <mike.an
 
 ## Abstract
 
-The SONAR OEP is a specification for Ocean Protocol to publish and discover assets such as data sets, algorithms, infrastructure and so on.
+The SONAR OEP is a specification for Ocean Protocol to publish and discover ASSETS such as data sets, algorithms, infrastructure and so on. ASSETS are described by structured METADATA.
 
-This OEP does not focus on metadata structure, staking or curation. 
-It's purely the mechanics of publishing and retrieval of assets.
-Optionally this might contain a basic framework for the actor registry without the identity platform. 
+Optionally this OEP extends to hold other datatypes such as actors.
+
+## What not
+
+This OEP does not focus on the storage backend, METADATA structure or incentives around signalling. 
+It's purely the interface for publishing and discovery of ASSETS.
 
 ## Motivation
 
 Ocean network aims to power marketplaces for relevant AI-related data services. 
 The data services require to be discoverable and queryable, as well as consumable.
 
-ASSETS are DATA objects describing RESOURCES & SERVICES under control of a PUBLISHER.
-A PUBLISHER is incentivized to PUBLISH ASSETS in order to make them discoverable for third parties.
-A PROVIDER can discover ASSETS and give access to those ASSETS getting tokens in reward.
+ASSET METADATA are DATA objects describing RESOURCES & SERVICES.
+A PUBLISHER is incentivized to PUBLISH ASSETS on the ASSET REGISTRY in order to make them discoverable for third parties.
+A CONSUMER can query the ASSET REGISTRY and find ASSET METADATA.
 
-PUBLISHER publishes ASSET METADATA on OCEAN DB
-CONSUMER queries OCEAN DB and finds ASSET METADATA
-CONSUMER resolves PROVIDER for ASSET METADATA
-CONSUMER creates ASSET SERVICE_AGREEMENT(token, proofs, ...) with PROVIDER
-CONSUMER consumes ASSET SERVICE from PROVIDER
-
-ASSETS metadata are STORED on a decentralized REGISTRY.
-ASSETS metadata can be UPDATED. Optionally with versioning.
-ASSETS metadata can be RETRIEVED from the REGISTRY.
-ASSETS content can be RETRIEVED from the PROVIDER.
-ASSETS can have a status of DISABLED, which implies that the ASSET cannot be CONSUMED anymore.
-
-PROVIDER provides SERVICE and PROOF
-VERIFIER validates PROOF
-
+ASSETS METADATA are STORED on a decentralized REGISTRY.
+ASSETS METADATA can be UPDATED. Optionally with versioning.
+ASSETS METADATA can be RETRIEVED from the REGISTRY.
+ASSETS METADATA can have a status of DISABLED, which implies that the ASSET cannot be CONSUMED anymore.
 
 ## Specification
 
