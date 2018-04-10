@@ -23,14 +23,15 @@ It's purely the interface for publishing and discovery of ASSETS.
 Ocean network aims to power marketplaces for relevant AI-related data services. 
 The data services require to be discoverable and queryable, as well as consumable.
 
-ASSET METADATA are DATA objects describing RESOURCES & SERVICES.
-A PUBLISHER is incentivized to PUBLISH ASSETS on the ASSET REGISTRY in order to make them discoverable for third parties.
-A CONSUMER can query the ASSET REGISTRY and find ASSET METADATA.
+- ASSET METADATA are DATA objects describing RESOURCES & SERVICES.
+- A PUBLISHER is incentivized to PUBLISH ASSETS on the ASSET REGISTRY in order to make them discoverable for third parties.
+- A CONSUMER can query the ASSET REGISTRY and find ASSET METADATA.
 
-ASSETS METADATA are STORED on a decentralized REGISTRY.
-ASSETS METADATA can be UPDATED. Optionally with versioning.
-ASSETS METADATA can be RETRIEVED from the REGISTRY.
-ASSETS METADATA can have a status of DISABLED, which implies that the ASSET cannot be CONSUMED anymore.
+More formally, an API would at least expose the following functionality:
+- ASSETS METADATA are STORED on a decentralized REGISTRY.
+- ASSETS METADATA can be UPDATED. Optionally with versioning.
+- ASSETS METADATA can be RETRIEVED from the REGISTRY.
+- ASSETS METADATA can have a status of DISABLED, which implies that the ASSET cannot be CONSUMED anymore.
 
 ## Specification
 
