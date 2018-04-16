@@ -46,3 +46,10 @@ Short Name    | Title                                                        | T
 --------------|--------------------------------------------------------------|----------|------------|-------
 [1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft      | Dimitri De Jonghe
 [2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
+[3/COSS](3)   | Actors Registry                                              | Meta     | Draft      | Aitor Argomaniz
+
+# Additional information
+
+## Sequence diagrams
+
+Are created usign the https://websequencediagrams.com tool. Diagrams found in the different folders (txt files), can be pasted directly to the online editor to generate the images. 
