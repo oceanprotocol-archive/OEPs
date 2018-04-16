@@ -1,0 +1,31 @@
+title Adding a Provider to an Asset (ASE.005)
+
+# ASE.005
+
+Provider->Marketplace: Associate Provider to an existing Asset request
+note right of Marketplace: Marketplace working as proxy
+
+Marketplace->API: AssetProvider request (ASE.005)
+API->Keeper: Request
+
+Keeper->Keeper:Input Validation
+
+Keeper->BlockChain:Asset and Provider already exist?
+note over Keeper: Check if everything exists
+Keeper-->API: Actor or Asset Doesn't exist
+API-->Marketplace: HTTP 400 Bad params
+Marketplace-->Provider: Error
+
+Keeper-->API: Actor and Asset already associated
+API-->Marketplace: HTTP 422 Relation already exists
+Marketplace-->Provider: Error
+
+Keeper->BlockChain: Associate Asset & Provider
+note right of BlockChain: P2P consensus
+BlockChain->Keeper:Creation ACK
+
+
+Keeper->API:Creation ACK
+API->Marketplace: HTTP 201 (AssetProvider)
+Marketplace->Provider: Associating success
+

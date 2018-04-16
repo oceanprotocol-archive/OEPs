@@ -1,0 +1,17 @@
+title Delete an Asset (ASE.004)
+
+
+Publisher->API: Delete an Asset (ASE.004)
+API->Keeper:Delete an Asset
+Keeper->BlockChain:Get an Asset
+note left of BlockChain: Searching if Asset exists
+
+Keeper-->API:Asset doesn't exists
+API-->Publisher:HTTP 404 (not found)
+
+Keeper->BlockChain: Asset soft delete
+note left of BlockChain: Asset.contentState=Disabled
+
+Keeper->API: Asset information
+API->Publisher: HTTP 200 (Asset)
+

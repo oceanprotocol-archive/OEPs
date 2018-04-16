@@ -1,0 +1,16 @@
+title Get an Asset (ASE.002)
+
+
+Any->API: Get an Asset (ASE.002)
+note right of Any: Could be sent by any Actor
+
+API->Keeper:Get an asset
+Keeper->BlockChain:Get an asset
+note left of BlockChain: Searching if Asset exists
+
+Keeper-->API:Asset doesn't exists
+API-->Any:HTTP 404 (not found)
+
+Keeper->API: Asset information
+API->Any: HTTP 200 (Metadata)
+
