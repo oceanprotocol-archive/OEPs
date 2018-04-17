@@ -22,9 +22,9 @@ Optionally this might contain a basic framework for the actor registry without t
 Ocean network aims to power marketplaces for relevant AI-related data services. 
 The data services require to be discoverable and queryable, as well as consumable.
 
-ASSETS are DATA objects describing RESOURCES & SERVICES under control of a PUBLISHER.
+ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER.
 A PUBLISHER is incentivized to PUBLISH ASSETS in order to make them discoverable for third parties.
-A PROVIDER can discover ASSETS and give access to those ASSETS getting tokens in reward.
+A PROVIDER can give access to some ASSETS getting tokens in reward.
 
 PUBLISHER publishes ASSET METADATA on OCEAN DB
 CONSUMER queries OCEAN DB and finds ASSET METADATA
