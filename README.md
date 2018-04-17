@@ -46,7 +46,6 @@ Short Name    | Title                                                        | T
 --------------|--------------------------------------------------------------|----------|------------|-------
 [1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft      | Dimitri De Jonghe
 [2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
-[3/COSS](3)   | Actors Registry                                              | Meta     | Draft      | Aitor Argomaniz
 
 # Additional information
 

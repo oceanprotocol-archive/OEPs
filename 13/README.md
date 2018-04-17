@@ -1,5 +1,5 @@
 ```
-shortname: 3/Registry
+shortname: 13/Registry
 name: Ocean Actor Registry
 type: Standard
 status: Raw
