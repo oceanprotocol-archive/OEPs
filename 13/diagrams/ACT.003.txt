@@ -1,0 +1,17 @@
+title Update an Actor (ACT.003)
+
+
+Actor->API: Update an Actor (ACT.003)
+note over Actor: Marketplace could do as proxy
+API->Keeper:Update an actor
+Keeper->BlockChain:Get an actor
+note left of BlockChain: Searching if Actor exists
+
+Keeper-->API:Actor doesn't exists
+API-->Actor:HTTP 404 (not found)
+
+Keeper->BlockChain: Actor update
+
+Keeper->API: Actor information
+API->Actor: HTTP 200 (Actor)
+

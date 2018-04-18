@@ -1,0 +1,20 @@
+title Register new Actor (ACT.001)
+
+
+Actor->API: Registering an Actor (ACT.001)
+API->Keeper:Registering an Actor
+Keeper->BlockChain: Check if actor already exists
+Keeper->Keeper: Already exists?
+
+Keeper-->API:Actor already exists
+API-->Actor:HTTP 422 (already exists)
+
+Keeper->BlockChain: Check if actor Wallet already exists
+Keeper->Keeper: Already exists?
+Keeper->BlockChain: Create Wallet
+
+note left of BlockChain: If actor doesn't exist, create
+Keeper->BlockChain: Create Actor
+
+Keeper->API: Register ACK
+API->Actor: HTTP 201 (Actor)

@@ -1,0 +1,16 @@
+title Get an Actor (ACT.002)
+
+
+Marketplace->API: Get an Actor (ACT.002)
+note over Marketplace: Could be any Actor
+
+API->Keeper:Get an actor
+Keeper->BlockChain:Get an actor
+note left of BlockChain: Searching if Actor exists
+
+Keeper-->API:Actor doesn't exists
+API-->Marketplace:HTTP 404 (not found)
+
+Keeper->API: Actor information
+API->Marketplace: HTTP 200 (Actor)
+

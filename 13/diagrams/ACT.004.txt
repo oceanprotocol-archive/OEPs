@@ -1,0 +1,17 @@
+title Retire an Actor (ACT.004)
+
+
+Marketplace->API: Retire an Actor (ACT.004)
+API->Keeper:Retire an actor
+Keeper->BlockChain:Get an actor
+note left of BlockChain: Searching if Actor exists
+
+Keeper-->API:Actor doesn't exists
+API-->Marketplace:HTTP 404 (not found)
+
+Keeper->BlockChain: Actor soft delete
+note left of BlockChain: Actor.State=Disabled
+
+Keeper->API: Actor information
+API->Marketplace: HTTP 200 (Actor)
+
