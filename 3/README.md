@@ -71,13 +71,14 @@ smart contracts execution, consensus algorithm coordination and decentralized st
 
 ## Components
 
-It is composed by independent components:
+The Ocean ARCH is composed of independent components:
 
 ![Building Blocks](images/building-blocks.png)
 
-### Keeper
+### Keepers
 
-Implements the Ocean Protocol and all the business logic embedded in validation and smart contracts. A full node would be running three distinct processes:
+Implements the Ocean Protocol and all the business logic embedded in validation and smart contracts. 
+A full node would be running three distinct processes:
 
 #### Decentralized VM
 
