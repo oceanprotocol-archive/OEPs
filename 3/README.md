@@ -26,6 +26,29 @@ It MUST to provide a common framework used describing the technical solution to 
 
 All the different components described, SHOULD be used as building blocks, allowing to compose the different scenarios using those.
 
+
+# Design Requirements
+
+The following design requirements should guide the development of the Ocean Protocol:
+
+* MUST use an open protocol, accessible to clients using any technology stack
+* SHOULD minimise latency for user transactions
+* MUST store a record of all asset provenance
+* MUST allow custom metadata (as defined by marketplaces and/or domain specific use cases)
+* MUST support data services of all types, including:
+  - Data assets
+  - Data operations including:
+    - Data transformation operations
+    - Machine learning operations
+* MUST enable interoperability (i.e. sharing of data assets and services) between multiple marketplace implementations
+* MUST support arbitrary data formats (e.g. as specified by MIME type)
+* MUST support off-chain operations for storage and compute
+* MUST support both free and priced data assets / services
+* MUST allow marketplaces to implement custom asset pricing logic (for priced services)
+* MUST support the IP management. During the creation of a new Asset or Service, the ownership rights should be registered. During the consumption agreement, this right should be registered.
+* Ocean agents (including but not limited to Marketplaces) MUST have an efficient way to access the full blockchain history so that can query or index a copy of the blockchain as necessary
+
+
 # High Level Architecture
 
 The ARCH it's based in a **contract-centric** architecture approach. A contract is the interface between clients and the consensus engine.
@@ -99,25 +122,4 @@ An Ocean Node can run all of those processes or any combination of them. It will
 ![Combination of Building Blocks](images/building-blocks-combination.png)
 
 In the above picture you can see multiple set up combinations of an Ocean Node. The first one (top left), shows an Ocean Node running an Agent and a Full Keeper (Decentralized VM, Database and Worker). Other scenarios could require specialized deployments to run Worker nodes, Agents, Database nodes, etc.
-
-## Design Requirements
-
-The following design requirements should guide the development of the Ocean Protocol:
-
-* MUST use an open protocol, accessible to clients using any technology stack
-* SHOULD minimise latency for user transactions
-* MUST store a record of all asset provenance
-* MUST allow custom metadata (as defined by marketplaces and/or domain specific use cases)
-* MUST support data services of all types, including:
-  - Data assets
-  - Data operations including:
-    - Data transformation operations
-    - Machine learning operations
-* MUST enable interoperability (i.e. sharing of data assets and services) between multiple marketplace implementations
-* MUST support arbitrary data formats (e.g. as specified by MIME type)
-* MUST support off-chain operations for storage and compute
-* MUST support both free and priced data assets / services
-* MUST allow marketplaces to implement custom asset pricing logic (for priced services)
-* MUST support the IP management. During the creation of a new Asset or Service, the ownership rights should be registered. During the consumption agreement, this right should be registered.
-* Ocean agents (including but not limited to Marketplaces) MUST have an efficient way to access the full blockchain history so that can query or index a copy of the blockchain as necessary
 
