@@ -7,7 +7,10 @@ editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 ```
 
-This document describes the Ocean Architecture. It focus in which are the main responsabilities, functions and components implementing the architecture.
+# Keeper Architecture
+
+This document describes the Ocean Architecture. 
+It focus in which are the main responsibilities, functions and components implementing the architecture.
 
 This specification is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper).
 
@@ -30,7 +33,7 @@ All the different components described, SHOULD be used as building blocks, allow
 This document use as reference and starting point the Architecture defined by the [3/ARCH](../3/README.md) (ARCH).
 
 
-# Keeper Architecture
+
 
 ## Responsibilities
 
