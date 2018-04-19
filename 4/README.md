@@ -32,12 +32,10 @@ All the different components described, SHOULD be used as building blocks, allow
 ## High Level Architecture
 This document use as reference and starting point the Architecture defined by the [3/ARCH](../3/README.md) (ARCH).
 
-
+![Keeper Architecture](images/keeper-arch.png)
 
 
 ## Responsibilities
-
-![Keeper Architecture](images/keeper-arch.png)
 
 The main responsibilities of the Keeper are:
 
