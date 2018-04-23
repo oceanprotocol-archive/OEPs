@@ -254,7 +254,27 @@ of Python, and the operating system. Some implementations rely on it.
 
 ## Privacy Management
 
-TODO: Protocol to negotiate privacy requirements
+
+The **AGENT** will implement a Privacy Protocol allowing to negotiate the privacy requirements between parties.
+In a non-homogeneous network, different nodes can provide alternative mechanisms (hardware or software) 
+implementing some privacy capabilities.
+
+In this scenario of we can assume that different users running Ocean Agents, can require and implement 
+different privacy capabilities to negotiate with other agents. It means, each AGENT will define a list 
+of the **"privacy systems"** supported. For example:
+
+```
+privacy {
+	mpc= "sign,encrypt,query"
+	tee= "intel,arm"
+	zk= "syft,libsnarks"
+}
+```
+
+Having 2 different AGENT's in a negotiation, during the protocol hand shake, the information about the 
+privacy mechanisms will be shared. If they have a common/compatible method, the conversation between 
+them could be started.
+
 
 ## Events Watcher
 
