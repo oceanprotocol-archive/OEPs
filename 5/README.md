@@ -173,6 +173,12 @@ Authorization refers to rules that determine who is allowed to do what.
 In this Ocean Agent side the authentication layer is very thin, and it's in charge mainly of 
 verifying the public key information associated to the transactions.
 
+In all the HTTP API interactions, the component integrating the API SHOULD send his public key as part 
+of the HTTP request using the ```Authorization``` HTTP Header 
+(see [RFC 7325](https://tools.ietf.org/html/rfc7235#page-7)).
+
+All the requests giving invalid authentication parameters will return a **HTTP 401 Status code: Unauthorized**. 
+
 ### Authorization
 
 In the authorization phase it's necessary to validate that user is able to implement a specific action, 
@@ -245,7 +251,6 @@ The keyfile should contain an unencrypted private key in hexadecimal format.
 It's necessary to check about the security limitations of os.urandom, which depends on the version 
 of Python, and the operating system. Some implementations rely on it.
 
-PyWallet provides a reference implementation.
 
 ## Privacy Management
 
@@ -286,7 +291,7 @@ Some scenarios require the execution of multiple steps before completion, for ex
   - Register the basic Asset metadata on-chain (Decentralized VM Database)
   - Register the complete Asset metadata in the Ocean DB (Assets Registry)
   - Register the IP rights related with the Asset
-* Contract Settlement - When it’s received an API request providing a proof of service, the Ocean Agent requires to execute:
+* Contract Settlement - When it's received an API request providing a proof of service, the Ocean Agent requires to execute:
   - Store the Proof of Service information on-chain
   - Check if all the proof of services were provided, in that case update the state of the contract to Settled
   - Notify all the contract parties
