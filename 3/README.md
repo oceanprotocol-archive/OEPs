@@ -76,7 +76,7 @@ The interaction between the consensus layer and the clients is driven by transac
 * For calling contracts with specific input variables and hence updating the contract state.
 
 It's the responsibility of the clients to construct valid transactions and contracts. 
-Otherwise they won’t be accepted by the consensus layer.
+Otherwise they won't be accepted by the consensus layer.
 
 We foresee a few ways to set up contracts:
 
@@ -139,7 +139,7 @@ Thin abstraction layer in charge of exposing a common and stable API to the netw
 The client outputs transactions that are send to the keeper. 
 It could provide verification, privacy & multicast capabilities. 
 Throttling and spam prevention is done at the VM validation level in the keeper. 
-TX’s have fees attached, could have some Client-side PoW and invalid tx’s won’t get replicated by honest nodes.
+TX's have fees attached, could have some Client-side PoW and invalid tx's won't get replicated by honest nodes.
 
 ## Components Interaction
 
@@ -151,4 +151,8 @@ It will allow to have specialized nodes, depending of the requirements of the us
 In the above picture you can see multiple set up combinations of an Ocean Node. 
 The first one (top left), shows an Ocean Node running an Agent and a Full Keeper (Decentralized VM, Database and Worker). 
 Other scenarios could require specialized deployments to run Worker nodes, Agents, Database nodes, etc.
+
+
+
+
 
