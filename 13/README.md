@@ -7,7 +7,27 @@ editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 ```
 
-# Ocean Actors Registry
+<!--ts-->
+
+Table of Contents
+=================
+
+   * [Ocean Actors Registry](#ocean-actors-registry)
+      * [Change Process](#change-process)
+      * [Language](#language)
+      * [Motivation](#motivation)
+      * [Specification](#specification)
+         * [Proposed Solution](#proposed-solution)
+         * [Registering a new Actor](#registering-a-new-actor)
+         * [Retrieve information of an existing actor](#retrieve-actor)
+         * [Updating Actor metadata](#updating-actor-metadata)
+         * [Retire an Actor](#retire-an-actor)
+      * [TODO: Events](#events)
+      * [Copyright Waiver](#copyright-waiver)
+      
+<!--te-->
+
+# Ocean Actors Registry <a name="ocean-actors-registry"></a>
 
 The Ocean Actors Registry (**REG**) is a specification for Ocean Protocol to register to all the actors interacting in the Ocean Network.
 
@@ -17,14 +37,14 @@ This specification is based on [Ocean Protocol technical whitepaper](https://git
 
 This specification is called **REG** henceforth.
 
-## Change Process
+## Change Process <a name="change-process"></a>
 This document is governed by the [2/COSS](../2/README.md) (COSS).
 
-## Language
+## Language <a name="language"></a>
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
 
-## Motivation
+## Motivation <a name="motivation"></a>
 
 Ocean network aims to power marketplaces for relevant AI-related data services.
 Different actors and stakeholders are necessary to interact between them using the Ocean Protocol defined.  
@@ -55,7 +75,7 @@ Verifiers provide assets and service verifications, getting tokens on reward. Ve
 Marketplaces expose all the information about the datasets, reputation, pricing, etc. They work as the  interface where the consumers can search for datasets suitable for their requirements. Marketplaces include the information provided by the curators.
 
 
-## Specification
+## Specification <a name="specification"></a>
 
 The **Actors** information should be managed using an API. This API should exposes the following capabilities:
 
@@ -69,7 +89,7 @@ The information or Metadata about the Actors MUST be stored in Ocean DB.
 AGENT MUST NOT store any information about the accounts (public keys, private keys, passwords or recovery phrases).
 
 
-### Proposed Solution
+### Proposed Solution <a name="proposed-solution"></a>
 
 The proposed solution is composed by the interaction of different elements:
 
@@ -95,7 +115,7 @@ The above diagram shows the high level interactions between the components invol
 
 In the following sections you can find the end to end implementation details of the complete REG functionality.
 
-### Registering a new Actor
+### Registering a new Actor <a name="registering-a-new-actor"></a>
 
 ![Registering a new Actor](images/ACT.001.png "ACT.001")
 
@@ -195,7 +215,7 @@ Using the information stored/provided by **Ocean DB**, the **AGENT** SHOULD comp
 |attributes |array |Array of key, value attributes|
 
 
-### Retrieve information of an existing actor
+### Retrieve information of an existing actor <a name="retrieve-actor"></a>
 
 ![Retrieve info of an Actor](images/ACT.002.png "ACT.002")
 
@@ -207,6 +227,7 @@ The retrieval of the Actor information relates with the AGENT and Ocean DB. No i
 It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
+Reference: ACT.002
 Path:  /api/v1/keeper/actors/actor/{actorId}
 HTTP Verb: GET
 Caller: Any
@@ -234,7 +255,8 @@ GET http://localhost:8080/api/v1/keeper/actors/actor/0x8f0227d45853a50eefd48dd4f
 ```json
 {
     "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-	"name": "John Doe"
+	"name": "John Doe",
+	"state": "CREATED",
 	"attributes": [{
 		"key": "interests",
 		"value": "Looking Ahead"
@@ -257,80 +279,152 @@ Ocean DB stores all the information about the Actors metadata. Using the actorId
 If the Actor metadata has the state attribute `state == DISABLED` the method should return a **HTTP 404** Not Found message.
 
 
----
+### Updating Actor metadata <a name="updating-actor-metadata"></a>
 
-**Still pending to Review**
+![Update an Actor](images/ACT.003.png "ACT.003")
 
----
----
----
----
----
----
----
----
+In the above diagram the Agent and the Account Manager capabilities are implemented in the AGENT scope.
+No information is going through the Decentralized VM.
+The updating of an existing Actor metadata involves the following implementations:
 
-
-
-### Update an Actor (ACT.003)
-
-```
-Path: /api/v1/keeper/actors/actor
-HTTP Verb: PUT
-Caller: Actor or Marketplace working as Proxy
-Input: Actor Schema
-Output: Actor Schema
-HTTP Output Status Codes: 
-    HTTP 200 - Updated
-    HTTP 404 - Not Found
-```
-
-![ACT.003](images/ACT.003.png "ACT.003")
-
-Method updating the Actor information. This method doesn’t allow to modify all the Actor information attributes. Information like public & private keys, wallet and so on can’t be modified. Only the information about the following fields can be updated:
+This method doesn’t allow to modify all the Actor information attributes. Only the information about the following fields can be updated:
 
 * Name
 * Attributes
 
-This method is integrated by the **Actor**. Marketplaces can participate as proxies. 
-The Input and Output parameters are defined in the [Actor Schema](https://github.com/oceanprotocol/pk-schemas/blob/develop/src/main/resources/avro/com/oceanprotocol/core/keeper/schemas/Actor.avsc).
 
+#### Ocean Agent API
 
-### Retire an Actor (ACT.004)
+It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
+Reference: ACT.003
+Path: /api/v1/keeper/actors/actor
+HTTP Verb: PUT
+Caller: Actor
+Input: Actor Schema
+Output: Actor Schema
+HTTP Output Status Codes: 
+    HTTP 202 - Accepted
+    HTTP 400 - Invalid params
+    HTTP 404 - Not Found
+```
+
+##### Input Parameters
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|actorId    |string|Account address|
+|name       |string|Actor nickname (optional)|
+|attributes |array |Array of key, value attributes (optional)|
+
+Example: 
+
+```json
+{
+    "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
+	"name": "Alice",	
+	"attributes": [{
+		"key": "interests",
+		"value": "no interests"
+	}]
+}
+```
+
+#### Accounts Management
+
+The Accounts Manager components it's not involved in this method. All the information will be retrieved from **Ocean DB**.
+
+#### Interaction with Ocean DB
+
+Ocean DB will store the metadata information about the actor. Only the metadata included in the following attributes will be modified:
+
+* Name
+* Attributes
+
+To implement that it's necessary to retrieve the actor from the database, and update the Name and Attributes information in the document retrieved, the new model created will be sent as a new transaction to the database. 
+After creating the Actor in the Database, it will return a HTTP 202 Accepted message. It means the request has been accepted for processing, but the processing has not been completed.
+
+
+#### Output
+Using the information stored/provided by **Ocean DB**, the **AGENT** SHOULD compose the output payload to return. It should include same information detailed in the previous sections.
+
+
+
+### Retire an Actor <a name="retire-an-actor"></a>
+
+![Retire an Actor](images/ACT.004.png "ACT.004")
+
+In the above diagram the Agent and the Account Manager capabilities are implemented in the AGENT scope.
+No information is going through the Decentralized VM.
+
+This method implements a soft delete of an Actor. It means the Actor is updated setting the state attribute to `DISABLED`. The method will return a HTTP 200 status code and the Actor modified in the response body.
+
+This method only can be integrated by the Actor. The Input of this method is the actorId referencing to a unique Actor. 
+
+#### Ocean Agent API
+
+It is necessary to expose a RESTful HTTP interface using the following details:
+
+```
+Reference: ACT.004
 Path: /api/v1/keeper/actors/actor/{actorId}
 HTTP Verb: DELETE
 Caller: Actor
 Input: actorId
 Output: Actor Schema
 HTTP Output Status Codes: 
-    HTTP 200 - OK
+    HTTP 202 - Accepted
+    HTTP 400 - Invalid params
     HTTP 404 - Not Found
 ```
 
-![ASE.004](images/ASE.004.png "ASE.004")
+##### Input Parameters
 
-This method implements a soft delete of an actor. It means the Actor is updated setting the state attribute to `“DISABLED”`. 
-The method will return a HTTP 200 status code and the Actor modified in the response body.
-
-This method only can be integrated by the Actor. 
-The Input of this method is the actorId referencing to a unique Actor. The Output parameters are defined in 
-the [Actor Schema](https://github.com/oceanprotocol/pk-schemas/blob/develop/src/main/resources/avro/com/oceanprotocol/core/keeper/schemas/Actor.avsc).
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|actorId    |string|Account address|
 
 
-## Events
+Example: 
+
+```http
+DELETE http://localhost:8080/api/v1/keeper/actors/actor/0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e
+```
+
+```json
+{
+    "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
+	"name": "Alice",
+	"state": "DISABLED",
+	"attributes": [{
+		"key": "interests",
+		"value": "no interests"
+	}]
+}
+```
+
+#### Accounts Management
+
+The Accounts Manager components it's not involved in this method. All the information will be retrieved and updated in **Ocean DB**.
+
+#### Interaction with Ocean DB
+
+Ocean DB will store the metadata information about the actor. This method only will update the information about the **state** attribute.
+
+To implement that it's necessary to retrieve the actor from the database, and update state information in the document retrieved, the new model created will be sent as a new transaction to the database. 
+After creating the Actor in the Database, it will return a HTTP 202 Accepted message. It means the request has been accepted for processing, but the processing has not been completed.
+
+
+#### Output
+Using the information stored/provided by **Ocean DB**, the **AGENT** SHOULD compose the output payload to return. It should include same information detailed in the previous sections.
+
+
+
+## TODO: Events <a name="events"></a>
 
 The AGENT will subscribe to the **Ocean DB** Streams valid transaction log, checking 
 
-
-
-## Implementation
-
-It involves some implementation in two different components:
- 
-* The implementation of the API, from the **Ocean Agent** side, will be done using Python and the Hug framework.
-* The implementation of the **Keeper** side, will be done using the Decentralized VM and the **Ocean DB** to persist the Actor information
 
 ### Assignee(s)
 Primary assignee(s): @diminator, @ssallam, @shark8me
@@ -338,7 +432,6 @@ Primary assignee(s): @diminator, @ssallam, @shark8me
 
 ### Targeted Release
 
-The implementation of the API interface is planned for the [Alpha release](https://github.com/oceanprotocol/ProtoKeeper/milestone/2). 
 The implementation of the full Keeper functionality it's planned for the [Alpha release](https://github.com/oceanprotocol/ocean/milestone/4)
 
 
@@ -346,6 +439,6 @@ The implementation of the full Keeper functionality it's planned for the [Alpha 
 unstable
 
 
-## Copyright Waiver
+## Copyright Waiver  <a name="copyright-waiver"></a>
 To the extent possible under law, the person who associated CC0 with this work has waived all copyright and related or neighboring rights to this work.
 

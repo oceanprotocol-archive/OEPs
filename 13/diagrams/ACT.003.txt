@@ -1,17 +1,23 @@
 title Update an Actor (ACT.003)
 
-
-Actor->API: Update an Actor (ACT.003)
+Actor->Agent: Update an Actor (ACT.003)
 note over Actor: Marketplace could do as proxy
-API->Keeper:Update an actor
-Keeper->BlockChain:Get an actor
-note left of BlockChain: Searching if Actor exists
+Agent->Agent: Validate input
 
-Keeper-->API:Actor doesn't exists
-API-->Actor:HTTP 404 (not found)
+Agent-->Actor:HTTP 400 (invalid params)
 
-Keeper->BlockChain: Actor update
+Agent->Ocean DB: Get Actor
+Ocean DB->Agent: Actor
 
-Keeper->API: Actor information
-API->Actor: HTTP 200 (Actor)
+Agent->Agent: Actor exists?
+
+
+Agent-->Actor:HTTP 404 (not found)
+Agent->Agent: Compose new Actor Object
+
+Agent->Ocean DB: Create new Actor transaction
+Ocean DB->Agent: Creation ACK
+
+
+Agent->Actor: HTTP 202 (Actor)
 
