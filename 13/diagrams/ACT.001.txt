@@ -1,0 +1,18 @@
+title Register new Actor (ACT.001)
+
+
+Actor->Agent: Registering an Actor (ACT.001)
+Agent->Agent: Input Validation
+Agent-->Actor:HTTP 400 (bad request)
+Agent->Accounts Manager:Create Account and Wallet
+Accounts Manager->Agent:Account information
+Agent<->Ocean DB: Check if actor already exists
+Agent->Agent: Already exists?
+
+Agent-->Actor:HTTP 422 (already exists)
+
+Agent->Ocean DB: Create Account
+
+
+Ocean DB->Agent: Register ACK
+Agent->Actor: HTTP 202 (Actor)
