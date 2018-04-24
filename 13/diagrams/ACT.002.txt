@@ -1,16 +1,18 @@
 title Get an Actor (ACT.002)
 
 
-Marketplace->API: Get an Actor (ACT.002)
+Marketplace->Agent: Get an Actor (ACT.002)
 note over Marketplace: Could be any Actor
 
-API->Keeper:Get an actor
-Keeper->BlockChain:Get an actor
-note left of BlockChain: Searching if Actor exists
+Agent->Agent: Input validation
+Agent-->Marketplace:HTTP 400 (invalid input)
 
-Keeper-->API:Actor doesn't exists
-API-->Marketplace:HTTP 404 (not found)
+Agent->Ocean DB:Get an actor
 
-Keeper->API: Actor information
-API->Marketplace: HTTP 200 (Actor)
+note left of Ocean DB: Searching if Actor exists
 
+Ocean DB-->Agent:Actor doesn't exists
+Agent-->Marketplace:HTTP 404 (not found)
+
+Ocean DB->Agent: Actor information
+Agent->Marketplace: HTTP 200 (Actor)

@@ -100,7 +100,7 @@ In the following sections you can find the end to end implementation details of 
 ![Registering a new Actor](images/ACT.001.png "ACT.001")
 
 In the above diagram the Agent and the Account Manager capabilities are implemented in the AGENT scope.
-
+No information is going through the Decentralized VM.
 The registering of a new Actor involves the following implementations:
 
 #### Ocean Agent API
@@ -182,6 +182,7 @@ Actor state will be set as **CREATED** by the system.
 
 After creating the Actor in the Database, it will return a HTTP 202 Accepted message. It means the request has been accepted for processing, but the processing has not been completed.
 
+
 #### Output
 Using the information stored/provided by **Ocean DB**, the **AGENT** SHOULD compose the output payload to return. It should include the following information:
 
@@ -192,6 +193,69 @@ Using the information stored/provided by **Ocean DB**, the **AGENT** SHOULD comp
 |state      |enum  |Internal state information. One of the following("CREATED", "WHITELISTED", "BANNED", "DISABLED")|
 |creationDatetime |Datetime |Creation datetime set by the database|
 |attributes |array |Array of key, value attributes|
+
+
+### Retrieve information of an existing actor
+
+![Retrieve info of an Actor](images/ACT.002.png "ACT.002")
+
+
+The retrieval of the Actor information relates with the AGENT and Ocean DB. No information is read from the Decentralized VM. This functionality involves the following implementations:
+
+#### Ocean Agent API
+
+It is necessary to expose a RESTful HTTP interface using the following details:
+
+```
+Path:  /api/v1/keeper/actors/actor/{actorId}
+HTTP Verb: GET
+Caller: Any
+Input: actorId
+Output: Actor Schema
+HTTP Output Status Codes: 
+    HTTP 200 - OK
+    HTTP 400 - Invalid params
+    HTTP 404 - Not Found
+```
+
+
+##### Input Parameters
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|actorId    |string|Account address to retrieve|
+
+Example: 
+
+```http
+GET http://localhost:8080/api/v1/keeper/actors/actor/0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e
+```
+
+```json
+{
+    "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
+	"name": "John Doe"
+	"attributes": [{
+		"key": "interests",
+		"value": "Looking Ahead"
+	}]
+}
+```
+
+Before to query the database, it's necessary to check the lenght and format of the actorId. If the lenght and format doesn't fit the standard address definition, the system should return a **HTTP 400** Invalid params message.
+
+Depending of the implementation, there are different alternatives to check if an address is valid (see this [link](https://ethereum.stackexchange.com/questions/1374/how-can-i-check-if-an-ethereum-address-is-valid)).
+
+#### Accounts Management
+
+The Accounts Manager components it's not involved in this method. All the information will be retrieved from **Ocean DB**.
+
+#### Interaction with Ocean DB
+
+Ocean DB stores all the information about the Actors metadata. Using the actorId as key in the Actors collection, the system will retrieve the information about the Actor.
+
+If the Actor metadata has the state attribute `state == DISABLED` the method should return a **HTTP 404** Not Found message.
+
 
 ---
 
@@ -206,29 +270,6 @@ Using the information stored/provided by **Ocean DB**, the **AGENT** SHOULD comp
 ---
 ---
 
-### Get an Actor (ACT.002)
-
-```
-Path:  /api/v1/keeper/actors/actor/{actorId}
-HTTP Verb: GET
-Caller: Any
-Input: actorId
-Output: Actor Schema
-HTTP Output Status Codes: 
-    HTTP 200 - OK
-    HTTP 404 - Not Found
-```
-
-![ACT.002](images/ACT.002.png "ACT.002")
-
-
-Method retrieving information of an Actor from the database.
-If the Actor retrieved has an attribute `state == “DISABLED”` the method should return a HTTP 404 Not Found message
-
-
-This method could be integrated by any actor. 
-The Input of this method is the **actorId** referencing to a unique **Actor**. The Output parameters are defined in 
-the [Actor Schema](https://github.com/oceanprotocol/pk-schemas/blob/develop/src/main/resources/avro/com/oceanprotocol/core/keeper/schemas/Actor.avsc).
 
 
 ### Update an Actor (ACT.003)
@@ -277,6 +318,10 @@ This method only can be integrated by the Actor.
 The Input of this method is the actorId referencing to a unique Actor. The Output parameters are defined in 
 the [Actor Schema](https://github.com/oceanprotocol/pk-schemas/blob/develop/src/main/resources/avro/com/oceanprotocol/core/keeper/schemas/Actor.avsc).
 
+
+## Events
+
+The AGENT will subscribe to the **Ocean DB** Streams valid transaction log, checking 
 
 
 
