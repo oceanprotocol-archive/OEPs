@@ -23,11 +23,13 @@ This document is governed by the [2/COSS](../2/README.md) (COSS).
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
 ## Motivation
-The primary goal of AGENT is to detail the internal architecture and interfaces exposed by the Ocean Agent node, 
-and the elements composing the Ocean Keeper functionalities. 
-It MUST to provide a common framework used describing the technical solution to put in place. 
+The goal of this document is to describe the responsabilities and architecture of the AGENT node. 
+This AGENT node, as part of the Ocean Network, will interact with different components (Keepers and other Agents),
+so the intention of this document is to describe the different interaction patterns.
+At the same time, the AGENT implements an internal architecture based in different layers. 
+This document MUST to provide a common framework and definition used to describe the technical solution to put in place. 
 
-All the different components described, SHOULD be used as building blocks, allowing to compose the different scenarios using those.
+All the different components detailed, SHOULD be used as building blocks, allowing to compose the different scenarios using those.
 
 ## High Level Architecture
 This document use as reference and starting point the Architecture defined by the [3/ARCH](../3/README.md) (ARCH).
@@ -43,6 +45,7 @@ AGENT is a thin abstraction layer. The main responsibilities of AGENT are:
 * Compose transactions that are send to the keeper. 
 * Orchestrate lower-level Keeper interactions exposing a higher level API
 * Subscribe to some Smart Contract events raised by the Keeper and trigger actions responding to that
+* Integrate with other Agents, stablishing a peer to peer connection
 * Integrate with external services or providers (Compute, Data, ..)
 * Simple input validation. Throttling and spam prevention is done at the VM validation level in the keeper. 
 * Expose some API's providing alternative consumption mechanisms (synchronous/asynchronous)
@@ -127,7 +130,7 @@ The implementation of the P2P communication is highly related with the existing 
 
 #### Interfaces with external providers
 
-Ocean Agent should provide a pluggable mechanism allowing to interact with external providers. 
+Ocean Agent SHOULD provide a pluggable mechanism allowing to interact with external providers. 
 It could be:
 
 * **Computing Providers** - In charge of providing off-chain or on-chain computing services. 
