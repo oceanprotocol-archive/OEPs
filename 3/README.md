@@ -49,8 +49,9 @@ The following design requirements should guide the development of the Ocean Prot
 * MUST support off-chain operations for storage and compute
 * MUST support both free and priced data assets / services
 * MUST allow marketplaces to implement custom asset pricing logic (for priced services)
+* MUST allow marketplaces to implement custom access control logic (e.g. whitelisting for consumers)
 * MUST support the IP management. During the creation of a new Asset or Service, the ownership rights should be registered. During the consumption agreement, this right should be registered.
-* Ocean agents (including but not limited to Marketplaces) MUST have an efficient way to access the full blockchain history so that can query or index a copy of the blockchain as necessary
+* MUST give Ocean agents (including but not limited to Marketplaces) an efficient way to access the full blockchain history so that can query or index a copy of the blockchain as necessary
 
 
 ## Network Architecture
