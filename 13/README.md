@@ -84,10 +84,14 @@ The **Actors** information should be managed using an API. This API should expos
 * Update an Actor
 * Retire an Actor
 
-The new Actors registed in the system MUST have a valid Account Id and a Wallet.
+After to be registered, the new Actors MUST have a valid Account Id and a Wallet.
 The information or Metadata about the Actors MUST be stored in Ocean DB.
-AGENT MUST NOT store any information about the accounts (public keys, private keys, passwords or recovery phrases).
+AGENT MUST NOT store any information about the accounts (public keys, private keys, passwords or recovery phrases) in any other place than the system KMS.
+The AGENT will use Parity Wallet as technology component to manage the user Wallets.
+The location of the KMS SHOULD be provided as parameter in the Ocean AGENT initialization script.
+Through the standard Parity tools, will be possible to export the Wallet information generated in the system.
 
+It's out of the scope of this OEP to discuss the Wallet management, this will defined in the scope of the [Wallet OEP](https://github.com/oceanprotocol/OEPs/issues/32).
 
 ### Proposed Solution <a name="proposed-solution"></a>
 
@@ -106,7 +110,7 @@ The following sections will describe the end to end implementation using a top t
 
 The above diagram shows the high level interactions between the components involved:
 
-* The ACTOR interacting with the Actors Registry will send a API requiest to the AGENT
+* The ACTOR interacting with the Actors Registry will send an API request to the AGENT
 * The AGENT MUST validate the basic parameters sent by the ACTOR
 * The AGENT MUST authenticate the ACTOR sending the request (but in the new actor method)
 * The AGENT MUST orchestrate the ACTOR authorization using the KEEPER
@@ -427,7 +431,7 @@ The AGENT will subscribe to the **Ocean DB** Streams valid transaction log, chec
 
 
 ### Assignee(s)
-Primary assignee(s): @diminator, @ssallam, @shark8me
+Primary assignee(s): @diminator
 
 
 ### Targeted Release
