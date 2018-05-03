@@ -47,8 +47,9 @@ Short Name    | Title                                                        | T
 [1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft      | Dimitri De Jonghe
 [2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
 [3/ARCH](3)   | Ocean Core Architecture                                     | Standard     | Draft      | Aitor Argomaniz
-[4/OAR](4)   | Ocean Asset Registry                      | Standard     | Draft      | Aitor Argomaniz
-[5/OCS](5)   | Ocean Provider Services                      | Standard     | Raw      | Aitor Argomaniz
+[4/VM](4)   | Ocean Keeper Architecture                                    | Standard     | Draft      | Aitor Argomaniz
+[5/AGENT](5)   | Ocean Agent Architecture                                     | Standard     | Draft      | Aitor Argomaniz
+[X/OCS](X)   | Ocean Provider Services                      | Standard     | Raw      | Aitor Argomaniz
 [6/INVOKE](6)   | API to register & invoke computer services                      | Standard     | Raw      | TBD
 [7/SONAR](7)   | Searchable OceaN Asset Registry                      | Standard     | Raw      | TBD
 [8/AAT](8)   | Basic Authentication, Accounts & Tokens                      | Standard     | Raw      | TBD
@@ -57,3 +58,4 @@ Short Name    | Title                                                        | T
 [11/ACS](11)   | API for Curation/Staking                      | Standard     | Raw      | TBD
 [12/GLO](12)   | Public Glossary                      | Meta     | Draft      | Timothy Ley
 [13/Registry](13)   | Ocean Actor Registry                                     | Standard     | Draft      | Aitor Argomaniz
+[14/OAR](4)   | Ocean Asset Registry                      | Standard     | Draft      | Aitor Argomaniz
