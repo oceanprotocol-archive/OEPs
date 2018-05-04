@@ -1,0 +1,33 @@
+title Registering an Asset (ASE.001)
+
+# ASE.001
+participant Publisher
+participant Agent
+participant Orchestrator
+participant Ocean DB
+participant Dec VM
+
+Publisher->Agent: Asset Register request
+
+Agent->Agent: Input validation
+
+Agent<->Ocean DB: Check if user exists
+Agent-->Publisher: HTTP 400 (Invalid user)
+
+Agent<->Dec VM: Access Control
+Agent-->Publisher: HTTP 401 (Forbidden)
+
+
+Agent->+Orchestrator: Asset Registering
+
+Orchestrator->Dec VM: Register Asset
+Dec VM->Orchestrator: ACK
+Orchestrator->Ocean DB: Register Asset
+Ocean DB->Orchestrator: ACK
+
+Orchestrator->-Agent: ACK
+
+Agent->Publisher:  HTTP 202 (Asset)
+
+
+

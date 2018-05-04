@@ -1,0 +1,17 @@
+title Retrieve Asset information (ASE.002)
+
+Any->Agent: Get an Asset (ASE.002)
+note right of Any: Could be sent by any Actor
+
+Agent->Agent: Validate assetId
+Agent-->Any:HTTP 400 (bad request)
+
+Agent->Ocean DB:Get asset Metadata
+note left of Ocean DB: Searching if Asset exists \n && contentState != DISABLED
+
+Ocean DB-->Agent:Asset doesn't exists
+Agent-->Any:HTTP 404 (not found)
+
+Ocean DB->Agent: Asset information
+Agent->Any: HTTP 200 (Asset Metadata)
+
