@@ -115,6 +115,49 @@ The following sections will describe the end to end implementation using a top t
 starting from the API interface to the Keeper implementation, using the Ocean DB and the Decentralized VM.
 
 
+### Data Consistency <a name="cache-system"></a>
+
+The AGENT will need to integrate a local CACHE system to coordinate the consistency of the data written in both systems (Decentralized VM & Ocean DB). This CACHE should provide the following capabilities:
+
+* It MUST be a Local cache, not exposed in any way to the network
+* If AGENT crashes, the AGENT MUST read the state of cache to continue retrying the persistence of the Assets in the different backends
+* The state of the cache is INTERNAL to the local node, so MUST NOT be shared with a third party in any moment
+* If any error occurs during the persistence of the content, the retries field MUST be increased
+* The cache MUST store the representation of the Asset as soon as a new registering request be received
+* The cache status MUST be UPDATED after the content be stored in the Decentralized VM
+* The row representing the asset in CACHE MUST be DELETED after the data been stored in Ocean DB
+* The CACHE system MUST be thread safe, allowing multiple threads pulling data from the CACHE    
+
+![Cache Interactions](images/cache-interactions.png "Cache Interactions")
+
+In the above image can be viewed the CACHE provides persistence mechanism allowing to work as source of truth during the interaction with the data stores.
+At the start of the AGENT, the system can sync the state with the CACHE. In case a previous failure, the CACHE MUST include the pending transactions to be applied. In that case, the AGENT can pickup from the CACHE those and apply the modifications.
+After a normal operation, the CACHE MUST delete the completed transaction. 
+
+![Cache Queue](images/cache-queues.png "Cache Queues")
+
+The CACHE system can be viewed as a multiple queues FIFO system, where first transactions inserted will be processed by the Managers.
+
+The CACHE system MUST provide multiple queues or topics, allowing multiple managers to use the CACHING system capabilities.
+
+The cache should store the following information:
+
+| Attribute         | Description|
+|:------------------|:----------|
+|id                 |Id of the content, in this case assetId|
+|type               |Type of the content, in this case "ASSET". It could be also "ACTOR", "CONTRACT", etc.|
+|status             |Status. Options are: CACHED, STORED_VM, STORED_DB 
+|retries            |Number of retries before to remove from the cache. If 0, no limit
+|ttl                |Number of seconds after the creationDatetime before to remove from the cache. If 0, no limit 
+|creationDatetime   |Creation datetime
+|updateDatetime     |Update datetime
+|content            |Payload of the content (Json or Avro representation of the Asset)
+
+
+The CACHE system is the source of truth of the Orchestration Layer during the modification of data in the operations involving the Decentralized VM and Ocean DB.
+
+---
+
 ### Registering a new Asset <a name="registering-a-new-asset"></a>
 
 ![Registering a new Asset](images/ASE.001.png "ASE.001")
@@ -141,7 +184,7 @@ HTTP Output Status Codes:
     HTTP 422 - Asset already exists
 ```
 
-##### Input Parameters
+##### Input Parameters <a name="asset-insert-params"></a>
 
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
@@ -228,30 +271,6 @@ After of that the Orchestration layer will persist the complete Asset metadata i
 
 ![Orchestration Layer behaviour](images/arch-orchestration-with-caching.png)
 
-##### Caching
-
-The AGENT will need to integrate a local CACHE system to coordinate the consistency of the data written in both systems. This CACHE should provide the following capabilities:
-
-* It should be a Local cache, not exposed in any way to the network
-* If AGENT crashes, the AGENT MUST read the state of cache to continue retrying the persistence of the Assets in the different backends
-* If any error occurs during the persistence of the content, the retries field MUST be increased
-* The cache MUST store the representation of the Asset as soon as a new registering request be received
-* The cache status MUST be UPDATED after the content be stored in the Decentralized VM
-* The row representing the asset in CACHE MUST be DELETED after the data been stored in Ocean DB  
-
-The cache should store the following information:
-
-| Attribute         | Description|
-|:------------------|:----------|
-|id                 |Id of the content, in this case assetId|
-|type               |Type of the content, in this case "ASSET"|
-|status             |Status. Options are: CACHED, STORED_VM, STORED_DB 
-|retries            |Number of retries before to remove from the cache. If 0, no limit
-|ttl                |Number of seconds after the creationDatetime before to remove from the cache. If 0, no limit 
-|creationDatetime   |Creation datetime
-|updateDatetime     |Update datetime
-|content            |Payload of the content (Json or Avro representation of the Asset)
-
 
 #### Interaction with the Decentralized VM
 
@@ -265,6 +284,7 @@ The **KEEPER::Decentralized VM** will persist the following information:
 Using any of the existing web3 implementation library (web3.js, web3.py, web3.j, etc), it's possible to interact with the VM Smart Contracts.
 
 For example using the java Smart Contract stubs generated by web3.j (Java), it's possible to implement a DTO wrapping the Smart Contract interactions. 
+
 ```java
 
 AssetsRegistry registry= AssetsRegistry.load(
@@ -293,12 +313,18 @@ The **AssetsRegistry** smart contract layer could expose the following public me
     
     function isOwner(bytes32 _assetId, address _address) public returns (bool isOwner) { }
 
+    function canUpdate(bytes32 _assetId) public returns (bool canUpdate) { }
+    
+    function canRetire(bytes32 _assetId) public returns (bool canRetire) { }
+    
 ```
 
 * publish - allows to register a new asset (assetId) where the owner is the msg.sender of the request
 * retire - remove the asset of the system. Only the owner of the asset can retire an asset
 * getOwner - returns the address of the owner of a specific asset
 * isOwner - Returns true or false saying if the address passed as parameter is the owner of the asset
+* canUpdate - Returns true or false saying if the message.sender can update an asset
+* canRetire - Returns true or false saying if the message.sender can retire an asset
  
 
 
@@ -345,7 +371,7 @@ Caller: Any User
 Input: assetId
 Output: Asset Schema
 HTTP Output Status Codes: 
-    HTTP 200 - Accepted
+    HTTP 200 - OK
     HTTP 400 - Bad request
     HTTP 404 - Not Found
 ```
@@ -355,6 +381,16 @@ HTTP Output Status Codes:
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
 |assetId    |string|Id of the Asset|
+
+Example: 
+
+```http
+GET http://localhost:8080/api/v1/keeper/assets/metadata/777227d45853a50eefd48dd4fec25d5b3fd2295e
+```
+
+Before to query the database, it's necessary to check the length and format of the assetId. 
+If the length and format doesn't fit the standard address definition, the system should return a **HTTP 400** Invalid params message.
+
 
 ##### Output
 
@@ -368,23 +404,136 @@ Disabled Assets MUST return a ```HTTP 404 Not Found``` status code.
 
 ---
 
-### Update the metadata of an existing Asset <a name="update-asset"></a>
+### Updating Asset Metadata <a name="update-asset"></a>
+
+![Updating Asset Metadata](images/ASE.003.png "ASE.003")
 
 
+In the above diagram the Agent and the Orchestration capabilities are implemented in the AGENT scope.
+The registering of a new Asset involves the following implementations:
+
+#### Ocean Agent API
+
+It is necessary to expose a RESTful HTTP interface using the following details:
+
+```
+Reference: ASE.003
+Path: /api/v1/keeper/assets/metadata
+HTTP Verb: PUT
+Caller: The Asset PUBLISHER
+Input: Asset Schema
+Output: Asset Schema
+HTTP Output Status Codes: 
+    HTTP 202 - Accepted
+    HTTP 400 - Bad request
+    HTTP 401 - Forbidden
+```
+
+##### Input Parameters
+
+Input parameters accepted are the same are accepted in the [input parameters section](#asset-insert-params) of the Registering an Asset method.
+
+Internal state attributes and the rest of the attributes can't be modified using this method.
 
 
+##### Output
+
+The expected output implements the Asset model described in the [output parameters section](#asset-model) of the Registering an Asset method.
 
 
+#### Orchestration Layer
 
+The AGENT node will be in charge of manage the Assets update. 
+
+This method doesn't need to modify any information in the Decentralized VM scope, so only integrate it to implement the access control mechanism.
+The Access Control checks if the user requesting to Update the Asset, has enough privileges to do it. 
+To do that, the ```canUpdate(assetId)``` method is called. This method should return a boolean value indicating if the Asset can be modified.  
+
+```solidity
+    function canUpdate(bytes32 _assetId) public returns (bool canUpdate) { }   
+```
+
+
+If the Asset can be updated, the Orchestration layer will persist the complete Asset metadata in Ocean DB. Also the attribute **updateDatetime** will be updated with the KEEPER universal datetime. 
 
 
 ---
 
-### Retire an Asset <a name="retire-asset"></a>
+### Retiring an Asset <a name="retire-asset"></a>
+
+![Retire an Asset](images/ASE.004.png "ASE.004")
+
+In the above diagram the Agent and the Orchestrator capabilities are implemented in the AGENT scope.
+The Asset MUST be retired from Ocean DB and the Decentralized VM.
+
+This method implements a soft delete of an Asset. It means the Asset is updated setting the contentState attribute to `DISABLED`. The method will return a HTTP 202 status code and the Asset modified in the response body.
+
+This method only can be integrated by the owner of the Asset.
+
+#### Ocean Agent API
+
+It is necessary to expose a RESTful HTTP interface using the following details:
+
+```
+Reference: ASE.004
+Path: /api/v1/keeper/assets/metadata/{assetId}
+HTTP Verb: DELETE
+Caller: The Asset owner
+Input: assetId
+Output: Asset Schema
+HTTP Output Status Codes: 
+    HTTP 202 - Accepted
+    HTTP 400 - Invalid params
+    HTTP 404 - Not Found
+```
+
+##### Input Parameters
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|assetID    |string|The Asset ID given in the URL|
 
 
+Example: 
+
+```http
+DELETE http://localhost:8080/api/v1/keeper/assets/metadata/777227d45853a50eefd48dd4fec25d5b3fd2295e
+``` 
+
+##### Output
+
+The expected output implements the Asset model described in the [output parameters section](#asset-model) of the Registering an Asset method.
+
+After execute this method, if everything worked okay, the **contentState** attribute should be **DISABLED**.
 
 
+#### Orchestration Layer
+
+The AGENT node will be in charge of manage the Assets retirement. 
+Assets MUST be updated in Ocean DB and retired from the Decentralized VM.
+
+This method MUST uses the CACHE system in order to maintain the consistency between the Decentralized VM and Ocean DB.
+
+Before to proceed to any data modification, it's necessary to validate if the address requesting to retire an Asset has privileges to do it. 
+The Access Control component is in charge of this validation. 
+To do that, the ```canRetire(assetId)``` method is called. This method should return a boolean value indicating if the Asset can be retired by the user calling that method.  
+
+```solidity
+    function retire(bytes32 _assetId) public returns (bool success) { }
+
+    function canRetire(bytes32 _assetId) public returns (bool canUpdate) { }   
+```
+
+If the Asset can be retired, the Orchestration layer will execute the **retire** method of the Smart Contract.
+
+After to do that, the Orchestration layer will update the following information in Ocean DB:
+* The attribute **contentState** will be updated with the value **DISABLED**.
+* The attribute **updateDatetime** will be updated with the KEEPER universal datetime. 
+
+The AGENT will coordinate the retirement of an Asset interacting initially with the Decentralized VM. It will return a **Transaction Receipt** (see more details about the [Transaction Receipt model](https://github.com/ethereum/wiki/wiki/JavaScript-API#web3ethgettransactionreceipt)).
+After of that the Orchestration layer will persist the complete Asset metadata in Ocean DB.
+
+To maintain the consistency between Ocean DB and the Decentralized VM, the [CACHE system](#cache-system) MUST be used.
 
 
 
@@ -394,240 +543,12 @@ Disabled Assets MUST return a ```HTTP 404 Not Found``` status code.
 
 ### Make an Asset available through a Provider <a name="provider-asset"></a>
 
+TODO
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Retrieve information of an existing actor <a name="retrieve-actor"></a>
-
-![Retrieve info of an Actor](images/ACT.002.png "ACT.002")
-
-
-The retrieval of the Actor information relates with the AGENT and Ocean DB. No information is read from the Decentralized VM. This functionality involves the following implementations:
-
-#### Ocean Agent API
-
-It is necessary to expose a RESTful HTTP interface using the following details:
-
-```
-Reference: ACT.002
-Path:  /api/v1/keeper/actors/actor/{actorId}
-HTTP Verb: GET
-Caller: Any
-Input: actorId
-Output: Actor Schema
-HTTP Output Status Codes: 
-    HTTP 200 - OK
-    HTTP 400 - Invalid params
-    HTTP 404 - Not Found
-```
-
-
-##### Input Parameters
-
-| Parameter | Type | Description |
-|:----------|:-----|:------------|
-|actorId    |string|Account address to retrieve|
-
-Example: 
-
-```http
-GET http://localhost:8080/api/v1/keeper/actors/actor/0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e
-```
-
-```json
-{
-    "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-	"name": "John Doe",
-	"state": "CREATED",
-	"attributes": [{
-		"key": "interests",
-		"value": "Looking Ahead"
-	}]
-}
-```
-
-Before to query the database, it's necessary to check the lenght and format of the actorId. If the lenght and format doesn't fit the standard address definition, the system should return a **HTTP 400** Invalid params message.
-
-Depending of the implementation, there are different alternatives to check if an address is valid (see this [link](https://ethereum.stackexchange.com/questions/1374/how-can-i-check-if-an-ethereum-address-is-valid)).
-
-#### Accounts Management
-
-The Accounts Manager components it's not involved in this method. All the information will be retrieved from **Ocean DB**.
-
-#### Interaction with Ocean DB
-
-Ocean DB stores all the information about the Actors metadata. Using the actorId as key in the Actors collection, the system will retrieve the information about the Actor.
-
-If the Actor metadata has the state attribute `state == DISABLED` the method should return a **HTTP 404** Not Found message.
-
-
-### Updating Actor metadata <a name="updating-actor-metadata"></a>
-
-![Update an Actor](images/ACT.003.png "ACT.003")
-
-In the above diagram the Agent and the Account Manager capabilities are implemented in the AGENT scope.
-No information is going through the Decentralized VM.
-The updating of an existing Actor metadata involves the following implementations:
-
-This method doesn’t allow to modify all the Actor information attributes. Only the information about the following fields can be updated:
-
-* Name
-* Attributes
-
-
-#### Ocean Agent API
-
-It is necessary to expose a RESTful HTTP interface using the following details:
-
-```
-Reference: ACT.003
-Path: /api/v1/keeper/actors/actor
-HTTP Verb: PUT
-Caller: Actor
-Input: Actor Schema
-Output: Actor Schema
-HTTP Output Status Codes: 
-    HTTP 202 - Accepted
-    HTTP 400 - Invalid params
-    HTTP 404 - Not Found
-```
-
-##### Input Parameters
-
-| Parameter | Type | Description |
-|:----------|:-----|:------------|
-|actorId    |string|Account address|
-|name       |string|Actor nickname (optional)|
-|attributes |array |Array of key, value attributes (optional)|
-
-Example: 
-
-```json
-{
-    "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-	"name": "Alice",	
-	"attributes": [{
-		"key": "interests",
-		"value": "no interests"
-	}]
-}
-```
-
-#### Accounts Management
-
-The Accounts Manager components it's not involved in this method. All the information will be retrieved from **Ocean DB**.
-
-#### Interaction with Ocean DB
-
-Ocean DB will store the metadata information about the actor. Only the metadata included in the following attributes will be modified:
-
-* Name
-* Attributes
-
-To implement that it's necessary to retrieve the actor from the database, and update the Name and Attributes information in the document retrieved, the new model created will be sent as a new transaction to the database. 
-After creating the Actor in the Database, it will return a HTTP 202 Accepted message. It means the request has been accepted for processing, but the processing has not been completed.
-
-
-#### Output
-Using the information stored/provided by **Ocean DB**, the **AGENT** SHOULD compose the output payload to return. It should include same information detailed in the previous sections.
-
-
-
-### Retire an Actor <a name="retire-an-actor"></a>
-
-![Retire an Actor](images/ACT.004.png "ACT.004")
-
-In the above diagram the Agent and the Account Manager capabilities are implemented in the AGENT scope.
-No information is going through the Decentralized VM.
-
-This method implements a soft delete of an Actor. It means the Actor is updated setting the state attribute to `DISABLED`. The method will return a HTTP 200 status code and the Actor modified in the response body.
-
-This method only can be integrated by the Actor. The Input of this method is the actorId referencing to a unique Actor. 
-
-#### Ocean Agent API
-
-It is necessary to expose a RESTful HTTP interface using the following details:
-
-```
-Reference: ACT.004
-Path: /api/v1/keeper/actors/actor/{actorId}
-HTTP Verb: DELETE
-Caller: Actor
-Input: actorId
-Output: Actor Schema
-HTTP Output Status Codes: 
-    HTTP 202 - Accepted
-    HTTP 400 - Invalid params
-    HTTP 404 - Not Found
-```
-
-##### Input Parameters
-
-| Parameter | Type | Description |
-|:----------|:-----|:------------|
-|actorId    |string|Account address|
-
-
-Example: 
-
-```http
-DELETE http://localhost:8080/api/v1/keeper/actors/actor/0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e
-```
-
-```json
-{
-    "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-	"name": "Alice",
-	"state": "DISABLED",
-	"attributes": [{
-		"key": "interests",
-		"value": "no interests"
-	}]
-}
-```
-
-#### Accounts Management
-
-The Accounts Manager components it's not involved in this method. All the information will be retrieved and updated in **Ocean DB**.
-
-#### Interaction with Ocean DB
-
-Ocean DB will store the metadata information about the actor. This method only will update the information about the **state** attribute.
-
-To implement that it's necessary to retrieve the actor from the database, and update state information in the document retrieved, the new model created will be sent as a new transaction to the database. 
-After creating the Actor in the Database, it will return a HTTP 202 Accepted message. It means the request has been accepted for processing, but the processing has not been completed.
-
-
-#### Output
-Using the information stored/provided by **Ocean DB**, the **AGENT** SHOULD compose the output payload to return. It should include same information detailed in the previous sections.
-
-
-
-## TODO: Events <a name="events"></a>
-
-The AGENT will subscribe to the **Ocean DB** Streams valid transaction log, checking 
 
 
 ### Assignee(s)
-Primary assignee(s): @diminator, @ssallam, @shark8me
+Primary assignee(s): @aaitor, @diminator
 
 
 ### Targeted Release

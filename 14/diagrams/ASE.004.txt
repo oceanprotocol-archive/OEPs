@@ -1,0 +1,34 @@
+title Retiring an Asset (ASE.004)
+
+# ASE.004
+participant Publisher
+participant Agent
+participant Orchestrator
+participant Ocean DB
+participant Dec VM
+
+Publisher->Agent: Asset Register request
+
+Agent->Agent: Input validation
+
+Agent<->Ocean DB: Check if user exists
+Agent-->Publisher: HTTP 400 (Invalid user)
+
+Agent<->Dec VM: Access Control
+Agent-->Publisher: HTTP 401 (Forbidden)
+
+
+Agent->+Orchestrator: Asset Retire
+
+Orchestrator->Dec VM: Retire Asset
+Dec VM->Orchestrator: ACK
+Orchestrator->Ocean DB: Retire Asset
+Ocean DB->Orchestrator: ACK
+
+Orchestrator->-Agent: ACK
+
+Agent->Publisher:  HTTP 202 (Asset)
+
+
+
+
