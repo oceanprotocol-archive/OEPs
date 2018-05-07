@@ -12,10 +12,30 @@ contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 Table of Contents
 =================
 
+   * [Table of Contents](#table-of-contents)
+   * [Ocean Assets Registry](#ocean-assets-registry)
+      * [Change Process](#change-process)
+      * [Language](#language)
+      * [Motivation](#motivation)
+      * [Specification](#specification)
+         * [Proposed Solution](#proposed-solution)
+         * [Data Consistency](#data-consistency)
+         * [Registering a new Asset](#registering-a-new-asset)
+         * [Retrieve metadata of an Asset](#retrieve-metadata-of-an-asset)
+         * [Updating Asset Metadata](#updating-asset-metadata)
+         * [Retiring an Asset](#retiring-an-asset)
+         * [Make an Asset available through a Provider](#make-an-asset-available-through-a-provider)
+         * [Updating Asset Provider](#updating-asset-provider)
+         * [Assignee(s)](#assignees)
+         * [Targeted Release](#targeted-release)
+         * [Status](#status)
+      * [Copyright Waiver](#copyright-waiver)
+
       
 <!--te-->
 
-# Ocean Assets Registry <a name="ocean-assets-registry"></a>
+<a name="ocean-assets-registry"></a>
+# Ocean Assets Registry
 
 The Ocean Assets Registry (**OAR**) is a specification for Ocean Protocol to register any kind of Data Asset in the Ocean Network. 
 In the scope of Ocean, we understand as **Asset** or **Data Asset** as any kind of data stored in a structured machine readable format.
@@ -28,14 +48,16 @@ This OEP doesn't focus on Assets discovery. It will be related with the SONAR OE
 This specification is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper), [3/ARCH](../3/README.md), [4/KEEPER](../4/README.md) and [5/AGENT](../5/README.md).
 
 
-## Change Process <a name="change-process"></a>
+<a name="change-process"></a>
+## Change Process
 This document is governed by the [2/COSS](../2/README.md) (COSS).
 
-## Language <a name="language"></a>
+<a name="language"></a>
+## Language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
-
-## Motivation <a name="motivation"></a>
+<a name="motivation"></a>
+## Motivation
 
 Ocean network aims to power marketplaces for relevant AI-related data services.
 The data assets require to be registered in the system and managed in a basic way.  
@@ -57,8 +79,8 @@ Requirements are:
 * ASSETS can have a status of DISABLED or RETIRED, which implies that the ASSET cannot be CONSUMED anymore
 * PROVIDER provides SERVICE and PROOF VERIFIER validates PROOF
   
-
-## Specification <a name="specification"></a>
+<a name="specification"></a>
+## Specification 
 
 The **Asset Metadata** (aka **Asset**) information should be managed using an API. This API should exposes the following capabilities:
 
@@ -77,8 +99,8 @@ The following restrictions apply during the design/implementation of this OEP:
 * As general rule, only the INDISPENSABLE information to run the Smart Contracts MUST be stored in te Decentralized VM 
 * AGENT MUST NOT store any information about the Assets or Actors during this process
 
-
-### Proposed Solution <a name="proposed-solution"></a>
+<a name="proposed-solution"></a>
+### Proposed Solution 
 
 The proposed solution is composed by the interaction of different elements:
 
@@ -114,8 +136,8 @@ The above diagram shows the high level interactions between the components invol
 The following sections will describe the end to end implementation using a top to bottom approach, 
 starting from the API interface to the Keeper implementation, using the Ocean DB and the Decentralized VM.
 
-
-### Data Consistency <a name="cache-system"></a>
+<a name="cache-system"></a>
+### Data Consistency 
 
 The AGENT will need to integrate a local CACHE system to coordinate the consistency of the data written in both systems (Decentralized VM & Ocean DB). This CACHE should provide the following capabilities:
 
@@ -158,7 +180,8 @@ The CACHE system is the source of truth of the Orchestration Layer during the mo
 
 ---
 
-### Registering a new Asset <a name="registering-a-new-asset"></a>
+<a name="registering-a-new-asset"></a>
+### Registering a new Asset 
 
 ![Registering a new Asset](images/ASE.001.png "ASE.001")
 
@@ -184,7 +207,8 @@ HTTP Output Status Codes:
     HTTP 422 - Asset already exists
 ```
 
-##### Input Parameters <a name="asset-insert-params"></a>
+<a name="asset-insert-params"></a>
+##### Input Parameters 
 
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
@@ -225,7 +249,8 @@ Example:
 }
 ```
 
-##### Output <a name="asset-model"></a>
+<a name="asset-model"></a>
+##### Output 
 
 The output of this request MUST add the following attributes generated by the system:
 
@@ -345,6 +370,7 @@ The **KEEPER::Ocean DB** will persist the following information:
 |creationDatetime   |datetime   |Allocated by the system when was created in the AGENT (universal datetime), time before consensus |
 |updateDatetime     |datetime   |Allocated by the system when was updated the metadata in the AGENT (universal datetime), time before consensus |
 |contentState       |string     |Internal state of the Asset|
+|providers       |object     |Providers giving access to the data. This is managed by the [**ASE.005**](#provider-asset) operation.|
 
 
 The interaction with Ocean DB, using BigChain DB (BDB) as backend, can be implemented using any of the existing [BDB libraries](https://docs.bigchaindb.com/projects/server/en/latest/drivers-clients/) or the [HTTP interface](https://docs.bigchaindb.com/projects/server/en/latest/http-client-server-api.html).  
@@ -352,7 +378,8 @@ The interaction with Ocean DB, using BigChain DB (BDB) as backend, can be implem
 
 ---
 
-### Retrieve metadata of an Asset <a name="retrieve-asset"></a>
+<a name="retrieve-asset"></a>
+### Retrieve metadata of an Asset 
 
 ![Retrieve metadata of an Asset](images/ASE.002.png "ASE.002")
 
@@ -404,7 +431,8 @@ Disabled Assets MUST return a ```HTTP 404 Not Found``` status code.
 
 ---
 
-### Updating Asset Metadata <a name="update-asset"></a>
+<a name="update-asset"></a>
+### Updating Asset Metadata 
 
 ![Updating Asset Metadata](images/ASE.003.png "ASE.003")
 
@@ -459,7 +487,8 @@ If the Asset can be updated, the Orchestration layer will persist the complete A
 
 ---
 
-### Retiring an Asset <a name="retire-asset"></a>
+<a name="retire-asset"></a>
+### Retiring an Asset 
 
 ![Retire an Asset](images/ASE.004.png "ASE.004")
 
@@ -541,11 +570,316 @@ To maintain the consistency between Ocean DB and the Decentralized VM, the [CACH
 
 ---
 
-### Make an Asset available through a Provider <a name="provider-asset"></a>
+<a name="provider-asset"></a>
+### Make an Asset available through a Provider 
 
-TODO
+
+![Associating Asset and Provider](images/ASE.005.png "ASE.005")
 
 
+In the above diagram the Agent and the Orchestration capabilities are implemented in the AGENT scope.
+This method allows to a PROVIDER to registering a request to GIVE ACCESS to a specific ASSET. During this process, the PRICING information is defined.
+The association between a PROVIDER and an ASSET involves the following implementations:
+
+
+#### Ocean Agent API
+
+It is necessary to expose a RESTful HTTP interface using the following details:
+
+```
+Reference: ASE.005
+Path: /api/v1/keeper/assets/provider
+HTTP Verb: POST
+Caller: PROVIDER
+Input: AssetProvider Schema
+Output: Asset Schema
+HTTP Output Status Codes: 
+    HTTP 202 - Accepted
+    HTTP 400 - Bad request
+    HTTP 401 - Forbidden
+    HTTP 422 - Association between Asset & Provider already exists
+```
+
+<a name="asset-provider-insert-params"></a>
+##### Input Parameters 
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|assetId    |string|Id of the Asset|
+|providerId |string|Provider Id. This parameter MUST be validated.|
+|pricing      |array|Asset Pricing. Price object type.|
+|verificationProofs  |array|List of verification proofs provided by the Provider. Uses the VerificationProof object type.|
+
+The **Price** object includes the following attributes:
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|id         |string|Id of the pricing model|
+|scheme     |string|Pricing scheme. Options: ("FREE", "FIXED", "SERVICE", "SMARTCONTRACT")|
+|price      |decimal   |Price in Ocean drops|
+|quantity   |int   |Number of items (optional)|
+|name       |string|Name about the price (optional)|
+|description|string|Description about the price (optional)|
+
+
+The **VerificationProof** object includes the following attributes:
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|id         |string|Id of the verification proof|
+|name       |string|Name of the verification proof|
+|agreement  |string|Verification proof Agreement|
+|expectedResult |string|Expected result to be found|
+|description    |string|Description (optional)|
+
+
+
+Having into account the previous schemas, an example of the input request could be:
+
+```json
+{
+	"assetId": "777227d45853a50eefd48dd4fec25d5b3fd2295e",
+	"providerId": "0x99991234aa33bb",
+	"pricing": [{
+			"id": "1",
+			"scheme": "FREE",
+			"price": 0,
+			"name": "Free access",
+			"description": "It provides access for 1 day"
+		},
+		{
+			"id": "2",
+			"scheme": "FIXED",
+			"price": 13.5,
+			"quantity": 1,
+			"name": "Price for access",
+			"description": "It provides access for a month"
+		}
+	],
+	"verificationProofs": [{
+			"id": "1234",
+			"name": "proof of access",
+			"agreement": "Proof provided under request",
+			"description": "Access provided via authentication",
+			"expectedResult": "200"
+		},
+		{
+			"id": "1235",
+			"name": "proof of service",
+			"agreement": "Proof provided under request",
+			"expectedResult": "abc"
+		}
+	]
+}
+```
+
+#### Orchestration Layer
+
+The AGENT node will be in charge of manage the association between PROVIDERS and ASSETS.
+The information about the PRICING and VERIFICATION PROOFS MUST be stored in the Decentralized DB and Ocean DB. 
+Ocean DB will store the complete metadata information. 
+
+#### Interaction with the Decentralized VM
+
+The Assets Registry Smart Contract SHOULD provide the structs and the method necessary to register the association between a PROVIDER and the ASSET.
+The **associateProvider** method will allow to store this information:
+
+```solidity
+
+    struct Pricing {
+        uint8 scheme;
+        uint256 price;
+    }
+    struct VerificationProof {
+        byte32 expectedResult;
+    }
+
+    struct ProviderListing {
+        mapping(uint8 => Pricing) pricing;
+        mapping(uint8 => VerificationProof) proofs;
+    }
+
+    function associateProvider(
+        bytes32 _assetId, 
+        address _providerId, 
+        mapping (byte32 => Pricing) _pricing, 
+        mapping (byte32 => VerificationProof)) 
+    public returns (bool success) { }
+    
+```
+
+The information to store in the **KEEPER::Decentralized VM** SHOULD be the minimal possible, so only the following information will be persisted:
+
+| Attribute | Type | Description |
+|:----------|:-----|:------------|
+|Pricing - scheme  |uint8|relation to the scheme enum (0 => "FREE", 1 => "FIXED", 2 => "SERVICE", 3 => "SMARTCONTRACT") |
+|Pricing - price  |uint256|Price applying. 0 if scheme is FREE (0)|
+|VerificationProof - expectedResult  |byte32|Expected result of the Verification Proof|
+
+An ASSET can be accessed via multiple PROVIDERS. So It's necessary to associate a new **ProviderListing** to the Asset. 
+
+```solidity
+
+    struct Asset {
+        ..
+        mapping(address => ProviderListing) providers;
+        ..
+    }
+
+```
+
+<a name="asset-provider-insert-db"></a>
+#### Interaction with Ocean DB 
+
+The **KEEPER::Ocean DB** will persist **Pricing** and **VerificationProofs** as nested objects associated to a specific providerId.
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|assetId    |string|Id of the Asset|
+|owner    |string|Account address|
+
+So complementing the existing ASSET Ocean DB model, it's added an array of providers, where the **providerId** is the id of the Provider associated to the Asset.
+ And the **pricing** and **verificationProofs** arrays include the list of prices and proofs given by the provider.
+ The description of each attribute is the same given in the [input parameters section](#asset-provider-insert-params).
+
+Here an example of the **providers** entity added to the **Assets** model:
+
+```json
+{
+    // ASSET Model
+	"assetId": "777227d45853a50eefd48dd4fec25d5b3fd2295e",
+	
+	"providers": [
+	  {
+	    "providerId": "0x99991234aa33bb",
+        "pricing": [{
+                "id": "1",
+                "scheme": "FREE",
+                "price": 0,
+                "name": "Free access",
+                "description": "It provides access for 1 day"
+            },
+            {
+                "id": "2",
+                "scheme": "FIXED",
+                "price": 13.5,
+                "quantity": 1,
+                "name": "Price for access",
+                "description": "It provides access for a month"
+            }
+        ],
+        "verificationProofs": [{
+                "id": "1234",
+                "name": "proof of access",
+                "agreement": "Proof provided under request",
+                "description": "Access provided via authentication",
+                "expectedResult": "200"
+            },
+            {
+                "id": "1235",
+                "name": "proof of service",
+                "agreement": "Proof provided under request",
+                "expectedResult": "abc"
+            }
+        ]
+      }
+    ]
+}
+```
+
+
+---
+
+<a name="provider-asset-update"></a>
+### Updating Asset Provider 
+
+
+![Updating Asset Provider](images/ASE.006.png "ASE.006")
+
+
+In the above diagram the Agent and the Orchestration capabilities are implemented in the AGENT scope.
+This method allows to a PROVIDER to update the existing association related to an ASSET. This method allows to update or remove the information about the PRICING and VERIFICATION PROOFS given by a provider. 
+The update of the information associated to a PROVIDER and an ASSET involves the following implementations:
+
+#### Ocean Agent API
+
+It is necessary to expose a RESTful HTTP interface using the following details:
+
+```
+Reference: ASE.006
+Path: /api/v1/keeper/assets/provider
+HTTP Verb: PUT
+Caller: PROVIDER
+Input: AssetProvider Schema
+Output: Asset Schema
+HTTP Output Status Codes: 
+    HTTP 202 - Accepted
+    HTTP 400 - Bad request
+    HTTP 401 - Forbidden
+```
+
+<a name="asset-provider-update-params"></a>
+##### Input Parameters 
+
+Input parameters are the same defined in the [ASE.005 input params section](#asset-provider-insert-params).
+To **delete** this association, an empty array for **pricing** and **verificationProofs** can be given as parameter.
+
+Example:
+
+```json
+{
+	"assetId": "777227d45853a50eefd48dd4fec25d5b3fd2295e",
+	"providerId": "0x99991234aa33bb",
+	"pricing": [],
+	"verificationProofs": []
+}
+```
+
+#### Orchestration Layer
+
+The AGENT node will be in charge of updating the association between the PROVIDER and the ASSET.
+The information about the PRICING and VERIFICATION PROOFS MUST be stored in the Decentralized DB and Ocean DB. 
+Ocean DB will store the complete metadata information. 
+
+#### Interaction with the Decentralized VM
+
+The **updateProvider** method will allow to update the information:
+
+```solidity
+
+    function updateProvider(
+        bytes32 _assetId, 
+        address _providerId, 
+        mapping (byte32 => Pricing) _pricing, 
+        mapping (byte32 => VerificationProof)) 
+    public returns (bool success) { }
+    
+```
+
+If **pricing** and **verificationProofs** attributes are empty, means it's necessary to delete the association between the ASSET and the PROVIDER.
+In that case the **disassociateProvider** method will allow to delete this association:
+
+```solidity
+
+    function disassociateProvider(
+        bytes32 _assetId, 
+        address _providerId) 
+    public returns (bool success) { }
+    
+```
+
+#### Interaction with Ocean DB
+
+The **KEEPER::Ocean DB** will persist **Pricing** and **VerificationProofs** as nested objects associated to a specific providerId.
+The model is described in the [ASE.005 Ocean DB interaction section](#asset-provider-insert-db).
+
+If **pricing** and **verificationProofs** attributes are empty, means it's necessary to delete the association between the ASSET and the PROVIDER.
+In that case the complete relation between the Asset and the Provider is deleted of the **providers** array.
+
+
+---
+
+#### Ocean Agent API
 
 ### Assignee(s)
 Primary assignee(s): @aaitor, @diminator
@@ -559,7 +893,7 @@ The implementation of the full Keeper functionality it's planned for the [Alpha 
 ### Status
 unstable
 
-
-## Copyright Waiver  <a name="copyright-waiver"></a>
+<a name="copyright-waiver"></a>
+## Copyright Waiver  
 To the extent possible under law, the person who associated CC0 with this work has waived all copyright and related or neighboring rights to this work.
 
