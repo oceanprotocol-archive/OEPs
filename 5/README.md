@@ -35,7 +35,7 @@ Table of Contents
          * [Data Caching](#data-caching)
 
 
-<a name="arch"></a>
+<a name="ocean-agent-architecture"></a>
 # Ocean Agent Architecture
 
 This document describes the Ocean Agent Architecture. It focus in which are the main responsibilities, functions and components implementing the architecture of the component.
@@ -44,7 +44,7 @@ This specification is based on [Ocean Protocol technical whitepaper](https://git
 
 This specification is called **AGENT** henceforth.
 
-<a name="change"></a>
+<a name="change-process"></a>
 ## Change Process
 This document is governed by the [2/COSS](../2/README.md) (COSS).
 
@@ -63,7 +63,7 @@ This document MUST to provide a common framework and definition used to describe
 
 All the different components detailed, SHOULD be used as building blocks, allowing to compose the different scenarios using those.
 
-<a name="hl-arch"></a>
+<a name="high-level-architecture"></a>
 ## High Level Architecture
 
 This document use as reference and starting point the Architecture defined by the [3/ARCH](../3/README.md) (ARCH).
@@ -124,7 +124,7 @@ This could be an optimal configuration when the Ocean Agent is running in conjun
 
 ![Event Driven](images/pub-sub.png)
 
-<a name="com-keeper"></a>
+<a name="communication-with-keeper"></a>
 #### Communication with Keeper
 
 The keeper will expose 3 main block of capabilities to the rest of the world:
@@ -153,7 +153,7 @@ The worker nodes will expose a p2p interface supporting some commands allowing t
 
 The implementation of this module is highly linked to the Keeper API definition. 
 
-<a name="oceandb-integration"></a>
+<a name="ocean-db-integration"></a>
 ##### Ocean DB integration
 
 Some characteristics about the Ocean DB integration:
@@ -215,7 +215,7 @@ public interface OceanBackendPlugin {
 
 The Orchestration Layer will be in charge or invoke the optional backend if it's provided, being always the Decentralized VM the main storage and source of truth of the system.
 
-<a name="p2p"></a>
+<a name="agents-p2p-communication"></a>
 #### Agents P2P communication
 
 This module is in charge of maintain peer to peer communication between Ocean Agents. 
@@ -228,7 +228,7 @@ to some assets without using a third-party provider, would be possible to share 
      
 The implementation of the P2P communication is highly related with the existing p2p libraries. 
 
-<a name="external-interfaces"></a>
+<a name="interfaces-with-external-providers"></a>
 #### Interfaces with external providers
 
 Ocean Agent SHOULD provide a pluggable mechanism allowing to interact with external providers. 
@@ -262,7 +262,7 @@ StorageProvider interface {
 }
 ```
 
-<a name="access"></a>
+<a name="access-control"></a>
 ## Access Control
 
 ![Agent Access Control](images/agent-access-control.png)
@@ -361,7 +361,7 @@ It's necessary to check about the security limitations of os.urandom, which depe
 of Python, and the operating system. Some implementations rely on it.
 
 
-<a name="privacy"></a>
+<a name="privacy-management"></a>
 ## Privacy Management
 
 The **AGENT** will implement a Privacy Protocol allowing to negotiate the privacy requirements between parties.
@@ -444,7 +444,7 @@ In that case, the mediator publish a new event in a specific topic of the events
 Multiple subscribers can listen to that topic implementing the behaviour of the individual phases. 
 Those subscribers can emit events to different topics to notify the state of their actions.
 
-<a name="cache-system"></a>
+<a name="data-caching"></a>
 ### Data Caching
 
 The AGENT will need to integrate a local CACHE system to coordinate the consistency of the data written to the Decentralized VM and to an optional Ocean DB backend. 
