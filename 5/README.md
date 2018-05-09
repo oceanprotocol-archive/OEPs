@@ -7,23 +7,55 @@ editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 ```
 
+
+Table of Contents
+=================
+
+   * [Ocean Agent Architecture](#ocean-agent-architecture)
+      * [Change Process](#change-process)
+      * [Language](#language)
+      * [Motivation](#motivation)
+      * [High Level Architecture](#high-level-architecture)
+      * [Responsibilities](#responsibilities)
+      * [Components](#components)
+         * [Interfaces](#interfaces)
+            * [Communication with Keeper](#communication-with-keeper)
+               * [Ocean DB integration](#ocean-db-integration)
+            * [Agents P2P communication](#agents-p2p-communication)
+            * [Interfaces with external providers](#interfaces-with-external-providers)
+      * [Access Control](#access-control)
+         * [Authentication](#authentication)
+         * [Authorization](#authorization)
+      * [PKI](#pki)
+         * [Accounts](#accounts)
+         * [Wallets](#wallets)
+      * [Privacy Management](#privacy-management)
+      * [Events Watcher](#events-watcher)
+      * [Orchestration Layer](#orchestration-layer)
+         * [Data Caching](#data-caching)
+
+
+<a name="ocean-agent-architecture"></a>
 # Ocean Agent Architecture
 
-This document describes the Ocean Agent Architecture. It focus in which are the main responsabilities, functions and components implementing the architecture of the component.
+This document describes the Ocean Agent Architecture. It focus in which are the main responsibilities, functions and components implementing the architecture of the component.
 
 This specification is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper).
 
 This specification is called **AGENT** henceforth.
 
-
+<a name="change-process"></a>
 ## Change Process
 This document is governed by the [2/COSS](../2/README.md) (COSS).
 
+<a name="language"></a>
 ## Language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
+<a name="motivation"></a>
 ## Motivation
-The goal of this document is to describe the responsabilities and architecture of the AGENT node. 
+
+The goal of this document is to describe the responsibilities and architecture of the AGENT node. 
 This AGENT node, as part of the Ocean Network, will interact with different components (Keepers and other Agents),
 so the intention of this document is to describe the different interaction patterns.
 At the same time, the AGENT implements an internal architecture based in different layers. 
@@ -31,10 +63,12 @@ This document MUST to provide a common framework and definition used to describe
 
 All the different components detailed, SHOULD be used as building blocks, allowing to compose the different scenarios using those.
 
+<a name="high-level-architecture"></a>
 ## High Level Architecture
+
 This document use as reference and starting point the Architecture defined by the [3/ARCH](../3/README.md) (ARCH).
 
-  
+<a name="responsabilities"></a>
 ## Responsibilities
 
 AGENT is a thin abstraction layer. The main responsibilities of AGENT are:
@@ -45,23 +79,28 @@ AGENT is a thin abstraction layer. The main responsibilities of AGENT are:
 * Compose transactions that are send to the keeper. 
 * Orchestrate lower-level Keeper interactions exposing a higher level API
 * Subscribe to some Smart Contract events raised by the Keeper and trigger actions responding to that
-* Integrate with other Agents, stablishing a peer to peer connection
+* Integrate with other Agents, establishing a peer to peer connection
 * Integrate with external services or providers (Compute, Data, ..)
 * Simple input validation. Throttling and spam prevention is done at the VM validation level in the keeper. 
 * Expose some API's providing alternative consumption mechanisms (synchronous/asynchronous)
 
+<a name="components"></a>
 ## Components
 
 ![Ocean Agent](images/ocean-agent.png)
 
-The **Ocean Agent** is a software application receiving incoming messages (REST, RPC, etc.) related with 
-the Ocean Network interactions, and producing some output messages after interact with the **Ocean Keeper components**. 
+The **Ocean Agent** (aka **AGENT**) is a software application receiving incoming messages (REST, RPC, etc.) related with 
+the Ocean Network interactions, and producing some output messages after interact with the **Ocean Keeper components** (aka **KEEPEERS**). 
+
 Independently of the API consumption mechanism, the Ocean Agent is in charge of building the internal 
-object models using the incoming messages provided by the **Keeper components interfaces**. 
-This marshaling and unmarshaling operations will allow using a common internal data model across all the application. 
+object models using the incoming messages provided by the **Keeper components interfaces**.
+ 
+This marshaling and un-marshaling operations will allow using a common internal data model across all the application. 
+
 The Agent also will orchestrate the interaction with the Keeper components, allowing to provide a high level view 
 from the consumer side, interacting with the decentralized VM and the **Ocean DB**.
 
+<a name="interfaces"></a>
 ### Interfaces
 
 In charge of receiving the external requests to interact with the system. Initially the Ocean Agent 
@@ -74,8 +113,8 @@ The API will expose different HTTP methods implementing the defined actions.
 
 ![Request/Response](images/req-response.png)
 
-* **Async Websocket** - Provided by the Websocket interface. Useful when some actors need to be subscribed 
-to the changes happening in the database. For example, if a change in a contract is happening. 
+* **Async Websocket** - Provided by the Websocket interface. Useful when some users need to be subscribed 
+to the changes happening in the KEEPER level. For example, if a change in a contract is happening. 
 
 ![Websocket](images/websocket.png)
 
@@ -85,15 +124,16 @@ This could be an optimal configuration when the Ocean Agent is running in conjun
 
 ![Event Driven](images/pub-sub.png)
 
+<a name="communication-with-keeper"></a>
 #### Communication with Keeper
 
 The keeper will expose 3 main block of capabilities to the rest of the world:
 
 * **Decentralized VM** - Providing the Smart Contracts implementing the core business logic
-* **Ocean DB** - Storing the Assets, Actors, etc. information
+* **Ocean DB** - Interfacing with an external and pluggable storage system
 * **Worker** - Accepts challenges via p2p commands 
 
-Those capabilities will be integrated from the Ocean Agent using different protocols. 
+Those capabilities will be integrated from the AGENT using different protocols. 
 
 The Keeper interface module should implement an extensible interfaces system allowing to plug different 
 communication protocols to establish the communication between the Ocean Agent and the the Keepers network. 
@@ -107,14 +147,75 @@ Initially, HTTP RPC is the easiest candidate to integrate in the communication w
 A part of HTTP RPC, in following iterations this component could interface with HTTP RESTful API's 
 and using the Interledger Protocol (ILP).
 
-Regarding the Ocean DB, the communication can be establish using HTTP RESTful interfaces.
-
 ![Keeper Communication](images/keeper-communication.png)
 
 The worker nodes will expose a p2p interface supporting some commands allowing to raise proof challenges.
 
 The implementation of this module is highly linked to the Keeper API definition. 
 
+<a name="ocean-db-integration"></a>
+##### Ocean DB integration
+
+Some characteristics about the Ocean DB integration:
+
+* Ocean DB as backend is **optional** and **pluggable**. It means the AGENT MUST be able to run without any Ocean DB as backend
+* The AGENT will provide the interfaces to implement by different storage implementations to integrate them as backend
+* Is not in the AGENT scope to provide the storage interfaces implementations
+* Different users or marketplaces can require to integrate different storage systems providing different capabilities, the interface MUST describe the basic behaviour to implement in order to be integrated in the AGENT
+* Because the totally flexible and agnostic approach of the AGENT, defining only the interfaces, would be possible to integrate a centralized (Oracle, Kafka, Elastic Search, etc.) or decentralized backend (BigchainDB, IPFS, etc.)
+* The backend could be local, distributed or decentralized depending of the system integrated
+* User could plug the Ocean DB to provide discovery capabilities integrated as part of the core providing some data consistency (between VM & DB)
+
+![Pluggable Backend](images/pluggable-backend.png)
+
+The AGENT will provide the mechanism to check the config parameters given during the start-up of the process.
+Depending of those parameters, if a Backend is provided, the AGENT will invoke the plugin provided implementing the interface in runtime.
+
+Below you can find an example of a configuration file enabling the integration with an external system. 
+
+```properties
+
+# It could be true or false, false by default
+agent.backend.enabled=true
+
+agent.backend.implClass=com.example.mydatabase.MyDatabaseImpl
+
+# All the options in the config tree can be passed as parameters to the backend plugin
+agent.backend.config.hostname=localhost
+agent.backend.config.port=1234
+agent.backend.config.user=john
+agent.backend.config.password=john
+agent.backend.config.xxxx=WhateverNeeded
+
+``` 
+
+And this could be the initial definition of a generic interface:
+
+```java
+
+public abstract class OceanPluginFactory {
+    
+    public static OceanPluginFactory builder(Config config) {}
+    
+}
+
+public interface OceanBackendPlugin {
+    
+    public boolean connect(Config conf);
+    
+    public boolean disconnect();
+    
+    public boolean isConnected();
+    
+    public boolean write(List<T> items);
+    
+}
+
+```
+
+The Orchestration Layer will be in charge or invoke the optional backend if it's provided, being always the Decentralized VM the main storage and source of truth of the system.
+
+<a name="agents-p2p-communication"></a>
 #### Agents P2P communication
 
 This module is in charge of maintain peer to peer communication between Ocean Agents. 
@@ -127,7 +228,7 @@ to some assets without using a third-party provider, would be possible to share 
      
 The implementation of the P2P communication is highly related with the existing p2p libraries. 
 
-
+<a name="interfaces-with-external-providers"></a>
 #### Interfaces with external providers
 
 Ocean Agent SHOULD provide a pluggable mechanism allowing to interact with external providers. 
@@ -161,6 +262,7 @@ StorageProvider interface {
 }
 ```
 
+<a name="access-control"></a>
 ## Access Control
 
 ![Agent Access Control](images/agent-access-control.png)
@@ -171,6 +273,7 @@ Authenticated and Authorized in the system, allowing (or denying) the management
 In general, authentication is the process of validating that somebody really is who he claims to be. 
 Authorization refers to rules that determine who is allowed to do what.  
 
+<a name="authentication"></a>
 ### Authentication
 
 In this Ocean Agent side the authentication layer is very thin, and it's in charge mainly of 
@@ -182,6 +285,7 @@ of the HTTP request using the ```Authorization``` HTTP Header
 
 All the requests giving invalid authentication parameters will return a **HTTP 401 Status code: Unauthorized**. 
 
+<a name="authorization"></a>
 ### Authorization
 
 In the authorization phase it's necessary to validate that user is able to implement a specific action, 
@@ -206,9 +310,10 @@ related with the resource (like transfer the ownership or updating data).
 The resource can have associated a Access Control List (ACL) defining who can do what. 
 * Can the user sending the request to change the ownership of the resource?
 
-
+<a name="pki"></a>
 ## PKI
 
+<a name="accounts"></a>
 ### Accounts
 
 An account is a human-readable identifier (public key) stored on the decentralized VM. 
@@ -221,6 +326,7 @@ Ocean Agent will provide the capabilities to manage the accounts creation.
 It will use the [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) defition 
 for the creation of those.
 
+<a name="wallets"></a>
 ### Wallets
 
 Wallet component is in charge of protects and makes use of your keys. These keys may or may not be 
@@ -255,8 +361,8 @@ It's necessary to check about the security limitations of os.urandom, which depe
 of Python, and the operating system. Some implementations rely on it.
 
 
+<a name="privacy-management"></a>
 ## Privacy Management
-
 
 The **AGENT** will implement a Privacy Protocol allowing to negotiate the privacy requirements between parties.
 In a non-homogeneous network, different nodes can provide alternative mechanisms (hardware or software) 
@@ -278,14 +384,14 @@ Having 2 different AGENT's in a negotiation, during the protocol hand shake, the
 privacy mechanisms will be shared. If they have a common/compatible method, the conversation between 
 them could be started.
 
-
+<a name="events-watcher"></a>
 ## Events Watcher
 
 An important part of the Smart Contracts implementation in the Decentralized VM is the triggering of Events. 
 Those events could expose system notifications when some relevant actions are happening 
-(ie. a new Asset is registered, an Asset is curated, etc.).
+(ie. a Contract is signed, an Asset is curated, etc.).
 
-From the Ocean Agent side, the Events Watcher component will be in charge of watching those events 
+From the AGENT side, the Events Watcher component will be in charge of watching those events 
 to trigger some further actions. 
 
 ```javascript
@@ -304,20 +410,28 @@ subscription.unsubscribe(function(error, success){
 });
 ```
 
+The AGENT will provide the interfaces to:
+
+* Subscribe to all the movements related with an Address (FROM or TO) and filtered by TOPIC. It allows:
+  - Subscribe to all the events sent by an actor (FROM)
+  - Subscribe to all the events sent to a Smart Contract address (TO)
+  - The combination of the previous two
+  - Filter by TOPIC (specific event)
+* Retrieve all the historic transactions related an Address  
+
+
+<a name="orchestration-layer"></a>
 ## Orchestration Layer
 
 Using as input the incoming requests and events, the Orchestration layer is in charge on compose 
 complex workflows as a result of the interactions of multiple service executions. 
 Some scenarios require the execution of multiple steps before completion, for example:
 
-* Assets Registry - When is received a request to register a new Asset, it requires to execute:
-  - Register the basic Asset metadata on-chain (Decentralized VM Database)
-  - Register the complete Asset metadata in the Ocean DB (Assets Registry)
-  - Register the IP rights related with the Asset
 * Contract Settlement - When it's received an API request providing a proof of service, the Ocean Agent requires to execute:
   - Store the Proof of Service information on-chain
   - Check if all the proof of services were provided, in that case update the state of the contract to Settled
   - Notify all the contract parties
+* External DB integration - If an external backend is provided, the Orchestration Layer will invoke the method to persist the objects sent to the Decentralized VM.
 
 To implement that, the Orchestration Layer acts as a mediator between different components. 
 The implementation of this can be implemented in two possible ways:
@@ -330,8 +444,44 @@ In that case, the mediator publish a new event in a specific topic of the events
 Multiple subscribers can listen to that topic implementing the behaviour of the individual phases. 
 Those subscribers can emit events to different topics to notify the state of their actions.
 
+<a name="data-caching"></a>
+### Data Caching
 
+The AGENT will need to integrate a local CACHE system to coordinate the consistency of the data written to the Decentralized VM and to an optional Ocean DB backend. 
+The MAIN OBJECTIVE of the CACHE is to provide a recovery mechanism in case of AGENT failure. This could happens in different situations:
 
+* The AGENT crashes just after to receive an incoming transaction from the API layer and before to be able to invoke the Decentralized VM Smart Contract 
+* The Decentralize VM is not available when is invoked by the Orchestration Layer
+ 
+The CACHE should provide the following capabilities:
+
+* It MUST be a Local cache, not exposed in any way to the network
+* If AGENT crashes, the AGENT MUST read the state of cache to continue retrying the persistence of the transactions in the different backends
+* The state of the cache is INTERNAL to the local node, so MUST NOT be shared with a third party in any moment
+* If any error occurs during the persistence of the content, the retries field MUST be increased
+* The cache MUST store the representation of the object to be sent to the Decentralized VM as soon as a new registering request be received
+* The cache status MUST be UPDATED after the content be stored in the Decentralized VM
+* The row representing the object in CACHE MUST be DELETED after the data been stored in the Decentralized VM (and Ocean DB if is provided)
+* The CACHE system MUST be thread safe, allowing multiple threads pulling data from the CACHE    
+
+![Cache Interactions](images/cache-sequence.png "Cache Interactions")
+
+In the above image can be viewed the CACHE provides persistence mechanism allowing to work as source of truth during the interaction with the data stores.
+At the start of the AGENT, the system can sync the state with the CACHE. In case a previous failure, the CACHE MUST include the pending transactions to be applied. In that case, the AGENT can pickup from the CACHE those and apply the modifications.
+After a normal operation, the CACHE MUST delete the completed transaction. 
+
+The cache should store the following information:
+
+| Attribute         | Description|
+|:------------------|:----------|
+|id                 |Id of the content, in this case obectId|
+|type               |Type of the content,It could be "ASSET", "ACTOR", "CONTRACT", etc.|
+|status             |Status. Options are: CACHED, STORED_VM, STORED_DB 
+|retries            |Number of retries before to remove from the cache. If 0, no limit
+|ttl                |Number of seconds after the creationDatetime before to remove from the cache. If 0, no limit 
+|creationDatetime   |Creation datetime
+|updateDatetime     |Update datetime
+|content            |Payload of the content (Json or Avro representation of the Asset)
 
 
 
