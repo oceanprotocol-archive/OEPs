@@ -18,9 +18,9 @@ Table of Contents
       * [Architecture](#architecture)
       * [Modules](#modules)
       * [TODO: Events](#events)
+      * [Reference](#reference)
       * [Copyright Waiver](#copyright-waiver)
       
-<!--te-->
 
 # Ocean Curation Market <a name="ocean-curation-market"></a>
 
@@ -201,11 +201,18 @@ struct Asset {
 }
 ```
 
-The curation market smart contract MUST has sequential operations as below:
+To implement the exchange between Ocean tokens and Drops without transfer transaction, we adopt the **2-Way peg approach** similar to the mechanism behind [RootStock](https://faq.rsk.co/hrf_faq/what-is-the-2-way-peg/):
 
-* freeze the Ocean tokens that are used to purchases drops;
-* deduct the amount of Ocean token from user's balance in Provider struct;
-* credit corresponding drops to users by incrementing their balance of drops.
+* there is no single transaction to transfer Ocean tokens or Drops;
+* To purchase Drops, some Ocean tokens are locked and the corresponding Drops with the same value are unlocked.
+* To sell Drops, the Drops get locked again and the Ocean tokens with the same value are unlocked.
+* both procedures are handled by smart contract to ensure the security.
+
+In the practical implementation, curation market smart contract MUST execute following operations:
+
+* lock the Ocean tokens that are used to purchases drops;
+* reduce user's balance of Ocean token by the same amount;
+* increase user's balance of drops by the amount that has an equal value with the locked Ocean tokens; 
 * reverse above operatins when users un-stake.
 
 The process can be illustrated with below figure:
@@ -362,7 +369,7 @@ function determineReward(uint _challengeId) returns (uint tokens) { }
 
 
 
-## 5. TODO: Events <a name="events"></a>
+## 6. TODO: Events <a name="events"></a>
 
 
 ### Assignee(s)
@@ -377,12 +384,12 @@ The implementation of the full Keeper functionality it's planned for the [Alpha 
 ### Status
 unstable
 
-## 6. Reference
+## 7. Reference <a name="reference"></a>
 
 * [1][Ocean Protocol Technical Whitepaper](https://oceanprotocol.com/tech-whitepaper.pdf)
 * [2][Trent McConaghy, Co-Founder - Curated Proof Markets & Token-Curated Identities](https://www.youtube.com/watch?v=LxkvJmh7t0Y)
 * [3][Curated Proofs Markets: A Walk-Through of Ocean’s Core Token Mechanics](https://blog.oceanprotocol.com/curated-proofs-markets-a-walk-through-of-oceans-core-token-mechanics-3d50851a8005)
 
 
-## 7. Copyright Waiver  <a name="copyright-waiver"></a>
+## 8. Copyright Waiver  <a name="copyright-waiver"></a>
 To the extent possible under law, the person who associated CC0 with this work has waived all copyright and related or neighboring rights to this work.
