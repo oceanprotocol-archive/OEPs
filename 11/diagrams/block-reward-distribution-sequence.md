@@ -1,3 +1,5 @@
+# Open on: https://www.websequencediagrams.com/
+
 title Block Reward Distribution Sequence
 
 marketplace->token_contract: (1) query block rewards

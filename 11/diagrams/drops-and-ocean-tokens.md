@@ -1,5 +1,6 @@
-title Drops and Ocean Tokens
+# Open on: https://www.websequencediagrams.com/
 
+title Drops and Ocean Tokens
 
 Ocean_Token->Curation_Market: (1) request to purchase drops
 Curation_Market->Ocean_Token: (2) freeze Ocean tokens
