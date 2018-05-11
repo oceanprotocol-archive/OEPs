@@ -117,7 +117,10 @@ The above diagram shows the high level interactions between the components invol
 * The DECENTRALIZED VM store the ACTOR essential information (public key)
 * If OCEAN DB is enabled by the user, will store the ACTOR metadata
 
+![Nodes Involved](images/nodes-involved.png)
+
 In the following sections you can find the end to end implementation details of the complete REG functionality.
+
 
 
 ### Smart Contracts <a name="smart-contracts"></a>
