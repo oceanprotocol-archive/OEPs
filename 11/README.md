@@ -106,6 +106,23 @@ The practical strategy to distribute block rewards is following:
 
 <img src="img/reward_seq.jpg" width="700" />
 
+<!-- 
+https://www.websequencediagrams.com/
+
+title Block Reward Distribution Sequence
+
+marketplace->token_contract: (1) query block rewards
+token_contract->token_contract: (2) calculate num of released token
+note right of token_contract: token release schedule formula
+token_contract->marketplace: (3) transfer released token
+
+marketplace->marketplace: (4) calculate block reward distribution
+note left of marketplace: block reward distribution formula
+marketplace->marketplace: (5) increase provider's token balance without transfer
+
+marketplace->provider: (6) transfer tokens upon provider's request
+--> 
+
 * every time a provider makes dataset available to a consumer, marketplace SHOULD distribute block rewards;
 * marketplace requests block rewards from token contract;
 * token contract MUST release block rewards according to schedule and transfers tokens to marketplace;
@@ -116,33 +133,232 @@ The practical strategy to distribute block rewards is following:
 Here, ``lazy transfer`` strategy is used to significantly reduce the transaction cost:
 
 * the curation market serves as a escrow account and holds the block rewards for providers. 
-* However, it maintains the balance for each provider. 
-* When the provider requests to withdraw Ocean tokens, curation market initiates the real transfer transaction.
+* it maintains the balance record for each provider. 
+* When the provider requests to withdraw Ocean tokens, curation market initiates the real token transfer transaction.
 * As such, curation market avoids frequent transfer of tokens to providers. 
 
 
-**(4) Interface Functions**
+**(4) Smart Contract Interface Functions**
 
-The curation market smart contract SHOULD expose the following public methods:
+The curation market smart contract SHOULD include data structure to record provider list and their balances for each dataset:
+
+```solidity
+// Asset struct has an array of providers Id
+struct Asset {
+	...
+	uint[] providerId;
+	...
+}
+
+// Provider struct has balance of Ocean Tokens
+struct Provider {
+	...
+	uint balance;
+	...
+
+}
+
+// Hashtable to map provider Id to provider struct
+mapping(uint => Provider) id2provider
+
+```
+
+The contract SHOULD expose the following public methods:
 
 ```solidity
 	// request token contract to release block rewards
-    function requestBlockReward(uint lastRelease) public returns (bool success) { }
+    function requestBlockReward() public returns (bool success) { }
     
     // calculate block rewards distribution and credit to provider
     function calcBlockReward(uint _provider, uint _assetId) public returns (uint reward) { }
     
     // transfer block rewards to provider upon his request of withdraw
-    funciton withdrawBlockReward(uint _provider) public returns (bool success) { }
+    function withdrawBlockReward(uint _provider) public returns (bool success) { }
 ```
 
 ### 5.2 Ocean Token and Drops
 
+Each dataset creates its own curation market and needs its native tokens, which is called "drops" in Ocean network. In fact, drops are derivative tokens of Ocean Tokens which means drops can be exchanged from/to Ocean Tokens. 
+
+As shown in the figure: 
+
+* Ocean tokens can be used to purcahse drops for different dataset (i.e., Drops 1, ..., Drops K) which represent user's stakes on dataset / service. 
+* These drops can be sold for Ocean tokens so that users can un-stake and realize their profits.
+
+<img src="img/drops.jpg" width="600" />
+
+
+Curation market smart contract SHOULD record the drops balance for each provider. 
+
+```solidity
+// Asset struct can map provider id to his drops balance
+struct Asset {
+	...
+	uint[] providerId;
+	...
+	mapping(uint => uint) id2drops;
+	...
+}
+```
+
+The curation market smart contract MUST has sequential operations as below:
+
+* freeze the Ocean tokens that are used to purchases drops;
+* deduct the amount of Ocean token from user's balance in Provider struct;
+* credit corresponding drops to users by incrementing their balance of drops.
+* reverse above operatins when users un-stake.
+
+The process can be illustrated with below figure:
+
+<img src="img/token_drops.jpg" width="700" />
+
+<!-- 
+title Drops and Ocean Tokens
+
+
+Ocean_Token->Curation_Market: (1) request to purchase drops
+Curation_Market->Ocean_Token: (2) freeze Ocean tokens
+Curation_Market->Curation_Market: (3) deduct Ocean tokens from balance
+Curation_Market->Drops: (4) credit drops to provider
+
+Drops->Curation_Market: (5) request to sell drops
+Curation_Market->Drops: (6) deduct drops from balance
+Curation_Market->Curation_Market: (7) credit Ocean tokens to provider
+Curation_Market->Ocean_Token: (8) activate Ocean tokens
+-->
+
+The smart contract SHOULD have interface functions:
+
+```solidity
+// purchase drops using Ocean token
+function purchaseDrops(uint _assetId, uint _providerId, uint _amount) public returns (bool success) { }
+
+// sell drops for Ocean token
+function sellDrops(uint _assetId, uint _providerId, uint _amount) public returns (bool success) { }
+```    
+
+To freeze and activate Ocean tokens, it can be implemented with `Allowance` variable, which represents the available amount of Ocean tokens to be transferred by curation market. 
+
+* **purchase drops**: freeze Ocean tokens by reducing the allowance;
+* **sell drops**: activate Ocean tokens by increasing allowance with corresponding amount.
+
+
 ### 5.3 Bonding Curve
+
+The rate between Ocean tokens and Drops is determined by Bonding Curve as shown in the below:
+<img src="img/bonding_curve.jpg" width="600" />
+
+Clearly, the price of drops depends on the total supply:
+
+* more users buy drops and total supply increases => drops price shoots up;
+* more users sell drops and total supply decreases => drops price plummets;
+
+Curation market smart contract SHOULD have bonding curve function as:
+
+```solidity
+struct Asset {
+	...
+	uint drops_supply;
+	...
+}
+
+// query the price of drops at current supply
+function bondingCurve(uint _supply) public returns (uint price) { }
+```
+
 
 ### 5.4 Data Availability
 
+There are multiple providers for the same dataset, which provide better data availability. When data is requested, curation market SHOULD randomly choose one provider with **uniform sampling** to provide the data.
+
+Since all providers have the same probability to be chosen, they SHOULD receive equal expected block rewards if their bet the same stakes on dataset as well.
+
+<img src="img/data_supply.jpg" width="600" />
+
+The curation market smart contract SHOULD have a function to choose the provider:
+
+```solidity
+// Asset struct has full list of providers 
+struct Asset {
+	...
+	uint[]	providerId;
+	...
+}
+
+// hashtable mapping assetId to asset struct
+mapping(uint => Asset) id2asset;
+
+// choose the provider from the list with uniform sampling
+function selectProvider(uint _assetId) public returns (uint _providerId) { }
+```
+
+If there are many providers for `asset`, the function `selectProvider` SHOULD: 
+
+* select provider for dataset `asset = id2asset[_assetId]`;
+* generate an uniform-distributed random number `k` within the range of `[0, asset.providerId.length - 1]`;
+* the provider `asset.providerId[k]` is chosen to provide the data. 
+
 ### 5.5 Token Curation Registry
+
+Curation market needs the community to maintain the high-quality data and keep the normal operation of the system together. Towards this purpose, the Token Curation Registry (TCR) is used in Ocean network.
+
+<img src="img/TCR.jpg" width="600" />
+
+The workflow of TCR can be illustrated as below:
+ 
+<img src="img/TCR_flow.jpg" width="700" />
+
+<!--
+title TCR workflow
+
+
+Challenger->Curation_market: (1) challenge dataset / actor with deposit
+Voter->Curation_market: (2) vote for or against the dataset / actor
+Curation_market->Curation_market: (3) reveal the voting result and majority wins
+Curation_market->Challenger: (4) distribute rewards or slash deposit
+Curation_market->Voter: (5) distribute rewards to majority party
+Curation_market->Curation_market: (6) keep or eject dataset / actor
+-->
+
+
+* any user can apply for adding new dataset or challenge other datasets or actors;
+* all participants can vote to support or against the dataset or actor;
+* curation market reveals the result after the voting period is closed;
+* the majority party win the voting and rewards;
+* curation market keep or eject the dataset or actor according to the voting result.
+
+
+Smart contract SHOULD have data struct and interface functions to implement TCR in Ocean network:
+
+```solidity
+// Challenge data struct
+struct Challenge {
+	uint		id;
+	address		owner;
+	uint		stake;
+	bool		resolved;
+	mapping(address => bool) claimedToken; //whether a voter has claimed token reward
+}
+
+// hashtable mapping the changeId to associated Challenge data
+mapping(uint => Challenge) id2challenges;
+
+// apply for new dataset with deposit
+function apply(uint _amount, bytes32 _dataHash) returns (uint challengeId) { }
+
+// start a poll for challenging dataset / actor and send deposit
+function challenge(uint _amount, bytes32 _dataHash) returns (uint challengeId) { }
+
+// vote for or against 
+function voteChallenge(uint _challengeId, uint _opinion) returns (bool success) { }
+
+// reveal voting result and resolve the challenge
+function resolveChallenge(uint _challengeId) returns (bool success) { }
+
+// determine rewards to the winning party in a challenge
+function determineReward(uint _challengeId) returns (uint tokens) { } 
+```
+
 
 
 
@@ -161,6 +377,12 @@ The implementation of the full Keeper functionality it's planned for the [Alpha 
 ### Status
 unstable
 
+## 6. Reference
 
-## 6. Copyright Waiver  <a name="copyright-waiver"></a>
+* [1][Ocean Protocol Technical Whitepaper](https://oceanprotocol.com/tech-whitepaper.pdf)
+* [2][Trent McConaghy, Co-Founder - Curated Proof Markets & Token-Curated Identities](https://www.youtube.com/watch?v=LxkvJmh7t0Y)
+* [3][Curated Proofs Markets: A Walk-Through of Ocean’s Core Token Mechanics](https://blog.oceanprotocol.com/curated-proofs-markets-a-walk-through-of-oceans-core-token-mechanics-3d50851a8005)
+
+
+## 7. Copyright Waiver  <a name="copyright-waiver"></a>
 To the extent possible under law, the person who associated CC0 with this work has waived all copyright and related or neighboring rights to this work.
