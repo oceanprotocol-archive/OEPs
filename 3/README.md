@@ -205,6 +205,8 @@ It could provide verification, privacy & multicast capabilities.
 Throttling and spam prevention is done at the VM validation level in the keeper. 
 TX's have fees attached, could have some Client-side PoW and invalid tx's won't get replicated by honest nodes.
 
+An detailed overview of the Ocean AGENT can be found in  [OEP-5/AGENT](../5/README.md) 
+
 ## Components Interaction
 
 An Ocean Node can run all of those processes or any combination of them. 
