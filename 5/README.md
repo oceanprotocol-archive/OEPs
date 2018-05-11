@@ -144,10 +144,10 @@ This component is in charge of the following capabilities:
 * Orchestrate the execution of multiple Keeper requests when be necessary
 
 Initially, HTTP RPC is the easiest candidate to integrate in the communication with the Decentralized VM. 
-A part of HTTP RPC, in following iterations this component could interface with HTTP RESTful API's 
-and using the Interledger Protocol (ILP).
 
-![Keeper Communication](images/keeper-communication.png)
+To interact with the Smart Contracts, the AGENT will provide different DTO's. Those will allow to abstract the integration with the contracts in an easier way.
+
+![Keeper Communication](images/orchestration-dtos.png)
 
 The worker nodes will expose a p2p interface supporting some commands allowing to raise proof challenges.
 
