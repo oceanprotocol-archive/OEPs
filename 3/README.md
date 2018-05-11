@@ -9,12 +9,12 @@ contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 
 # Ocean Protocol Architecture
 
-This document describes the Ocean Architecture. 
-It focus in which are the main responsibilities, functions and components implementing the architecture.
+This document gives an overview of the Ocean Network Architecture. 
+It specifies what components can be found in the network and how they interact with each other.
 
 This specification is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper).
 
-This specification is called **ARCH** henceforth.
+This specification is called **NETWORK** henceforth.
 
 ## Change Process
 This document is governed by the [2/COSS](../2/README.md) (COSS).
@@ -25,17 +25,20 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ## Motivation
 
 Ocean Protocol connects data service PROVIDERS with CONSUMERS using 
-contractual agreements to ensure payments, audit trails and privacy.
+ agreements to ensure payments, audit trails and privacy.
 
-The ARCH covers a conceptual framework for provisioning contractual CONNECTIONS,
+The NETWORK covers a conceptual framework for provisioning contractual CONNECTIONS,
 an overview of the Ocean Network architecture and it's building blocks,
 as well as a suite of protocols that implements the design. 
 
-This ARCH is heavily inspired by the Internet architecture described in 
+This NETWORK is heavily inspired by the Internet architecture described in 
 [RFC 1122](https://tools.ietf.org/html/rfc1122), 
 [RFC 1123](https://tools.ietf.org/html/rfc1123) and 
 [RFC 1009](https://tools.ietf.org/html/rfc1009) and the 
 [Interledger Protocol (ILP)](https://github.com/interledger/rfcs/blob/master/0001-interledger-architecture/0001-interledger-architecture.md#interledger-architecture).
+
+This document MUST to provide a common framework used describing the network together with the relevant components, protocols and interactions. 
+All the different components described SHOULD be used as building blocks, allowing to compose the different scenarios using them.
 
 ## Design Requirements
 
@@ -43,6 +46,9 @@ The following design requirements should guide the development of the Ocean Prot
 
 * MUST use an open protocol, accessible to clients using any technology stack
 * MUST be decentralized in ownership of vision, mission, governance, implementation and usage
+* MUST support arbitrary levels of privacy comfort and regulation (anonymity, data escapes, right to be forgotten, zero-knowledge, etc)
+* MUST be designed around self-sovereignty in terms of ownership, control and exposure of identities and data services. 
+* MUST respect rights of owners and creators.
 * MUST support data services of all types, including:
   - Data assets
   - Data operations including:
@@ -50,34 +56,48 @@ The following design requirements should guide the development of the Ocean Prot
     - Machine learning operations
     - Data interaction and visualisation libraries
 * MUST support off-chain operations for storage and compute
-* MUST be designed around self-sovereignty in terms of ownership, control and exposure of identities and data services. 
-* MUST support arbitrary levels of privacy comfort and regulation (data escapes, right to be forgotten, anonymity, zero-knowledge, etc)
 * MUST enable interoperability (i.e. sharing of data assets and services) between multiple marketplace implementations and multiple technology stacks
 * MUST store a record of all asset provenance
-* MUST allow metadata governance (as defined by marketplaces and/or domain specific use cases)
-* MUST support arbitrary data formats (e.g. as specified by MIME type)
-* MUST support both free and priced data assets / services
-* MUST allow marketplaces to implement custom asset pricing logic (for priced services)
-* MUST allow marketplaces to implement custom access control logic (e.g. whitelisting for consumers)
-* MUST support the IP management. During the creation of a new Asset or Service, the ownership rights should be registered. During the consumption agreement, this right should be registered.
-* MUST give Ocean agents (including but not limited to Marketplaces) an efficient way to access the full blockchain history so that can query or index a copy of the blockchain as necessary
-* SHOULD minimise latency for user transactions
+* MUST allow metadata governance (as defined by domain specific use cases)
+* MUST allow custom control logic for assets and interactions
+* SHOULD incentivize the network towards ecosystem objectives and the commons
 
+## Ocean Protocol Network Model
 
-## Ocean Protocol Model
+### At a glance
 
-This document MUST to provide a common framework used describing 
-the technical solution to put in place. 
+Ocean protocol facilitates a decentralized network to connect data services in a data service supply chain.
 
-All the different components described SHOULD be used as building blocks, 
-allowing to compose the different scenarios using them.
-
-The ARCH is based in a **layered protocol** stack to set up CONNECTIONS between AGENTS using CONTRACTS.
+Decentralization impacts the network design in the following ways:
+- there are no centralized services, message or identity brokers
+- connections between points in the network are self-sovereign and contractual by consensus
 
 ![Combination of Building Blocks](images/ocean-model.png)
 
-A CONTRACT is the interface between AGENTS and is validated by decentralized consensus at the KEEPER level.
-A CONNECTOR is either another Ocean KEEPER or can bridge the replicated state and payments between other consensus networks.
+### Agents and Keepers
+
+At the core of the network are nodes that can be either AGENTS and KEEPERS.
+Each node in the network can be regarded as an AGENT with certain behavior.
+
+AGENTS run software that is responsible for:
+- exposing internal attributes and services of the AGENT
+- setting up connections between services
+- interact with KEEPERS by means of transactions and smart contracts 
+
+Depending on the service provided to the network, different types of behavior 
+can be observed in the network such as CONSUMERS, PROVIDERS, MARKETPLACES, PUBLISHERS, CURATORS and VERIFIERS.
+
+KEEPERS are nodes that form the Ocean consensus network (also known as miners or validators in other projects). 
+These nodes have replicated behavior that is coordinated by a consensus protocol.
+Practically, KEEPERS run software that is responsible for validating transactions, smart contracts execution and shared state storage.
+
+A CONTRACT is the interface between AGENTS and is enforced and validated at the KEEPER level.
+
+A BRIDGE is an AGENT that connects the state between Ocean KEEPERS and other consensus networks.
+
+Below is a diagram that depicts various AGENT roles as well as some example interactions.
+
+![Network Architecture with Actors](images/network-arch-with-actors.png)
 
 One of the main responsibilities of a CONTRACT between AGENTS is to lock up funds 
 and have means to resolve the transfer of funds (for example by verification of CONNECTION-related cryptographic proofs). 
@@ -98,17 +118,34 @@ We foresee a few ways to set up contracts:
 * Peer-to-peer between AGENTS
 * Open ended on-chain. ie send a valid TX to the contract address and gain service access
 
-In the remainder of this document we refer to:
-- AGENT: client-side software responsible for constructing transactions.
-Multiple roles can be foreseen such as CONSUMERS, PROVIDERS, MARKETPLACES, PUBLISHERS, CURATORS and VERIFIERS.
-- KEEPER: consensus-side software responsible for validating transactions, 
-smart contracts execution, consensus algorithm coordination and decentralized storage.
-
-Below is a diagram that depicts various AGENT roles as well as their interactions.
-
 It should be noted that a minimum viable Ocean network only requires KEEPERS, CONSUMERS and combined PUBLISHER-PROVIDERS.
 
-![Network Architecture with Actors](images/network-arch-with-actors.png)
+### Communication Protocols
+
+Ocean Network foresees 3 types of communication channels:
+
+1. AGENT-AGENT communication
+
+At this layer we have for example the service connections between service provider and consumer. 
+Potentially, these channels allow full duplex communication.
+The access and privacy of the channel is coordinated by the contract layers below.
+
+
+2. AGENT-KEEPER communication
+
+AGENTS communicate on-chain by means of signed transactions and event listeners or event polling.
+KEEPERS subscribe to these transactions and either validate them and store them in a pool of unconfirmed transactions (MEMPOOL)
+
+3. KEEPER-KEEPER communication
+
+KEEPERS within a decentralized network achieve consensus about a shared state like a Directed Acyclic Graph (DAG).
+The consensus algorithms may need to coordinate between faulty, Byzantine and Sybil actors. 
+
+
+Below, you can find a representation of the network with an emphasis to communication channels.
+The image depicts a PUB/SUB method of communication as an example
+
+![Agent Communication](images/agent-communication-channels.png)
 
 ## Components
 
@@ -129,16 +166,16 @@ A blockchain component with smart contract abilities:
 * Executes the Smart Contracts. The VM serves as a deterministic state transition mechanism.
 * Stores transactions, blocks and contract state - such as bytecode, proofs, variables - in a Directed Acyclic Graph (DAG). 
 * Is a validation engine for Unspent Transaction Outputs (UTXO) and contract logic.
-* Is [power-fault tolerant](https://filecoin.io/power-fault-tolerance.pdf) (PFT) 
+* MUST be [power-fault tolerant](https://filecoin.io/power-fault-tolerance.pdf) (PFT) 
 
 #### Ocean DB
 
-A decentralized database with the following capabilities:
+A database with the following capabilities:
 
-* Interacts with the AGENTS through transactions. 
-* Stores metadata about assets and actors in a decentralized database. 
+* Interacts with the AGENTS through API calls. 
+* Stores metadata about assets and actors in a database. 
 * Has a query layer and an indexing scheme
-* Is Byzantine fault tolerant (BFT)
+* OPTIONAL Byzantine fault tolerant (BFT)
 
 #### Ocean Worker
 
@@ -147,7 +184,7 @@ A work-dispatch engine with the following capabilities:
 * Interacts with the AGENTS through transactions.
 * Performs compute intensive jobs such as mining and proofs validation
 * Can challenge AGENTS to provide succinct proofs
-* Is fault tolerant (FT)
+* OPTIONAL fault tolerant (FT)
 
 
 ### Ocean Agent
@@ -200,14 +237,28 @@ The data PROVIDER MAY listen to state changes of the CONTRACT
 and perform callback functions for CONNECTION management and responding 
 to cryptographic CHALLENGES.
 
-- At any point the CONTRACT resolution is triggered and MAY revoke ACCESS.
+- At any point the CONTRACT resolution is triggered and the provider MAY revoke ACCESS.
 
 The high level description as well as the  developer and user experience for this scenario
 SHALL be implemented at this level. 
 
 Details of the application layer are discussed in [#TODO:OEP-PLUGIN](../<PLUGIN>/README.md) 
 
-### Privacy Layer
+### Service Integrity Layer
+
+The Service Integrity layer MUST provide a cryptographically secure layer that
+ensures the correct delivery of data services.
+
+Components in this layer grant service access, set up privacy protocols and deliver proofs of service delivery.
+
+#### Service Proofs
+
+Service proofs are meant to publicly verify the off-chain data services and connections.
+Multiple data service proofs that enhance data and compute integrity can be foreseen in this component
+
+Details of the service proofs are discussed in [#TODO:OEP-PROOFS](../<PROOFS>/README.md) 
+
+#### Privacy
 
 The privacy layer SHALL take care of end-to-end privacy for messages traveling over a CONNECTION between AGENTS.
 Various protocols are available to enhance privacy of data services such as encryption, 
@@ -218,9 +269,9 @@ In this layer both AGENTS MAY negotiate privacy details for the CONNECTION.
 Due to limited capabilities of privacy suites like MPC, HE and ZK, 
 not all service capabilities at the application level WILL supported.
 
-Details of the privacy layer are discussed in [#TODO:OEP-PRIVACY](../<PRIVACY>/README.md) 
+Details of the privacy module are discussed in [#TODO:OEP-PRIVACY](../<PRIVACY>/README.md) 
 
-### Access Layer
+#### Access Control
 
 Service CONTRACTs in the Ocean network are the basis for access permissions between AGENTS.
 The access layer foresees CONTRACT-based authentication and authorization for end-to-end CONNECTIONS.
@@ -228,11 +279,20 @@ The access layer foresees CONTRACT-based authentication and authorization for en
 The way access can be granted depends heavily on the type of data service and MAY include
 signed tokens, signed URLs, on-chain role-based access control (RBAC), OAuth and so forth.
 
-Details of the access layer are discussed in [#TODO:OEP-ACCESS](../<ACCESS>/README.md) 
+Details of the access module are discussed in [#TODO:OEP-ACCESS](../<ACCESS>/README.md) 
 
-### Transport Layer
+### Identity Layer
 
-Transport layer protocols foresee the coordination of a service CONTRACT between all involved AGENTS.
+The Identity layer provides modules to create sufficient network-specific identity components such as wallets, 
+decentralized identity objects and publicly verifiable claims related to identity.
+
+This layer provides account management libraries and ensures that ledger-specific transactions can be composed and signed.
+
+Details of the identity layer are discussed in [#TODO:OEP-IDENTITY](../<TRANSPORT>/README.md) 
+
+### Contract Management 
+
+Transport layer protocols foresee the coordination of a service CONTRACT between all involved AGENTS and KEEPER networks.
 
 Example contract protocols include peer-to-peer escrow contracts, marketplace-based contracts, 
 as well as CONTRACT resolution mechanisms such as judging and verification.
@@ -240,16 +300,16 @@ as well as CONTRACT resolution mechanisms such as judging and verification.
 This layer SHOULD also listen to events generated by state changes on the keeper 
 and provide necessary callbacks and hooks. 
 
-Details of the transport layer are discussed in [#TODO:OEP-TRANSPORT](../<TRANSPORT>/README.md) 
+Details of the contract management layer are discussed in [#TODO:OEP-CONTRACT-MANAGEMENT](../<CONTRACT-MANAGEMENT>/README.md) 
 
-### Bridge Layer
+### Transport Layer
 
 The bridge layer is responsible for forwarding packets between AGENTS. There is only one protocol on this layer.
 
 The bridge protocol defines standard address and packet formats that instruct CONNECTORS where to forward a packet.
 Bridge addresses provide a universal way to address AGENTS, KEEPERS and CONNECTORS.
 
-Details of the bridge layer are discussed in [#TODO:OEP-BRIDGE](../<BRIDGE>/README.md) 
+Details of the bridge layer are discussed in [#TODO:OEP-TRANSPORT](../<BRIDGE>/README.md) 
 
 ### Validation Layer
 
