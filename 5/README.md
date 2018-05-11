@@ -322,9 +322,11 @@ The grants of each account will be validated by the RBAC system.
 The user permissions must be met for a transaction signed under that authority to be considered valid. 
 Transactions are signed by utilizing a client that has a loaded and unlocked a wallet. 
 
-Ocean Agent will provide the capabilities to manage the accounts creation. 
-It will use the [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) defition 
-for the creation of those.
+The AGENT will provide the capabilities to manage the accounts creation. 
+It will use the [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) definition for the creation of those.
+To do that the AGENT will interact with the **Accounts API** provided by the **Parity** client.
+
+This will be detailed in the [Actors Registry OEP 13](../13/REG). 
 
 <a name="wallets"></a>
 ### Wallets
@@ -350,8 +352,8 @@ and purpose scheme described in [BIP43](https://github.com/bitcoin/bips/blob/mas
 The main methods to be provided are:
 
 * **New wallet** - It creates a new wallet in the system. It is saved in encrypted format, 
-passphrase must be provided
-* **Update wallet** - It updates an existing wallet. The passphrase must be provided to unlock the 
+pass-phrase must be provided
+* **Update wallet** - It updates an existing wallet. The pass-phrase must be provided to unlock the 
 account and another to save the updated file
 * **Import wallet** - Imports an unencrypted private key from a keyfile and creates a new wallet. 
 The keyfile should contain an unencrypted private key in hexadecimal format.
@@ -359,6 +361,9 @@ The keyfile should contain an unencrypted private key in hexadecimal format.
 
 It's necessary to check about the security limitations of os.urandom, which depends on the version 
 of Python, and the operating system. Some implementations rely on it.
+
+The Management of the Wallets will be implemented using the **Parity** client as backend.
+More information will be provided in the [Actors Registry OEP 13](../13/REG). 
 
 
 <a name="privacy-management"></a>
