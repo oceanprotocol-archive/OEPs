@@ -305,6 +305,17 @@ If there are many providers for `asset`, the function `selectProvider` SHOULD:
 * generate an uniform-distributed random number `k` within the range of `[0, asset.providerId.length - 1]`;
 * the provider `asset.providerId[k]` is chosen to provide the data. 
 
+The following tweak SHALL guarantee that providers are chosen with equal probability:
+
+<img src="img/swap.jpg" width="700" />
+
+* randomly choose a provider from the list of *N* providers with uniform-distributed sampling;
+* swap the chosen provider with the last unchosen provider in the list;
+* randomly choose the next provider from the first *N-1* providers;
+* swap the second provider with the last unchosen provider in the list;
+* repeat the process...until all providers had been chosen;
+* start it over and randomly choose from the entire list again.
+
 ### 5.5 Token Curation Registry
 
 Curation market needs the community to maintain the high-quality data and keep the normal operation of the system together. Towards this purpose, the Token Curation Registry (TCR) is used in Ocean network.
