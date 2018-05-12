@@ -26,10 +26,9 @@ Table of Contents
 # Ocean Curation Market <a name="ocean-curation-market"></a>
 
 
-The Ocean Curation Market is a fundamental component of Ocean Protocol to  in the Ocean Network.
+The Ocean Curation Market is a critical cornerstone of Ocean Protocol. This document bridges the theory in technical whitepaper[1] and the smart contract implementation in practice. 
 
-
-This component is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper), [3/ARCH](../3/README.md) and [4/KEEPER](../4/README.md).
+The proposed solutions are based on Ocean Protocol technical whitepaper [1], Trent's talk [2] & blog [3], [3/ARCH](../3/README.md) and [4/KEEPER](../4/README.md).
 
 ## 1. Change Process <a name="change-process"></a>
 This document is governed by the [2/COSS](../2/README.md) (COSS).
@@ -40,14 +39,15 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## 3. Motivation <a name="motivation"></a>
 
-Ocean network aims to build a marketplace for relevant AI-related data. 
-In particular, a curation market is constructed to curate high-quality assets (mainly datasets and algorithms). 
+Ocean network aims to build a marketplace for relevant AI-related data. Curation market coordinates participants to maintain high-quality assets (mainly datasets) and the normal operations of marketplace, which is a fundamental component of Ocean Network. 
+
+<!--
 The key components include:
 
-* **Block Rewards**: Ocean network generates block rewards to incentivize users who put stakes on high-quality assets and guarantee the data availability when requested. 
-* **Bonding Curve**: Curation market adjusts the staking cost (i.e., price of drops  for a specific asset) using bonding curve, therefore, encouraging earlier curations of high-quality asset due to lower staking cost. 
-* **TCR**: Curation market uses Token Curation Registry (TCR) to maintain a list of high-quality asset and eject bad actors with malicious behavior. 
-
+* **Block Rewards**: Ocean network generates block rewards to incentivize users who bet on dataset with stakes and ensure the data availability when requested. 
+* **Bonding Curve**: Curation market dynamically adjusts the stake cost (i.e., drops price of dataset) using bonding curve, therefore, encouraging earlier curations of dataset with lower staking cost. 
+* **TCR**: Curation market uses Token Curation Registry (TCR) to maintain high-quality dataset and eject bad actors with malicious behavior. 
+-->
 
 ## 4. Architecture <a name="architecture"></a>
 
@@ -55,17 +55,17 @@ The architecture of curation market is illustrated in the below, which includes 
 
 ![modular architecture](img/curation_market_overview.jpg)
 
-* **Block Rewards**: Ocean network emits Ocean tokens continuously according to the pre-defined schedule, which are block rewards for data providers. The distributed amount of block rewards SHOULD be determined by two factors: 
-	* *Predicted popularity*: number of provider's stake on the specific asset;
-	* *Proofed popularity*: number of times made asset available.
+* **Block Rewards**: Ocean network emits Ocean tokens continuously to incentivize providers according to the pre-defined schedule, which are called "block rewards". The distributed amount of block rewards SHOULD be determined by two factors: 
+	* *Predicted popularity*: number of provider's stake on the dataset;
+	* *Proofed popularity*: number of times made dataset available.
 	
-* **Ocean Token and Drops**: Ocean network creates derivative tokens of Ocean Token for each asset curation market, which is called "**drops**". 
+* **Ocean Token and Drops**: Ocean network creates derivative tokens of Ocean Token for each curation market, which is called "**drops**". 
 	* Providers purchase drops with their Ocean tokens to stake on the asset.
-	* Providers can un-stake by selling their drops for Ocean tokens and pocket the profit.
+	* Providers can un-stake by selling their drops for Ocean tokens and realize the profit.
  
-* **Bonding Curve**: Bonding curve defines the relationship between price and total supply for drops. 
-	* The drops price shoots up when users purchase drops using Ocean token and increase total supply. 
-	* Increased supply indicates more users bet on the popularity of this asset. 
+* **Bonding Curve**: Bonding curve defines the relationship between price and total supply of drops. 
+	* The drops price shoots up when more users purchase drops using Ocean token and increase the total supply. 
+	* Increased supply indicates more users bet on the popularity of asset. 
 
 
 * **Data Availability**: To earn block rewards, providers MUST make assets available when requested. 
@@ -77,8 +77,8 @@ The architecture of curation market is illustrated in the below, which includes 
 
 * **Token Curation Registry (TCR)**: TCR is a powerful mechanism to maintain the high quality of the asset in the curation market. 
 	* Everyone can challenge any asset or user, which triggers a voting process. 
-	* Every participant in the curation market can vote according to his own opinion. 
-	* Depends on the voting result, the asset or user will be either kept in the marketplace or ejected from the system. 
+	* Participants in the curation market can vote according to their own opinions. 
+	* Depends on the voting result, the asset or actor will be either kept in the marketplace or ejected from the system. 
 
 
 ## 5. Modules <a name="modules"></a>
@@ -87,48 +87,48 @@ The architecture of curation market is illustrated in the below, which includes 
 
 **(1) Bock Reward Generation**
 
-The 45% of Ocean tokens are used for block rewards and the schedule defines the amount of block rewards to be emitted:
+The 45% of total Ocean tokens are used for block rewards and the schedule determines the amount of block rewards available to be emitted at any timepoint [1]:
 
 <img src="img/schedule.jpg" width="600" />
 
-With **H=10**, the figure in the below shows the releasing speed of block rewards over years:
+With **H=10**, the figure below shows the speed of releasing block rewards over years:
 
 <img src="img/block_reward.jpg" width="500" />
 
 **(2) Block Reward Distribution**
 
-The block reward function defines the amount of block reward that providers receive from an asset. 
+The block reward function determines the amount of block reward that providers expect to receive[1]: 
 
 <img src="img/distribution_function.jpg" width="700" />
 
 
 **(3) Practical Implementation of Block Reward Distribution**
 
-Ocean network SHOULD NOT reward providers at fixed time intervals, which has high complexity and expensive computational cost. Simply imagine the complexity to transfer Ocean block rewards to each asset curator through on-chain transaction.  
+Ocean network SHOULD NOT reward providers at fixed time intervals, which has high complexity and expensive computational cost. Simply imagine the complexity to transfer Ocean block rewards to each provider through token-transfer transactions.  
 
 The practical strategy to distribute block rewards is [following](diagrams/block-reward-distribution-sequence.md):
 
 <img src="img/reward_seq.jpg" width="700" />
 
 
-* Every time a provider makes asset available to a consumer, marketplace SHOULD distribute block rewards;
+* Every time a provider delivers dataset to a consumer, marketplace SHOULD distribute block rewards;
 * Marketplace requests block rewards from token contract;
 * Token contract MUST release block rewards according to schedule and transfers tokens to marketplace;
 * Marketplace SHOULD calculate the block reward distribution to current provider with formula;
-* It SHOULD increase the balance of provider accordingly without real transfer so that to avoid the cost of transaction;
-* Marketplace MUST transfer tokens to provider's account upon the received withdraw request.
+* It SHOULD increase the balance of provider accordingly without token transfer which avoids the cost of token-transfer transactions;
+* Marketplace only transfer tokens to provider's account upon the withdraw-token request.
 
-Here, ``lazy transfer`` strategy is used to significantly reduce the transaction cost:
+Noted that **"lazy transfer"** strategy is used to significantly reduce the transaction cost:
 
 * The curation market serves as a escrow account and holds the block rewards for providers. 
-* It maintains the balance record for each provider. 
-* When the provider requests to withdraw Ocean tokens, curation market initiates the real token transfer transaction.
-* As such, curation market avoids frequent transfer of tokens to providers. 
+* It maintains the correct balance record for each provider. 
+* When the provider requests to withdraw Ocean tokens, curation market transfer tokens to provider which SHOULD match the balance amount.
+* Curation market avoids frequent token transfer to providers and saves transaction cost. 
 
 
 **(4) Smart Contract Interface Functions**
 
-The curation market smart contract SHOULD include data structure to record provider list and their balances for each asset:
+The curation market smart contract SHOULD include data structure to keep the records of providers and balances for each asset:
 
 ```solidity
 // Asset struct has an array of providers Id
@@ -166,7 +166,7 @@ The contract SHOULD expose the following public methods:
 
 ### 5.2 Ocean Token and Drops
 
-Each asset creates its own curation market and needs its native tokens, which is called "drops" in Ocean network. In fact, drops are derivative tokens of Ocean Tokens which means drops can be exchanged from/to Ocean Tokens. 
+Each asset creates its own curation market in Ocean network and needs its native tokens, which is called "drops". In fact, drops are *derivative tokens* of Ocean Tokens which means drops can be exchanged from/to Ocean Tokens. 
 
 As shown in the figure: 
 
@@ -189,7 +189,7 @@ struct Asset {
 }
 ```
 
-To implement the exchange between Ocean tokens and Drops without transfer transaction, we adopt the **2-Way peg approach** similar to the mechanism behind [RootStock](https://faq.rsk.co/hrf_faq/what-is-the-2-way-peg/):
+To implement the exchange between Ocean tokens and Drops, we adopt the **2-Way peg approach** similar to the mechanism behind [RootStock](https://faq.rsk.co/hrf_faq/what-is-the-2-way-peg/):
 
 * There is no single transaction to transfer Ocean tokens or Drops;
 * To purchase Drops, some Ocean tokens are locked and the corresponding Drops with the same value are unlocked.
@@ -218,10 +218,10 @@ function purchaseDrops(uint _assetId, uint _providerId, uint _amount) public ret
 function sellDrops(uint _assetId, uint _providerId, uint _amount) public returns (bool success) { }
 ```    
 
-To freeze and activate Ocean tokens, it can be implemented with `Allowance` variable, which represents the available amount of Ocean tokens to be transferred by curation market. 
+To lock and unlock Ocean tokens, it can be implemented with `Allowance` variable, which represents the available amount of Ocean tokens to be transferred by curation market. 
 
-* **Purchase drops**: freeze Ocean tokens by reducing the allowance;
-* **Sell drops**: activate Ocean tokens by increasing allowance with corresponding amount.
+* **Purchase drops**: lock Ocean tokens by reducing the `allowance` value;
+* **Sell drops**: unlock Ocean tokens by increasing `allowance` with the same value as locked Drops.
 
 
 ### 5.3 Bonding Curve
@@ -250,49 +250,42 @@ function bondingCurve(uint _supply) public returns (uint price) { }
 
 ### 5.4 Data Availability
 
-There are multiple providers for the same asset, which provide better data availability. When data is requested, curation market SHOULD randomly choose one provider with **uniform sampling** to provide the data.
+There are multiple providers for the same asset, which provide better data availability. When data is requested, curation market SHOULD randomly choose one provider with **uniform-distributed sampling** to provide the data.
 
-Since all providers have the same probability to be chosen, they SHOULD receive equal expected block rewards if their bet the same stakes on asset as well.
+Since all providers have the same probability to be chosen, they SHOULD receive equal block rewards with the same amount of stakes on dataset.
 
 <img src="img/data_supply.jpg" width="600" />
 
-The curation market smart contract SHOULD have a function to choose the provider:
+Note that *random number generator is not available* in Ethereum Virtual Machine, as the code will be ran on multiple nodes, on different time. It does not make sense to generate different random numbers on different nodes at different time in Ethereum network. 
+
+Instead, the AGENT client SHOULD randomly choose a provider from the consumer side. The curation market smart contract only need to record the provider, who transfers the dataset to consumer, and increment the counter of dataset download times.
 
 ```solidity
-// Asset struct has full list of providers 
+// Asset has provider list and their corresponding download times 
 struct Asset {
 	...
 	uint[]	providerId;
+	unit	totalDownload;
+	unit	lastProvider;
 	...
 }
 
 // hashtable mapping assetId to asset struct
 mapping(uint => Asset) id2asset;
 
-// choose the provider from the list with uniform sampling
-function selectProvider(uint _assetId) public returns (uint _providerId) { }
+// return the list of all providers
+function queryProviders(uint _assetId) public returns (uint[] _list) { }
+
+// log the provider for current download and increment the counter of #download
+function updateDownload(uint _assetId, uint _providerId) public returns (bool success) { }
 ```
 
-If there are many providers for `asset`, the function `selectProvider` SHOULD: 
-
-* Select provider for asset `asset = id2asset[_assetId]`;
-* Generate an uniform-distributed random number `k` within the range of `[0, asset.providerId.length - 1]`;
-* The provider `asset.providerId[k]` is chosen to provide the data. 
-
-The following tweak SHALL guarantee that providers are chosen with equal probability:
-
-<img src="img/swap.jpg" width="700" />
-
-* Randomly choose a provider from the list of *N* providers with uniform-distributed sampling;
-* Swap the chosen provider with the last unchosen provider in the list;
-* Randomly choose the next provider from the first *N-1* providers;
-* Swap the second provider with the last unchosen provider in the list;
-* Repeat the process...until all providers had been chosen;
-* Start it over and randomly choose from the entire list again.
+* The function `queryProviders ` SHOULD return the list of providers to AGENT for display, so consumer can randomly choose one provider to download the dataset. 
+* The function `updateDownload` SHOULD increment `totalDownload` of the dataset and log the provider Id into `lastProvider`. 
 
 ### 5.5 Token Curation Registry
 
-Curation market needs the community to maintain the high-quality data and keep the normal operation of the system together. Towards this purpose, the Token Curation Registry (TCR) is used in Ocean network.
+Curation market coordinates the community to maintain the high-quality data together and Token Curation Registry (TCR) is used for that purpose in Ocean network:
 
 <img src="img/TCR.jpg" width="600" />
 
@@ -301,7 +294,7 @@ The [workflow of TCR](diagrams/tcr-workflow.md) can be illustrated as below:
 <img src="img/TCR_flow.jpg" width="700" />
 
 
-* Any user can apply for adding new asset or challenge other assets or actors;
+* Any user can apply for adding new asset or challenge existing assets or actors;
 * All participants can vote to support or against the asset or actor;
 * Curation market reveals the result after the voting period is closed;
 * The majority party win the voting and rewards;
