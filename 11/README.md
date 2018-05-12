@@ -258,7 +258,7 @@ Since all providers have the same probability to be chosen, they SHOULD receive 
 
 Note that *random number generator is not available* in Ethereum Virtual Machine, as the code will be ran on multiple nodes, on different time. It does not make sense to generate different random numbers on different nodes at different time in Ethereum network. 
 
-Instead, the AGENT client SHOULD randomly choose a provider from the consumer side. The curation market smart contract only need to record the provider, who transfers the dataset to consumer, and increment the counter of dataset download times.
+Instead, the AGENT client SHOULD randomly choose a provider to request the dataset. The curation market smart contract only need to log the provider, who transfers the dataset to consumer, and increment the counter of dataset download times.
 
 ```solidity
 // Asset has provider list and their corresponding download times 
@@ -280,7 +280,7 @@ function queryProviders(uint _assetId) public returns (uint[] _list) { }
 function updateDownload(uint _assetId, uint _providerId) public returns (bool success) { }
 ```
 
-* The function `queryProviders ` SHOULD return the list of providers to AGENT for display, so consumer can randomly choose one provider to download the dataset. 
+* The function `queryProviders ` SHOULD return the list of providers to AGENT client so that AGENT can randomly choose one provider (i.e., unifrom-distributed sampling) to request the dataset. 
 * The function `updateDownload` SHOULD increment `totalDownload` of the dataset and log the provider Id into `lastProvider`. 
 
 ### 5.5 Token Curation Registry
