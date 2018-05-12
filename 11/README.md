@@ -250,7 +250,7 @@ function bondingCurve(uint _supply) public returns (uint price) { }
 
 ### 5.4 Data Availability
 
-There are multiple providers for the same asset, which provide better data availability. When data is requested, curation market SHOULD randomly choose one provider with **uniform-distributed sampling** to provide the data.
+There are multiple providers for the same asset, which provide better data availability. When data is requested, one provider SHOULD be randomly chosen with **uniform-distributed sampling** to provide the dataset.
 
 Since all providers have the same probability to be chosen, they SHOULD receive equal block rewards with the same amount of stakes on dataset.
 
