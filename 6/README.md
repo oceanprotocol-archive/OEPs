@@ -1,3 +1,4 @@
+***DISCLAIMER: THIS IS A WORK IN PROGRESS***
 ```
 shortname: 6/INVOKE
 name: Invoke compute and storage services
@@ -44,14 +45,42 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 as shown here.
 
 ## 3. Motivation <a name="motivation"></a>
-As a data scientist, you have more complex problems. They might be not just about consuming datasets 
+As a data scientist, you have complex pipelines. They maybe just consuming dataset
 but also they might include different computation, storage and networking services. As a result, 
 you will need to schedule these services in terms of workflow. Salpchain is an on-chain workflow 
 management system in Ocean protocol that manages the scheduling and execution of workflows on Ethereum blockchain.
 
 ## 4. Introduction to WMS <a name="wms"></a>
 
-***TODO***
+Workflows are a sequence of tasks where each task scheduled and triggered by an event. Mainly we use workflows to handle complex 
+pipelines and big data analysis. For instance as shown below we have a some sort of simple workflow which start with data acquisition, then
+processing this dataset, monitor processing progress and finally report results. 
+
+![Typical Workflow](imgs/typicalWorkflow.png)
+
+Examples for workflows such as Extract, Transform, Load (ETL), also in testing we can use a 
+workflow in order to orchestrate automated testing, and one of the most complex workflows coming from Bioinformatics and genomics workflows. The following
+table shows different workflow management systems (WMS) and summarize main points for each workflow:
+
+***Open Source WMS***
+
+WMS    |                                         Language                    | Deployed By | Web UI     
+--------------|--------------------------------------------------------------|-------------|---------
+[Luigi](https://luigi.readthedocs.io/en/stable/)| Python                     | Spotify     |   Yes
+[Apache Airflow](http://airflow.incubator.apache.org/) | Python              | Airbnb      |    Yes
+[Apache Oozie](http://oozie.apache.org/)               | Java                | Cloudera, Yahoo, Microsoft | Yes
+[Taskflow](https://wiki.openstack.org/wiki/TaskFlow)   | Python              | OpenStack   | No
+
+***Bioinformatics WMS***
+
+WMS    |                                         Language                    | Deployed By | Web UI     
+--------------|--------------------------------------------------------------|-------------|---------
+[Galaxy Engine](https://galaxyproject.org/) | Python                     | Johns Hopkins    |   Yes
+[Cosmos](https://cosmos.hms.harvard.edu/) | Python              | Harvard Medical School    |   No
+[Apache Taverna](https://taverna.incubator.apache.org/)| Java                | University of Manchester | No
+[Cromwell Engine](http://cromwell.readthedocs.io/en/develop/)   |       Scala        | Broad Institute   | No
+
+
 
 ## 5. DAG based WMSs <a name="dag"></a>
 
