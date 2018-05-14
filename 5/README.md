@@ -66,9 +66,9 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 <a name="motivation"></a>
 ## Motivation
 
-The goal of this document is to describe the responsibilities and architecture of the AGENT node. 
+The goal of this document is to describe the responsibilities and architecture of the an Ocean AGENT node. 
 This AGENT node, as part of the Ocean Network, will interact with different components (Keepers and other Agents),
-so the intention of this document is to describe the different interaction patterns.
+so part of the intention of this document is to describe the different interaction patterns between components.
 At the same time, the AGENT implements an internal architecture based in different layers. 
 This document MUST to provide a common framework and definition used to describe the technical solution to put in place. 
 
@@ -84,7 +84,9 @@ This document use as reference and starting point the Architecture defined by th
 
 AGENT is a thin abstraction layer. The main responsibilities of AGENT are:
 
-* Exposing a common and stable API to the network consumers. 
+* Facilitate the integration of the Ocean functions to the different system actors
+* Enable the communication between actors (P2P) and with the KEEPER network
+* Exposing a common and stable API to the network consumers
 * Build the authorization & authentication mechanism to identify the user using the client
 * Manage the user PKI information
 * Compose transactions that are send to the keeper. 
@@ -114,10 +116,10 @@ from the consumer side, interacting with the decentralized VM and the **Ocean DB
 <a name="interfaces"></a>
 ## Interfaces
 
-In charge of receiving the external requests to interact with the system. Initially the Ocean Agent 
+In charge of receiving the external requests to interact with the system. Initially the AGENT 
 will expose a HTTP RESTful API, but is designed to expose the API's or consume requests in different ways.
-Because of that the Ocean Agent should expose the API's in different formats allowing integration mechanisms 
-that can be used depending on the use case. The initial consumption mechanisms could be:
+Because of that the AGENT should expose the API's in different formats allowing integration mechanisms 
+that can be used depending on the use case. The main interaction mechanisms are:
  
 * **Request/Response** - Provided by the RESTful and the RPC interfaces. Those allow a request/response integration. 
 The API will expose different HTTP methods implementing the defined actions.
@@ -152,6 +154,7 @@ This could be an optimal configuration when the Ocean Agent is running in conjun
 
 Service proofs are meant to publicly verify the off-chain data services and connections. 
 Multiple data service proofs that enhance data and compute integrity can be foreseen in this component. 
+It's responsibility of the AGENT to interact with all the different providers, enabling the communications allowing to challenge/retrieve the required Proofs of Service.
 
 Using the [Service Plugins](#service-plugins) system, this module will interface with off-chain providers to obtain the proofs needed.
 
@@ -194,7 +197,7 @@ Authorization refers to rules that determine who is allowed to do what.
 <a name="authentication"></a>
 #### Authentication
 
-In this Ocean Agent side the authentication layer is very thin, and it's in charge mainly of 
+In the AGENT scope the authentication layer is very thin, and it's in charge mainly of 
 verifying the public key information associated to the transactions.
 
 In all the HTTP API interactions, the component integrating the API SHOULD send his public key as part 
@@ -212,7 +215,7 @@ ie. modify the metadata information of a specific asset. To implement this valid
 
 ![Agent Authorization](images/agent-authorization.png)
 
-The authentication will be implemented in the conjunction between the Access Control layer and the 
+The authorization will be implemented in the conjunction between the Access Control layer and the 
 Decentralized VM component running in the Keeper side. 
 
 The Access Control layer implement the association between the user information, validated in the 
@@ -221,7 +224,7 @@ The Decentralized VM component, using the validations implemented in the Smart C
 associating between the resources and the owners or users able to access the resources, 
 will implement the validations allowing to authorize the user. It includes to answer the following questions:
 
-* Is the user sending the request the owner of the resource (msg.sender == owner)? 
+* Is the user sending the request the owner of the resource (```msg.sender == owner```)? 
 The ownership of a resource, typically enable to the owner execute the high restricted operations 
 related with the resource (like transfer the ownership or updating data).
 * Can the user sending the request access (read or write) to the resource? 
@@ -267,21 +270,8 @@ for the generation of deterministic wallets.
 hierarchy for deterministic wallets based on an algorithm described in BIP32, 
 and purpose scheme described in [BIP43](https://github.com/bitcoin/bips/blob/master/bip-0043.mediawiki).
 
-The main methods to be provided are:
-
-* **New wallet** - It creates a new wallet in the system. It is saved in encrypted format, 
-pass-phrase must be provided
-* **Update wallet** - It updates an existing wallet. The pass-phrase must be provided to unlock the 
-account and another to save the updated file
-* **Import wallet** - Imports an unencrypted private key from a keyfile and creates a new wallet. 
-The keyfile should contain an unencrypted private key in hexadecimal format.
-* **List wallets** - List the existing wallets in the scope of the Ocean Agent
-
-It's necessary to check about the security limitations of os.urandom, which depends on the version 
-of Python, and the operating system. Some implementations rely on it.
-
 The Management of the Wallets will be implemented using the **Parity** client as backend.
-More information will be provided in the [Actors Registry OEP 13](../13/REG). 
+More information will be provided in the [Actors Registry OEP](../13/README.md) and [Wallet OEP](../README.md). 
 
 
 
@@ -314,7 +304,7 @@ Depending of the implementation of the system, the usage of one plugin or anothe
 could be made by configuration or using dependency injection.
 
 ```java
-StorageProvider interface {
+public StorageProvider interface {
 
     bool store(Asset asset);
     Asset retrieve(URL url);
