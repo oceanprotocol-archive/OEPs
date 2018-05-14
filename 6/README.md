@@ -53,12 +53,12 @@ management system in Ocean protocol that manages the scheduling and execution of
 ## 4. Introduction to WMS <a name="wms"></a>
 
 Workflows are a sequence of tasks where each task scheduled and triggered by an event. Mainly we use workflows to handle complex 
-pipelines and big data analysis. For instance as shown below we have a some sort of simple workflow which start with data acquisition, then
+pipelines and big data analysis. For instance as shown in the below figure we have a some sort of simple workflow which start with data acquisition, then
 processing this dataset, monitor processing progress and finally report results. 
 
 ![Typical Workflow](imgs/typicalWorkflow.png)
 
-Examples for workflows such as Extract, Transform, Load (ETL), also in testing we can use a 
+Usually, we use workflows in our development process such as Extract, Transform, Load (ETL), also in testing we can use a 
 workflow in order to orchestrate automated testing, and one of the most complex workflows coming from Bioinformatics and genomics workflows. The following
 table shows different workflow management systems (WMS) and summarize main points for each workflow:
 
@@ -81,6 +81,10 @@ WMS    |                                         Language                    | D
 [Cromwell Engine](http://cromwell.readthedocs.io/en/develop/)   |       Scala        | Broad Institute   | No
 
 
+In every workflow system, each task in a pipeline make decisions based on what is the task inputs (upstream), and outputs (downstream). We can see below 
+that every task nod MUST be able to receive inputs and bypass its outputs to other task nodes. So you can split up and merge many branches from the same task output. 
+
+![Typical Workflow](imgs/taskflow.png)
 
 ## 5. DAG based WMSs <a name="dag"></a>
 
@@ -95,6 +99,9 @@ WMS    |                                         Language                    | D
 ***TODO***
 
 ## 8. Use Cases <a name="usecases"></a>
+
+In this section we are going shows two complex use case scenarios as follows
+
 
 ***TODO***
 
