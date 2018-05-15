@@ -107,6 +107,39 @@ important characteristics.
 - It SHOULD be easy to handle complexity and dependencies.
 - It SHOULD support scheduling tasks, so we can ran it anytime.
 
+### 4.2 Workflow Patterns
+
+Workflows has some sort of patterns which solve common problems. In this subsection we are going 
+to show the basic control flow patterns:
+
+* ***Sequence***
+
+It is one of the simplest patterns where task in workflow is triggered once the the preceding task finished. So two tasks could
+be consecutive if the edge of one of them is associated with the second task without any conditions.
+
+* ***Parallel Split***
+
+Also It is called AND-Split where single process can be divides ( unconditionally ) into multiple threads. 
+
+* ***Synchronization***
+
+Also known as AND-Join which means cpmpining multiple or parallel threads of execution into a single thread.
+
+* ***Execlusive Choice***
+
+Execlusive choice or XOR-Split pattern chooses one the possible paths to complete the task. 
+For instance if you have an order, so you can use credit card or bank transfer, your task will pick one 
+of these paths in order to complete the payment.
+
+* ***Simple Merge*** 
+
+The simple merge or XOR-Join pattern use only one of the paths without any synchronization in order to proceed the  next task. For example, payment could be 
+performed by bank transfer or credit card.
+
+![Workflow Control Patterns](imgs/patterns.png)
+
+For more details about advanced branching and synchroization patterns check out this [article](http://www.workflowpatterns.com/patterns/control/index.php).
+
 ## 5. Architecture <a name="architecture"></a>
 This architecture assumes that we have a curation market layer which disseminates and curates services in Ocean protocol. So lets start with 
 the building blocks of salpchain. It consists of three basic parts:
@@ -131,6 +164,9 @@ In this section we are going to show two complex use case scenarios:
 ***TODO***
 
 ## 8. Reference <a name="reference"></a>
+
+* [Workflow Control-Flow Patterns, BPM Center Report BPM-06-22 , BPMcenter.org, 2006](http://www.workflowpatterns.com/documentation/documents/BPM-06-22.pdf)
+* [Workflow Patterns - Distributed and Parallel Databases, 14(3), pages 5-51, July 2003](http://www.workflowpatterns.com/documentation/documents/wfs-pat-2002.pdf)
 
 ***TODO***
 
