@@ -16,7 +16,6 @@ editor: Ahmed Abdullah <ahmed@oceanprotocol.com>
       * [Language](#language)
       * [Motivation](#motivation)
       * [Introduction to WMS](#wms)
-      * [DAG based WMSs](#dag)
       * [Architecture](#architecture)
       * [Implementation](#implementation)
       * [Use Cases](#usecases)
@@ -59,7 +58,7 @@ processing this dataset, monitor processing progress and finally report results.
 ![Typical Workflow](imgs/typicalWorkflow.png)
 
 Usually, we use workflows in our development process such as Extract, Transform, Load (ETL), also in testing we can use a 
-workflow in order to orchestrate automated testing, and one of the most complex workflows coming from Bioinformatics and genomics workflows. The following
+workflow in order to orchestrate automated testing, moreover one of the most complex workflows coming from Bioinformatics and genomics workflows. The following
 table shows different workflow management systems (WMS) and summarize main points for each workflow:
 
 ***Open Source WMS***
@@ -80,34 +79,51 @@ WMS    |                                         Language                    | D
 [Apache Taverna](https://taverna.incubator.apache.org/)| Java                | University of Manchester | No
 [Cromwell Engine](http://cromwell.readthedocs.io/en/develop/)   |       Scala        | Broad Institute   | No
 
+### 4.1 DAG based WMSs 
 
-In every workflow system, each task in a pipeline make decisions based on what is the task inputs (upstream), and outputs (downstream). We can see below 
-that every task nod MUST be able to receive inputs and bypass its outputs to other task nodes. So you can split up and merge many branches from the same task output. 
+Each task in a pipeline make decisions based on what is the task inputs (upstream), and outputs (downstream). We can see below 
+that every task node MUST be able to receive inputs and bypass its outputs to other task nodes. So you can split up and merge many branches from the same task output. 
 
 ![Typical Workflow](imgs/taskflow.png)
 
-## 5. DAG based WMSs <a name="dag"></a>
+And the magic what Directed Acyclic Graph (DAG) does is if you can put any input dataset at task node (upstream) in this workflow, you will
+see that this will flow downstream of this task and it will be available for next tasks. This keeps your workflow more modular by using the same tasks in 
+different positions in a workflow.
+
+Most of modern workflow management systems supports DAG based workflows. But by designed it was intended to also support the following 
+important characteristics.
+
+- It SHOULD be based on opensource programming language such as python.
+- It SHOULD be able to handle failures, and alerts.
+- It SHOULD be easy to handle complexity and dependencies.
+- It SHOULD support scheduling tasks, so we can ran it anytime.
+
+## 5. Architecture <a name="architecture"></a>
+This architecture assumes that we have a curation market layer which disseminates and curates services in Ocean protocol. So lets start with 
+the building blocks of salpchain. It consists of three basic parts:
+
+- ***Workflow Management***
+
+This component handles the workflow initialization, calling scheduler, and triggering the execution of tasks.
+You can think about it as a chained tasks where you can execute the workflow in terms of three basic steps and 
+then execute the last task. 
 
 ***TODO***
 
-## 6. Architecture <a name="architecture"></a>
+## 6. Implementation <a name="implementation"></a>
 
 ***TODO***
 
-## 7. Implementation <a name="implementation"></a>
+## 7. Use Cases <a name="usecases"></a>
 
-***TODO***
-
-## 8. Use Cases <a name="usecases"></a>
-
-In this section we are going shows two complex use case scenarios as follows
+In this section we are going to show two complex use case scenarios:
 
 
 ***TODO***
 
-## 9. Reference <a name="reference"></a>
+## 8. Reference <a name="reference"></a>
 
 ***TODO***
 
-## 10. Copyright Waiver  <a name="copyright-waiver"></a>
+## 9. Copyright Waiver  <a name="copyright-waiver"></a>
 To the extent possible under law, the person who associated CC0 with this work has waived all copyright and related or neighboring rights to this work.
