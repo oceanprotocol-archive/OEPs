@@ -7,8 +7,6 @@ editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 ```
 
-
-Table of Contents
 =================
 
 Table of Contents
@@ -439,11 +437,12 @@ In that case, the mediator publish a new event in a specific topic of the events
 Multiple subscribers can listen to that topic implementing the behaviour of the individual phases. 
 Those subscribers can emit events to different topics to notify the state of their actions.
 
+
 <a name="data-caching"></a>
 ### Data Caching
 
-The AGENT will need to integrate a local CACHE system to coordinate the consistency of the data written to the Decentralized VM and to an optional Ocean DB backend. 
-The MAIN OBJECTIVE of the CACHE is to provide a recovery mechanism in case of AGENT failure. This could happens in different situations:
+The AGENT will need to integrate a local CACHE system to provide disaster recovery capabilities. The MAIN OBJECTIVE of the CACHE is to provide a recovery mechanism in case of AGENT failure. 
+This could happens in different situations:
 
 * The AGENT crashes just after to receive an incoming transaction from the API layer and before to be able to invoke the Decentralized VM Smart Contract 
 * The Decentralize VM is not available when is invoked by the Orchestration Layer
@@ -462,7 +461,8 @@ The CACHE should provide the following capabilities:
 ![Cache Interactions](images/cache-sequence.png "Cache Interactions")
 
 In the above image can be viewed the CACHE provides persistence mechanism allowing to work as source of truth during the interaction with the data stores.
-At the start of the AGENT, the system can sync the state with the CACHE. In case a previous failure, the CACHE MUST include the pending transactions to be applied. In that case, the AGENT can pickup from the CACHE those and apply the modifications.
+At the start of the AGENT, the system can sync the state with the CACHE. In case a previous failure, the CACHE MUST include the pending transactions to be applied. 
+In that case, the AGENT can pickup from the CACHE those and apply the modifications.
 After a normal operation, the CACHE MUST delete the completed transaction. 
 
 The cache should store the following information:
@@ -477,10 +477,6 @@ The cache should store the following information:
 |creationDatetime   |Creation datetime
 |updateDatetime     |Update datetime
 |content            |Payload of the content (Json or Avro representation of the Asset)
-
-
-
-
 
 
 
