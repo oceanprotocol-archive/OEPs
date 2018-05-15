@@ -19,7 +19,6 @@ Table of Contents
       * [Motivation](#motivation)
       * [Specification](#specification)
          * [Proposed Solution](#proposed-solution)
-         * [Data Consistency](#data-consistency)
          * [Registering a new Asset](#registering-a-new-asset)
          * [Retrieve metadata of an Asset](#retrieve-metadata-of-an-asset)
          * [Updating Asset Metadata](#updating-asset-metadata)
