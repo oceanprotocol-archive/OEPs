@@ -859,6 +859,84 @@ In that case the complete relation between the Asset and the Provider is deleted
 
 
 ---
+<a name="asset-tcr"></a>
+### Token Curation Registry (TCR) of Assets 
+
+Token curation registry (TCR) is used to maintain a list of high quality datasets through challenge-voting process:
+
+* Voting process can be initiated by:
+	* new dataset applies to be listed in the marketplace;
+	* existing dataset is challenged by any user;
+	* all paritcipants including applicant, voter and challenger need to deposit tokens.
+* Each participant can vote for or against the dataset according to their opinion.
+* After the voting result is revealed, the token deposit will be distributed among winning parties.
+* Depends on the voting result, the dataset will be accepted to be listed or removed from the marketplace. 
+
+#### implementation of TCR
+
+The Assets Registry Smart Contract SHOULD provide the structs including `listing` data and `challenge` data:
+
+```solidity
+    // Maps assetId to associated listing data
+    mapping(string => Listing) public listings;
+    
+    // Maps challengeIDs to associated challenge data
+    mapping(uint => Challenge) public challenges;
+    
+	// Listing data struct
+	struct Listing {
+		uint		version;
+		uint		applicationExpiry;
+		bool		whitelisted;
+		uint		challengeID;
+		string		description;
+	}
+	
+	
+	// Challenge data struct
+	struct Challenge {
+		uint		rewardPool;
+		address		challenger;
+		uint		stake;
+		uint		totalTokens;
+		bool		resolved;
+		mapping(address => bool) tokenClasims; 
+	}  
+```
+
+The **Listing** object includes the following attributes:
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|version | uint | the version of TCR contract |
+|applicationExpiry  |uint| Expiration date of application stage|
+|whitelisted  |bool   | Indicates registry status|
+|challengeID       |uint| voting ID in challenge stage|
+|description|string|Description about the TCR (optional)|
+
+The **Challenge** object includes the following attributes:
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|rewardPool  |uint| pool of tokens to be distributed to winning voters|
+|challenger | address| owner of challenge|
+| resolved | bool | indicates challenge is resolved |
+|stake | uint | number of tokens at stake |
+|totalTokens | uint | number of tokens used in voting by the winning side |
+|tokenClasims | mapping(address=>bool) | indicates whether a voter has claimed reward |
+
+#### Interaction with the Asset Registry
+
+* Case 1: New asset applies to be listed:
+	* Asset Registry Smart Contract SHOULD check the **whitelisted** status in "Listing" object (retrieved from mapping of "listings");
+	* It determines whether the dataset should be listed in the marketplace.
+
+
+* Case 2: Removal of existing asset:
+	* The resolved challenge SHOULD send notice to Asset Registry if TCR voting decides to remove the dataset;
+	* Asset Registry smart contract disables the asset after receive the notice.
+
+---
 
 #### Ocean Agent API
 
