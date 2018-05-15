@@ -76,7 +76,7 @@ WMS    |                                         Language                    | D
 
 WMS    |                                         Language                    | Deployed By | Web UI     
 --------------|--------------------------------------------------------------|-------------|---------
-[Galaxy Engine](https://galaxyproject.org/) | Python                     | Johns Hopkins    |   Yes
+[Galaxy Engine](https://galaxyproject.org/) | Python                     | Johns Hopkins University    |   Yes
 [Cosmos](https://cosmos.hms.harvard.edu/) | Python              | Harvard Medical School    |   No
 [Apache Taverna](https://taverna.incubator.apache.org/)| Java                | University of Manchester | No
 [Cromwell Engine](http://cromwell.readthedocs.io/en/develop/)   |       Scala        | Broad Institute   | No
@@ -144,13 +144,14 @@ For more details about advanced branching and synchroization patterns check out 
 This architecture assumes that we have a curation market layer which disseminates and curates services in Ocean protocol. So lets start with 
 the building blocks of salpchain. It consists of three basic parts:
 
-- ***Workflow Management***
+### 5.1 Workflow Management
 
 This component handles the workflow initialization, calling scheduler, and triggering the execution of tasks.
 You can think about it as a chained tasks where you can execute the workflow in terms of three basic steps and 
-then execute the last task. 
+then execute the last task (This is only in case of **sequence flow pattern**). Different pattern implementations 
+will be shown in the next section. 
 
-***TODO***
+
 
 ## 6. Implementation <a name="implementation"></a>
 
@@ -160,6 +161,9 @@ then execute the last task.
 
 In this section we are going to show two complex use case scenarios:
 
+### 7.1 Medical Variant Detection 
+
+![Medical variant detection](imgs/wms-usecase2.png)
 
 ***TODO***
 
