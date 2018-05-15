@@ -49,6 +49,8 @@ but also they might include different computation, storage and networking servic
 you will need to schedule these services in terms of workflow. Salpchain is an on-chain workflow 
 management system in Ocean protocol that manages the scheduling and execution of workflows on Ethereum blockchain.
 
+![On-chain Workflow](imgs/onchain-workflow.png)
+
 ## 4. Introduction to WMS <a name="wms"></a>
 
 Workflows are a sequence of tasks where each task scheduled and triggered by an event. Mainly we use workflows to handle complex 
@@ -91,8 +93,9 @@ reference back to itself. And the magic what DAG does is if you can put any inpu
 see that this will flow downstream of this task and it will be available for next tasks. This keeps your workflow more modular by using the same tasks in 
 different positions in a workflow.
 
-As shown below we can notice that all operations are moving in one direction from top to down. You can use 
-tree data structure but DAGs are more optimized to use the same operation multiple times.
+As shown below we can notice that all operations are moving in one direction from top to bottom. You can use 
+tree data structure but DAGs are more optimized to use the same operation multiple times. For instance we use 
+<code>T1</code> called twice during workflow execution.
 
 ![DAG Example](imgs/DAG.png)
 
