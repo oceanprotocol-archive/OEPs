@@ -86,9 +86,15 @@ that every task node MUST be able to receive inputs and bypass its outputs to ot
 
 ![Typical Workflow](imgs/taskflow.png)
 
-And the magic what Directed Acyclic Graph (DAG) does is if you can put any input dataset at task node (upstream) in this workflow, you will
+Directed Acyclic Graph (DAG) means that all of theses links among tasks MUST move in the same direction, and they can not be bi-directional. Also any task node can not
+reference back to itself. And the magic what DAG does is if you can put any input dataset at task node (upstream) in this workflow, you will
 see that this will flow downstream of this task and it will be available for next tasks. This keeps your workflow more modular by using the same tasks in 
 different positions in a workflow.
+
+As shown below we can notice that all operations are moving in one direction from top to down. You can use 
+tree data structure but DAGs are more optimized to use the same operation multiple times.
+
+![DAG Example](imgs/DAG.png)
 
 Most of modern workflow management systems supports DAG based workflows. But by designed it was intended to also support the following 
 important characteristics.
