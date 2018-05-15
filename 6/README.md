@@ -109,7 +109,7 @@ important characteristics.
 
 ### 4.2 Workflow Patterns
 
-Workflows has some sort of patterns which solve common problems. In this subsection we are going 
+Workflows have some sort of patterns which solve common problems. In this subsection we are going 
 to show the basic control flow patterns:
 
 * ***Sequence***
@@ -123,7 +123,7 @@ Also It is called AND-Split where single process can be divides ( unconditionall
 
 * ***Synchronization***
 
-Also known as AND-Join which means cpmpining multiple or parallel threads of execution into a single thread.
+Also known as AND-Join which means combining multiple or parallel threads of execution into a single thread.
 
 * ***Execlusive Choice***
 
@@ -133,7 +133,7 @@ of these paths in order to complete the payment.
 
 * ***Simple Merge*** 
 
-The simple merge or XOR-Join pattern use only one of the paths without any synchronization in order to proceed the  next task. For example, payment could be 
+The simple merge or XOR-Join pattern uses only one of the paths without any synchronization in order to proceed the  next task. For example, payment could be 
 performed by bank transfer or credit card.
 
 ![Workflow Control Patterns](imgs/patterns.png)
