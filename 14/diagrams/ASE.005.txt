@@ -4,32 +4,27 @@ title Associating Asset and Provider (ASE.005)
 participant Provider
 participant Agent
 participant Orchestrator
-participant Ocean DB
 participant Dec VM
+participant Ocean DB
 
 Provider->Agent: Provider association request
 
 Agent->Agent: Input validation
 Agent-->Provider: HTTP 400 (Bad params)
 
-Agent<->Ocean DB: Check if asset & user exists
-Agent-->Provider: HTTP 400 (Invalid asset/user)
 
 Agent<->Dec VM: Access Control
 Agent-->Provider: HTTP 401 (Forbidden)
 
 
-Agent->+Orchestrator: Provider Associaton
+Agent->+Orchestrator: Provider Association
 
 Orchestrator->Dec VM: Provider Association
 Dec VM->Orchestrator: ACK
-Orchestrator->Ocean DB: Provider Association
-Ocean DB->Orchestrator: ACK
+Orchestrator-->Ocean DB: Provider Association (*optional)
+Ocean DB-->Orchestrator: ACK
 
 Orchestrator->-Agent: ACK
 
 Agent->Provider:  HTTP 202 (Asset)
-
-
-
 

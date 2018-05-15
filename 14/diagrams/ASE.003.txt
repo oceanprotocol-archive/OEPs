@@ -4,15 +4,14 @@ title Updating an Asset (ASE.003)
 participant Publisher
 participant Agent
 participant Orchestrator
-participant Ocean DB
 participant Dec VM
+participant Ocean DB
 
 Publisher->Agent: Asset Update request
 
 Agent->Agent: Input validation
 
-Agent<->Ocean DB: Check if user exists
-Agent-->Publisher: HTTP 400 (Invalid user)
+Agent-->Publisher: HTTP 400 (Invalid input)
 
 Agent<->Dec VM: Access Control
 Agent-->Publisher: HTTP 401 (Forbidden)
@@ -20,9 +19,11 @@ Agent-->Publisher: HTTP 401 (Forbidden)
 
 Agent->+Orchestrator: Asset Update
 
+Orchestrator->Dec VM: Update Asset
+Dec VM->Orchestrator: ACK
 
-Orchestrator->Ocean DB: Update Asset
-Ocean DB->Orchestrator: ACK
+Orchestrator-->Ocean DB: Update Asset (* optional)
+Ocean DB-->Orchestrator: ACK
 
 Orchestrator->-Agent: ACK
 

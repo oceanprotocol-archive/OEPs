@@ -64,11 +64,12 @@ The data assets require to be registered in the system and managed in a basic wa
 
 Requirements are:
 
+* OCEAN DB is optional/pluggable, OAR MUST work without an OCEAN DB backend
 * ASSETs are DATA objects describing RESOURCES under control of a PUBLISHER
 * PUBLISHERs are incentivized to PUBLISH ASSETS in order to make them discoverable for third parties
 * PROVIDER can give access to some ASSETs getting tokens in reward
-* PUBLISHER publishes ASSET METADATA on OCEAN DB 
-* CONSUMER queries OCEAN DB and find ASSETs METADATA 
+* PUBLISHER publishes ASSET METADATA on OCEAN DB or an independent Database
+* CONSUMER queries OCEAN DB or an independent Database and find ASSETs METADATA 
 * CONSUMER resolves PROVIDER for ASSET METADATA 
 * CONSUMER creates ASSET SERVICE_AGREEMENT(token, proofs, ...) with PROVIDER 
 * CONSUMER consumes ASSET SERVICE from PROVIDER
@@ -78,11 +79,14 @@ Requirements are:
 * ASSET content can be RETRIEVED from the PROVIDER
 * ASSETS can have a status of DISABLED or RETIRED, which implies that the ASSET cannot be CONSUMED anymore
 * PROVIDER provides SERVICE and PROOF VERIFIER validates PROOF
+ 
   
 <a name="specification"></a>
 ## Specification 
 
-The **Asset Metadata** (aka **Asset**) information should be managed using an API. This API should exposes the following capabilities:
+The **Asset Metadata** (aka **ASSET**) information should be managed using an API. 
+As general rule, only the INDISPENSABLE information to run the Smart Contracts MUST be stored in te Decentralized VM
+This API should exposes the following capabilities:
 
 * Registering a new Asset
 * Retrieve metadata information of an Asset
@@ -94,9 +98,8 @@ The following restrictions apply during the design/implementation of this OEP:
 
 * The Assets registered in the system MUST be associated to the Actors registering the Assets
 * The Actors associated to the Assets (PUBLISHER or PROVIDER) MUST have a valid Account Id in the system
-* The information or Metadata about the Assets MUST be stored in Ocean DB
-* Only the very basic information about the Assets (ids and pricing) MUST be stored in the Decentralized VM too
-* As general rule, only the INDISPENSABLE information to run the Smart Contracts MUST be stored in te Decentralized VM 
+* The information or Metadata about the Assets will be stored in Ocean DB if the user plugs a valid Ocean DB implementation
+* Only the very basic information about the Assets (ids and pricing) MUST be stored in the Decentralized VM too 
 * AGENT MUST NOT store any information about the Assets or Actors during this process
 
 <a name="proposed-solution"></a>
@@ -105,7 +108,7 @@ The following restrictions apply during the design/implementation of this OEP:
 The proposed solution is composed by the interaction of different elements:
 
 * A high level RESTful HTTP API exposing the methods required to manage the Assets Registry (AGENT)
-* A Keeper node registering the complete Assets metadata (KEEPER - Ocean DB)
+* A Keeper node registering the complete Assets metadata (KEEPER - Ocean DB). This is optional and depends of the user parameters.
 * A Keeper node registering the Asset IDs (KEEPER - Decentralized VM)
 * A backend orchestration layer (AGENT) in charge of coordinating the persistence of the Assets in both backends consistently (Ocean DB & Decentralized VM)
 
@@ -126,57 +129,15 @@ The above diagram shows the high level interactions between the components invol
 * The AGENT MUST authorize the user via KEEPER
 * The AGENT MUST orchestrate the Asset registering in the OCEAN DB and DECENTRALIZED VM
 * The DECENTRALIZED VM MUST only store as less information as possible. Only the main IDs and pricing information
-* The OCEAN DB MUST store the complete ASSET Metadata
+* The OCEAN DB MUST store the complete ASSET Metadata if it's configured/instantiated (this is OPTIONAL)
 * The AGENT MUST validate the basic parameters sent by the PUBLISHER
 * The AGENT MUST authenticate the PUBLISHER sending the request
 * The AGENT MUST authorize the user via KEEPER
-* The OCEAN DB MUST store the relation between the ASSET and the PROVIDER
+* The OCEAN DB MUST store the relation between the ASSET and the PROVIDER if it's configured/instantiated (this is OPTIONAL)
 
 
 The following sections will describe the end to end implementation using a top to bottom approach, 
 starting from the API interface to the Keeper implementation, using the Ocean DB and the Decentralized VM.
-
-<a name="cache-system"></a>
-### Data Consistency 
-
-The AGENT will need to integrate a local CACHE system to coordinate the consistency of the data written in both systems (Decentralized VM & Ocean DB). This CACHE should provide the following capabilities:
-
-* It MUST be a Local cache, not exposed in any way to the network
-* If AGENT crashes, the AGENT MUST read the state of cache to continue retrying the persistence of the Assets in the different backends
-* The state of the cache is INTERNAL to the local node, so MUST NOT be shared with a third party in any moment
-* If any error occurs during the persistence of the content, the retries field MUST be increased
-* The cache MUST store the representation of the Asset as soon as a new registering request be received
-* The cache status MUST be UPDATED after the content be stored in the Decentralized VM
-* The row representing the asset in CACHE MUST be DELETED after the data been stored in Ocean DB
-* The CACHE system MUST be thread safe, allowing multiple threads pulling data from the CACHE    
-
-![Cache Interactions](images/cache-interactions.png "Cache Interactions")
-
-In the above image can be viewed the CACHE provides persistence mechanism allowing to work as source of truth during the interaction with the data stores.
-At the start of the AGENT, the system can sync the state with the CACHE. In case a previous failure, the CACHE MUST include the pending transactions to be applied. In that case, the AGENT can pickup from the CACHE those and apply the modifications.
-After a normal operation, the CACHE MUST delete the completed transaction. 
-
-![Cache Queue](images/cache-queues.png "Cache Queues")
-
-The CACHE system can be viewed as a multiple queues FIFO system, where first transactions inserted will be processed by the Managers.
-
-The CACHE system MUST provide multiple queues or topics, allowing multiple managers to use the CACHING system capabilities.
-
-The cache should store the following information:
-
-| Attribute         | Description|
-|:------------------|:----------|
-|id                 |Id of the content, in this case assetId|
-|type               |Type of the content, in this case "ASSET". It could be also "ACTOR", "CONTRACT", etc.|
-|status             |Status. Options are: CACHED, STORED_VM, STORED_DB 
-|retries            |Number of retries before to remove from the cache. If 0, no limit
-|ttl                |Number of seconds after the creationDatetime before to remove from the cache. If 0, no limit 
-|creationDatetime   |Creation datetime
-|updateDatetime     |Update datetime
-|content            |Payload of the content (Json or Avro representation of the Asset)
-
-
-The CACHE system is the source of truth of the Orchestration Layer during the modification of data in the operations involving the Decentralized VM and Ocean DB.
 
 ---
 
@@ -195,7 +156,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ASE.001
-Path: /api/v1/keeper/assets/metadata
+Path: /api/v1/keeper/assets
 HTTP Verb: POST
 Caller: The Asset PUBLISHER
 Input: Asset Schema
@@ -213,39 +174,42 @@ HTTP Output Status Codes:
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
 |assetId    |string|Id of the Asset (optional). If not assetId is provided, the system will generate the id|
-|owner      |string|Owner address. This parameter MUST be validated.|
-|name       |string|Asset name (optional)|
+|owner      |string|Owner address. This parameter MUST be validated. This information will not be give as part of the Payload, it will be retrieved from the Authorization HTTP header|
 |marketplaceId    |string|Id of the Marketplace (optional). It indicates if the asset was published through a specific marketplace|
-|mimeType       |string|The mime-type of the file (optional)|
+|name       |string|Asset name (optional)|
+|mimeType   |string|The mime-type of the file (optional)|
 |attributes |array |Array of key, value attributes (optional)|
 |parameters |array | If it's a service or operation, specifies the K,V parameters (optional)|
-|links |array |List of links to other assets (samples, previous versions, etc.) (optional)|
+|links      |array |List of links to other assets (samples, previous versions, etc.) (optional)|
 
 Because all parameters are optional, an empty payload is allowed to create an Asset.
+In the composition of the HTTP payload, only the assetId and marketplaceId will be in the root of the JSON document. The rest of the parameters (optional), will be included as part of the Metadata entity.
 
 Example: 
 
 ```json
-{
-	"name": "transaction logs jan.2018",
-	"owner": "0x1234aa33bb",
-	"mimeType": "text/csv",
-	"attributes": [{
-			"key": "description",
-			"value": "company transaction logs"
-		},
-		{
-			"key": "generatedDatetime",
-			"value": "Jan/2018"
-		}
-	],
-	"parameters": [],
-	"links": [{
-		"name": "dataSample",
-		"linkedAssetId": "0x12345678",
-		"linkedType": "subset",
-		"url": "http://example.com/samples/tx/2018/01.csv"
-	}]
+{	
+	"marketplaceId": "0xaabbccdd",
+	"metadata": {
+        "name": "transaction logs jan.2018",
+        "mimeType": "text/csv",
+        "attributes": [{
+                "key": "description",
+                "value": "company transaction logs"
+            },
+            {
+                "key": "generatedDatetime",
+                "value": "Jan/2018"
+            }
+        ],
+        "parameters": [],
+        "links": [{
+            "name": "dataSample",
+            "linkedAssetId": "0x12345678",
+            "linkedType": "subset",
+            "url": "http://example.com/samples/tx/2018/01.csv"
+        }]
+	}
 }
 ```
 
@@ -277,18 +241,21 @@ Example:
     "creationDatetime": "2018-05-18T16:00:00Z",
     "updateDatetime": "2018-05-18T16:00:00Z",
     "contentState": "PENDING",
-	"name": "transaction logs jan.2018",
-	"mimeType": "text/csv",
-	"attributes": [ .. ],
-	"parameters": [ .. ],
-	"links": [ .. ]
+    "metadata" : {
+        "name": "transaction logs jan.2018",
+        "mimeType": "text/csv",
+        "attributes": [ .. ],
+        "parameters": [ .. ],
+        "links": [ .. ]
+	}
 }
 ```
 
 #### Orchestration Layer
 
-The AGENT node will be in charge of manage the Assets creation. 
-Assets MUST be persisted in the Decentralized VM and Ocean DB, storing in the Decentralized DB only the essential information to run the Smart Contracts.
+The AGENT node will be in charge of manage the Assets creation. The Ocean DB integration is optional, so the Metadata will be stored there only an Ocean DB interface implementation is provided.  
+Assets MUST be persisted in the Decentralized VM and Ocean DB (if the configuration is provided), storing in the Decentralized DB only the essential information to run the Smart Contracts.
+ 
 Ocean DB will store the complete metadata information. To coordinate the creation of the Assets in a consistent way in both data stores, the AGENT will implement an Orchestration component in charge of that.
 
 The AGENT will coordinate the creation of an Asset writing initially in the Decentralized VM. It will return a **Transaction Receipt** (see more details about the [Transaction Receipt model](https://github.com/ethereum/wiki/wiki/JavaScript-API#web3ethgettransactionreceipt)).
@@ -297,6 +264,7 @@ After of that the Orchestration layer will persist the complete Asset metadata i
 ![Orchestration Layer behaviour](images/arch-orchestration-with-caching.png)
 
 
+<a name="new-asset-vm"></a>
 #### Interaction with the Decentralized VM
 
 The **KEEPER::Decentralized VM** will persist the following information:
@@ -305,6 +273,7 @@ The **KEEPER::Decentralized VM** will persist the following information:
 |:----------|:-----|:------------|
 |assetId    |byte32|Asset Id|
 |actorId    |address|Owner of the Asset|
+|contentState      |uint|TCR State of the Asset|
 
 Using any of the existing web3 implementation library (web3.js, web3.py, web3.j, etc), it's possible to interact with the VM Smart Contracts.
 
@@ -355,25 +324,24 @@ The **AssetsRegistry** smart contract layer could expose the following public me
 
 #### Interaction with Ocean DB
 
-The **KEEPER::Ocean DB** will persist the following information:
+If the **KEEPER::Ocean DB** is integrated, it will persist the following information:
 
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
 |assetId    |string|Id of the Asset|
 |owner    |string|Account address|
-|name       |string|Asset name (optional)|
 |marketplaceId    |string|Id of the Marketplace (optional)|
+|contentState       |string     |Internal state of the Asset|
+|**Metadata**:|     ||
+|creationDatetime   |datetime   |Allocated by the system when was created in the AGENT (universal datetime), time before consensus |
+|updateDatetime     |datetime   |Allocated by the system when was updated the metadata in the AGENT (universal datetime), time before consensus |
+|name       |string|Asset name (optional)|
 |mimeType       |string|The mime-type of the file (optional)|
 |attributes |array |Array of key, value attributes (optional)|
 |parameters |array | If it's a service or operation, specifies the K,V parameters (optional)|
 |links |array |List of links to other assets (samples, previous versions, etc.) (optional)|
-|creationDatetime   |datetime   |Allocated by the system when was created in the AGENT (universal datetime), time before consensus |
-|updateDatetime     |datetime   |Allocated by the system when was updated the metadata in the AGENT (universal datetime), time before consensus |
-|contentState       |string     |Internal state of the Asset|
 |providers       |object     |Providers giving access to the data. This is managed by the [**ASE.005**](#provider-asset) operation.|
 
-
-The interaction with Ocean DB, using BigChain DB (BDB) as backend, can be implemented using any of the existing [BDB libraries](https://docs.bigchaindb.com/projects/server/en/latest/drivers-clients/) or the [HTTP interface](https://docs.bigchaindb.com/projects/server/en/latest/http-client-server-api.html).  
 
 
 ---
@@ -383,7 +351,7 @@ The interaction with Ocean DB, using BigChain DB (BDB) as backend, can be implem
 
 ![Retrieve metadata of an Asset](images/ASE.002.png "ASE.002")
 
-No information is going through the Decentralized VM.
+No information is common from Ocean DB.
 The retrieval of an Asset involves the following implementations:
 
 #### Ocean Agent API
@@ -392,7 +360,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ASE.002
-Path: /api/v1/keeper/assets/metadata/{assetId}
+Path: /api/v1/keeper/assets/{assetId}
 HTTP Verb: GET
 Caller: Any User
 Input: assetId
@@ -412,22 +380,32 @@ HTTP Output Status Codes:
 Example: 
 
 ```http
-GET http://localhost:8080/api/v1/keeper/assets/metadata/777227d45853a50eefd48dd4fec25d5b3fd2295e
+GET http://localhost:8080/api/v1/keeper/assets/777227d45853a50eefd48dd4fec25d5b3fd2295e
 ```
 
-Before to query the database, it's necessary to check the length and format of the assetId. 
+Before to query the Decentralized VM, it's necessary to check the length and format of the assetId. 
 If the length and format doesn't fit the standard address definition, the system should return a **HTTP 400** Invalid params message.
 
 
-##### Output
+#### Interaction with the Decentralized VM
 
-The expected output implements the Asset model described in the [previous section](#asset-model) 
-
-#### Interaction with Ocean DB
-
-The Asset Metadata will be retrieved directly from **Ocean DB** using the BDB Libraries or API. 
+The Asset information will be retrieved directly from the **KEEPER::Decentralized VM** Smart Contract interfaces. 
 It's necessary to validate that the ```contentState != DISABLED```.
 Disabled Assets MUST return a ```HTTP 404 Not Found``` status code.   
+
+##### Output
+
+The essential information is coming from the Decentralized VM. The expected output will provide the following attributes: 
+
+| Attribute | Type | Description |
+|:----------|:-----|:------------|
+|assetId    |byte32|Asset Id|
+|actorId    |address|Owner of the Asset|
+|contentState      |uint|TCR State of the Asset|
+
+If Ocean DB is enabled, the system will try to retrieve the complete Metadata using the interfaces and **assetId**. 
+If the system is able to do it, the output will include in the metadata section all the extended information provided by the external system. 
+
 
 ---
 
@@ -435,7 +413,6 @@ Disabled Assets MUST return a ```HTTP 404 Not Found``` status code.
 ### Updating Asset Metadata 
 
 ![Updating Asset Metadata](images/ASE.003.png "ASE.003")
-
 
 In the above diagram the Agent and the Orchestration capabilities are implemented in the AGENT scope.
 The registering of a new Asset involves the following implementations:
@@ -446,7 +423,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ASE.003
-Path: /api/v1/keeper/assets/metadata
+Path: /api/v1/keeper/assets
 HTTP Verb: PUT
 Caller: The Asset PUBLISHER
 Input: Asset Schema
@@ -473,16 +450,23 @@ The expected output implements the Asset model described in the [output paramete
 
 The AGENT node will be in charge of manage the Assets update. 
 
-This method doesn't need to modify any information in the Decentralized VM scope, so only integrate it to implement the access control mechanism.
+This method only provide the capabilities to update the following attributes in the the Decentralize VM:
+
+* **marketplaceId**   
+
+In addition to this, integrates the Decentralized VM to implement the access control mechanism.
 The Access Control checks if the user requesting to Update the Asset, has enough privileges to do it. 
 To do that, the ```canUpdate(assetId)``` method is called. This method should return a boolean value indicating if the Asset can be modified.  
 
 ```solidity
-    function canUpdate(bytes32 _assetId) public returns (bool canUpdate) { }   
+    function canUpdate(bytes32 _assetId) public returns (bool canUpdate) { }
+    
+    function update(bytes32 _assetId, address _marketplaceId) public returns (bool success) { }
+   
 ```
 
-
-If the Asset can be updated, the Orchestration layer will persist the complete Asset metadata in Ocean DB. Also the attribute **updateDatetime** will be updated with the KEEPER universal datetime. 
+If the Asset can be updated, and Ocean DB is enabled, the Orchestration layer will persist the complete Asset metadata in Ocean DB. 
+Also the attribute **updateDatetime** will be updated with the KEEPER universal datetime. 
 
 
 ---
@@ -505,7 +489,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ASE.004
-Path: /api/v1/keeper/assets/metadata/{assetId}
+Path: /api/v1/keeper/assets/{assetId}
 HTTP Verb: DELETE
 Caller: The Asset owner
 Input: assetId
@@ -526,7 +510,7 @@ HTTP Output Status Codes:
 Example: 
 
 ```http
-DELETE http://localhost:8080/api/v1/keeper/assets/metadata/777227d45853a50eefd48dd4fec25d5b3fd2295e
+DELETE http://localhost:8080/api/v1/keeper/assets/777227d45853a50eefd48dd4fec25d5b3fd2295e
 ``` 
 
 ##### Output
@@ -539,9 +523,7 @@ After execute this method, if everything worked okay, the **contentState** attri
 #### Orchestration Layer
 
 The AGENT node will be in charge of manage the Assets retirement. 
-Assets MUST be updated in Ocean DB and retired from the Decentralized VM.
-
-This method MUST uses the CACHE system in order to maintain the consistency between the Decentralized VM and Ocean DB.
+If Ocean DB is enabled, Assets MUST be updated in Ocean DB and retired from the Decentralized VM.
 
 Before to proceed to any data modification, it's necessary to validate if the address requesting to retire an Asset has privileges to do it. 
 The Access Control component is in charge of this validation. 
@@ -560,12 +542,7 @@ After to do that, the Orchestration layer will update the following information 
 * The attribute **updateDatetime** will be updated with the KEEPER universal datetime. 
 
 The AGENT will coordinate the retirement of an Asset interacting initially with the Decentralized VM. It will return a **Transaction Receipt** (see more details about the [Transaction Receipt model](https://github.com/ethereum/wiki/wiki/JavaScript-API#web3ethgettransactionreceipt)).
-After of that the Orchestration layer will persist the complete Asset metadata in Ocean DB.
-
-To maintain the consistency between Ocean DB and the Decentralized VM, the [CACHE system](#cache-system) MUST be used.
-
-
-
+After of that the Orchestration layer will update the above attributes in Ocean DB if it's enabled.
 
 
 ---
@@ -621,7 +598,6 @@ The **Price** object includes the following attributes:
 |name       |string|Name about the price (optional)|
 |description|string|Description about the price (optional)|
 
-
 The **VerificationProof** object includes the following attributes:
 
 | Parameter | Type | Description |
@@ -676,8 +652,8 @@ Having into account the previous schemas, an example of the input request could 
 #### Orchestration Layer
 
 The AGENT node will be in charge of manage the association between PROVIDERS and ASSETS.
-The information about the PRICING and VERIFICATION PROOFS MUST be stored in the Decentralized DB and Ocean DB. 
-Ocean DB will store the complete metadata information. 
+The information about the PRICING and VERIFICATION PROOFS MUST be stored in the Decentralized DB. The complete information (Metadata + Pricing + etc.) will be send also to Ocean DB if it's enabled. 
+ 
 
 #### Interaction with the Decentralized VM
 
@@ -716,6 +692,13 @@ The information to store in the **KEEPER::Decentralized VM** SHOULD be the minim
 |Pricing - price  |uint256|Price applying. 0 if scheme is FREE (0)|
 |VerificationProof - expectedResult  |byte32|Expected result of the Verification Proof|
 
+Pricing scheme can be mapped to unsigned integers for efficiency:
+
+* 0 => FREE
+* 1 => FIXED
+* 2 => SERVICE
+* 3 => SMART CONTRACT 
+
 An ASSET can be accessed via multiple PROVIDERS. So It's necessary to associate a new **ProviderListing** to the Asset. 
 
 ```solidity
@@ -731,7 +714,7 @@ An ASSET can be accessed via multiple PROVIDERS. So It's necessary to associate 
 <a name="asset-provider-insert-db"></a>
 #### Interaction with Ocean DB 
 
-The **KEEPER::Ocean DB** will persist **Pricing** and **VerificationProofs** as nested objects associated to a specific providerId.
+If it's enabled, the **KEEPER::Ocean DB** will persist **Pricing** and **VerificationProofs** as nested objects associated to a specific providerId.
 
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
@@ -838,8 +821,7 @@ Example:
 #### Orchestration Layer
 
 The AGENT node will be in charge of updating the association between the PROVIDER and the ASSET.
-The information about the PRICING and VERIFICATION PROOFS MUST be stored in the Decentralized DB and Ocean DB. 
-Ocean DB will store the complete metadata information. 
+The information about the PRICING and VERIFICATION PROOFS MUST be stored in the Decentralized DB. If Ocean DB is enabled, the information will be sent there too.  
 
 #### Interaction with the Decentralized VM
 
@@ -870,7 +852,7 @@ In that case the **disassociateProvider** method will allow to delete this assoc
 
 #### Interaction with Ocean DB
 
-The **KEEPER::Ocean DB** will persist **Pricing** and **VerificationProofs** as nested objects associated to a specific providerId.
+If it's enabled, the **KEEPER::Ocean DB** will persist **Pricing** and **VerificationProofs** as nested objects associated to a specific providerId.
 The model is described in the [ASE.005 Ocean DB interaction section](#asset-provider-insert-db).
 
 If **pricing** and **verificationProofs** attributes are empty, means it's necessary to delete the association between the ASSET and the PROVIDER.
