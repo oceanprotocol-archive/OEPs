@@ -118,7 +118,7 @@ We can show the interaction between layers and components using a stack view:
 Main interactions involving PUBLISHERs, PROVIDERs and Ocean nodes are using the Keeper nodes as source of truth. 
 In the below image you can see an example of interaction:
 
-![high level interactions](images/arch-assets-interactions.png)
+![high level interactions](images/arch-assets-interactions2.png)
 
 The above diagram shows the high level interactions between the components involved:
 
