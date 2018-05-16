@@ -5,6 +5,7 @@ type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
+		Fang Gong <fang@oceanprotocol.com>
 ```
 
 <!--ts-->
@@ -857,6 +858,106 @@ The model is described in the [ASE.005 Ocean DB interaction section](#asset-prov
 If **pricing** and **verificationProofs** attributes are empty, means it's necessary to delete the association between the ASSET and the PROVIDER.
 In that case the complete relation between the Asset and the Provider is deleted of the **providers** array.
 
+
+---
+<a name="asset-tcr"></a>
+### Token Curation Registry (TCR) of Assets 
+
+Token curation registry (TCR) is used to maintain a list of high quality datasets through challenge-voting process:
+
+* Voting process can be initiated by:
+	* new dataset applies to be listed in the marketplace;
+	* existing dataset is challenged by any user;
+	* all paritcipants including applicant, voter and challenger need to deposit tokens for challenge or voting.
+	* deposits of minority in voting result will be distributed to majority party.
+* Each participant can vote for or against the dataset according to their opinion.
+* After the voting result is revealed, the token deposit will be distributed among winning parties.
+* Depends on the voting result, the dataset will be accepted to be listed or removed from the marketplace. 
+
+#### TCR Smart Contract
+
+The TCR Smart Contract can be implemented as a stand-alone module which interacts with the Assets Registry through Interface Functions. 
+
+Let us introduce the data struct and functions of TCR smart contract first, and then discuss the interaction to Assets Registry smart contract.
+
+The TCR smart contract SHOULD provide the structs including `listing` and `challenge`:  
+
+```solidity
+    // Maps assetId to associated listing data
+    mapping(string => Listing) public listings;
+    
+    // Maps challengeIDs to associated challenge data
+    mapping(uint => Challenge) public challenges;
+    
+	// Listing data struct
+	struct Listing {
+		uint		version;
+		uint		applicationExpiry;
+		bool		whitelisted;
+		uint		challengeID;
+		string		description;
+	}
+	
+	
+	// Challenge data struct
+	struct Challenge {
+		uint		rewardPool;
+		address		challenger;
+		uint		stake;
+		uint		totalTokens;
+		bool		resolved;
+		mapping(address => bool) tokenClasims; 
+	}  
+```
+
+The **Listing** object includes the following attributes:
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|version | uint | the version of TCR contract |
+|applicationExpiry  |uint| Expiration date of application stage|
+|whitelisted  |bool   | Indicates registry status|
+|challengeID       |uint| voting ID in challenge stage|
+|description|string|Description about the TCR (optional)|
+
+The **Challenge** object includes the following attributes:
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|rewardPool  |uint| pool of tokens to be distributed to winning voters|
+|challenger | address| owner of challenge|
+| resolved | bool | indicates challenge is resolved |
+|stake | uint | number of tokens at stake |
+|totalTokens | uint | number of tokens used in voting by the winning side |
+|tokenClasims | mapping(address=>bool) | indicates whether a voter has claimed reward |
+
+#### Interaction with the Asset Registry
+
+The Asset Registry Smart Contract SHOULD provide following methods to interact with TCR in two scenarios:
+
+* *Case 1: registering new dataset initiates the voting process when TCR is enabled:*
+	* The function `applyListAsset` creates a challenge of `_assetId`; 
+	* The challenge triggers the voting process;
+	* Depends on the result, the function returns "true" if most voters agree to list the new dataset and new dataset can be listed in the marketplace;
+	* It returns "false" if not and new dataset is disabled. 
+
+	```solidity
+		function applyListAsset(
+	        bytes32 _assetId, 
+	        address _providerId) 
+	    public returns (bool success) { }
+	
+	```
+
+* *Case 2: User challenges the existing asset:*
+	* User creates a challenge of "_assetId" and triggers the voting process with TCR Smart Contract;
+	* The TCR Smart Contract SHOULD call `retire` methods in Asset Registry if voting result is to remove the asset from the marketplace;
+	* As such Asset Registry smart contract removes the asset.
+
+	```solidity
+	function retire(bytes32 _assetId) public returns (bool success) { }
+	```
+	
 
 ---
 
