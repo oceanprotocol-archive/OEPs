@@ -64,22 +64,21 @@ The data assets require to be registered in the system and managed in a basic wa
 
 Requirements are:
 
-* OCEAN DB is optional/pluggable, OAR MUST work without an OCEAN DB backend
-* ASSETs are DATA objects describing RESOURCES under control of a PUBLISHER
-* PUBLISHERs are incentivized to PUBLISH ASSETS in order to make them discoverable for third parties
-* PROVIDER can give access to some ASSETs getting tokens in reward
-* PUBLISHER publishes ASSET METADATA on OCEAN DB or an independent Database
-* CONSUMER queries OCEAN DB or an independent Database and find ASSETs METADATA 
+* ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER
+* PUBLISHERS are incentivized to PUBLISH ASSETS in order to make them discoverable for third parties
+* PROVIDER can give access to some ASSETS getting tokens in reward
+* PUBLISHER could publish ASSET METADATA on OCEAN DB or an independent Database
+* CONSUMER queries OCEAN DB or an independent Database and find ASSETS METADATA 
 * CONSUMER resolves PROVIDER for ASSET METADATA 
 * CONSUMER creates ASSET SERVICE_AGREEMENT(token, proofs, ...) with PROVIDER 
 * CONSUMER consumes ASSET SERVICE from PROVIDER
-* ASSET metadata are STORED on a decentralized REGISTRY 
-* ASSET metadata can be UPDATED 
-* ASSET metadata can be RETRIEVED from the REGISTRY
+* ASSET essential attributes are STORED on a decentralized REGISTRY 
+* ASSET METADATA is stored in OCEAN DB if it's enabled in the AGENT
+* ASSET metadata can be RETRIEVED from OCEAN DB if it's enabled in the AGENT
 * ASSET content can be RETRIEVED from the PROVIDER
 * ASSETS can have a status of DISABLED or RETIRED, which implies that the ASSET cannot be CONSUMED anymore
 * PROVIDER provides SERVICE and PROOF VERIFIER validates PROOF
- 
+* OCEAN DB is optional/pluggable, OAR MUST work without an OCEAN DB backend 
   
 <a name="specification"></a>
 ## Specification 
@@ -107,7 +106,7 @@ The following restrictions apply during the design/implementation of this OEP:
 
 The proposed solution is composed by the interaction of different elements:
 
-* A high level RESTful HTTP API exposing the methods required to manage the Assets Registry (AGENT)
+* A high level HTTP API exposing the methods required to manage the Assets Registry (AGENT)
 * A Keeper node registering the complete Assets metadata (KEEPER - Ocean DB). This is optional and depends of the user parameters.
 * A Keeper node registering the Asset IDs (KEEPER - Decentralized VM)
 * A backend orchestration layer (AGENT) in charge of coordinating the persistence of the Assets in both backends consistently (Ocean DB & Decentralized VM)
@@ -116,7 +115,7 @@ We can show the interaction between layers and components using a stack view:
 
 ![stack view](images/arch-assets-stack.png)
 
-Main interactions involving PUBLISHERs, PROVIDERs and Ocean nodes are using the Keeper nodes as source of truth. 
+Main interactions involving PUBLISHERS, PROVIDERS and Ocean nodes are using the Keeper nodes as source of truth. 
 In the below image you can see an example of interaction:
 
 ![high level interactions](images/arch-assets-interactions2.png)
@@ -141,7 +140,7 @@ starting from the API interface to the Keeper implementation, using the Ocean DB
 
 ---
 
-<a name="registering-a-new-asset"></a>
+<a name="registering-a-new-asset"></a><a name="ASE.001"></a>
 ### Registering a new Asset 
 
 ![Registering a new Asset](images/ASE.001.png "ASE.001")
@@ -346,7 +345,7 @@ If the **KEEPER::Ocean DB** is integrated, it will persist the following informa
 
 ---
 
-<a name="retrieve-asset"></a>
+<a name="retrieve-asset"></a><a name="ASE.002"></a>
 ### Retrieve metadata of an Asset 
 
 ![Retrieve metadata of an Asset](images/ASE.002.png "ASE.002")
@@ -409,7 +408,7 @@ If the system is able to do it, the output will include in the metadata section 
 
 ---
 
-<a name="update-asset"></a>
+<a name="update-asset"></a><a name="ASE.003"></a>
 ### Updating Asset Metadata 
 
 ![Updating Asset Metadata](images/ASE.003.png "ASE.003")
@@ -471,7 +470,7 @@ Also the attribute **updateDatetime** will be updated with the KEEPER universal 
 
 ---
 
-<a name="retire-asset"></a>
+<a name="retire-asset"></a><a name="ASE.004"></a>
 ### Retiring an Asset 
 
 ![Retire an Asset](images/ASE.004.png "ASE.004")
@@ -547,7 +546,7 @@ After of that the Orchestration layer will update the above attributes in Ocean 
 
 ---
 
-<a name="provider-asset"></a>
+<a name="provider-asset"></a><a name="ASE.005"></a>
 ### Make an Asset available through a Provider 
 
 
@@ -773,7 +772,7 @@ Here an example of the **providers** entity added to the **Assets** model:
 
 ---
 
-<a name="provider-asset-update"></a>
+<a name="provider-asset-update"></a><a name="ASE.006"></a>
 ### Updating Asset Provider 
 
 
@@ -863,16 +862,16 @@ In that case the complete relation between the Asset and the Provider is deleted
 <a name="asset-tcr"></a>
 ### Token Curation Registry (TCR) of Assets 
 
-Token curation registry (TCR) is used to maintain a list of high quality datasets through challenge-voting process:
+Token curation registry (TCR) is used to maintain a list of high quality assets through challenge-voting process:
 
 * Voting process can be initiated by:
-	* new dataset applies to be listed in the marketplace;
-	* existing dataset is challenged by any user;
-	* all paritcipants including applicant, voter and challenger need to deposit tokens for challenge or voting.
-	* deposits of minority in voting result will be distributed to majority party.
-* Each participant can vote for or against the dataset according to their opinion.
+	- New Asset applies to be listed in the marketplace
+	- Existing Asset is challenged by any user
+	- All participants including applicant, voter and challenger need to deposit tokens for challenge or voting
+	- Deposits of minority in voting result will be distributed to majority party
+* Each participant can vote for or against the asset according to their opinion.
 * After the voting result is revealed, the token deposit will be distributed among winning parties.
-* Depends on the voting result, the dataset will be accepted to be listed or removed from the marketplace. 
+* Depends on the voting result, the asset will be accepted to be listed or removed from the marketplace. 
 
 #### TCR Smart Contract
 
@@ -974,6 +973,7 @@ The implementation of the full Keeper functionality it's planned for the [Alpha 
 
 ### Status
 unstable
+
 
 <a name="copyright-waiver"></a>
 ## Copyright Waiver  
