@@ -5,7 +5,7 @@ type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
-				 Fang Gong <fang@oceanprotocol.com>
+		Fang Gong <fang@oceanprotocol.com>
 ```
 
 <!--ts-->
