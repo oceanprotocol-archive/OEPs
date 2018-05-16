@@ -5,6 +5,7 @@ type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
+				 Fang Gong <fang@oceanprotocol.com>
 ```
 
 <!--ts-->
@@ -951,7 +952,7 @@ The Asset Registry Smart Contract SHOULD provide following methods to interact w
 * *Case 2: User challenges the existing asset:*
 	* User creates a challenge of "_assetId" and triggers the voting process with TCR Smart Contract;
 	* The TCR Smart Contract SHOULD call `retire` methods in Asset Registry if voting result is to remove the asset from the marketplace;
-	* Asset Registry smart contract disables the asset.
+	* As such Asset Registry smart contract removes the asset.
 
 	```solidity
 	function retire(bytes32 _assetId) public returns (bool success) { }
