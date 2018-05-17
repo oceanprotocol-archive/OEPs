@@ -155,7 +155,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ASE.001
-Path: /api/v1/keeper/assets
+Path: /api/v1/assets
 HTTP Verb: POST
 Caller: The Asset PUBLISHER
 Input: Asset Schema
@@ -359,7 +359,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ASE.002
-Path: /api/v1/keeper/assets/{assetId}
+Path: /api/v1/assets/{assetId}
 HTTP Verb: GET
 Caller: Any User
 Input: assetId
@@ -379,7 +379,7 @@ HTTP Output Status Codes:
 Example: 
 
 ```http
-GET http://localhost:8080/api/v1/keeper/assets/777227d45853a50eefd48dd4fec25d5b3fd2295e
+GET http://localhost:8080/api/v1/assets/777227d45853a50eefd48dd4fec25d5b3fd2295e
 ```
 
 Before to query the Decentralized VM, it's necessary to check the length and format of the assetId. 
@@ -422,7 +422,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ASE.003
-Path: /api/v1/keeper/assets
+Path: /api/v1/assets
 HTTP Verb: PUT
 Caller: The Asset PUBLISHER
 Input: Asset Schema
@@ -488,7 +488,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ASE.004
-Path: /api/v1/keeper/assets/{assetId}
+Path: /api/v1/assets/{assetId}
 HTTP Verb: DELETE
 Caller: The Asset owner
 Input: assetId
@@ -509,7 +509,7 @@ HTTP Output Status Codes:
 Example: 
 
 ```http
-DELETE http://localhost:8080/api/v1/keeper/assets/777227d45853a50eefd48dd4fec25d5b3fd2295e
+DELETE http://localhost:8080/api/v1/assets/777227d45853a50eefd48dd4fec25d5b3fd2295e
 ``` 
 
 ##### Output
@@ -564,7 +564,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ASE.005
-Path: /api/v1/keeper/assets/provider
+Path: /api/v1/assets/provider
 HTTP Verb: POST
 Caller: PROVIDER
 Input: AssetProvider Schema
@@ -789,7 +789,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ASE.006
-Path: /api/v1/keeper/assets/provider
+Path: /api/v1/assets/provider
 HTTP Verb: PUT
 Caller: PROVIDER
 Input: AssetProvider Schema
