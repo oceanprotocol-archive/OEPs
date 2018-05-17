@@ -1,6 +1,6 @@
 ```
 shortname: 11/CPM
-name: Ocean Curation Proofs Market
+name: Ocean Curated Proofs Market
 type: Standard
 status: Raw
 editor: Fang Gong <fang@oceanprotocol.com>
@@ -12,7 +12,7 @@ contributors: Aitor Argomaniz <aitor@oceanprotocol.com>
 Table of Contents
 =================
 
-   * [Ocean Curation Market](#ocean-curation-market)
+   * [Ocean Curated Proofs Market](#ocean-curation-market)
       * [Change Process](#change-process)
       * [Language](#language)
       * [Motivation](#motivation)
@@ -23,10 +23,10 @@ Table of Contents
       * [Copyright Waiver](#copyright-waiver)
       
 
-# Ocean Curation <span style="color:red">Proofs</span> Market <a name="ocean-curation-market"></a>
+# Ocean Curated Proofs Market <a name="ocean-curation-market"></a>
 
 
-The Ocean Curation Proofs Market is a critical cornerstone of Ocean Protocol. This document bridges the theory in technical whitepaper[1] and the smart contract implementation in practice. 
+The Ocean Curated Proofs Market is a critical cornerstone of Ocean Protocol. This document bridges the theory in technical whitepaper[1] and the smart contract implementation in practice. 
 
 The proposed solutions are based on Ocean Protocol technical whitepaper [1], Trent's talk [2] & blog [3], [3/ARCH](../3/README.md) and [4/KEEPER](../4/README.md).
 
@@ -39,11 +39,11 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## 3. Motivation <a name="motivation"></a>
 
-Ocean network aims to build a marketplace for relevant AI-related data. Curation proofs market coordinates participants to maintain high-quality assets (mainly datasets) and the normal operations of marketplace, which is a fundamental component of Ocean Network. 
+Ocean network aims to build a marketplace for relevant AI-related data. Curated proofs market coordinates participants to maintain high-quality assets (mainly datasets) and the normal operations of marketplace, which is a fundamental component of Ocean Network. 
 
 ## 4. Architecture Overview<a name="architecture"></a>
 
-The architecture of curation proofs market is illustrated in the below, which includes five essential modules. 
+The architecture of curated proofs market is illustrated in the below, which includes five essential modules. 
 
 ![modular architecture](img/curation_market_overview.jpg)
 
@@ -54,8 +54,8 @@ The architecture of curation proofs market is illustrated in the below, which in
 	* <span style="color:red">*ratio of download and uploads*: aims to mitigate the "Sybil downloading" attack [1].</span>
 	
 * **Ocean Token and Drops**: 
-	* <span style="color:red">Ocean network creates a *dedicated* curation proofs market for each dataset.</span>
-	* <span style="color:red">Derivative tokens of Ocean Tokens are produced for each market, which is called "**drops** of curation proofs market for one dataset".  </span>
+	* <span style="color:red">Ocean network creates a *dedicated* curated proofs market for each dataset.</span>
+	* <span style="color:red">Derivative tokens of Ocean Tokens are produced for each market, which is called "**drops** of curated proofs market for one dataset".  </span>
 	* Providers purchase drops with their Ocean tokens to stake on the asset.
 	* Providers can un-stake by selling their drops for Ocean tokens and realize the profit.
  
@@ -71,9 +71,9 @@ The architecture of curation proofs market is illustrated in the below, which in
 	* They SHOULD receive equal block rewards if they have the same stakes.  
 
 
-* **Token Curation Registry (TCR)**: TCR is a powerful mechanism to maintain the high quality of the asset in the curation proofs market. 
+* **Token Curation Registry (TCR)**: TCR is a powerful mechanism to maintain the high quality of the asset in the curated proofs market. 
 	* Everyone can challenge any asset or user, which triggers a voting process. 
-	* Participants in the curation proofs market can vote according to their own opinions. 
+	* Participants in the curated proofs market can vote according to their own opinions. 
 	* Depends on the voting result, the asset or actor will be either kept in the marketplace or ejected from the system. 
 
 
@@ -140,15 +140,15 @@ To be more clear, the practical 2-stage strategy to distribute block rewards is 
 
 When Ocean network distributes the block rewards, **"lazy transfer"** strategy is used to significantly reduce the transaction cost:
 
-* The curation proofs market serves as a escrow account and holds the block rewards for providers. 
+* The curated proofs market serves as a escrow account and holds the block rewards for providers. 
 * It maintains the correct balance for each provider. 
-* When the provider requests to withdraw Ocean tokens, curation proofs market transfer tokens to provider which SHOULD match the balance amount.
-* Curation proofs market avoids frequent token transfer to providers and saves transaction cost. 
+* When the provider requests to withdraw Ocean tokens, curated proofs market transfer tokens to provider which SHOULD match the balance amount.
+* curated proofs market avoids frequent token transfer to providers and saves transaction cost. 
 
 
 **(4) Smart Contract Interface Functions**
 
-The curation proofs market smart contract SHOULD include data structure to keep the records of providers and balances for each asset:
+The curated proofs market smart contract SHOULD include data structure to keep the records of providers and balances for each asset:
 
 ```solidity
 // Asset struct has an array of providers Id
@@ -186,7 +186,7 @@ The contract SHOULD expose the following public methods:
 
 ### 5.2 Ocean Token and Drops
 
-Each asset creates its own curation proofs market in Ocean network and needs its native tokens, which is called "drops". In fact, drops are *derivative tokens* of Ocean Tokens which means drops can be exchanged from/to Ocean Tokens. 
+Each asset creates its own curated proofs market in Ocean network and needs its native tokens, which is called "drops". In fact, drops are *derivative tokens* of Ocean Tokens which means drops can be exchanged from/to Ocean Tokens. 
 
 As shown in the figure: 
 
@@ -196,7 +196,7 @@ As shown in the figure:
 <img src="img/drops.jpg" width="600" />
 
 
-Curation proofs market smart contract SHOULD record the drops balance for each provider. 
+curated proofs market smart contract SHOULD record the drops balance for each provider. 
 
 ```solidity
 // Asset struct can map provider id to his drops balance
@@ -216,7 +216,7 @@ To implement the exchange between Ocean tokens and Drops, we adopt the **2-Way p
 * To sell Drops, the Drops get locked again and the Ocean tokens with the same value are unlocked.
 * Both procedures are handled by smart contract to ensure the security.
 
-In the practical implementation, curation proofs market smart contract MUST execute following operations:
+In the practical implementation, curated proofs market smart contract MUST execute following operations:
 
 * Lock the Ocean tokens that are used to purchases drops;
 * Reduce user's balance of Ocean token by the same amount;
@@ -254,7 +254,7 @@ Clearly, the price of drops depends on the total supply:
 * More users buy drops and total supply increases => drops price shoots up;
 * More users sell drops and total supply decreases => drops price plummets;
 
-Curation proofs market smart contract SHOULD have bonding curve function as:
+curated proofs market smart contract SHOULD have bonding curve function as:
 
 ```solidity
 struct Asset {
@@ -278,7 +278,7 @@ Since all providers have the same probability to be chosen, they SHOULD receive 
 
 Note that *random number generator is not available* in Ethereum Virtual Machine, as the code will be ran on multiple nodes, on different time. It does not make sense to generate different random numbers on different nodes at different time in Ethereum network. 
 
-Instead, the AGENT client SHOULD randomly choose a provider to request the dataset. The curation proofs market smart contract only need to log the provider, who transfers the dataset to consumer, and increment the counter of dataset download times.
+Instead, the AGENT client SHOULD randomly choose a provider to request the dataset. The curated proofs market smart contract only need to log the provider, who transfers the dataset to consumer, and increment the counter of dataset download times.
 
 ```solidity
 // Asset has provider list and their corresponding download times 
@@ -305,7 +305,7 @@ function updateDownload(uint _assetId, uint _providerId) public returns (bool su
 
 ### 5.5 Token Curation Registry
 
-Curation proofs market coordinates the community to maintain the high-quality data together and Token Curation Registry (TCR) is used for that purpose in Ocean network:
+Curated proofs market coordinates the community to maintain the high-quality data together and Token Curation Registry (TCR) is used for that purpose in Ocean network:
 
 <img src="img/TCR.jpg" width="600" />
 
@@ -316,9 +316,9 @@ The [workflow of TCR](diagrams/tcr-workflow.md) can be illustrated as below:
 
 * Any user can apply for adding new asset or challenge existing assets or actors;
 * All participants can vote to support or against the asset or actor;
-* Curation proofs market reveals the result after the voting period is closed;
+* curated proofs market reveals the result after the voting period is closed;
 * The majority party win the voting and rewards;
-* Curation proofs market keep or eject the asset or actor according to the voting result.
+* curated proofs market keep or eject the asset or actor according to the voting result.
 
 
 Smart contract SHOULD have data struct and interface functions to implement TCR in Ocean network:
