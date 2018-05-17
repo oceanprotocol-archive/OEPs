@@ -50,12 +50,12 @@ The architecture of curated proofs market is illustrated in the below, which inc
 * **Block Rewards**: Ocean network emits Ocean tokens continuously to incentivize providers according to the pre-defined schedule, which are called "block rewards". The distributed amount of block rewards SHOULD be determined by following factors: 
 	* *Predicted popularity*: number of provider's stake on the dataset;
 	* *Proofed popularity*: number of times made dataset available;
-	* <span style="color:red">*dispensed tokens*： the emitted Ocean tokens based on mining schedule;</span>
-	* <span style="color:red">*ratio of download and uploads*: aims to mitigate the "Sybil downloading" attack [1].</span>
+	* *dispensed tokens*： the emitted Ocean tokens based on mining schedule;
+	* *ratio of download and uploads*: aims to mitigate the "Sybil downloading" attack [1].
 	
 * **Ocean Token and Drops**: 
-	* <span style="color:red">Ocean network creates a *dedicated* curated proofs market for each dataset.</span>
-	* <span style="color:red">Derivative tokens of Ocean Tokens are produced for each market, which is called "**drops** of curated proofs market for one dataset".  </span>
+	* Ocean network creates a *dedicated* curated proofs market for each dataset.
+	* Derivative tokens of Ocean Tokens are produced for each market, which is called "**drops** of curated proofs market for one dataset". 
 	* Providers purchase drops with their Ocean tokens to stake on the asset.
 	* Providers can un-stake by selling their drops for Ocean tokens and realize the profit.
  
@@ -104,14 +104,14 @@ Ocean network SHOULD NOT reward providers at fixed time intervals, which has hig
 
 To resolve the complexity issue, we adopt the following 2-stage implementation as describe in [1]:
 
-* <span style="color:red">**Whether this provider should be rewarded?** In Ocean network, every time a dataset is requested, a provider will be randomly chosen to deliver the dataset. At this time, Ocean network calculates a probability whether to give block rewards to this provider. The probability is proportional to value added by the provider, compared to the network difficulty. </span>
+* **Whether this provider should be rewarded?** In Ocean network, every time a dataset is requested, a provider will be randomly chosen to deliver the dataset. At this time, Ocean network calculates a probability whether to give block rewards to this provider. The probability is proportional to value added by the provider, compared to the network difficulty. 
 
 	<img src="img/reward_prob.jpg" width="700" />
 
-* <span style="color:red">**What is the reward amount if provider will be rewarded?** If Ocean network chooses to reward this provider, Ocean network calculates the reward amount based on value added by this provider and the total network value added. In other words, all dataset providers split the block rewards according to their contributions of adding value to the network in the difficulty interval.</span>
-	* *R*<sub vertical-align: sub; font-size: small>ij</sub> is the value added by the provider;
+* **What is the reward amount if provider will be rewarded?** If Ocean network chooses to reward this provider, Ocean network calculates the reward amount based on value added by this provider and the total network value added. In other words, all dataset providers split the block rewards according to their contributions of adding value to the network in the difficulty interval.
+	* *R{ij}* is the value added by the provider;
 	* *F* is the reward amount to this provider;
-	* *T*<sub vertical-align: sub; font-size: small>difficulty</sub> is the total Ocean Token reward emitted during the two week difficulty period.
+	* *T{difficulty}* is the total Ocean Token reward emitted during the two week difficulty period.
 
 <div style="text-align:center"><img src="img/reward_formula.jpg" width="200" /></div> 
 
@@ -119,16 +119,16 @@ To resolve the complexity issue, we adopt the following 2-stage implementation a
 
 To be more clear, the practical 2-stage strategy to distribute block rewards is following:
 
-* <span style="color:red">*Stage 1: Marketplace decides whether to reward this provider*:
-	* <span style="color:red">The value added by the provider is calculated as *R*<sub vertical-align: sub; font-size: small>ij</sub>;
-	* <span style="color:red">Compute the ratio of *R*<sub vertical-align: sub; font-size: small>ij</sub> and *R*<sub vertical-align: sub; font-size: small>difficulty</sub>;
-	* <span style="color:red">AGENT client generates a uniform-distributed random number between [0, 1] and pass it to Marketplace;
-	* <span style="color:red">Marketplace decides whether to reward this provider.
+* *Stage 1: Marketplace decides whether to reward this provider*:
+	* The value added by the provider is calculated as *R{ij}*;
+	* Compute the ratio of *R{ij}* and *R{difficulty}*;
+	* AGENT client generates a uniform-distributed random number between [0, 1] and pass it to Marketplace;
+	* Marketplace decides whether to reward this provider.
 
 <img src="img/reward_prob_sequence.jpg" width="600" />
 
 
-* <span style="color:red">*Stage 2: Marketplace distributes rewards to provider*:
+* *Stage 2: Marketplace distributes rewards to provider*:
 	* Marketplace requests block rewards from token contract;
 	* Token contract MUST release block rewards according to schedule and transfers tokens to marketplace;
 	* Marketplace SHOULD calculate the block reward distribution to current provider with formula;
