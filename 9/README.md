@@ -166,7 +166,7 @@ contract ContractsRegistry {
 
     struct Contract {
         
-        bytes20 contractId;
+        bytes32 contractId;
         // Parties involved 
         address publisherId;
         address providerId;
@@ -179,7 +179,7 @@ contract ContractsRegistry {
         bool consumerSigned;
         bool marketplaceSigned;
         
-        byte32 assetId;
+        bytes32 assetId;
         // 0= DRAFT, 1=SIGNED, 2=AUTHORIZED, 3=SETTLED, 9=CANCELED
         uint state;        
     }
@@ -188,20 +188,20 @@ contract ContractsRegistry {
     
     function register(address _pubId, address _proId, address _conId, address _mktId,
                        bool _pubSign, address _proSign, address _conSign, address _mktSign,
-                       byte32 _assetId) public returns (bytes20 contractId) { }
+                       bytes32 _assetId) public returns (bytes32 contractId) { }
     
-    function getState(bytes20 _contractId) public view returns (uint state) { }
+    function getState(bytes32 _contractId) public view returns (uint state) { }
 
     // Given an array of ids of actors signing the contract
     function signContract(address[] _signers) public returns (uint state) {}
 
-    function authorize(byte20 _contractId) public returns (bool success) {}
+    function authorize(bytes32 _contractId) public returns (bool success) {}
     
-    function provideAccess(byte20 _contractId, ConsumptionDetails _consumptionDetails) public returns (bool success) {} 
+    function provideAccess(bytes32 _contractId, ConsumptionDetails _consumptionDetails) public returns (bool success) {} 
 
-    function settle(byte20 _contractId) public returns (bool success) {}
+    function settle(bytes32 _contractId) public returns (bool success) {}
     
-    function revoke(byte20 _contractId) public returns (bool success) {}
+    function revoke(bytes32 _contractId) public returns (bool success) {}
 
 }
 ```
@@ -216,14 +216,14 @@ Different states are:
 
 To save costs, the states are mapped to uint. 
 
- <a name="create-contract"></a>
+<a name="create-contract"></a><a name="CON.001"></a>
 ### Create Contract
 
-![Registering a new Actor](images/ACT.001.png "ACT.001")
+![Registering a new Contract](images/CON.001.png "CON.001")
 
-In the [above diagram](diagrams/ACT.001.md) the Agent and the Account Manager capabilities are implemented in the AGENT scope.
-No information is going through the Decentralized VM.
-The registering of a new Actor involves the following implementations:
+In the [above diagram](diagrams/CON.001.md) the Agent is in charge of interacting with the Decentralized VM to implement the Access Control validations and Contract definition on-chain.
+If Ocean DB is enabled, the AGENT will send the Contract information to Ocean DB.
+The registering of a new Contract involves the following implementations:
 
 #### Ocean Agent API
 
@@ -231,7 +231,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ACT.001
-Path: /api/v1/keeper/actors
+Path: /api/v1/contracts
 HTTP Verb: POST
 Caller: The Actor trying to be registered
 Input: Actor Schema

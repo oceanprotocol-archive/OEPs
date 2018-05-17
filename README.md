@@ -52,7 +52,7 @@ Short Name    | Title                                                        | T
 [6/INVOKE](6)   | API to register & invoke computer services                      | Standard     | Raw      | TBD
 [7/SONAR](7)   | Searchable OceaN Asset Registry                      | Standard     | Raw      | TBD
 [8/AAT](8)   | Basic Authentication, Accounts & Tokens                      | Standard     | Raw      | TBD
-[9/TX](9)   | API for transactions                      | Standard     | Raw      | TBD
+[9/OOT](9)   | Ocean Order Transactions                      | Standard     | Raw      | TBD
 [10/OAA](10)   | On-chain Authentication                       | Standard     | Raw      | TBD
 [11/ACS](11)   | API for Curation/Staking                      | Standard     | Raw      | TBD
 [12/GLO](12)   | Public Glossary                      | Meta     | Draft      | Timothy Ley
