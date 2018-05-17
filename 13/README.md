@@ -178,7 +178,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ACT.001
-Path: /api/v1/keeper/actors
+Path: /api/v1/actors
 HTTP Verb: POST
 Caller: The Actor trying to be registered
 Input: Actor Schema
@@ -296,7 +296,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ACT.002
-Path:  /api/v1/keeper/actors/{actorId}
+Path:  /api/v1/actors/{actorId}
 HTTP Verb: GET
 Caller: Any
 Input: actorId
@@ -317,7 +317,7 @@ HTTP Output Status Codes:
 Example: 
 
 ```http
-GET http://localhost:8080/api/v1/keeper/actors/0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e
+GET http://localhost:8080/api/v1/actors/0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e
 ```
 
 ```json
@@ -363,7 +363,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ACT.003
-Path: /api/v1/keeper/actors
+Path: /api/v1/actors
 HTTP Verb: PUT
 Caller: Actor
 Input: Actor Schema
@@ -442,7 +442,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: ACT.004
-Path: /api/v1/keeper/actors/{actorId}
+Path: /api/v1/actors/{actorId}
 HTTP Verb: DELETE
 Caller: Actor
 Input: actorId
@@ -463,7 +463,7 @@ HTTP Output Status Codes:
 Example: 
 
 ```http
-DELETE http://localhost:8080/api/v1/keeper/actors/0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e
+DELETE http://localhost:8080/api/v1/actors/0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e
 ```
 
 ```json
