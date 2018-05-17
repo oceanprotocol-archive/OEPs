@@ -55,7 +55,7 @@ The architecture of curated proofs market is illustrated in the below, which inc
 	
 * **Ocean Token and Drops**: 
 	* Ocean network creates a *dedicated* curated proofs market for each dataset.
-	* Derivative tokens of Ocean Tokens are produced for each market, which is called "**drops** of curated proofs market for one dataset". 
+	* Derivative tokens of Ocean Tokens are produced for each market, which is called "**drops** of curated proofs market for the particular dataset". 
 	* Providers purchase drops with their Ocean tokens to stake on the asset.
 	* Providers can un-stake by selling their drops for Ocean tokens and realize the profit.
  
