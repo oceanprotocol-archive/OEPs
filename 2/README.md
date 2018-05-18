@@ -94,7 +94,7 @@ A OEP has six possible states that reflect its maturity and contractual weight:
 All new OEPs are **raw** OEPs. Changes to raw OEPs can be unilateral and arbitrary. Those seeking to implement a raw OEP should ask for it to be made a draft OEP. Raw OEPs have no contractual weight.
 
 ### Draft OEPs
-When raw OEPs can be demonstrated with a fully working and tested reference implementation, they become **draft** OEPs. Changes to draft OEPs should be done in consultation with users. Draft OEPs are contracts between the editors and implementers.
+When raw OEPs can be demonstrated, they become **draft** OEPs. Changes to draft OEPs should be done in consultation with users. Draft OEPs are contracts between the editors and implementers.
 
 ### Stable OEPs
 When draft OEPs are used by third parties, they become **stable** OEPs. Changes to stable OEPs should be restricted to cosmetic ones, errata and clarifications. Stable OEPs are contracts between editors, implementers, and end-users.
