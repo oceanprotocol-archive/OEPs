@@ -62,7 +62,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ## Motivation
 
 Ocean network aims to power marketplaces for relevant AI-related data services.
-There is a need for a standardised interface for the invocation of compute services
+There is a need for a standardised interface for the invocation of compute services so that 
 
 Requirements are:
 
@@ -71,18 +71,21 @@ Requirements are:
 * PROVIDERS register and offer SERVICES 
 * PROVIDERS may publish SERVICE METADATA relating to the service offered
 * CONSUMER can identify services with a unique ID on the Ocean Network 
-* CONSUMER can invoke services (subject to access requirements) 
+* CONSUMER can invoke services via any OCEAN AGENT (subject to contract and access requirements) 
 * SERICES may require INPUTS 
 * SERICES may produce OUTPUTS
 * INPUT ASSETS must be available for the service provider to consume
-* PROVIDER provides SERVICE and PROOF VERIFIER validates PROOF
+* SERVICES may fail, in which case failure should be reported with relevant information to the CONSUMER
+* PROVIDER provides SERVICE and PROOF 
+* VERIFIER validates PROOF
+* SERICE CONTRACT must be settled and any tokens transfered after receipt of valid PROOF
 * OUTPUT ASSETS, if created, must be identified and communicated to the CONSUMER 
   
 <a name="specification"></a>
 ## Specification 
 
-The **Serice Metadata** information should be managed using an API on the Ocean Agent. 
-As general rule, only the INDISPENSABLE information to run the Smart Contracts MUST be stored in the Decentralized VM
+The **Service Metadata** information should be managed using an API on the Ocean Agent. 
+As general rule, only the INDISPENSABLE information to run the Smart Contracts MUST be stored in the Decentralised VM
 
 This API should exposes the following capabilities in the Ocean Agent:
 
@@ -94,5 +97,5 @@ This API should exposes the following capabilities in the Ocean Agent:
 The following restrictions apply during the design/implementation of this OEP:
 
 * The SERVICES registered in the system MUST be associated to the PROVIDER registering the services
-* Basic information about the SERVICES (ids, pricing, reference to service endpoints) MUST be stored in the Decentralized VM  
+* Basic information about the SERVICES (ids, pricing, reference to service endpoints) MUST be stored in the Decentralised VM  
 * AGENT MUST NOT store or rely on any other information about the Services during this process
