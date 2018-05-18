@@ -91,19 +91,13 @@ A OEP has six possible states that reflect its maturity and contractual weight:
 ![Lifecycle diagram](lifecycle.png)
 
 ### Raw OEPs
-All new OEPs are **raw** OEPs. Changes to raw OEPs can be unilateral and arbitrary, at the discretion of the editor. Raw OEPs have no contractual weight.
-
-Editors / maintainers of draft OEPs should develop a working reference implementation before requesting promotion to **draft** status. Early adopters should expect breaking changes to the reference implementation.
+All new OEPs are **raw** OEPs. Changes to raw OEPs can be unilateral and arbitrary. Those seeking to implement a raw OEP should ask for it to be made a draft OEP. Raw OEPs have no contractual weight.
 
 ### Draft OEPs
-When raw OEPs can be demonstrated with a fully working and tested reference implementation to the satisfaction of OEP maintainers, they become **draft** OEPs. Changes to draft OEPs should be done in consultation with users. Draft OEPs are contracts between the editors and implementers.
-
-Adopters of draft OEPs should expect breaking changes if issues are found that necessitate changes to the specification or reference implementation.
+When raw OEPs can be demonstrated with a fully working and tested reference implementation, they become **draft** OEPs. Changes to draft OEPs should be done in consultation with users. Draft OEPs are contracts between the editors and implementers.
 
 ### Stable OEPs
 When draft OEPs are used by third parties, they become **stable** OEPs. Changes to stable OEPs should be restricted to cosmetic ones, errata and clarifications. Stable OEPs are contracts between editors, implementers, and end-users.
-
-Adopters of stable OEPs should expect no breaking changes to the reference implementation.
 
 ### Deprecated OEPs
 When stable OEPs are replaced by newer draft OEPs, they become **deprecated** OEPs. Deprecated OEPs should not be changed except to indicate their replacements, if any. Deprecated OEPs are contracts between editors, implementers and end-users.
