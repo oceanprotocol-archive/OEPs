@@ -57,3 +57,4 @@ Short Name    | Title                                                        | T
 [11/ACS](11)   | API for Curation/Staking                      | Standard     | Raw      | TBD
 [12/GLO](12)   | Public Glossary                      | Meta     | Draft      | Timothy Ley
 [13/Registry](13)   | Ocean Actor Registry                                     | Standard     | Draft      | Aitor Argomaniz
+[14/SALPCHAIN](6)   | Lightweight On-Chain Workflow Management System                       | Standard     | Raw      | TBD
