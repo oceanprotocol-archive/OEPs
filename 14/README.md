@@ -1,7 +1,7 @@
 ***DISCLAIMER: THIS IS A WORK IN PROGRESS***
 ```
-shortname: 6/INVOKE
-name: Invoke compute and storage services
+shortname: 14/SALPCHAIN
+name: Lightweight On-Chain Workflow Management System
 type: Standard
 status: Raw
 editor: Ahmed Abdullah <ahmed@oceanprotocol.com>
@@ -30,6 +30,8 @@ at the same time provide some sort of service integrity such as verifiable compu
 introduce a proposal for how to implement lightweight on-chain workflow management system [salpchain](https://en.wikipedia.org/wiki/Salp). 
 Salpchain SHOULD enable users to execute workflows, orchestrate services, and manage tasks with minimal amount 
 of gas on Ethereum blockchain.
+
+Salpchain provides an on-chain implementation of OEP 6/INVOKE
 
 
 ## 1. Change Process <a name="change_process"></a>
