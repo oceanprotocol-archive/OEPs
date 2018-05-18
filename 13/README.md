@@ -4,7 +4,7 @@ name: Ocean Actors Registry
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
+contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Fang Gong<fang@oceanprotocol.com>
 ```
 
 <!--ts-->
@@ -508,7 +508,107 @@ All the information to output is the actorId and state of the user.
 }
 ```
 
+---
+<a name="asset-tcr"></a>
+### Token Curation Registry (TCR) of Actors 
 
+Token curation registry (TCR) is used to maintain a list of virtuous actors through challenge-voting process:
+
+* Voting process can be initiated by:
+	- New actor applies to register in the marketplace
+	- Existing Actor is challenged by any user
+	- All participants including applicant, voter and challenger need to deposit tokens for challenge or voting
+	- Deposits of minority in voting result will be distributed to majority party
+* Each participant can vote for or against the actor according to their opinion.
+* After the voting result is revealed, the token deposit will be distributed among winning parties.
+* Depends on the voting result, the actor will be accepted or ejected from the marketplace. 
+
+#### TCR Smart Contract
+
+The TCR Smart Contract can be implemented as a stand-alone module which interacts with the Actors Registry through Interface Functions. 
+
+Let us introduce the data struct and functions of TCR smart contract first, and then discuss the interaction to Actors Registry smart contract.
+
+The TCR smart contract SHOULD provide the structs including `listing` and `challenge`:  
+
+```solidity
+    // Maps actorId to associated listing data
+    mapping(string => Listing) public listings;
+    
+    // Maps challengeIDs to associated challenge data
+    mapping(uint => Challenge) public challenges;
+    
+	// Listing data struct
+	struct Listing {
+		uint		version;
+		uint		applicationExpiry;
+		bool		whitelisted;
+		uint		challengeID;
+		string		description;
+	}
+	
+	
+	// Challenge data struct
+	struct Challenge {
+		uint		rewardPool;
+		address		challenger;
+		uint		stake;
+		uint		totalTokens;
+		bool		resolved;
+		mapping(address => bool) tokenClasims; 
+	}  
+```
+
+The **Listing** object includes the following attributes:
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|version | uint | the version of TCR contract |
+|applicationExpiry  |uint| Expiration date of application stage|
+|whitelisted  |bool   | Indicates registry status|
+|challengeID       |uint| voting ID in challenge stage|
+|description|string|Description about the TCR (optional)|
+
+The **Challenge** object includes the following attributes:
+
+| Parameter | Type | Description |
+|:----------|:-----|:------------|
+|rewardPool  |uint| pool of tokens to be distributed to winning voters|
+|challenger | address| owner of challenge|
+| resolved | bool | indicates challenge is resolved |
+|stake | uint | number of tokens at stake |
+|totalTokens | uint | number of tokens used in voting by the winning side |
+|tokenClasims | mapping(address=>bool) | indicates whether a voter has claimed reward |
+
+#### Interaction with the Actor Registry
+
+The Actor Registry Smart Contract SHOULD provide following methods to interact with TCR in two scenarios:
+
+* *Case 1: registering new actor initiates the voting process when TCR is enabled:*
+	* The function `applyRegisterActor` creates a challenge of `_actorId`; 
+	* The challenge triggers the voting process;
+	* Depends on the result, the function returns "true" if most voters agree to accpet the new actor and new actor can be accepted to the marketplace;
+	* It returns "false" if not and new actor is declined. 
+
+	```solidity
+		function applyRegisterActor(
+	        bytes32 _actorId, 
+	        address _providerId) 
+	    public returns (bool success) { }
+	
+	```
+
+* *Case 2: User challenges the existing actor:*
+	* User creates a challenge of "_actorId" and triggers the voting process with TCR Smart Contract;
+	* The TCR Smart Contract SHOULD call `retire` methods in Actor Registry if voting result is to eject the actor from the marketplace;
+	* As such Actor Registry smart contract ejects the actor.
+
+	```solidity
+	function retire(bytes32 _actorId) public returns (bool success) { }
+	```
+	
+
+---
 
 ### Assignee(s)
 Primary assignee(s): @aaitor
