@@ -35,7 +35,9 @@ Table of Contents
 <a name="service-invocation"></a>
 # Service Invocation
 
-The Service Invocation API (**OAR**) is a specification for the Ocean Protocol to register and invoke computational services.
+The Service Invocation API (**INVOKE**) is a specification for the Ocean Protocol to register and invoke computational services.
+
+INVOKE offers a general purpose computational interface
 
 Compute services are defined as services available on the Ocean Network that
 
@@ -46,6 +48,7 @@ Compute services are defined as services available on the Ocean Network that
 
 This OEP does not prescribe the exact type of compute services offered. It is open to service provider implementations to define there, providing that they conform with this API specification
 This OEP does not cover service discovery.
+The OEP is not intended to apply to services where invocation / access is off-chain (e.g. high volume APIs or queue services)
 
 This specification is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper), [3/ARCH](../3/README.md), [4/KEEPER](../4/README.md) and [5/AGENT](../5/README.md).
 
@@ -78,7 +81,7 @@ Requirements are:
 * SERVICES may fail, in which case failure should be reported with relevant information to the CONSUMER
 * PROVIDER provides SERVICE and PROOF 
 * VERIFIER validates PROOF
-* SERICE CONTRACT must be settled and any tokens transfered after receipt of valid PROOF
+* SERVICE CONTRACT must be settled and any tokens transfered after receipt of valid PROOF
 * OUTPUT ASSETS, if created, must be identified and communicated to the CONSUMER 
   
 <a name="specification"></a>
@@ -99,3 +102,5 @@ The following restrictions apply during the design/implementation of this OEP:
 * The SERVICES registered in the system MUST be associated to the PROVIDER registering the services
 * Basic information about the SERVICES (ids, pricing, reference to service endpoints) MUST be stored in the Decentralised VM  
 * AGENT MUST NOT store or rely on any other information about the Services during this process
+
+### Proposed Solution
