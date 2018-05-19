@@ -65,7 +65,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ## Motivation
 
 Ocean network aims to power marketplaces for relevant AI-related data services.
-There is a need for a standardised interface for the invocation of compute services so that 
+There is a need for a standardised **interface** for the invocation of compute services so that different implementations can be provided and invoked by users of the Ocean Protocol.
 
 Requirements are:
 
