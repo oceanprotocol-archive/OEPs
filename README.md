@@ -56,7 +56,7 @@ Short Name    | Title                                                        | T
 [10/OAA](10)   | On-chain Authentication                       | Standard     | Raw      | TBD
 [11/CPM](11)   | Ocean Curated Proofs Market                      | Standard     | Draft      | Fang Gong
 [12/GLO](12)   | Public Glossary                      | Meta     | Draft      | Timothy Ley
-[13/REG](13)   | Ocean Actor Registry                                     | Standard     | Draft      | Aitor Argomaniz
-[14/OAR](14)   | Ocean Actor Registry                                     | Standard     | Draft      | Aitor Argomaniz
+[13/REG](13)   | Ocean Actor Registry                                     | Standard     | Raw      | Aitor Argomaniz
+[14/OAR](14)   | Ocean Assets Registry                                     | Standard     | Raw      | Aitor Argomaniz
 [15/OPS](15)   | Ocean Provider Services                      | Standard     | TBD      | TBD
 [16/SALPCHAIN](16)| Lightweight On-Chain Workflow Management System | Standard     | TBD      | Ahmed Abdullah
