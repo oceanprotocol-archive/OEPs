@@ -42,6 +42,7 @@ The process to add or change a OEP is the following:
 
 # Current OEPs
 
+
 Short Name    | Title                                                        | Type     | Status   | Editor
 --------------|--------------------------------------------------------------|----------|----------|-------
 [1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft    | Dimitri De Jonghe
