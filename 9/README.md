@@ -12,10 +12,27 @@ editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 Table of Contents
 =================
 
+   * [Table of Contents](#table-of-contents)
+   * [Ocean Order Transactions](#ocean-order-transactions)
+      * [Change Process](#change-process)
+      * [Language](#language)
+      * [Motivation](#motivation)
+      * [Specification](#specification)
+      * [Proposed Solution](#proposed-solution)
+         * [Smart Contracts](#smart-contracts)
+         * [Create Contract](#create-contract)
+         * [Retrieve Contract](#retrieve-contract)
+         * [Sign a Contract](#sign-a-contract)
+         * [Authorize Consumption](#authorize-consumption)
+         * [Get Consumption Information](#get-consumption-information)
+         * [Revoke Access](#revoke-access)
+      * [Additional info](#additional-info)
+
       
 <!--te-->
 
-# Ocean Order Transactions <a name="ocean-order-transactions"></a>
+<a name="ocean-order-transactions"></a>
+# Ocean Order Transactions
 
 The Ocean Order Transactions (**TX**) is a specification for Ocean Protocol to manage the interaction between users trying to negotiate the Asset access or consumption through the network.
 
@@ -25,14 +42,16 @@ This specification is based on [Ocean Protocol technical whitepaper](https://git
 
 This specification is called **TX** henceforth.
 
-## Change Process <a name="change-process"></a>
+<a name="change-process"></a>
+## Change Process
 This document is governed by the [2/COSS](../2/README.md) (COSS).
 
-## Language <a name="language"></a>
+<a name="language"></a>
+## Language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
-
-## Motivation <a name="motivation"></a>
+<a name="motivation"></a>
+## Motivation
 
 Ocean network aims to power marketplaces for relevant AI-related data services.
 Different actors and stakeholders are necessary to interact between them using the Ocean Protocol defined.
@@ -48,8 +67,8 @@ Some considerations:
 * Marketplaces are actors facilitating the discovery/negotiation but are not indispensable 
 * Protocol MUST support contract definition and consumption without Marketplaces  
 
-
-## Specification <a name="specification"></a>
+<a name="specification"></a>
+## Specification 
 
 Main requirements are:
 
@@ -77,7 +96,7 @@ The following restrictions apply during the design/implementation of this OEP:
 * The Assets registered in the system MUST be associated to the Actors registering the Assets
 * The Actors associated to the Contracts (PUBLISHER, PROVIDER, CONSUMER, MARKETPLACE) MUST have a valid Account Id in the system
 * The information or Metadata about the Contracts will be stored in Ocean DB if the user plugs a valid Ocean DB implementation
-* Only the very basic information about the Contracts (ids, proofs, etc) MUST be stored in the Decentralized VM
+* Only the very basic information about the Contracts (ids, proofs, etc) MUST be stored in the KEEPER::DEC-VM
 * AGENT MUST NOT store any information about the Contracts, Assets or Actors during this process
 
 
@@ -104,7 +123,8 @@ The **Contracts** information should be managed using an API. This API should ex
 * Revoke Contract Authorization
 
 
-### Proposed Solution <a name="proposed-solution"></a>
+<a name="proposed-solution"></a>
+## Proposed Solution 
 
 The proposed solution is composed by the interaction of different elements:
 
@@ -134,7 +154,7 @@ The above diagram shows the high level interactions between the components invol
 * When the Contract has been signed by all the parties, the PROVIDER AGENT send an Authorization Consumption request ([CON.004](#CON.004)). The PROVIDER gives the information necessary to consume the ASSET (it includes where is the asset and how to get access). This information is encrypted using asymmetric cryptography. So only the CONSUMER using his/her private key should be able to get decrypt this data.  This is stored on-chain. 
 * The MARKETPLACE AGENT, subscribed to the transaction log, after to get notice the contract has been signed and access granted, notify the CONSUMER saying the ASSET is ready to be consumed.
 * The CONSUMER request access to download the asset [CON.005](#CON.005) using the information provided on-chain by the PROVIDER.
-* The PROVIDER AGENT the Access Control layer validate the access grants of the CONSUMER to the ASSET related to the Contract. This is validated using the Decentralized VM. On-Chain Access Control.
+* The PROVIDER AGENT the Access Control layer validate the access grants of the CONSUMER to the ASSET related to the Contract. This is validated using the KEEPER::DEC-VM. On-Chain Access Control.
 * If everything is okay, the PROVIDER returns the content of the ASSET in the same request.
 
 The workflow described is one of the available options. Because the protocol is flexible, **alternative workflows can be implemented**: 
@@ -155,7 +175,8 @@ In the following sections you can find the end to end implementation details of 
 
 
 
-### Smart Contracts <a name="smart-contracts"></a>
+<a name="smart-contracts"></a>
+### Smart Contracts 
 
 The **KEEPER::DEC-VM** will store the essential user information to allow the implementation of the TX OEP.
 It means the system MUST NOT store any personal information, enabling PRIVACY and ANONYMITY.
@@ -194,14 +215,17 @@ contract ContractsRegistry {
     
     function getState(bytes32 _contractId) public view returns (uint state) { }
     
-    function getContract(bytes32 _contractId) public view returns (address, address, address, address, bytes32, uint, uint) { }
+    function getContract(bytes32 _contractId) public view 
+                returns (address _pubId, address _proId, address _conId, address _mktId, bytes32 _assetId, uint _price, uint _availability) { }
 
     // Given an array of ids of actors signing the contract
-    function signContract(address[] _signers) external returns (uint state) {}
+    function signContract(bytes32 _contractId) external returns (bool success) {}
 
     function authorize(bytes32 _contractId) external returns (bool success) {}
     
-    function provideAccess(bytes32 _contractId, ConsumptionDetails _consumptionDetails) external returns (bool success) {} 
+    function provideAccess(bytes32 _contractId, bytes32 _url, bytes32 _user, bytes32 _passwd, bytes32 _token) external returns (bool success) {} 
+
+    function getConsumptionInfo(bytes32 _contractId) external returns (bytes32 _url, bytes32 _user, bytes32 _passwd, bytes32 _token) {}
 
     function settle(bytes32 _contractId) external returns (bool success) {}
     
@@ -220,12 +244,14 @@ Different states are:
 
 To save costs, the states are mapped to uint. 
 
+
+---
 <a name="create-contract"></a><a name="CON.001"></a>
 ### Create Contract
 
 ![Registering a new Contract](images/CON.001.png "CON.001")
 
-In the [above diagram](diagrams/CON.001.md) the Agent is in charge of interacting with the Decentralized VM to implement the Access Control validations and Contract definition on-chain.
+In the [above diagram](diagrams/CON.001.md) the Agent is in charge of interacting with the KEEPER::DEC-VM to implement the Access Control validations and Contract definition on-chain.
 If Ocean DB is enabled, the AGENT will send the Contract information to Ocean DB.
 The registering of a new Contract involves the following implementations:
 
@@ -293,6 +319,10 @@ The output of this request MUST add the following attributes generated by the sy
 |marketplaceId |string|Id of the marketplace (optional)|
 |price      |int    |Price defined in the contract in token drops. 0 if free.|
 |availability|int   |Period of time the consumption is available (optional). 0 if there not any limitation|
+|signedByPublisher      |bool    |Was the contract signed by the Publisher?|
+|signedByProvider      |bool    |Was the contract signed by the Publisher?|
+|signedByConsumer      |bool    |Was the contract signed by the Publisher?|
+|signedByMarketplace      |bool    |Was the contract signed by the Publisher?|
 |creationDatetime|datetime|Allocated by the system when was created in the AGENT (universal datetime), time before consensus|
 |updateDatetime|datetime|Allocated by the system when was updated the metadata in the AGENT (universal datetime), time before consensus
 |state|string|Internal state of the Contract: DRAFT, SIGNED, AUTHORIZED, SETTLED, CANCELLED|
@@ -307,6 +337,10 @@ Example:
 	"consumerId": "0xaabbcc112",
 	"providerId": "0xaabbcc112",
 	"price": 10,
+	"signedByPublisher": true,
+	"signedByProvider": true,
+	"signedByConsumer": false,
+	"signedByMarketplace": false,
 	"state": "DRAFT",
 	"creationDatetime": "2018-05-18T16:00:00Z",
     "updateDatetime": "2018-05-18T16:00:00Z",
@@ -324,7 +358,7 @@ Example:
 
 The AGENT node will be in charge of manage the Contracts creation. 
 The Ocean DB integration is optional, so the Metadata will be stored there only if Ocean DB interface implementation is provided.
-Contract information MUST be persisted in the Decentralized VM and Ocean DB (if the configuration is provided), storing in the Decentralized DB only the essential information to run the Smart Contracts.
+Contract information MUST be persisted in the KEEPER::DEC-VM and Ocean DB (if the configuration is provided), storing in the Decentralized DB only the essential information to run the Smart Contracts.
 
 Ocean DB will store the complete metadata information. To coordinate the creation of the Contracts in a consistent way in both data stores, the AGENT will implement an Orchestration component in charge of that.
 
@@ -349,7 +383,10 @@ The **KEEPER::DEC-VM** will persist the following information:
 |state      |uint   |State of the Contract (0= DRAFT, 1=SIGNED, 2=AUTHORIZED, 3=SETTLED, 9=CANCELED)|
 |price      |uint   |Price offered by the Consumer|
 |availability|uint   |Time period the asset is available|
-
+|signedByPublisher      |bool    |Was the contract signed by the Publisher?|
+|signedByProvider      |bool    |Was the contract signed by the Publisher?|
+|signedByConsumer      |bool    |Was the contract signed by the Publisher?|
+|signedByMarketplace      |bool    |Was the contract signed by the Publisher?|
 
 During the execution of the `register` function, the following tasks MUST be implemented:
 
@@ -387,11 +424,9 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
 Reference: CON.002
-Path:  /api/v1/contracts/{orderId}
+Path:  /api/v1/contracts/{contractId}
 HTTP Verb: GET
 Caller: Any
-Input: contractId
-Output: Contract Schema
 HTTP Output Status Codes: 
     HTTP 200 - OK
     HTTP 400 - Invalid params
@@ -427,173 +462,329 @@ If Ocean DB is enabled, using the contractId as key, the system will retrieve th
 Taking into account the information given by the KEEPER::DEC-VM should prevail. 
 
 
+
+
+
+
+
 ---
+<a name="sign-contract"></a><a name="CON.003"></a>
+### Sign a Contract
 
-<a name="retrieve-contract"></a><a name="CON.002"></a>
-### Updating Contract
 
-![Update an Actor](images/ACT.003.png "ACT.003")
+![Sign a Contract](images/CON.003.png "CON.003")
 
-In the [above diagram](diagrams/ACT.003.md) the Agent and the Account Manager capabilities are implemented in the AGENT scope.
+The objective of this function is to allow to any of the parties involved in a Contract to Sign the contract conditions. When all the parties have already signed the contract, this should be moved to the **SIGNED** state.
 
-This method it's a wrapper to edit the Actors Metadata, not the essential (KEEPER::VM) information. So only the metadata information can be updated.
-
-The KEEPER::Decentralized VM works in this method as authorization mechanism, allowing/denying the user to update the Metadata.
-
-The updating of an existing Actor metadata involves the following implementations:
+In the [above diagram](diagrams/CON.003.md) the AGENT is in charge of interacting with the KEEPER::DEC-VM to implement the Access Control validations and updating the contract with the provided signature on-chain.
+If Ocean DB is enabled, the AGENT will send the update about the Contract information to Ocean DB.
+This function involves the following implementations:
 
 #### Ocean Agent API
 
 It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
-Reference: ACT.003
-Path: /api/v1/keeper/actors
+Reference: CON.003
+Path: /api/v1/contracts/{contractId}/signature
 HTTP Verb: PUT
-Caller: Actor
-Input: Actor Schema
-Output: Actor Schema
+Caller: Any party involved in the Contract (CONSUMER, PRODUCER, PUBLISHER, MARKETPLACE)
 HTTP Output Status Codes: 
     HTTP 202 - Accepted
-    HTTP 400 - Invalid params
-    HTTP 404 - Not Found
+    HTTP 400 - Bad request
+    HTTP 401 - Forbidden  
 ```
 
 ##### Input Parameters
 
-| Parameter | Type | Description |
-|:----------|:-----|:------------|
-|actorId    |string|Account address|
-|metadata   |Json Object|Free Json object with attributes|
+| Parameter | Type  | Description |
+|:----------|:------|:------------|
+|contractId |string |Id of the contract (URL)|
+|actorId    |string |Id of user signing the request, comes from the **HTTP Authorization header**|
+
+If **OCEAN DB** is enabled, the content of the Metadata attribute will be pass as parameter to the Ocean DB implementation to be stored in an external system.  
+
+
+<a name="contract-output"></a>
+##### Output
+
+A complete description of the Contract output can be found in the [previous section](#contract-output).
+
+#### Orchestration Layer
+
+The AGENT node will be in charge of manage the Contracts creation. 
+The Ocean DB integration is optional, so the Metadata will be stored there only if Ocean DB interface implementation is provided.
+
+The AGENT interact with the `AssetsRegistry::signContract`, allowing to the user sending the request `msg.sender` to sign the contract given as parameter.
+
+#### Interaction with the Keeper
+
+During the execution of the `register` function, the following tasks MUST be implemented:
+
+* Check the authorization of the msg.sender
+* Check the contract availability
+* Update the signature state associated with the user public key
+* Check if all the users provided the signature. if all the users signed the contract, the status should change to **SIGNED**
+
+
+#### Interaction with Ocean DB
+
+The integration with OCEAN DB is optional, so only will works if an implementation backend is provided.
+
+If it's enabled, the Ocean DB layer will interact with the backend to store the metadata information about the contracts. 
+So a part of the information defined in the Output section, the AGENT will forward the information related with the signature action and the change of state. 
+
+
+
+---
+<a name="authorize-consumption"></a><a name="CON.004"></a>
+### Authorize Consumption
+
+
+![Sign a Contract](images/CON.004.png "CON.004")
+
+The objective of this function is to allow the Publisher to authorize the Asset consumption by the Consumer. This typically happens when all the users have signed the contract. 
+This method should moved the Contract state to **AUTHORIZED**.
+
+When the Publisher authorize the consumption, must provide all the information necessary to consume the Asset related with the Contract. This information MUST be encrypted, allowing only to the Consumer specified in the Contract to decrypt this information using his/her public & private keys. 
+
+In the [above diagram](diagrams/CON.004.md) the AGENT is in charge of interacting with the KEEPER::DEC-VM to implement the Access Control validations and updating the contract state on-chain.
+If Ocean DB is enabled, the AGENT will send the update about the Contract information to Ocean DB.
+This function involves the following implementations:
+
+#### Ocean Agent API
+
+It is necessary to expose a RESTful HTTP interface using the following details:
+
+```
+Reference: CON.004
+Path: /api/v1/contracts/authorize
+HTTP Verb: PUT
+Caller: PUBLISHER
+HTTP Output Status Codes: 
+    HTTP 202 - Accepted
+    HTTP 400 - Bad request
+    HTTP 401 - Forbidden  
+```
+
+##### Input Parameters
+
+| Parameter | Type  | Description |
+|:----------|:------|:------------|
+|contractId |string |Id of the contract|
+|actorId    |string |Id of user signing the request, comes from the **Authorization** header|
+|**Consumption Information** |||
+|url |string |Url used to access the asset (http://, tcp://)|
+|token|string |Access token to the asset (optional)|
+|user|string |User name (optional)|
+|password|string |Password (optional)|
 
 Example: 
 
 ```json
-{
-    "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-    "metadata" : {
-        "name": "Alice",	
-        "attributes": [{
-            "key": "interests",
-            "value": "no interests"
-        }]
+{	
+	"contractId": "1234abcde342",
+	"consumption": {
+	  "url": "http://provider.com/assets/?assetId=xxxx",
+	  "user": "access-user",
+	  "password": "$-Df87Yj"
 	}
 }
 ```
 
-#### Accounts Management
+<a name="contract-output"></a>
+##### Output
 
-The Accounts Manager components it's not involved in this method. 
+A complete description of the Contract output can be found in the [previous section](#contract-output).
 
+#### Orchestration Layer
+
+The AGENT node will be in charge of manage the Contracts creation. 
+If **OCEAN DB** is enabled, the content of the Metadata attribute will be pass as parameter to the Ocean DB implementation to be stored in an external system. 
+The Consumption information will be stored on-chain and **WON'T** be send to Ocean DB. 
+
+The AGENT interact with the `AssetsRegistry::provideAccess` method, allowing to the Consumer to get access to the Asset specified in the Contract. 
+The PROVIDER should encrypt the Consumption information using the Consumer public key, allowing only to him/her to decrypt the Consumption information. 
 
 #### Interaction with the Keeper
 
-The Decentralized VM stores the state about the Actors. Using the actorId as key in the Actors collection, the system will authorize or deny the update of the Actor information..
+During the execution of the `provideAccess` function, the following tasks MUST be implemented:
 
-The information about if the actor is enabled or disabled can be obtained integrating the `ActorsRegistry::getState` Smart Contract method.
-The information about if the actor can be updated can be obtained integrating the `ActorsRegistry::canUpdate` Smart Contract method.
-
-If the Actor metadata has the state attribute `state == DISABLED (9)` the method should return a **HTTP 404** Not Found message.
-If after executing the `ActorsRegistry::canUpdate` method, the Actor can't be updated by the user, the method should return a **HTTP 401** Forbidden message.
+* Check the contract availability
+* Check the Contract is in **SIGNED** state
+* Check the user trying to give access is the Provider
+* Store the encrypted consumption information
+* Change the state to **AUTHORIZED**
 
 
 #### Interaction with Ocean DB
 
-Ocean DB, if it's enabled, will store the metadata information about the actor. Only the metadata attribute will be modified:
+The integration with OCEAN DB is optional, so only will works if an implementation backend is provided.
+
+If it's enabled, the Ocean DB layer will interact with the backend to store the metadata information about the contracts. 
+The Consumption information will be stored on-chain and **WON'T** be send to Ocean DB. 
  
-After creating the Actor in the Database, it will return a HTTP 202 Accepted message. It means the request has been accepted for processing, but the processing has not been completed.
-
-
-#### Output
-Using the information stored/provided by the user and the Decentralized VM, the **AGENT** SHOULD compose the output payload to return. It should include same information detailed in the previous sections.
+In this case the only information updated in Ocean DB is the **Contract state**.
 
 
 
-### Retire an Actor <a name="retire-an-actor"></a>
+---
+<a name="get-consumption-information"></a><a name="CON.005"></a>
+### Get Consumption Information
 
-![Retire an Actor](images/ACT.004.png "ACT.004")
+![Get Consumption Information](images/CON.005.png "CON.005")
 
-In the [above diagram](diagrams/ACT.004.md) the Agent and the Account Manager capabilities are implemented in the AGENT scope.
-
-This method implements a soft delete of an Actor. It means the Actor is updated setting the state attribute to `DISABLED`. The method will return a HTTP 202 status code and the Actor modified in the response body.
-
-This method only can be integrated by the Actor. The Input of this method is the actorId referencing to a unique Actor. 
-
-This method authorize the retirement of an Actor using the Smart Contract deployed in the Decentralized VM. 
+In the [above diagram](diagrams/CON.005.md), the retrieval of the Contract information is related with the AGENT and the KEEPER::DEC-VM. 
+No information is read from Ocean DB. This functionality involves the following implementations:
 
 #### Ocean Agent API
 
 It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
-Reference: ACT.004
-Path: /api/v1/keeper/actors/{actorId}
-HTTP Verb: DELETE
-Caller: Actor
-Input: actorId
-Output: Actor Schema
+Reference: CON.005
+Path:  /api/v1/contracts/{contractId}/consumption
+HTTP Verb: GET
+Caller: Any
 HTTP Output Status Codes: 
-    HTTP 202 - Accepted
+    HTTP 200 - OK
     HTTP 400 - Invalid params
+    HTTP 401 - Forbidden
     HTTP 404 - Not Found
 ```
+
 
 ##### Input Parameters
 
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
-|actorId    |string|Account address|
-
+|contractId |string|Contract ID to retrieve|
+|actorId    |string |Id of user signing the request, comes from the **Authorization** header|
 
 Example: 
 
 ```http
-DELETE http://localhost:8080/api/v1/keeper/actors/0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e
+GET http://localhost:8080/api/v1/contracts/48dd4fec25d5b3fd2295e/consumption
 ```
 
+##### Output
+
+
+| Parameter | Type  | Description |
+|:----------|:------|:------------|
+|contractId |string |Id of the contract|
+|**Consumption Information** |||
+|url |string |Url used to access the asset (http://, tcp://)|
+|token|string |Access token to the asset (optional)|
+|user|string |User name (optional)|
+|password|string |Password (optional)|
+
+Example (data already de-crypted): 
+
 ```json
-{
-    "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-    "state": "DISABLED"
+{	
+	"contractId": "1234abcde342",
+	"consumption": {
+	  "url": "http://provider.com/assets/?assetId=xxxx",
+	  "user": "access-user",
+	  "password": "$-Df87Yj"
+	}
 }
 ```
 
-#### Accounts Management
-
-The Accounts Manager components it's not involved in this method. 
-
+The information returned to the user is encrypted by the Provider. Only the Consumer, using his/her public and private keys can de-crypt the Consumption Information. 
+ 
 
 #### Interaction with the Keeper
 
-The Decentralized VM stores the state about the Actors. Using the actorId as key in the Actors collection, the system will authorize or deny the retirement of the Actor information..
+Before to query the KEEPER::DEC-VM, it's necessary to check the length and format of the contractId. If the length and format doesn't fit the standard address definition, the system should return a **HTTP 400** Invalid params message.
 
-The information about if the actor is enabled or disabled can be obtained integrating the `ActorsRegistry::getState` Smart Contract method.
-The information about if the actor can be retired can be obtained integrating the `ActorsRegistry::canRetire` Smart Contract method.
+The KEEPER::DEC-VM stores the state about the Contract, being the KEEPER::DEC-VM the source of truth about Contracts information. 
+The AGENT will execute the `AssetsRegistry.getConsumptionInfo` function to try to return the encrypted Consumption Information to the Consumer. 
+If no contract is found, the system must return a **HTTP 404** Not Found message.
+If the user is not authorized to get the Consumption information, the system must return a **HTTP 401** Forbidden message.
 
-If the Actor metadata has the state attribute `state == DISABLED (9)` the method should return a **HTTP 404** Not Found message.
-If after executing the `ActorsRegistry::canRetire` method, the Actor can't be updated by the user, the method should return a **HTTP 401** Forbidden message.
 
+
+
+
+
+---
+<a name="revoke-access"></a><a name="CON.006"></a>
+### Revoke Access
+
+
+
+![Revoke Access](images/CON.006.png "CON.006")
+
+The objective of this function is to revoke the signature to a previously signed contract. 
+If any of the parties involved in the contract revoke access, the contract should be moved to the **CANCELLED** state.
+
+In the [above diagram](diagrams/CON.006.md) the AGENT is in charge of interacting with the KEEPER::DEC-VM to implement the Access Control validations and updating the contract state on-chain.
+If Ocean DB is enabled, the AGENT will send the update about the Contract information to Ocean DB.
+This function involves the following implementations:
+
+#### Ocean Agent API
+
+It is necessary to expose a RESTful HTTP interface using the following details:
+
+```
+Reference: CON.005
+Path: /api/v1/contracts/{contractId}/signature
+HTTP Verb: DELETE
+Caller: Any party involved in the Contract (CONSUMER, PRODUCER, PUBLISHER, MARKETPLACE)
+HTTP Output Status Codes: 
+    HTTP 202 - Accepted
+    HTTP 400 - Bad request
+    HTTP 401 - Forbidden  
+```
+
+##### Input Parameters
+
+| Parameter | Type  | Description |
+|:----------|:------|:------------|
+|contractId |string |Id of the contract (URL)|
+|actorId    |string |Id of user signing the request, comes from the **HTTP Authorization header** |
+
+If **OCEAN DB** is enabled, the content of the Metadata attribute will be pass as parameter to the Ocean DB implementation to be stored in an external system.  
+
+
+<a name="contract-output"></a>
+##### Output
+
+A complete description of the Contract output can be found in the [previous section](#contract-output).
+
+#### Orchestration Layer
+
+The AGENT node will be in charge of manage the Contracts update. 
+The Ocean DB integration is optional, so the Metadata will be stored there only if Ocean DB interface implementation is provided.
+
+The AGENT interact with the `AssetsRegistry::revoke`, allowing to the user sending the request `msg.sender` to revoke the contract signature given previously.
+
+#### Interaction with the Keeper
+
+During the execution of the `revoke` function, the following tasks MUST be implemented:
+
+* Check the authorization of the msg.sender
+* Check the contract availability
+* Check if the user already signed the contract
+* Update the state to **CANCELLED** and remove any previous flag with the user signature
+* Remove the associated Consumption Information if already exists
 
 
 #### Interaction with Ocean DB
 
-Ocean DB, if it's enabled, will store the metadata information about the actor. This method only will update the information about the **state** attribute.
+The integration with OCEAN DB is optional, so only will works if an implementation backend is provided.
 
-After updating the Actor state in the Database, it will return a HTTP 202 Accepted message. It means the request has been accepted for processing, but the processing has not been completed.
-
-
-#### Output
-
-All the information to output is the actorId and state of the user.
-
-```json
-{
-    "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-    "state": "DISABLED"
-}
-```
+If it's enabled, the Ocean DB layer will interact with the backend to store the metadata information about the contracts. So a part of the information defined in the Output section, the AGENT will forward the information related with the change of state. 
 
 
+
+
+---
+
+<a name="additional-info"></a>
+## Additional info
 
 ### Assignee(s)
 Primary assignee(s): @aaitor
@@ -607,6 +798,6 @@ The implementation of the full Keeper functionality it's planned for the [Alpha 
 ### Status
 unstable
 
-
-## Copyright Waiver  <a name="copyright-waiver"></a>
+<a name="copyright-waiver"></a>
+### Copyright Waiver  
 To the extent possible under law, the person who associated CC0 with this work has waived all copyright and related or neighboring rights to this work.
