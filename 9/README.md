@@ -1,5 +1,5 @@
 ```
-shortname: 15/OOT
+shortname: 9/TX
 name: Ocean Order Transactions
 type: Standard
 status: Raw
@@ -17,13 +17,13 @@ Table of Contents
 
 # Ocean Order Transactions <a name="ocean-order-transactions"></a>
 
-The Ocean Order Transactions (**OOT**) is a specification for Ocean Protocol to manage the interaction between users trying to negotiate the Asset access or consumption through the network.
+The Ocean Order Transactions (**TX**) is a specification for Ocean Protocol to manage the interaction between users trying to negotiate the Asset access or consumption through the network.
 
 This OEP does not focus on asset attributes, whitelisting or curation. It's purely the mechanics of registering the order transactions allowing to the Ocean users to trade using the protocol.
 
 This specification is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper), [3/ARCH](../3/README.md), [4/KEEPER](../4/README.md) and [5/AGENT](../5/README.md).
 
-This specification is called **OOT** henceforth.
+This specification is called **TX** henceforth.
 
 ## Change Process <a name="change-process"></a>
 This document is governed by the [2/COSS](../2/README.md) (COSS).
@@ -38,7 +38,7 @@ Ocean network aims to power marketplaces for relevant AI-related data services.
 Different actors and stakeholders are necessary to interact between them using the Ocean Protocol defined.
 One of the essential points of Ocean is to provide the mechanisms allowing to untrusted users to trade using the system.  
 
-The main motivation of OOT is to define a simple and clear protocol allowing those mechanics.
+The main motivation of TX is to define a simple and clear protocol allowing those mechanics.
 
 Some considerations:
 
@@ -53,14 +53,14 @@ Some considerations:
 
 Main requirements are:
 
-* OOT MUST provide the Smart Contracts logic allowing to non-trusted parties to negotiate the ASSETS sharing
-* Main OOT business logic will be implemented in the Smart Contract layer running in the KEEPER::Decentralized VM
-* The AGENT will interface with the Decentralized VM to compose the valid transactions needed by the Smart Contracts layer
-* The AGENT will integrate the Decentralized VM to implement the Access Control capabilities
-* The information sent to the Decentralized VM by the AGENT MUST be only the essential
+* TX MUST provide the Smart Contracts logic allowing to non-trusted parties to negotiate the ASSETS sharing
+* Main TX business logic will be implemented in the Smart Contract layer running in the **KEEPER::DEC-VM**
+* The AGENT will interface with the KEEPER::DEC-VM to compose the valid transactions needed by the Smart Contracts layer
+* The AGENT will integrate the KEEPER::DEC-VM to implement the Access Control capabilities
+* The information sent to the KEEPER::DEC-VM by the AGENT MUST be only the essential
 * The AGENT will integrate with OCEAN DB if it's provided, allowing to send to an external Data Store the copy of the transactions managed
-* The AGENT and OCEAN DB integration is totally optional, the only source of truth is the data stored on-chain in the Decentralized VM
-* The AGENT will provide a higher level API allowing to third parties to integrate with OOT in an easier way
+* The AGENT and OCEAN DB integration is totally optional, the only source of truth is the data stored on-chain in the KEEPER::DEC-VM
+* The AGENT will provide a higher level API allowing to third parties to integrate with TX in an easier way
 * Contract negotiations MUST occur off-chain, the protocol won't provide methods for ASK/MATCHING
 * Main parties involved in a Contract negotiation are PUBLISHERS, PROVIDERS, CONSUMERS and MARKETPLACES
 * MARKETPLACES are facilitators but not indispensable for a Contract settlement
@@ -109,7 +109,7 @@ The **Contracts** information should be managed using an API. This API should ex
 The proposed solution is composed by the interaction of different elements:
 
 * A high level RESTful API exposing the methods required to manage the Contracts (AGENT)
-* A Keeper node registering the Contracts on-chain (KEEPER)
+* A Keeper node registering the Contracts on-chain (KEEPER::DEC-VM)
 * Optionally, an external database pluged using the Ocean DB interfaces 
 
 ![Nodes Involved](images/nodes-involved.png)
@@ -124,12 +124,13 @@ The following sections will describe the end to end implementation using a top t
 
 The above diagram shows the high level interactions between the components involved:
 
-* A CONSUMER, using a Marketplace frontend application find an Asset and click on “buy button”
-* The MARKETPLACE using his local AGENT register the Contract in the Decentralized VM ([CON.001](#CON.001)). In this process the Marketplace could provide the public keys of all or some of the parties involved (Marketplace, Consumer, Provider, Publisher)
+* A CONSUMER, using a Marketplace frontend application find an Asset and click on "buy button"
+* The MARKETPLACE using his local AGENT or the CONSUMER, register the Contract in the KEEPER::DEC-VM ([CON.001](#CON.001)). In this process the Marketplace could provide the public keys of some of the parties involved (Marketplace, Consumer, Provider, Publisher)
+  - In scenarios where the conditions are agreed by the Consumer, won't be necessary to request the approval/sign of the Publisher and Provider. It would reduce the time for contract setup, allowing quick consumption from the Consumer side
   - For example optionally, because the Asset was registered through the Marketplace, the Marketplace send a notification to the Publisher requesting his/her signature on the contract. If the user is a registered user in the Marketplace, this notification can be sent by email, sms or pidgeon, doesn’t matter.
 * The PUBLISHER receives the sign notification and provides his/her signature through the Marketplace frontend application
 * The MARKETPLACE using the AGENT provide the PUBLISHER signature and store on-chain ([CON.003](#CON.003))
-* The PROVIDER AGENT is subscribed to the Decentralized VM transaction log. So the Provider is aware of any change in any Contract related to him. 
+* The PROVIDER AGENT is subscribed to the KEEPER::DEC-VM transaction log. So the Provider is aware of any change in any Contract related to him. 
 * When the Contract has been signed by all the parties, the PROVIDER AGENT send an Authorization Consumption request ([CON.004](#CON.004)). The PROVIDER gives the information necessary to consume the ASSET (it includes where is the asset and how to get access). This information is encrypted using asymmetric cryptography. So only the CONSUMER using his/her private key should be able to get decrypt this data.  This is stored on-chain. 
 * The MARKETPLACE AGENT, subscribed to the transaction log, after to get notice the contract has been signed and access granted, notify the CONSUMER saying the ASSET is ready to be consumed.
 * The CONSUMER request access to download the asset [CON.005](#CON.005) using the information provided on-chain by the PROVIDER.
@@ -140,7 +141,8 @@ The workflow described is one of the available options. Because the protocol is 
 
 * During the creation of the Contract, the Marketplace could provide the Publisher signature during the Contract creation. This depends of the Marketplace conditions provided to their users.
 * In a Free scenario, all the signature process could be automated without any kind of interaction
-* The transaction log of the Decentralized VM is open, so any actor could be subscribed to them to be aware of the Contract changes for example. It could be implemented without any Agent, using directly the web3 libraries.
+* In a scenario where the conditions requested by Producer and Publisher are agreed by the Consumer, the Contract won't require Publisher and Provider signatures, moving to **SIGNED** state automatically after the Consumer (and Marketplace if it's involved) signs the contract
+* The transaction log of the KEEPER::DEC-VM is open, so any actor could be subscribed to them to be aware of the Contract changes for example. It could be implemented without any Agent, using directly the web3 libraries.
 * The request access/download of an Asset could happen also having the Marketplace as intermediary
 * The Marketplace is a facilitator, but all the contract negotiation and definition could happen without any interaction of the Marketplace. Publishers, Providers and Consumers could complete a full transaction with a Marketplace. 
 * Different roles can be provided by the same actor, it would allow alternative scenarios also supported:
@@ -149,13 +151,13 @@ The workflow described is one of the available options. Because the protocol is 
   - Marketplaces acting on behalf of Providers or Publishers 
 
 
-In the following sections you can find the end to end implementation details of the complete OOT functionality.
+In the following sections you can find the end to end implementation details of the complete TX functionality.
 
 
 
 ### Smart Contracts <a name="smart-contracts"></a>
 
-The KEEPER::Decentralized VM will store the essential user information to allow the implementation of the OOT OEP.
+The **KEEPER::DEC-VM** will store the essential user information to allow the implementation of the TX OEP.
 It means the system MUST NOT store any personal information, enabling PRIVACY and ANONYMITY.
 
 Taking this into account, the skeleton of main implementation should provide the following structs and interfaces:
@@ -174,16 +176,25 @@ contract ContractsRegistry {
         address marketplaceId= 0x0; // Optional party
         
         bytes32 assetId;
+        
         // 0= DRAFT, 1=SIGNED, 2=AUTHORIZED, 3=SETTLED, 9=CANCELED
-        uint state;        
+        uint state;
+        ContractCondition conditions;        
+    }
+    
+    struct ContractConditions {
+        uint price;
+        uint availability;
     }
     
     mapping(bytes20 => Contract) contracts;
     
-    function register(address _pubId, address _proId, address _conId, address _mktId, bytes32 _assetId) 
+    function register(address _pubId, address _proId, address _conId, address _mktId, bytes32 _assetId, uint price, uint availability) 
                         external returns (bytes32 contractId) { }
     
     function getState(bytes32 _contractId) public view returns (uint state) { }
+    
+    function getContract(bytes32 _contractId) public view returns (address, address, address, address, bytes32, uint, uint) { }
 
     // Given an array of ids of actors signing the contract
     function signContract(address[] _signers) external returns (uint state) {}
@@ -230,18 +241,21 @@ Caller: Any party involved in the Contract (CONSUMER, PRODUCER, PUBLISHER, MARKE
 HTTP Output Status Codes: 
     HTTP 202 - Accepted
     HTTP 400 - Bad request
+    HTTP 401 - Forbidden  
 ```
 
 ##### Input Parameters
 
-| Parameter | Type | Description |
-|:----------|:-----|:------------|
-|assetId|string|Id of the Asset related with the contract|
-|publisherId|string|Id of the publisher|
-|consumerId |string|Id of the consumer|
-|providerId |string|Id of the provider (optional). A contract can be created as DRAFT without Provider|
-|marketplaceId |string|Id of the marketplace (optional). A contract can executed without a Marketplace participation|
-|metadata   |Json Object|Free Json object of information to be persisted in Ocean DB if enabled (optional)|
+| Parameter | Type  | Description |
+|:----------|:------|:------------|
+|assetId    |string |Id of the Asset related with the contract|
+|publisherId|string |Id of the publisher|
+|consumerId |string |Id of the consumer|
+|providerId |string |Id of the provider (optional). A contract can be created as DRAFT without Provider|
+|marketplaceId|string|Id of the marketplace (optional). A contract can executed without a Marketplace participation|
+|price      |int    |Price defined in the contract in token drops. 0 if free.|
+|availability|int   |Period of time the consumption is available (optional). 0 if there not any limitation|
+|metadata   |Json   |Free Json object of information to be persisted in Ocean DB if enabled (optional)|
 
 If **OCEAN DB** is enabled, the content of the Metadata attribute will be pass as parameter to the Ocean DB implementation to be stored in an external system.  
 
@@ -253,6 +267,7 @@ Example:
 	"publisherId": "0x999888777",
 	"consumerId": "0xaabbcc112",
 	"providerId": "0xaabbcc112",
+	"price": 10,
 	"metadata": {
         "topic": "xxx",
         "attributes": [{
@@ -263,6 +278,7 @@ Example:
 }
 ```
 
+<a name="contract-output"></a>
 ##### Output
 
 The output of this request MUST add the following attributes generated by the system:
@@ -275,6 +291,8 @@ The output of this request MUST add the following attributes generated by the sy
 |consumerId |string|Id of the consumer|
 |providerId |string|Id of the provider (optional)|
 |marketplaceId |string|Id of the marketplace (optional)|
+|price      |int    |Price defined in the contract in token drops. 0 if free.|
+|availability|int   |Period of time the consumption is available (optional). 0 if there not any limitation|
 |creationDatetime|datetime|Allocated by the system when was created in the AGENT (universal datetime), time before consensus|
 |updateDatetime|datetime|Allocated by the system when was updated the metadata in the AGENT (universal datetime), time before consensus
 |state|string|Internal state of the Contract: DRAFT, SIGNED, AUTHORIZED, SETTLED, CANCELLED|
@@ -288,6 +306,7 @@ Example:
 	"publisherId": "0x999888777",
 	"consumerId": "0xaabbcc112",
 	"providerId": "0xaabbcc112",
+	"price": 10,
 	"state": "DRAFT",
 	"creationDatetime": "2018-05-18T16:00:00Z",
     "updateDatetime": "2018-05-18T16:00:00Z",
@@ -309,30 +328,39 @@ Contract information MUST be persisted in the Decentralized VM and Ocean DB (if 
 
 Ocean DB will store the complete metadata information. To coordinate the creation of the Contracts in a consistent way in both data stores, the AGENT will implement an Orchestration component in charge of that.
 
-The AGENT will coordinate the creation of an Contracts writing initially in the Decentralized VM. It will return a Transaction Receipt (see more details about the Transaction Receipt model). 
+The AGENT will coordinate the creation of an Contracts writing initially in the KEEPER::DEC-VM. It will return a Transaction Receipt (see more details about the Transaction Receipt model). 
 After of that the Orchestration layer will persist the complete Contracts metadata in Ocean DB.
 
-![Orchestration with Caching](images/arch-orchestration-with-caching.png "Orchestration with Caching")
 
 
 #### Interaction with the Keeper
 
 
-The **KEEPER::Decentralized VM** will persist the following information:
+The **KEEPER::DEC-VM** will persist the following information:
 
-| Attribute | Type | Description |
-|:----------|:-----|:------------|
-|contractId|address|Id of the contract created|
+| Attribute | Type  | Description |
+|:----------|:------|:------------|
+|contractId |address|Id of the contract created|
 |publisherId|address|Owner of the Asset|
-|providerId|address|Owner of the Asset|
-|consumerId|address|Owner of the Asset|
+|providerId |address|Owner of the Asset|
+|consumerId |address|Owner of the Asset|
 |marketplaceId|address|Owner of the Asset|
-|assetId|bytes32|Id of the Asset|
-|state  |uint  |State of the Contract (0= DRAFT, 1=SIGNED, 2=AUTHORIZED, 3=SETTLED, 9=CANCELED)|
+|assetId    |bytes32|Id of the Asset|
+|state      |uint   |State of the Contract (0= DRAFT, 1=SIGNED, 2=AUTHORIZED, 3=SETTLED, 9=CANCELED)|
+|price      |uint   |Price offered by the Consumer|
+|availability|uint   |Time period the asset is available|
 
 
+During the execution of the `register` function, the following tasks MUST be implemented:
 
-  
+* Check the authorization of the msg.sender
+* Check the asset availability
+* Check if the asset has assigned a provider
+* Check if the conditions proposed (price & availability) meet the provider and publisher requirements
+  - If conditions are granted, state is **SIGNED**
+  - Else, state is **DRAFT**
+* Register the contract 
+
 Using any of the existing web3 implementation library (web3.js, web3.py, web3.j, etc), it's possible to interact with the VM Smart Contracts.
 
 
@@ -341,57 +369,29 @@ Using any of the existing web3 implementation library (web3.js, web3.py, web3.j,
 
 The integration with OCEAN DB is optional, so only will works if an implementation backend is provided.
 
-If it's enabled, the Ocean DB layer will interact with the backend to store the metadata information about the actors. 
-
-| Attribute | Type | Description |
-|:----------|:-----|:------------|
-|actorId    |string|Actor Id|
-|state      |enum  |Internal state information. One of the following("CREATED", "WHITELISTED", "BANNED", "DISABLED")|
-|creationDatetime |Datetime |Creation datetime set by the database|
-|metadata   |Json Object|Free Json object with attributes given in the request|
-
-Different states are:
-
-* CREATED - Actor just created in the system
-* WHITELISTED - Actor whitelisted after a curation/verification process
-* BANNED - Actor banned from the system
-* DISABLED - Actor retired or disabled of the system
-
-Actor state will be set as **CREATED** by the system.
+If it's enabled, the Ocean DB layer will interact with the backend to store the metadata information about the contracts. So a part of the information defined in the Output section, the AGENT will forward the **metadata** json document to the Ocean DB implementation. 
 
 
-#### Output
+---
 
-After creating the Actor in the datastores, the AGENT will return a HTTP 202 Accepted message. It means the request has been accepted for processing, but the processing has not been completed.
+<a name="retrieve-contract"></a><a name="CON.002"></a>
+### Retrieve Contract
 
-Using the information stored and provided by the user, the **AGENT** SHOULD compose the output payload to return. It should include the following information:
+![Retrieve Contract information](images/CON.002.png "CON.002")
 
-| Attribute | Type | Description |
-|:----------|:-----|:------------|
-|actorId    |string|Account address|
-|state      |enum  |Internal state information. One of the following("CREATED", "WHITELISTED", "BANNED", "DISABLED")|
-|creationDatetime |Datetime |Creation datetime set by the database|
-|metadata   |Json Object|Free Json object with attributes given in the request|
-
-
-
-### Retrieve information of an existing actor <a name="retrieve-actor"></a>
-
-![Retrieve info of an Actor](images/ACT.002.png "ACT.002")
-
-In the [above diagram](diagrams/ACT.002.md), the retrieval of the Actor information state is related with the AGENT and the KEEPER::Decentralized VM. No information is read from Ocean DB. This functionality involves the following implementations:
+In the [above diagram](diagrams/CON.002.md), the retrieval of the Contract information state is related with the AGENT and the KEEPER::DEC-VM. No information is read from Ocean DB, unless an Ocean DB implementation is provided. This functionality involves the following implementations:
 
 #### Ocean Agent API
 
 It is necessary to expose a RESTful HTTP interface using the following details:
 
 ```
-Reference: ACT.002
-Path:  /api/v1/keeper/actors/{actorId}
+Reference: CON.002
+Path:  /api/v1/contracts/{orderId}
 HTTP Verb: GET
 Caller: Any
-Input: actorId
-Output: Actor Schema
+Input: contractId
+Output: Contract Schema
 HTTP Output Status Codes: 
     HTTP 200 - OK
     HTTP 400 - Invalid params
@@ -403,40 +403,34 @@ HTTP Output Status Codes:
 
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
-|actorId    |string|Account address to retrieve|
+|contractId |string|Contract ID to retrieve|
 
 Example: 
 
 ```http
-GET http://localhost:8080/api/v1/keeper/actors/0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e
+GET http://localhost:8080/api/v1/contracts/48dd4fec25d5b3fd2295e
 ```
 
-```json
-{
-    "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-	"state": "CREATED"
-}
-```
+##### Output
 
-Before to query the KEEPER::Decentralized VM, it's necessary to check the length and format of the actorId. If the length and format doesn't fit the standard address definition, the system should return a **HTTP 400** Invalid params message.
-
-Depending of the implementation, there are different alternatives to check if an address is valid (see this [link](https://ethereum.stackexchange.com/questions/1374/how-can-i-check-if-an-ethereum-address-is-valid)).
-
-#### Accounts Management
-
-The Accounts Manager components it's not involved in this method. All the information will be retrieved from the **KEEPER::Decentralized VM**.
+A complete description of the Contract output can be found in the [previous section](#contract-output).
 
 #### Interaction with the Keeper
 
-The Decentralized VM stores the state about the Actors. Using the actorId as key in the Actors collection, the system will retrieve the information about the Actor.
+Before to query the KEEPER::DEC-VM, it's necessary to check the length and format of the contractId. If the length and format doesn't fit the standard address definition, the system should return a **HTTP 400** Invalid params message.
 
-The information about the state can be obtained integrating the `ActorsRegistry::getState` Smart Contract method.
+The KEEPER::DEC-VM stores the state about the Contract, being the KEEPER::DEC-VM the source of truth about Contracts information. 
+The AGENT will use the `AssetsRegistry.getContract` method to check if the contract already exists and return the Contract attributes.
+If no contract is found, the system must return a **HTTP 404** Not Found message.
 
-If the Actor metadata has the state attribute `state == DISABLED` the method should return a **HTTP 404** Not Found message.
+If Ocean DB is enabled, using the contractId as key, the system will retrieve the information about the Contract. So having the Contract information retrieved from the KEEPER::DEC-VM and Ocean DB, the AGENT should compose the output. 
+Taking into account the information given by the KEEPER::DEC-VM should prevail. 
 
 
+---
 
-### Updating Actor metadata <a name="updating-actor-metadata"></a>
+<a name="retrieve-contract"></a><a name="CON.002"></a>
+### Updating Contract
 
 ![Update an Actor](images/ACT.003.png "ACT.003")
 
