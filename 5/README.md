@@ -40,14 +40,10 @@ Table of Contents
       * [Decentralized Interface](#decentralized-interface)
 
 
-
-
-
-
 <a name="ocean-agent-architecture"></a>
 # Ocean Agent Architecture
 
-This document describes the Ocean Agent Architecture. It focus in which are the main responsibilities, functions and components implementing the architecture of the component.
+This document describes the Ocean Agent Architecture: the main responsibilities, functions and components.
 
 This specification is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper).
 
@@ -64,35 +60,40 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 <a name="motivation"></a>
 ## Motivation
 
-The goal of this document is to describe the responsibilities and architecture of the an Ocean AGENT node. 
-This AGENT node, as part of the Ocean Network, will interact with different components (Keepers and other Agents),
-so part of the intention of this document is to describe the different interaction patterns between components.
-At the same time, the AGENT implements an internal architecture based in different layers. 
-This document MUST to provide a common framework and definition used to describe the technical solution to put in place. 
+The goal of this document is to describe the responsibilities and architecture of an Ocean AGENT node. 
 
-All the different components detailed, SHOULD be used as building blocks, allowing to compose the different scenarios using those.
+In the Ocean network, AGENTS implement a variety of behavior that contribute data services to the network.
+For example: AGENTS can provide services such as data sets, algorithms, storage, computational power, service curation, 
+verification, market makers and so on.  
+
+AGENTS need to be able to talk to each other as well as to the network KEEPERS.
+The network architecture talks about that, see [3/ARCH](../3/README.md).
+Hence, part of the intention of this document is to describe the different interaction patterns between them.
+
+At the same time, the AGENT implements an internal architecture based in different layers and modules. 
+This document MUST provide a common framework and definition to drive technical implementations. 
+
+The detailed components SHOULD be used as building blocks, allowing synthesize different scenarios.
 
 <a name="high-level-architecture"></a>
 ## High Level Architecture
 
-This document use as reference and starting point the Architecture defined by the [3/ARCH](../3/README.md) (ARCH).
+This document uses as reference and starting point the network architecture defined by the [3/ARCH](../3/README.md) (ARCH).
 
 <a name="responsabilities"></a>
 ## Responsibilities
 
-AGENT is a thin abstraction layer. The main responsibilities of AGENT are:
+AGENT is client-side software. The main responsibilities of AGENT are:
 
-* Facilitate the integration of the Ocean functions to the different system actors
-* Enable the communication between actors (P2P) and with the KEEPER network
-* Exposing a common and stable API to the network consumers
-* Build the authorization & authentication mechanism to identify the user using the client
-* Manage the user PKI information
-* Compose transactions that are send to the keeper. 
-* Orchestrate lower-level Keeper interactions exposing a higher level API
-* Subscribe to some Smart Contract events raised by the Keeper and trigger actions responding to that
-* Integrate with other Agents, establishing a peer to peer connection
+* Facilitate the integration of various Ocean services 
+* Enable the communication between AGENTS and with the KEEPER network
+* Exposing a common and stable interface to network consumers
 * Integrate with external services or providers (Compute, Data, ..)
-* Simple input validation. Throttling and spam prevention is done at the VM validation level in the keeper. 
+* Exposing a cryptographically secure interface for off-chain service proofs, privacy and access control 
+* Implement necessary identity components for authentication and authorization of AGENTS
+* Compose valid transactions to interact with the keeper network 
+* Orchestrate lower-level Keeper interactions exposing a higher level interface
+* Subscribe to relevant events raised by the KEEPER network and trigger corresponding actions
 * Expose some API's providing alternative consumption mechanisms (synchronous/asynchronous)
 
 <a name="components"></a>
@@ -100,11 +101,14 @@ AGENT is a thin abstraction layer. The main responsibilities of AGENT are:
 
 ![Ocean Agent](images/agent-architecture.png)
 
-The **Ocean Agent** (aka **AGENT**) is a software application receiving incoming messages (REST, RPC, etc.) related with 
-the Ocean Network interactions, and producing some output messages after interact with the **Ocean Keeper components** (aka **KEEPEERS**). 
+The **Ocean Agent** (aka **AGENT**) is client-side software 
+that communicates (REST, RPC, etc.) with both other AGENTS and KEEPERS in the network. 
 
-Independently of the API consumption mechanism, the Ocean Agent is in charge of building the internal 
-object models using the incoming messages provided by the **Keeper components interfaces**.
+Besides the communication purpose, AGENTS bring data services to the Ocean network. 
+Reciprocally the same software is used for consuming the services and managing related transactions.
+
+Independently of the API consumption mechanism, the AGENT is in charge of building the internal 
+object models using the incoming messages provided by the **KEEPER components interfaces**.
  
 This marshaling and un-marshaling operations will allow using a common internal data model across all the application. 
 
@@ -114,8 +118,10 @@ from the consumer side, interacting with the decentralized VM and the **Ocean DB
 <a name="interfaces"></a>
 ## Interfaces
 
-In charge of receiving the external requests to interact with the system. Initially the AGENT 
-will expose a HTTP RESTful API, but is designed to expose the API's or consume requests in different ways.
+Interfaces are charge of interacting with off-chain services, libraries, cloud/microservices and more.
+In essence, they connect relevant services that can bring value to the ocean network. 
+
+Initially the AGENT will expose a HTTP RESTful API, but is designed to expose the API's or consume requests in different ways.
 Because of that the AGENT should expose the API's in different formats allowing integration mechanisms 
 that can be used depending on the use case. The main interaction mechanisms are:
  
@@ -140,31 +146,33 @@ This could be an optimal configuration when the Ocean Agent is running in conjun
   - Assets transferring between different Ocean actors - In the actors that are giving access directly to some assets without using a third-party provider, would be possible to share directly the Assets between parties.
 
 ![P2P Communication](images/comm-p2p.png) 
-
-                                                       
+ 
 
 
 <a name="service-integrity"></a>
 ## Service Integrity
-
+The Service Integrity layer can be regarded as a cryptographic membrane for off-to-on chain communication and vice versa.
+Here one finds the generation of service proofs as well as on-chain access control and privacy negotiation.
+  
 <a name="service-proofs"></a>
 ### Service Proofs
 
 Service proofs are meant to publicly verify the off-chain data services and connections. 
 Multiple data service proofs that enhance data and compute integrity can be foreseen in this component. 
-It's responsibility of the AGENT to interact with all the different providers, enabling the communications allowing to challenge/retrieve the required Proofs of Service.
+The AGENT is responsible to generate the relevant proofs and interact with all the different providers, 
+enabling the communications allowing to challenge/retrieve the required Proofs of Service.
 
 Using the [Service Plugins](#service-plugins) system, this module will interface with off-chain providers to obtain the proofs needed.
 
 <a name="privacy-management"></a>
 ### Privacy Management
 
-The **AGENT** will implement a Privacy Protocol allowing to negotiate the privacy requirements between parties.
+The AGENT WILL implement a Privacy Protocol allowing to negotiate the privacy requirements between parties.
 In a non-homogeneous network, different nodes can provide alternative mechanisms (hardware or software) 
 implementing some privacy capabilities.
 
-In this scenario of we can assume that different users running Ocean Agents, can require and implement 
-different privacy capabilities to negotiate with other agents. It means, each AGENT will define a list 
+In such scenario of one can assume that different users running Ocean Agents can require and implement 
+different privacy capabilities to negotiate with other agents. This means that each AGENT will define a list 
 of the **"privacy systems"** supported. For example:
 
 ```
@@ -175,18 +183,16 @@ privacy {
 }
 ```
 
-Having 2 different AGENT's in a negotiation, during the protocol hand shake, the information about the 
-privacy mechanisms will be shared. If they have a common/compatible method, the conversation between 
-them could be started.
-
-
+In order to establish a successful connection, 2 different AGENT's SHOULD share the information about their supported 
+privacy suits using a handshake protocol. If they have a common or compatible method, the exchange of messages can
+be bidirectionally encoded and decoded. 
 
 <a name="access-control"></a>
 ### Access Control
 
 ![Agent Access Control](images/agent-access-control.png)
 
-Access Control system implements the architecture where external users or applications are 
+Access control systems implements the architecture where external users or applications are 
 Authenticated and Authorized in the system, allowing (or denying) the management of the resources.
 
 In general, authentication is the process of validating that somebody really is who he claims to be. 
