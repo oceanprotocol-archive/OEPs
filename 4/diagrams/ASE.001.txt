@@ -1,0 +1,21 @@
+title Registering an Asset (ASE.001)
+
+# ASE.001
+
+Publisher->Marketplace: Asset Register request
+note right of Publisher: Could be sent to the API directly
+Marketplace->API: Register request (ASE.001)
+note right of Marketplace: Marketplace works as a proxy
+API->Keeper: Register request
+
+Keeper->Keeper:Input Validation
+
+Keeper->BlockChain:Create asset (Not Published)
+note right of BlockChain: P2P consensus
+BlockChain->Keeper:Creation ACK
+
+
+Keeper->API:Creation ACK
+API->Marketplace: HTTP 201 (Asset)
+Marketplace->Publisher: Register success
+
