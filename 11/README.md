@@ -122,8 +122,8 @@ To be more clear, the practical 2-stage strategy to distribute block rewards is 
 * *Stage 1: Marketplace decides whether to reward this provider*:
 	* The value added by the provider is calculated as *R{ij}*;
 	* Compute the ratio of *R{ij}* and *R{difficulty}*;
-	* AGENT client generates a uniform-distributed random number between [0, 1] and pass it to Marketplace;
-	* Marketplace decides whether to reward this provider.
+	* AGENTs submit their locally-generated random number to the Marketplace (similar to the appraoch in Randao [4]);
+	* Marketplace calculates the XOR (exclusive OR) of those random numbers and determines whether to reward this provider.
 
 <img src="img/reward_prob_sequence.jpg" width="600" />
 
@@ -375,6 +375,7 @@ unstable
 * [1][Ocean Protocol Technical Whitepaper](https://oceanprotocol.com/tech-whitepaper.pdf)
 * [2][Trent McConaghy, Co-Founder - Curated Proof Markets & Token-Curated Identities](https://www.youtube.com/watch?v=LxkvJmh7t0Y)
 * [3][Curated Proofs Markets: A Walk-Through of Ocean’s Core Token Mechanics](https://blog.oceanprotocol.com/curated-proofs-markets-a-walk-through-of-oceans-core-token-mechanics-3d50851a8005)
+* [4] [Randao: blockchain based verifiable random number generator](http://randao.org/)
 
 
 ## 8. Copyright Waiver  <a name="copyright-waiver"></a>
