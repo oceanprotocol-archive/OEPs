@@ -220,7 +220,7 @@ Other scenarios could require specialized deployments to run Worker nodes, Agent
 
 ## Ocean Protocol Suite
 
-The Ocean protocol stack has 7 layers, divided between AGENT and KEEPER.
+The Ocean protocol stack has 6 layers, divided between AGENT and KEEPER.
 
 ![Protocol Stack](images/protocol-stack.png)
 

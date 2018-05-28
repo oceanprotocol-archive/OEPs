@@ -73,7 +73,7 @@ Hence, part of the intention of this document is to describe the different inter
 At the same time, the AGENT implements an internal architecture based in different layers and modules. 
 This document MUST provide a common framework and definition to drive technical implementations. 
 
-The detailed components SHOULD be used as building blocks, allowing synthesize different scenarios.
+The detailed components SHOULD be used as building blocks, allowing to synthesize different scenarios.
 
 <a name="high-level-architecture"></a>
 ## High Level Architecture
@@ -88,7 +88,7 @@ AGENT is client-side software. The main responsibilities of AGENT are:
 * Facilitate the integration of various Ocean services 
 * Enable the communication between AGENTS and with the KEEPER network
 * Exposing a common and stable interface to network consumers
-* Integrate with external services or providers (Compute, Data, ..)
+* Integrate with external services or providers (compute, data, orchestration, ...)
 * Exposing a cryptographically secure interface for off-chain service proofs, privacy and access control 
 * Implement necessary identity components for authentication and authorization of AGENTS
 * Compose valid transactions to interact with the keeper network 
@@ -118,8 +118,10 @@ from the consumer side, interacting with the decentralized VM and the **Ocean DB
 <a name="interfaces"></a>
 ## Interfaces
 
-Interfaces are charge of interacting with off-chain services, libraries, cloud/microservices and more.
-In essence, they connect relevant services that can bring value to the ocean network. 
+Interfaces are charge of interacting with off-chain services, libraries, cloud/micro-services and more.
+In essence, they connect relevant services that can bring value to the ocean network.
+The interfaces expose the service integrity layer that allows data services and consumers to interact with service contracts.
+   
 
 Initially the AGENT will expose a HTTP RESTful API, but is designed to expose the API's or consume requests in different ways.
 Because of that the AGENT should expose the API's in different formats allowing integration mechanisms 
@@ -151,8 +153,9 @@ This could be an optimal configuration when the Ocean Agent is running in conjun
 
 <a name="service-integrity"></a>
 ## Service Integrity
-The Service Integrity layer can be regarded as a cryptographic membrane for off-to-on chain communication and vice versa.
-Here one finds the generation of service proofs as well as on-chain access control and privacy negotiation.
+The Service Integrity layer can be regarded as a cryptographic membrane for off- to on-chain communication and vice versa.
+Here one finds the generation of service delivery proofs to resolve service contracts as well as 
+service access control and privacy negotiation mandated by service contracts.
   
 <a name="service-proofs"></a>
 ### Service Proofs
@@ -192,8 +195,8 @@ be bidirectionally encoded and decoded.
 
 ![Agent Access Control](images/agent-access-control.png)
 
-Access control systems implements the architecture where external users or applications are 
-Authenticated and Authorized in the system, allowing (or denying) the management of the resources.
+Access control systems provides services connected to Ocean network the ability 
+_Authenticated_ and _Authorized_ in the system, allowing (or denying) the management of the resources.
 
 In general, authentication is the process of validating that somebody really is who he claims to be. 
 Authorization refers to rules that determine who is allowed to do what.  
@@ -202,7 +205,7 @@ Authorization refers to rules that determine who is allowed to do what.
 #### Authentication
 
 In the AGENT scope the authentication layer is very thin, and it's in charge mainly of 
-verifying the public key information associated to the transactions.
+verifying the minimal identity information (public key, DID, openID, ...) associated to the transactions.
 
 In all the HTTP API interactions, the component integrating the API SHOULD send his public key as part 
 of the HTTP request using the ```Authorization``` HTTP Header 
@@ -213,70 +216,68 @@ All the requests giving invalid authentication parameters will return a **HTTP 4
 <a name="authorization"></a>
 #### Authorization
 
-In the authorization phase it's necessary to validate that user is able to implement a specific action, 
-ie. modify the metadata information of a specific asset. To implement this validating it's necessary
- to use the information associated to the ownership of the resources, it's stored on-chain.
+In the authorization phase it's necessary to validate that a user is able execute a specific action, 
+ie. access a data service or modify the metadata information of a specific asset. 
+
+On-chain authorization requires information associated to ownership of the resources to be stored on-chain.
 
 ![Agent Authorization](images/agent-authorization.png)
 
-The authorization will be implemented in the conjunction between the Access Control layer and the 
-Decentralized VM component running in the Keeper side. 
+The authorization will be implemented as an on-chain access control module driven by
+service contracts that are deployed on the decentralized VM. 
 
-The Access Control layer implement the association between the user information, validated in the 
-authentication layer, and the method execution. 
-The Decentralized VM component, using the validations implemented in the Smart Contracts, and the 
-associating between the resources and the owners or users able to access the resources, 
-will implement the validations allowing to authorize the user. It includes to answer the following questions:
+The access control module implement the association between the service session information and the method execution. 
+Service contracts in the decentralized VM component dictate the service access and form the basis for the 
+authentication layer. It includes to answer the following questions:
 
-* Is the user sending the request the owner of the resource (```msg.sender == owner```)? 
-The ownership of a resource, typically enable to the owner execute the high restricted operations 
-related with the resource (like transfer the ownership or updating data).
-* Can the user sending the request access (read or write) to the resource? 
-The resource can have associated a Access Control List (ACL) defining who can do what. 
-* Can the user sending the request to change the ownership of the resource?
+* Does the connection request originated from the owner of the resource (```msg.sender == owner```)? 
+The ownership of a resource allows to execute highly restricted operations 
+on the resource (like administrator rights to manage the service).
+* In which context can the user sending the request access (read or write) to the resource? 
+The resource can have associated a Access Control List (ACL) defining who can do what and when. 
+* Can the user sending the request change the ownership of the resource?
 
 <a name="pki"></a>
-### PKI
+### Private Key Infrastructure (PKI)
 
 <a name="accounts"></a>
 #### Accounts
 
 An account is a human-readable identifier (public key) stored on the decentralized VM. 
 Every transaction has its permissions evaluated under the configured authority of an account. 
-The grants of each account will be validated by the RBAC system. 
+The grants of each account will be validated by the access control system. 
 The user permissions must be met for a transaction signed under that authority to be considered valid. 
-Transactions are signed by utilizing a client that has a loaded and unlocked a wallet. 
+Transactions are signed by a client that has a loaded and unlocked a wallet. 
 
 The AGENT will provide the capabilities to manage the accounts creation. 
-It will use the [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) definition for the creation of those.
-To do that the AGENT will interact with the **Accounts API** provided by the **Parity** client.
+It will use the [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) definition for the creation of wallets and accounts.
+An example implementation is the **Accounts API** provided by the **Parity** client.
 
 This will be detailed in the [Actors Registry OEP 13](../13/REG). 
 
 <a name="wallets"></a>
 #### Wallets
 
-Wallet component is in charge of protects and makes use of your keys. These keys may or may not be 
-granted permission to an account authority on the blockchain.
+The wallet component is in charge of protecting and using sensitive information such as private keys. 
+These keys may or may not be granted permission to an account authority on the KEEPER level.
 A wallet manages a private/public key pair which is used to cryptographically sign transactions and 
 prove ownership on the network. The Ocean Agent will provide the wallet capabilities that allows 
 the monetary interactions in the network.
 
 The reference for wallet definitions to be used are:
 
-* [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) - It describes hierarchical deterministic 
+* [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) - Describes hierarchical deterministic 
 wallets (or "HD Wallets"). Those are wallets which can be shared partially or entirely with different 
 systems, each with or without the ability to spend coins. 
-* [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) - It describes the 
+* [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) - Describes the 
 implementation of a mnemonic code or mnemonic sentence, a group of easy to remember words, 
 for the generation of deterministic wallets.
 * [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) - Defines a logical 
 hierarchy for deterministic wallets based on an algorithm described in BIP32, 
 and purpose scheme described in [BIP43](https://github.com/bitcoin/bips/blob/master/bip-0043.mediawiki).
 
-The Management of the Wallets will be implemented using the **Parity** client as backend.
+As an example, the management of the Wallets can be implemented using the **Parity** client.
 More information will be provided in the [Actors Registry OEP](../13/README.md) and [Wallet OEP](../README.md). 
-
 
 
 <a name="application"></a>
@@ -285,26 +286,26 @@ More information will be provided in the [Actors Registry OEP](../13/README.md) 
 <a name="service-plugins"></a>
 ### Service Plugins
 
-Ocean Agent SHOULD provide a pluggable mechanism allowing to interact with external providers. 
-It could be:
+Ocean Agent SHOULD provide a pluggable mechanism that allows interaction with external providers. 
+This could be:
 
 * **Computing Providers** - In charge of providing off-chain or on-chain computing services. 
-For example Amazon EC2, XAIN, Enigma, etc.
+For example Amazon EC2, Truebit, Weeve, XAIN, Enigma, etc.
 * **Storage or Data Providers** - In charge of providing storage services off-chain or on-chain. 
-Like Amazon S3, IPFS, etc.
+Like Amazon S3, IPFS, BigchainDB, SWARM, etc.
 * **UX/UI Providers** - In charge of providing visual interfacing with the system.
 
-Because is difficult to define upfront the different providers to integrate, it's important 
+Because is cumbersome to define upfront the different providers to integrate, it's important 
 to implement a pluggable mechanism allowing to extend the systems supported by the system.
 
 ![Ocean Agent Plugins System](images/agent-plugins.png)
 
-In the above picture the Storage, Computing and UX/UI interfaces have the responsibility of 
-modelling the interaction with the external systems. Having this approach, support additional 
-providers would require only the implementation of the communication with the new provider, 
-but the integration with the rest of the system should be simpler.
+In the above picture the storage, computing and UX/UI interfaces have the responsibility of 
+modelling the interaction with external systems. Using this approach, supporting additional 
+providers would only require the implementation of the communication with a new provider.
+From there onwards, the integration with the rest of the system is abstracted.
 
-Depending of the implementation of the system, the usage of one plugin or another one, 
+Depending on the implementation of the system, the usage of one plugin or another one 
 could be made by configuration or using dependency injection.
 
 ```java
@@ -319,12 +320,12 @@ public StorageProvider interface {
 <a name="events-watcher"></a>
 ## Events Watcher
 
-An important part of the Smart Contracts implementation in the Decentralized VM is the triggering of Events. 
-Those events could expose system notifications when some relevant actions are happening 
-(ie. a Contract is signed, an Asset is curated, etc.).
+An important part of the smart contracts implementation in the decentralized VM is the triggering of _events_. 
+Events expose notifications from the KEEPERS network when relevant actions happen 
+(ie. a contract is signed, an asset is curated, etc.).
 
-From the AGENT side, the Events Watcher component will be in charge of watching those events 
-to trigger some further actions. 
+From the AGENT side, the events watcher module will be in charge of watching those events 
+to trigger further actions. 
 
 ```javascript
 var subscription = web3.eth.subscribe('logs', {
@@ -335,7 +336,7 @@ var subscription = web3.eth.subscribe('logs', {
         console.log(log);
 });
 
-// unsubscribes the subscription
+// unsubscribe from an event stream
 subscription.unsubscribe(function(error, success){
     if(success)
         console.log('Successfully unsubscribed!');
@@ -344,33 +345,37 @@ subscription.unsubscribe(function(error, success){
 
 The AGENT will provide the interfaces to:
 
-* Subscribe to all the movements related with an Address (FROM or TO) and filtered by TOPIC. It allows:
+* Subscribe to all the movements related with an address (FROM or TO) and filtered by TOPIC. It allows:
   - Subscribe to all the events sent by an actor (FROM)
-  - Subscribe to all the events sent to a Smart Contract address (TO)
+  - Subscribe to all the events sent to a smart contract address (TO)
   - The combination of the previous two
   - Filter by TOPIC (specific event)
-* Retrieve all the historic transactions related an Address  
+* Retrieve all the historic transactions related an address  
 
 
 <a name="ocean-db-integration"></a>
 ### Ocean DB integration
 
+Capabilities such as metadata publishing, discovery, caching require a data store with query capabilities.
+Fully decentralized data storage is prone to costly infrastructure requirements, consistency issues and 
+data liability. Hence Ocean protocol shall not mandate a decentralized storage but rather make it a pluggable option.
+
 Some characteristics about the Ocean DB integration:
 
-* Ocean DB as backend is **optional** and **pluggable**. It means the AGENT MUST be able to run without any Ocean DB as backend
-* The AGENT will provide the interfaces to implement by different storage implementations to integrate them as backend
-* Is not in the AGENT scope to provide the storage interfaces implementations
-* Different users or marketplaces can require to integrate different storage systems providing different capabilities, the interface MUST describe the basic behaviour to implement in order to be integrated in the AGENT
-* Because the totally flexible and agnostic approach of the AGENT, defining only the interfaces, would be possible to integrate a centralized (Oracle, Kafka, Elastic Search, etc.) or decentralized backend (BigchainDB, IPFS, etc.)
+* Ocean DB as backend is **optional** and **pluggable**. This means that an AGENT MUST be able to run without any Ocean DB as backend
+* The AGENT COULD provide the interfaces to implement different storage implementations and integrate them as backend
+* Different users or marketplaces MAY require to integrate different storage systems, 
+providing different capabilities. The interface MUST describe a basic interface in order to be integrated in the AGENT
+* Because of the totally flexible and agnostic approach of the AGENT, 
+defining only the interfaces allows to integrate a centralized (Oracle, Kafka, Elastic Search, etc.) or decentralized backend (BigchainDB, IPFS, etc.)
 * The backend could be local, distributed or decentralized depending of the system integrated
-* User could plug the Ocean DB to provide discovery capabilities integrated as part of the core providing some data consistency (between VM & DB)
 
 ![Pluggable Backend](images/pluggable-backend.png)
 
-The AGENT will provide the mechanism to check the config parameters given during the start-up of the process.
-Depending of those parameters, if a Backend is provided, the AGENT will invoke the plugin provided implementing the interface in runtime.
+The AGENT SHALL provide a mechanism to check the config parameters given during the start-up of the process.
+Depending on those parameters the AGENT will invoke the plugin at runtime if a backend is provided.
 
-Below you can find an example of a configuration file enabling the integration with an external system. 
+Below you can find an example of a configuration file enabling the integration with an external system: 
 
 ```properties
 
@@ -412,8 +417,8 @@ public interface OceanBackendPlugin {
 
 ```
 
-The Orchestration Layer will be in charge or invoke the optional backend if it's provided, being always the Decentralized VM the main storage and source of truth of the system.
-
+The Orchestration Layer will be in charge or invoke the optional backend if it's provided. 
+As a rule of thumb, the Decentralized VM is always the main and minimal storage and source of truth of the system.
 
 
 <a name="contract-management"></a>
@@ -422,18 +427,19 @@ The Orchestration Layer will be in charge or invoke the optional backend if it's
 <a name="orchestration-layer"></a>
 ### Orchestration Layer
 
-Using as input the incoming requests and events, the Orchestration layer is in charge on compose 
-complex workflows as a result of the interactions of multiple service executions. 
+Service contracts can be composed of multiple components, workflows and networks.  
+The _orchestration layer_ is in charge of composing and keeping track of complex workflows.
+These workflows are a result of the interactions of multiple service executions that use 
+the incoming requests and events as inputs. 
 Some scenarios require the execution of multiple steps before completion, for example:
 
-* Contract Settlement - When it's received an API request providing a proof of service, the Ocean Agent requires to execute:
+* Contract Settlement - When it's received an API request providing a proof of service, the Ocean AGENT requires to:
   - Store the Proof of Service information on-chain
-  - Check if all the proof of services were provided, in that case update the state of the contract to Settled
+  - Validate if all the proof of services were correctly provided such that the state of the contract can be updated to Settled
   - Notify all the contract parties
 * External DB integration - If an external backend is provided, the Orchestration Layer will invoke the method to persist the objects sent to the Decentralized VM.
 
-To implement that, the Orchestration Layer acts as a mediator between different components. 
-The implementation of this can be implemented in two possible ways:
+The orchestration Layer acts as a mediator between different components and can be implemented in two possible ways:
 
 * Using a sync orchestration layer, abstracting/encapsulating the execution of multiple components 
 using a [Mediator pattern](https://en.wikipedia.org/wiki/Mediator_pattern). 
@@ -442,48 +448,6 @@ The mediator can executes one by one all the steps involved in one execution wor
 In that case, the mediator publish a new event in a specific topic of the events bus. 
 Multiple subscribers can listen to that topic implementing the behaviour of the individual phases. 
 Those subscribers can emit events to different topics to notify the state of their actions.
-
-
-<a name="data-caching"></a>
-### Data Caching
-
-The AGENT will need to integrate a local CACHE system to provide disaster recovery capabilities. The MAIN OBJECTIVE of the CACHE is to provide a recovery mechanism in case of AGENT failure. 
-This could happens in different situations:
-
-* The AGENT crashes just after to receive an incoming transaction from the API layer and before to be able to invoke the Decentralized VM Smart Contract 
-* The Decentralize VM is not available when is invoked by the Orchestration Layer
- 
-The CACHE should provide the following capabilities:
-
-* It MUST be a Local cache, not exposed in any way to the network
-* If AGENT crashes, the AGENT MUST read the state of cache to continue retrying the persistence of the transactions in the different backends
-* The state of the cache is INTERNAL to the local node, so MUST NOT be shared with a third party in any moment
-* If any error occurs during the persistence of the content, the retries field MUST be increased
-* The cache MUST store the representation of the object to be sent to the Decentralized VM as soon as a new registering request be received
-* The cache status MUST be UPDATED after the content be stored in the Decentralized VM
-* The row representing the object in CACHE MUST be DELETED after the data been stored in the Decentralized VM (and Ocean DB if is provided)
-* The CACHE system MUST be thread safe, allowing multiple threads pulling data from the CACHE    
-
-![Cache Interactions](images/cache-sequence.png "Cache Interactions")
-
-In the above image can be viewed the CACHE provides persistence mechanism allowing to work as source of truth during the interaction with the data stores.
-At the start of the AGENT, the system can sync the state with the CACHE. In case a previous failure, the CACHE MUST include the pending transactions to be applied. 
-In that case, the AGENT can pickup from the CACHE those and apply the modifications.
-After a normal operation, the CACHE MUST delete the completed transaction. 
-
-The cache should store the following information:
-
-| Attribute         | Description|
-|:------------------|:----------|
-|id                 |Id of the content, in this case obectId|
-|type               |Type of the content,It could be "ASSET", "ACTOR", "CONTRACT", etc.|
-|status             |Status. Options are: CACHED, STORED_VM, STORED_DB 
-|retries            |Number of retries before to remove from the cache. If 0, no limit
-|ttl                |Number of seconds after the creationDatetime before to remove from the cache. If 0, no limit 
-|creationDatetime   |Creation datetime
-|updateDatetime     |Update datetime
-|content            |Payload of the content (Json or Avro representation of the Asset)
-
 
 
 <a name="decentralized-interface"></a>
