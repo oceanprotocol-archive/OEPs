@@ -455,9 +455,9 @@ Those subscribers can emit events to different topics to notify the state of the
 
 The KEEPER will expose 3 main block of capabilities to the rest of the world:
 
-* **Decentralized VM** - Providing the Smart Contracts implementing the core business logic
+* **Decentralized VM** - Providing the smart contracts implementing the core business logic
 * **Ocean DB** - Interfacing with an external and pluggable storage system
-* **Worker** - Accepts challenges via p2p commands 
+* **Worker** - Accepts cryptographic challenges and validations via p2p commands 
 
 Those capabilities will be integrated from the AGENT using different protocols. 
 
@@ -465,27 +465,17 @@ The Keeper interface module should implement an extensible interfaces system all
 communication protocols to establish the communication between the Ocean Agent and the the Keepers network. 
 This component is in charge of the following capabilities:
 
-* Interact with the Keeper components (Decentralized VM, Ocean DB)
+* Interact with the KEEPER components
 * Compose the transactions payload necessary by the Keeper nodes
 * Orchestrate the execution of multiple Keeper requests when be necessary
 
 Initially, HTTP RPC is the easiest candidate to integrate in the communication with the Decentralized VM. 
 
-To interact with the Smart Contracts, the AGENT will provide different DTO's. Those will allow to abstract the integration with the contracts in an easier way.
+To interact with the Smart Contracts, the AGENT will provide different [Data Transfer Objects](https://en.wikipedia.org/wiki/Data_transfer_object) (DTO). 
+Those will allow to abstract the integration with the contracts in an easier way.
 
 ![Keeper Communication](images/orchestration-dtos.png)
 
 The worker nodes will expose a p2p interface supporting some commands allowing to raise proof challenges.
 
 The implementation of this module is highly linked to the Keeper API definition. 
-
-
-
-
-
-
-
-
-
-
-
