@@ -43,7 +43,7 @@ Ocean network aims to build a marketplace for relevant AI data. Curated proofs m
 
 The **minimum viable application** (MVA) of the marketplace is below: consumer requests access to dataset from provider, while provider responses with access information along with proofs. 
 
-<img src="img/use_case.jpg" width="500" />
+<img src="img/mvp.jpg" width="500" />
 
 Curated proofs market helps customers to discover and acess the **relevant** datasets:
 
