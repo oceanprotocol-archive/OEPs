@@ -101,7 +101,7 @@ The architecture of curated proofs market is illustrated in the below, which inc
 
 ---
 
-## --- Below materials will be spreaded out into different OEPs ---
+## --- Below materials will be spread out into different OEPs ---
 
 ---
 
