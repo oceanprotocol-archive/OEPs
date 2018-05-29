@@ -37,9 +37,21 @@ This document is governed by the [2/COSS](../2/README.md) (COSS).
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
 
-## 3. Motivation <a name="motivation"></a>
+## 3. Motivation: Why we need Curated Proofs Market? <a name="motivation"></a>
 
-Ocean network aims to build a marketplace for relevant AI-related data. Curated proofs market coordinates participants to maintain high-quality assets (mainly datasets) and the normal operations of marketplace, which is a fundamental component of Ocean Network. 
+Ocean network aims to build a marketplace for relevant AI data. Curated proofs market coordinates participants to maintain high-quality assets (mainly datasets) and the normal operations of marketplace. 
+
+The **minimum viable application** (MVA) of the marketplace is below: consumer requests access to dataset from provider, while provider responses with access information along with proofs. 
+
+<img src="img/use_case.jpg" width="500" />
+
+Curated proofs market helps customers to discover and acess the **relevant** datasets:
+
+* Providers are motivated to publish relevant dataset and provide availability by block rewards. So the generation and distribution of **block rewards** are the most important building block.
+* Providers are encouraged to curate relevant dataset with staking, and **drops along with bonding curves** are created to this purpose.
+* There exist multiple providers for the same dataset, curated proofs market randomly pick one provider to guarantee the **data availability**.
+* Markeplace relies on the coordination of users to maintain the high quality assets, and **token curated registry (TCR)** is used to this end.
+
 
 ## 4. Architecture Overview<a name="architecture"></a>
 
@@ -52,16 +64,22 @@ The architecture of curated proofs market is illustrated in the below, which inc
 	* *Proofed popularity*: number of times made dataset available;
 	* *dispensed tokens*： the emitted Ocean tokens based on mining schedule;
 	* *ratio of download and uploads*: aims to mitigate the "Sybil downloading" attack [1].
+
+	Details of the Block Rewards are discussed in [#TODO:OEP-BR]()
 	
 * **Ocean Token and Drops**: 
 	* Ocean network creates a *dedicated* curated proofs market for each dataset.
 	* Derivative tokens of Ocean Tokens are produced for each market, which is called "**drops** of curated proofs market for the particular dataset". 
 	* Providers purchase drops with their Ocean tokens to stake on the asset.
 	* Providers can un-stake by selling their drops for Ocean tokens and realize the profit.
+
+	Details of the Drops are discussed in [#TODO:OEP-DROPS]()
  
 * **Bonding Curve**: Bonding curve defines the relationship between price and total supply of drops. 
 	* The drops price shoots up when more users purchase drops using Ocean token and increase the total supply. 
 	* Increased supply indicates more users bet on the popularity of asset. 
+
+	Details of the Bonding Curves are discussed in [#TODO:OEP-BC]()
 
 
 * **Data Availability**: To earn block rewards, providers MUST make assets available when requested. 
@@ -70,12 +88,22 @@ The architecture of curated proofs market is illustrated in the below, which inc
 	* All providers MUST have the same probability to be chosen regardless of their stakes on the dataset.
 	* They SHOULD receive equal block rewards if they have the same stakes.  
 
+	Details of the Data Availability are discussed in [#TODO:OEP-DA]()
+
 
 * **Token Curation Registry (TCR)**: TCR is a powerful mechanism to maintain the high quality of the asset in the curated proofs market. 
 	* Everyone can challenge any asset or user, which triggers a voting process. 
 	* Participants in the curated proofs market can vote according to their own opinions. 
 	* Depends on the voting result, the asset or actor will be either kept in the marketplace or ejected from the system. 
 
+	Details of the TCR are discussed in [#TODO:OEP-TCR]()
+
+
+---
+
+## --- Below materials will be spreaded out into different OEPs ---
+
+---
 
 ## 5. Modules <a name="modules"></a>
 
@@ -254,6 +282,11 @@ Clearly, the price of drops depends on the total supply:
 * More users buy drops and total supply increases => drops price shoots up;
 * More users sell drops and total supply decreases => drops price plummets;
 
+One possible implementation is to use Bancor formula [5]:
+
+* It models bonding curves as a parameterized power function.
+* The integral of power function has analytical formula and computation is much easier. 
+
 curated proofs market smart contract SHOULD have bonding curve function as:
 
 ```solidity
@@ -276,9 +309,19 @@ Since all providers have the same probability to be chosen, they SHOULD receive 
 
 <img src="img/data_supply.jpg" width="600" />
 
+<!--
 Note that *random number generator is not available* in Ethereum Virtual Machine, as the code will be ran on multiple nodes, on different time. It does not make sense to generate different random numbers on different nodes at different time in Ethereum network. 
+-->
 
-Instead, the AGENT client SHOULD randomly choose a provider to request the dataset. The curated proofs market smart contract only need to log the provider, who transfers the dataset to consumer, and increment the counter of dataset download times.
+
+To randomly choose the specific provider, a random number shall be generated. Note that random number generation is extrenely difficult in Ethereum Virtual Machine (EVM) which is a deterministic state machine. 
+
+We take similar approach to Randao[4] as a commit-and-reveal approach:
+
+* AGENT clients generate their own local uniform-distributed random numbers and submit to the EVM;
+* EVM computes the XOR (exclusive OR) on all those numbers to compute the final random number;
+* The final random number follows the uniform distribution as well.
+
 
 ```solidity
 // Asset has provider list and their corresponding download times 
@@ -376,6 +419,7 @@ unstable
 * [2][Trent McConaghy, Co-Founder - Curated Proof Markets & Token-Curated Identities](https://www.youtube.com/watch?v=LxkvJmh7t0Y)
 * [3][Curated Proofs Markets: A Walk-Through of Ocean’s Core Token Mechanics](https://blog.oceanprotocol.com/curated-proofs-markets-a-walk-through-of-oceans-core-token-mechanics-3d50851a8005)
 * [4] [Randao: blockchain based verifiable random number generator](http://randao.org/)
+* [5] [Bancor formula](https://github.com/relevant-community/bonding-curve/blob/master/contracts/BancorFormula.sol)
 
 
 ## 8. Copyright Waiver  <a name="copyright-waiver"></a>
