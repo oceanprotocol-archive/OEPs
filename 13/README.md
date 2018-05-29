@@ -58,7 +58,7 @@ Each of those having different motivations and interacting:
 * **Consumers** - Actors who want to consume assets or services. They use the marketplace capabilities to find those assets or services. Depending on the element to consume the user will have to pay a price for it.
 * **Keepers** - These actors maintain core protocol functionality, ensure correct token mechanics, and provide cryptographic proof capabilities. Keepers receive tokens to perform their function. 
 * **Curators** - Curators are incentivized to promote and bet on relevance, they signal their opinion to the network using the network token, hence facilitating discovery. Data Curators put a number of tokens at stake to signal that a certain dataset is of high quality. Every time they correctly do this, they receive newly minted tokens in return.
-* **Verifiers** - Verifiers provide assets and service verifications, getting tokens on reward. Verifiers will challenge the service providers, requiring for them to provice Proofs of Service. 
+* **Verifiers** - Verifiers provide assets and service verifications, getting tokens on reward. Verifiers will challenge the service providers, requiring for them to provide Proofs of Service. 
 * **Marketplaces** - Marketplaces expose all the information about the assets, reputation, pricing, etc. They work as the  interface where the consumers can search for datasets suitable for their requirements. Marketplaces include the information provided by the curators.
 
 An Ocean ACTOR is a user playing one of multiple of the above roles described.
@@ -134,23 +134,39 @@ Taking this into account, the skeleton of main implementation should provide the
 
 contract ActorsRegistry {
 
+    uint256 constant STATE_CREATED = 0; // Actor just created in the system
+    uint256 constant STATE_WHITELISTED = 1; // Actor whitelisted after a curation/verification process
+    uint256 constant STATE_BANNED = 2; // Actor banned from the system
+    uint256 constant STATE_DISABLED = 3; // Actor retired or disabled of the system
+
     struct Actor {
-        address actorId;
-        uint state;
+        address id;
+        uint256 state;
     }
     
-    function register(address _actorId) public returns (bool success) { }
+    /////// EVENTS //////////////////////////////
+    event ActorRegistered(address indexed _id, uint256 _state);    
     
-    function getState(address _actorId) public view returns (uint state) { }
+    event ActorAttributeChanged(address indexed _id, bytes32 _name, bytes32 _value, bool _isValid);    
     
-    function canUpdate(address _actorId) public view returns (bool success) { }
     
-    function canRetire(address _actorId) public view returns (bool success) { }
+    /////// FUNCTIONS ///////////////////////////
+    function register(address _id) external returns (bool success);
     
-    function updateState(address _actorId, uint _newState) public returns (bool success) { }
+    function getState(address _id) external view returns (uint state);
     
-    function retire(address _actorId) public returns (bool success) { }
+    function canUpdate(address _id) external view returns (bool success);
+    
+    function canRetire(address _id) external view returns (bool success);
+    
+    function updateState(address _id, uint256 _newState) external returns (bool success);
+    
+    function retire(address _id) external returns (bool success);
 
+    function setAttribute(address _id, bytes32 _key, bytes32 _value) external onlyOwner returns (bool success);
+
+    function revokeAttribute(address _id, bytes32 _name, bytes32 _value) external onlyOwner returns (bool success);
+    
 }
 ```
 
@@ -193,7 +209,8 @@ HTTP Output Status Codes:
 
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
-|password   |string|Account password/|
+|password   |string|Account password|
+|attributes   |key-value hashmap|Decentralized ID Document Attributes (optional)|
 |metadata   |Json Object|Free Json object of information to be persisted in Ocean DB if enabled (optional)|
 
 Because all parameters are optional but the password, a payload with only the password is allowed to create an Actor.
@@ -204,9 +221,12 @@ Example:
 ```json
 {	
 	"password": "secret",
+	"attributes": {
+	  "providerEndpoint": "http://example.com/endpoint"
+	},
 	"metadata": {
         "name": "John Doe",
-        "attributes": [{
+        "additional-info": [{
             "key": "interests",
             "value": "Looking Ahead"
         }]
@@ -242,7 +262,14 @@ The **KEEPER::Decentralized VM** will persist the following information:
 |:----------|:-----|:------------|
 |actorId    |address|Owner of the Asset|
 |state      |uint  |TCR state of the user|
-  
+
+Also, in order to compose the Decentralized ID Document, the Keeper will **emit** events with the attributes specified. Those attributes will be used as a
+[cheaper form of storage](https://media.consensys.net/technical-introduction-to-events-and-logs-in-ethereum-a074d65dd61e). Attributes don't need to be in the Smart Contract scope,
+but are important to store some useful information (ie. endpoint of the provider services). Events are a cost-effective solution to do that.
+
+In this case, for each key, value pair added in the **attributes** parameter, a new attribute will be registered using the `setAttribute` Smart Contract method. 
+Attribute changes will trigger a **ActorAttributeChanged** event.
+
 Using any of the existing web3 implementation library (web3.js, web3.py, web3.j, etc), it's possible to interact with the VM Smart Contracts.
 
 
@@ -256,6 +283,7 @@ If it's enabled, the Ocean DB layer will interact with the backend to store the 
 |:----------|:-----|:------------|
 |actorId    |string|Actor Id|
 |state      |enum  |Internal state information. One of the following("CREATED", "WHITELISTED", "BANNED", "DISABLED")|
+|attributes   |key-value hash-map|Decentralized ID Document Attributes (optional)|
 |creationDatetime |Datetime |Creation datetime set by the database|
 |metadata   |Json Object|Free Json object with attributes given in the request|
 
@@ -279,6 +307,7 @@ Using the information stored and provided by the user, the **AGENT** SHOULD comp
 |:----------|:-----|:------------|
 |actorId    |string|Account address|
 |state      |enum  |Internal state information. One of the following("CREATED", "WHITELISTED", "BANNED", "DISABLED")|
+|attributes   |key-value hashmap|Decentralized ID Document Attributes (optional)|
 |creationDatetime |Datetime |Creation datetime set by the database|
 |metadata   |Json Object|Free Json object with attributes given in the request|
 
@@ -344,8 +373,8 @@ The information about the state can be obtained integrating the `ActorsRegistry:
 If the Actor metadata has the state attribute `state == DISABLED` the method should return a **HTTP 404** Not Found message.
 
 
-
-### Updating Actor metadata <a name="updating-actor-metadata"></a>
+<a name="updating-actor-metadata"></a>
+### Updating Actor metadata 
 
 ![Update an Actor](images/ACT.003.png "ACT.003")
 
@@ -379,6 +408,7 @@ HTTP Output Status Codes:
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
 |actorId    |string|Account address|
+|attributes   |key-value hashmap|Decentralized ID Document Attributes (optional)|
 |metadata   |Json Object|Free Json object with attributes|
 
 Example: 
@@ -386,6 +416,9 @@ Example:
 ```json
 {
     "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
+    "attributes": {
+    	  "providerEndpoint": "http://example.com/endpoint2"
+    },
     "metadata" : {
         "name": "Alice",	
         "attributes": [{
@@ -411,6 +444,9 @@ The information about if the actor can be updated can be obtained integrating th
 If the Actor metadata has the state attribute `state == DISABLED (9)` the method should return a **HTTP 404** Not Found message.
 If after executing the `ActorsRegistry::canUpdate` method, the Actor can't be updated by the user, the method should return a **HTTP 401** Forbidden message.
 
+The information about the attributes will be registered using the `ActorsRegistry::registerAttribute` Smart Contract method. Attributes will be stored as events.
+Attribute changes will trigger a **ActorAttributeChanged** event.
+
 
 #### Interaction with Ocean DB
 
@@ -423,8 +459,8 @@ After creating the Actor in the Database, it will return a HTTP 202 Accepted mes
 Using the information stored/provided by the user and the Decentralized VM, the **AGENT** SHOULD compose the output payload to return. It should include same information detailed in the previous sections.
 
 
-
-### Retire an Actor <a name="retire-an-actor"></a>
+<a name="retire-an-actor"></a>
+### Retire an Actor 
 
 ![Retire an Actor](images/ACT.004.png "ACT.004")
 
