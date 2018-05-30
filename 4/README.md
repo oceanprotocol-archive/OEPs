@@ -1,185 +1,593 @@
 ```
-shortname: 4/KEEPER
-name: Ocean Keeper
+shortname: 4/AGENT
+name: Ocean AGENT Protocol Stack
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 ```
 
-# Keeper Architecture
+=================
 
-This document describes the Ocean Architecture. 
-It focus in which are the main responsibilities, functions and components implementing the architecture.
+Table of Contents
+=================
+
+   * [Table of Contents](#table-of-contents)
+   * [Ocean Agent Architecture](#ocean-agent-architecture)
+      * [Change Process](#change-process)
+      * [Language](#language)
+      * [Motivation](#motivation)
+      * [High Level Architecture](#high-level-architecture)
+      * [Responsibilities](#responsibilities)
+   * [Logical Architecture](#logical-architecture)
+      * [Interfaces](#interfaces)
+      * [Service Integrity](#service-integrity)
+         * [Service Proofs](#service-proofs)
+         * [Privacy Management](#privacy-management)
+         * [Access Control](#access-control)
+            * [Authentication](#authentication)
+            * [Authorization](#authorization)
+         * [PKI](#pki)
+            * [Accounts](#accounts)
+            * [Wallets](#wallets)
+      * [Application](#application)
+         * [Service Plugins](#service-plugins)
+      * [Events Watcher](#events-watcher)
+         * [Ocean DB integration](#ocean-db-integration)
+      * [Contract Management](#contract-management)
+         * [Orchestration Layer](#orchestration-layer)
+         * [Data Caching](#data-caching)
+      * [Decentralized Interface](#decentralized-interface)
+
+
+<a name="ocean-agent-architecture"></a>
+# Ocean Agent Architecture
+
+This document describes the Ocean Agent Architecture: the main responsibilities, functions and components.
 
 This specification is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper).
 
-The Ocean Protocol Archite specification is called **ARCH** henceforth.
+This specification is called **AGENT** henceforth.
 
-
+<a name="change-process"></a>
 ## Change Process
 This document is governed by the [2/COSS](../2/README.md) (COSS).
 
+<a name="language"></a>
 ## Language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
-## Goals
-The primary goal of KEEPER is to detail the internal architecture and interfaces exposed by the Keeper node, and the elements composing the Ocean Keeper functionalities. 
-It MUST to provide a common framework used describing the technical solution to put in place. 
 
-All the different components described, SHOULD be used as building blocks, allowing to compose the different scenarios using those.
+## Ocean Protocol Suite
 
+The Ocean protocol stack has 6 layers, divided between AGENT and KEEPER.
+
+![Protocol Stack](images/protocol-stack.png)
+
+### Application Layer
+
+The application layer describes the AGENT interface with the outside world - ie. the data service tools.
+Protocols at this level are responsible for:
+
+1. Registry and discovery of services and agents
+2. Contract selection and details negotiation
+3. (Remote) communication and integration with service interfaces, tools and libraries
+
+
+As an example, consider following data delivery scenario:
+
+- A data PROVIDER publishes a datum ASSET offering together 
+with CONNECTION details such as authorization and encryption.
+
+- A data CONSUMER discovers the offering through a user interface.
+
+- Both parties SHOULD negotiate and agree on CONTRACT and CONNECTION details.
+
+- Once the CONTRACT is deployed and signed, the data CONSUMER MUST ACCESS 
+the datum using the CONNECTION details. 
+The data PROVIDER MAY listen to state changes of the CONTRACT 
+and perform callback functions for CONNECTION management and responding 
+to cryptographic CHALLENGES.
+
+- At any point the CONTRACT resolution is triggered and the provider MAY revoke ACCESS.
+
+The high level description as well as the  developer and user experience for this scenario
+SHALL be implemented at this level. 
+
+Details of the application layer are discussed in [#TODO:OEP-PLUGIN](../<PLUGIN>/README.md) 
+
+### Service Integrity Layer
+
+The Service Integrity layer MUST provide a cryptographically secure layer that
+ensures the correct delivery of data services.
+
+Components in this layer grant service access, set up privacy protocols and deliver proofs of service delivery.
+
+#### Service Proofs
+
+Service proofs are meant to publicly verify the off-chain data services and connections.
+Multiple data service proofs that enhance data and compute integrity can be foreseen in this component
+
+Details of the service proofs are discussed in [#TODO:OEP-PROOFS](../<PROOFS>/README.md) 
+
+#### Privacy
+
+The privacy layer SHALL take care of end-to-end privacy for messages traveling over a CONNECTION between AGENTS.
+Various protocols are available to enhance privacy of data services such as encryption, 
+homomorphic encryption (HE), trusted execution environments, on-premise, multiparty (MPC) and zero-knowledge computation (ZK).
+
+In this layer both AGENTS MAY negotiate privacy details for the CONNECTION.
+
+Due to limited capabilities of privacy suites like MPC, HE and ZK, 
+not all service capabilities at the application level WILL supported.
+
+Details of the privacy module are discussed in [#TODO:OEP-PRIVACY](../<PRIVACY>/README.md) 
+
+#### Access Control
+
+Service CONTRACTS in the Ocean network are the basis for access permissions between AGENTS.
+The access layer foresees CONTRACT-based authentication and authorization for end-to-end CONNECTIONS.
+
+The way access can be granted depends heavily on the type of data service and MAY include
+signed tokens, signed URLs, on-chain role-based access control (RBAC), OAuth and so forth.
+
+Details of the access module are discussed in [#TODO:OEP-ACCESS](../<ACCESS>/README.md) 
+
+
+### Contract Management 
+
+The contract management layer foresees the coordination of a service CONTRACT between all involved AGENTS and KEEPER networks.
+
+Example contract protocols include peer-to-peer escrow contracts, marketplace-based contracts, 
+as well as CONTRACT resolution mechanisms such as judging and verification.
+
+Details of the contract management layer are discussed in [#TODO:OEP-CONTRACT-MANAGEMENT](../<CONTRACT-MANAGEMENT>/README.md) 
+
+### Decentralized Interface
+
+The decentralized interface layer provides modules to create sufficient token and network specific components such as wallets and drivers
+This layer provides account management libraries and ensures that ledger-specific transactions can be composed and signed.
+
+This layer SHOULD also listen to events generated by state changes on the keeper 
+and provide necessary callbacks and hooks. 
+
+Details of the identity layer are discussed in [#TODO:OEP-WALLET](../<WALLET>/README.md) 
+
+### Validation Layer
+
+The validation layer is where an Ocean KEEPER runs the logic of smart contracts and validates
+transactions
+
+Details of the access layer are discussed in [#TODO:OEP-VM](../<VM>/README.md) 
+
+### Consensus Layer
+
+This layer orchestrates decentralized coordination between KEEPERS and includes gossip protocols for inter-KEEPER communication
+
+This layer also includes the cryptographic data structures to store state transitions.
+
+OPTIONALLY this layer implements worker logic to validate and generate cryptographic proofs. 
+
+Details of the access layer are discussed in [#TODO:OEP-CONSENSUS](../<CONSENSUS>/README.md) 
+<a name="motivation"></a>
+## Motivation
+
+The goal of this document is to describe the responsibilities and architecture of an Ocean AGENT node. 
+
+In the Ocean network, AGENTS implement a variety of behavior that contribute data services to the network.
+For example: AGENTS can provide services such as data sets, algorithms, storage, computational power, service curation, 
+verification, market makers and so on.  
+
+AGENTS need to be able to talk to each other as well as to the network KEEPERS.
+The network architecture talks about that, see [3/ARCH](../3/README.md).
+Hence, part of the intention of this document is to describe the different interaction patterns between them.
+
+At the same time, the AGENT implements an internal architecture based in different layers and modules. 
+This document MUST provide a common framework and definition to drive technical implementations. 
+
+The detailed components SHOULD be used as building blocks, allowing to synthesize different scenarios.
+
+<a name="high-level-architecture"></a>
 ## High Level Architecture
-This document use as reference and starting point the Architecture defined by the [3/ARCH](../3/README.md) (ARCH).
 
-![Keeper Architecture](images/keeper-arch.png)
+This document uses as reference and starting point the network architecture defined by the [3/ARCH](../3/README.md) (ARCH).
 
-
+<a name="responsabilities"></a>
 ## Responsibilities
 
-The main responsibilities of the Keeper are:
+AGENT is client-side software. The main responsibilities of AGENT are:
 
-* Expose an interface to receive requests requiring to execute some actions. Initially this will expose a HTTP RPC interface
-* Validate the input requests implementing the RBAC system 
-* Persist the Metadata and Transactions information On-Chain
-* Maintain the decentralized state including the Proofs of Service, Contracts bytecode and Actors registry
-* Implement the Curation Market Business logic for data and services
-* Manage and track the IP ownership of assets and services during their creation and access
-* Provide the Token curated registry of actors
-* Maintain the P2P consensus between the Keeper nodes
-* Orchestrate the Keeper business logic interacting with the different external resources
-* Manage the external Processing entities providing computing capabilities
-* Manage the external Storage entities providing storage capabilities
+* Facilitate the integration of various Ocean services 
+* Enable the communication between AGENTS and with the KEEPER network
+* Exposing a common and stable interface to network consumers
+* Integrate with external services or providers (compute, data, orchestration, ...)
+* Exposing a cryptographically secure interface for off-chain service proofs, privacy and access control 
+* Implement necessary identity components for authentication and authorization of AGENTS
+* Compose valid transactions to interact with the keeper network 
+* Orchestrate lower-level Keeper interactions exposing a higher level interface
+* Subscribe to relevant events raised by the KEEPER network and trigger corresponding actions
+* Expose some API's providing alternative consumption mechanisms (synchronous/asynchronous)
 
-## Decentralized State
+<a name="components"></a>
+# Logical Architecture
 
-![Decentralized State](images/decentralized-state.png)
+![Ocean Agent](images/agent-architecture.png)
 
+The **Ocean Agent** (aka **AGENT**) is client-side software 
+that communicates (REST, RPC, etc.) with both other AGENTS and KEEPERS in the network. 
 
-**Ocean Core** itself does not store the content of the Assets, instead, it links to data that is stored, and provides mechanisms for access control. At the same time Keepers store a different kind of metadata:
+Besides the communication purpose, AGENTS bring data services to the Ocean network. 
+Reciprocally the same software is used for consuming the services and managing related transactions.
 
-* **Assets and Services Metadata** - Information describing the Assets or Service including the owner, attributes, pricing model and so on.
-* **Transactions** - Confirmed transactions between actors. It doesn’t include the negotiation messages.
-* **Contracts** - Information about the contract and the contract definition itself.
-* **Proofs** -Information about the validation proofs and the proof definition itself. 
-* **Actors Registry** - As soon as an actor is allowed into the system, the metadata describing what that actor is and does is appended to the Actor Registry.
-* **Wallet** - Persist the account tokens balance.
+Independently of the API consumption mechanism, the AGENT is in charge of building the internal 
+object models using the incoming messages provided by the **KEEPER components interfaces**.
+ 
+This marshaling and un-marshaling operations will allow using a common internal data model across all the application. 
 
-## Keeper Components
+The Agent also will orchestrate the interaction with the Keeper components, allowing to provide a high level view 
+from the consumer side, interacting with the decentralized VM and the **Ocean DB**.
 
-As was described before, the Keeper full node it's implemented by three main building blocks:
+<a name="interfaces"></a>
+## Interfaces
 
-* Decentralized VM 
-* Ocean DB
-* Ocean Worker
+Interfaces are charge of interacting with off-chain services, libraries, cloud/micro-services and more.
+In essence, they connect relevant services that can bring value to the ocean network.
+The interfaces expose the service integrity layer that allows data services and consumers to interact with service contracts.
+   
 
-### Decentralized VM
+Initially the AGENT will expose a HTTP RESTful API, but is designed to expose the API's or consume requests in different ways.
+Because of that the AGENT should expose the API's in different formats allowing integration mechanisms 
+that can be used depending on the use case. The main interaction mechanisms are:
+ 
+* **Request/Response** - Provided by the RESTful and the RPC interfaces. Those allow a request/response integration. 
+The API will expose different HTTP methods implementing the defined actions.
 
-The Decentralized VM is a blockchain-based distributed computing platform and operating system featuring smart contract (scripting) functionality.
+![Request/Response](images/comm-http.png)
 
-![Direct Acyclic Graph](images/dag-basic.png)
+* **Async Websocket** - Provided by the Websocket interface. Useful when some users need to be subscribed 
+to the changes happening in the KEEPER level. For example, if a change in a contract is happening. 
 
-The internal state is based in a **DAG** structure. DAG is a Direct Acyclic Graph data structure that uses a topological ordering. The sequence can only go from earlier to later. DAG is often applied to problems related to data processing, scheduling, finding the best route in navigation, and data compression.
+![Websocket](images/comm-ws.png)
 
-![DAG Payload](images/dag-payload.png)
+* **Event Driven** - Provided by a Pub/Sub interface. In some scenarios where the execution of an action 
+can take some time (more than 2 or seconds) could be recommended to allow async consumption mechanisms. 
+This could be an optimal configuration when the Ocean Agent is running in conjunction with a Marketplace.
 
-The payload associated to each transaction includes all the data necessary to execute the Smart Contracts in a deterministic way. In our case, a part of the binary content of the contracts, it includes an internal state with information about:
+![Event Driven](images/comm-bus.png)
 
-* Curation Market
-* Pricing
-* Actors Registry
-* Proofs
+* **P2P** - Provided by a Peer to Peer interface. in charge of maintain peer to peer communication between AGENTS. This communication can be used to implement:
+  - Direct messaging between parties - Allowing for example the agree Contracts terms before to formalize the contract or direct sharing of Assets consumptions information between the provider and the consumer 
+  - Assets transferring between different Ocean actors - In the actors that are giving access directly to some assets without using a third-party provider, would be possible to share directly the Assets between parties.
 
-The Decentralized VM will expose the main capabilities through the Smart Contract external interfaces. It will allow the integration between this part of the Keeper node and the rest of the network.
-
-![Decentralized VM Integration](images/vm-integration.png)
-
-Main logic components implemented in the Decentralized VM are:
-
-#### Curation Market
-
-Implementing:
-* The Token Curation Market (TCM) Business logic for data and services
-* The Token curated registry of actors
-
-#### RBAC system
-
-In charge of validating the incoming requests, checking if the actions requested can be performed depending of the user privileges/roles. To do that, the component integrate the Actors registry on-chain information.
-
-#### Pricing module 
-
-It should implement a flexible pricing model allowing different scenarios:
-* Free pricing
-* Fixed price
-* Smart Contracts - It would support more flexible pricing models (pricing defined from the marketplace side, auctions, etc.)
-
-#### Proofs of Service
-
-It manages the storage and validation of the different kind of Proofs of Services. It integrates with the Data & Services interfaces allowing to retrieve the proofs of services provided by third-parties.
+![P2P Communication](images/comm-p2p.png) 
+ 
 
 
-### Ocean DB
-
-Ocean DB is a decentralized BFT database, allowing to store different kind of information in an efficient way. Including:
-
-* Assets and Service metadata
-* IP rights
-* Contract details
-* Transactions information
-* ...
-
-![Ocean DB](images/ocean-db.png)
-
-Ocean DB will be based in an existing technology (ie. BigChainDB), and will be able to running in a totally independent way of the rest of the Keeper components.
-
-Ocean DB will expose the API's (RESTful) allowing the integration in an easy way.
-
-### Ocean Worker
-
-A head-less component (without external interface) in charge of perform most of the compute intensive tasks, like mining and proofs validation. 
-Business logic related with **Verifiers** and **Curators** is performed in the Worker scope.
-
-The work interact with the rest of the world through the system transactions, so will be listening those in order to perform different actions. It includes:  
-
-* Validate Proofs of Service
-* Challenge to Providers in order they provide some Proofs
-* Provide Assets and service curation
-
-## Keeper Functions and Component responsibilities
-
-Most important functions or actions provided by the keeper are:
-* Assets management - Allowing to register the assets metadata associated to the publisher and provider of the asset. The complete metadata information will be stored in the Ocean DB, including IP. References to the Asset, owner and pricing will be stored in the decentralized VM. Main capabilities provided are:
-  - Asset registering - Allowing to register the metadata of new Assets on-chain. Should register the IP rights of the owner.
-  - Updating and disabling an Asset - Allowing to update the metadata of an Asset or disable it. Only metadata can be updated, if the Asset content has to be modified, it must be handled as a totally new Asset (probably as a derivation of the previous one). This function must validate that only the owner can update or delete the asset.
-  - Retrieve Asset information - Useful to obtain the metadata information of an Asset.
-  - Add a Provider to an Asset - Associating one specific asset with one provider. It will include the pricing and proof information associated with the provider.
-
-* Actors management - Allowing to register the actors basic information. Basic registry of actors will be stored in Ocean DB. It includes:
-  - Actor registering - Allowing to register a new Actor on-chain
-  - Updating and disabling Actors - Allowing to update the metadata of an Actor or disable it. This function must validate that only the own Actor can modify his/her information.
-  - Retrieve Actor information - Useful to obtain the metadata information of an Actor.
-
-* Curation Market - Allowing to provide curation information about Assets, Services and Actors of the system. Curation information should be managed using the Decentralized VM and Ocean DB. The Curator put tokens on stake of this curation. The functions provide include:
-  - Curate an Asset - Allowing to curate an Asset
-  - Curate an Actor - Allowing to curate an Actor
-  - Curate a Service - Allowing to curate an Asset
-
-* Market Transactions - Allowing to define the contract between parties. This information should be managed using the Decentralized VM and Ocean DB. Should provide the following functions:
-  - Contract definition- After negotiate the contract terms (off-chain), it’s necessary to store (on-chain) the terms of the contract
-  - Contract agreement - All the parties involved in a contract (publisher, provider, consumer, marketplace) agree the terms of a contract.
-  - Access - After of having the contract in place, the Consumer can request to get Access to the Asset or Service. If the requirements are met (correct contract), the access request is registered (on-chain) and the Provider is notified to give access to the Asset or Service defined in the contract.
-  - Access authorization - The Provider authorizes the consumption of the Asset or Service defined in the contract. It provides the information necessary to consume the element. Should register the IP grants related with the Asset or Service and the Consumer.
-  - Contract settlement - Once enough proofs are provided (see verification actions), the contract goes into settlement. Keepers, Providers, Marketplaces or Verifiers can request to put a contract on settlement after to have all the Proofs of Service required to validate that service has been provided.
-
-* Verification - Allowing to handle the actors and assets verification and whitelisting process.  This information should be managed using the Decentralized VM and Ocean DB. Should provide the following functions:
-  - Definition of Verification challenge - A pre-appointed verifier and/or the client challenges the service to provide proofs that the requested service is delivered according to integrity specifications.
-  - Provide a Verification Proof - The service accepts the challenge, computes the proof and stores this on-chain with a reference to the contract.
-  - Get details of a Verification Proof - Retrieval of Verification Proof information.
-  - Actor Whitelisting - A verifier send a whitelisting request approving or denying to an actor
+<a name="service-integrity"></a>
+## Service Integrity
+The Service Integrity layer can be regarded as a cryptographic membrane for off- to on-chain communication and vice versa.
+Here one finds the generation of service delivery proofs to resolve service contracts as well as 
+service access control and privacy negotiation mandated by service contracts.
   
-* Wallet - Allowing the manage the basics about the user wallets.  This information should be managed using the Decentralized VM. Should provide the following functions:
-  - Wallet creation - Creation of a wallet
-  - Obtain wallet information - Providing information about the wallet address owner and balance
-  - Transfer of funds - Transfer of funds between wallets
+<a name="service-proofs"></a>
+### Service Proofs
+
+Service proofs are meant to publicly verify the off-chain data services and connections. 
+Multiple data service proofs that enhance data and compute integrity can be foreseen in this component. 
+The AGENT is responsible to generate the relevant proofs and interact with all the different providers, 
+enabling the communications allowing to challenge/retrieve the required Proofs of Service.
+
+Using the [Service Plugins](#service-plugins) system, this module will interface with off-chain providers to obtain the proofs needed.
+
+<a name="privacy-management"></a>
+### Privacy Management
+
+The AGENT WILL implement a Privacy Protocol allowing to negotiate the privacy requirements between parties.
+In a non-homogeneous network, different nodes can provide alternative mechanisms (hardware or software) 
+implementing some privacy capabilities.
+
+In such scenario of one can assume that different users running Ocean Agents can require and implement 
+different privacy capabilities to negotiate with other agents. This means that each AGENT will define a list 
+of the **"privacy systems"** supported. For example:
+
+```
+privacy {
+	mpc= "sign,encrypt,query"
+	tee= "intel,arm"
+	zk= "syft,libsnarks"
+}
+```
+
+In order to establish a successful connection, 2 different AGENT's SHOULD share the information about their supported 
+privacy suits using a handshake protocol. If they have a common or compatible method, the exchange of messages can
+be bidirectionally encoded and decoded. 
+
+<a name="access-control"></a>
+### Access Control
+
+![Agent Access Control](images/agent-access-control.png)
+
+Access control systems provides services connected to Ocean network the ability 
+_Authenticated_ and _Authorized_ in the system, allowing (or denying) the management of the resources.
+
+In general, authentication is the process of validating that somebody really is who he claims to be. 
+Authorization refers to rules that determine who is allowed to do what.  
+
+<a name="authentication"></a>
+#### Authentication
+
+In the AGENT scope the authentication layer is very thin, and it's in charge mainly of 
+verifying the minimal identity information (public key, DID, openID, ...) associated to the transactions.
+
+In all the HTTP API interactions, the component integrating the API SHOULD send his public key as part 
+of the HTTP request using the ```Authorization``` HTTP Header 
+(see [RFC 7325](https://tools.ietf.org/html/rfc7235#page-7)).
+
+All the requests giving invalid authentication parameters will return a **HTTP 401 Status code: Unauthorized**. 
+
+<a name="authorization"></a>
+#### Authorization
+
+In the authorization phase it's necessary to validate that a user is able execute a specific action, 
+ie. access a data service or modify the metadata information of a specific asset. 
+
+On-chain authorization requires information associated to ownership of the resources to be stored on-chain.
+
+![Agent Authorization](images/agent-authorization.png)
+
+The authorization will be implemented as an on-chain access control module driven by
+service contracts that are deployed on the decentralized VM. 
+
+The access control module implement the association between the service session information and the method execution. 
+Service contracts in the decentralized VM component dictate the service access and form the basis for the 
+authentication layer. It includes to answer the following questions:
+
+* Does the connection request originated from the owner of the resource (```msg.sender == owner```)? 
+The ownership of a resource allows to execute highly restricted operations 
+on the resource (like administrator rights to manage the service).
+* In which context can the user sending the request access (read or write) to the resource? 
+The resource can have associated a Access Control List (ACL) defining who can do what and when. 
+* Can the user sending the request change the ownership of the resource?
+
+<a name="pki"></a>
+### Private Key Infrastructure (PKI)
+
+<a name="accounts"></a>
+#### Accounts
+
+An account is a human-readable identifier (public key) stored on the decentralized VM. 
+Every transaction has its permissions evaluated under the configured authority of an account. 
+The grants of each account will be validated by the access control system. 
+The user permissions must be met for a transaction signed under that authority to be considered valid. 
+Transactions are signed by a client that has a loaded and unlocked a wallet. 
+
+The AGENT will provide the capabilities to manage the accounts creation. 
+It will use the [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) definition for the creation of wallets and accounts.
+An example implementation is the **Accounts API** provided by the **Parity** client.
+
+This will be detailed in the [Actors Registry OEP 13](../13/REG). 
+
+<a name="wallets"></a>
+#### Wallets
+
+The wallet component is in charge of protecting and using sensitive information such as private keys. 
+These keys may or may not be granted permission to an account authority on the KEEPER level.
+A wallet manages a private/public key pair which is used to cryptographically sign transactions and 
+prove ownership on the network. The Ocean Agent will provide the wallet capabilities that allows 
+the monetary interactions in the network.
+
+The reference for wallet definitions to be used are:
+
+* [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) - Describes hierarchical deterministic 
+wallets (or "HD Wallets"). Those are wallets which can be shared partially or entirely with different 
+systems, each with or without the ability to spend coins. 
+* [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) - Describes the 
+implementation of a mnemonic code or mnemonic sentence, a group of easy to remember words, 
+for the generation of deterministic wallets.
+* [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) - Defines a logical 
+hierarchy for deterministic wallets based on an algorithm described in BIP32, 
+and purpose scheme described in [BIP43](https://github.com/bitcoin/bips/blob/master/bip-0043.mediawiki).
+
+As an example, the management of the Wallets can be implemented using the **Parity** client.
+More information will be provided in the [Actors Registry OEP](../13/README.md) and [Wallet OEP](../README.md). 
 
 
+<a name="application"></a>
+## Application
+
+<a name="service-plugins"></a>
+### Service Plugins
+
+Ocean Agent SHOULD provide a pluggable mechanism that allows interaction with external providers. 
+This could be:
+
+* **Computing Providers** - In charge of providing off-chain or on-chain computing services. 
+For example Amazon EC2, Truebit, Weeve, XAIN, Enigma, etc.
+* **Storage or Data Providers** - In charge of providing storage services off-chain or on-chain. 
+Like Amazon S3, IPFS, BigchainDB, SWARM, etc.
+* **UX/UI Providers** - In charge of providing visual interfacing with the system.
+
+Because is cumbersome to define upfront the different providers to integrate, it's important 
+to implement a pluggable mechanism allowing to extend the systems supported by the system.
+
+![Ocean Agent Plugins System](images/agent-plugins.png)
+
+In the above picture the storage, computing and UX/UI interfaces have the responsibility of 
+modelling the interaction with external systems. Using this approach, supporting additional 
+providers would only require the implementation of the communication with a new provider.
+From there onwards, the integration with the rest of the system is abstracted.
+
+Depending on the implementation of the system, the usage of one plugin or another one 
+could be made by configuration or using dependency injection.
+
+```java
+public StorageProvider interface {
+
+    bool store(Asset asset);
+    Asset retrieve(URL url);
+    ..
+}
+```
+
+<a name="events-watcher"></a>
+## Events Watcher
+
+An important part of the smart contracts implementation in the decentralized VM is the triggering of _events_. 
+Events expose notifications from the KEEPERS network when relevant actions happen 
+(ie. a contract is signed, an asset is curated, etc.).
+
+From the AGENT side, the events watcher module will be in charge of watching those events 
+to trigger further actions. 
+
+```javascript
+var subscription = web3.eth.subscribe('logs', {
+    address: '0x123456..',
+    topics: ['0x12345...']
+}, function(error, result){
+    if (!error)
+        console.log(log);
+});
+
+// unsubscribe from an event stream
+subscription.unsubscribe(function(error, success){
+    if(success)
+        console.log('Successfully unsubscribed!');
+});
+```
+
+The AGENT will provide the interfaces to:
+
+* Subscribe to all the movements related with an address (FROM or TO) and filtered by TOPIC. It allows:
+  - Subscribe to all the events sent by an actor (FROM)
+  - Subscribe to all the events sent to a smart contract address (TO)
+  - The combination of the previous two
+  - Filter by TOPIC (specific event)
+* Retrieve all the historic transactions related an address  
+
+
+<a name="ocean-db-integration"></a>
+### Ocean DB integration
+
+Capabilities such as metadata publishing, discovery, caching require a data store with query capabilities.
+Fully decentralized data storage is prone to costly infrastructure requirements, consistency issues and 
+data liability. Hence Ocean protocol shall not mandate a decentralized storage but rather make it a pluggable option.
+
+Some characteristics about the Ocean DB integration:
+
+* Ocean DB as backend is **optional** and **pluggable**. This means that an AGENT MUST be able to run without any Ocean DB as backend
+* The AGENT COULD provide the interfaces to implement different storage implementations and integrate them as backend
+* Different users or marketplaces MAY require to integrate different storage systems, 
+providing different capabilities. The interface MUST describe a basic interface in order to be integrated in the AGENT
+* Because of the totally flexible and agnostic approach of the AGENT, 
+defining only the interfaces allows to integrate a centralized (Oracle, Kafka, Elastic Search, etc.) or decentralized backend (BigchainDB, IPFS, etc.)
+* The backend could be local, distributed or decentralized depending of the system integrated
+
+![Pluggable Backend](images/pluggable-backend.png)
+
+The AGENT SHALL provide a mechanism to check the config parameters given during the start-up of the process.
+Depending on those parameters the AGENT will invoke the plugin at runtime if a backend is provided.
+
+Below you can find an example of a configuration file enabling the integration with an external system: 
+
+```properties
+
+# It could be true or false, false by default
+agent.backend.enabled=true
+
+agent.backend.implClass=com.example.mydatabase.MyDatabaseImpl
+
+# All the options in the config tree can be passed as parameters to the backend plugin
+agent.backend.config.hostname=localhost
+agent.backend.config.port=1234
+agent.backend.config.user=john
+agent.backend.config.password=john
+agent.backend.config.xxxx=WhateverNeeded
+
+``` 
+
+And this could be the initial definition of a generic interface:
+
+```java
+
+public abstract class OceanPluginFactory {
+    
+    public static OceanPluginFactory builder(Config config) {}
+    
+}
+
+public interface OceanBackendPlugin {
+    
+    public boolean connect(Config conf);
+    
+    public boolean disconnect();
+    
+    public boolean isConnected();
+    
+    public boolean write(List<T> items);
+    
+}
+
+```
+
+The Orchestration Layer will be in charge or invoke the optional backend if it's provided. 
+As a rule of thumb, the Decentralized VM is always the main and minimal storage and source of truth of the system.
+
+
+<a name="contract-management"></a>
+## Contract Management
+
+<a name="orchestration-layer"></a>
+### Orchestration Layer
+
+Service contracts can be composed of multiple components, workflows and networks.  
+The _orchestration layer_ is in charge of composing and keeping track of complex workflows.
+These workflows are a result of the interactions of multiple service executions that use 
+the incoming requests and events as inputs. 
+Some scenarios require the execution of multiple steps before completion, for example:
+
+* Contract Settlement - When it's received an API request providing a proof of service, the Ocean AGENT requires to:
+  - Store the Proof of Service information on-chain
+  - Validate if all the proof of services were correctly provided such that the state of the contract can be updated to Settled
+  - Notify all the contract parties
+* External DB integration - If an external backend is provided, the Orchestration Layer will invoke the method to persist the objects sent to the Decentralized VM.
+
+The orchestration Layer acts as a mediator between different components and can be implemented in two possible ways:
+
+* Using a sync orchestration layer, abstracting/encapsulating the execution of multiple components 
+using a [Mediator pattern](https://en.wikipedia.org/wiki/Mediator_pattern). 
+The mediator can executes one by one all the steps involved in one execution workflow.
+* Evolving the Mediator pattern to introduce a pub/sub mechanism. 
+In that case, the mediator publish a new event in a specific topic of the events bus. 
+Multiple subscribers can listen to that topic implementing the behaviour of the individual phases. 
+Those subscribers can emit events to different topics to notify the state of their actions.
+
+
+<a name="decentralized-interface"></a>
+## Decentralized Interface
+
+The KEEPER will expose 3 main block of capabilities to the rest of the world:
+
+* **Decentralized VM** - Providing the smart contracts implementing the core business logic
+* **Ocean DB** - Interfacing with an external and pluggable storage system
+* **Worker** - Accepts cryptographic challenges and validations via p2p commands 
+
+Those capabilities will be integrated from the AGENT using different protocols. 
+
+The Keeper interface module should implement an extensible interfaces system allowing to plug different 
+communication protocols to establish the communication between the Ocean Agent and the the Keepers network. 
+This component is in charge of the following capabilities:
+
+* Interact with the KEEPER components
+* Compose the transactions payload necessary by the Keeper nodes
+* Orchestrate the execution of multiple Keeper requests when be necessary
+
+Initially, HTTP RPC is the easiest candidate to integrate in the communication with the Decentralized VM. 
+
+To interact with the Smart Contracts, the AGENT will provide different [Data Transfer Objects](https://en.wikipedia.org/wiki/Data_transfer_object) (DTO). 
+Those will allow to abstract the integration with the contracts in an easier way.
+
+![Keeper Communication](images/orchestration-dtos.png)
+
+The worker nodes will expose a p2p interface supporting some commands allowing to raise proof challenges.
+
+The implementation of this module is highly linked to the Keeper API definition. 
