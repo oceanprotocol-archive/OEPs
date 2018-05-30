@@ -1,5 +1,7 @@
 <!-- Open with websequencediagrams.com -->
 
+```text
+
 title Register new Actor (ACT.001)
 
 participant Actor
@@ -22,7 +24,11 @@ Agent->Dec. VM: Create Account
 
 Dec. VM->Agent: Register ACK
 
+Agent->Dec. VM: Register attributes (*optional)
+
 Agent->Agent: Is Ocean DB enabled?
 Agent<-->Ocean DB: Create Account
 
 Agent->Actor: HTTP 202 (Actor)
+
+```

@@ -140,31 +140,29 @@ contract ActorsRegistry {
     uint256 constant STATE_CREATED = 0; // Actor just created in the system
     uint256 constant STATE_WHITELISTED = 1; // Actor whitelisted after a curation/verification process
     uint256 constant STATE_BANNED = 2; // Actor banned from the system
-    uint256 constant STATE_DISABLED = 3; // Actor retired or disabled of the system
+    uint256 constant STATE_DISABLED = 9; // Actor retired or disabled of the system
 
     struct Actor {
         address id;
-        uint256 state;
+        mapping(address => uint256) state;
     }
     
     /////// EVENTS //////////////////////////////
-    event ActorRegistered(address indexed _id, uint256 _state);    
+    event ActorRegistered(address indexed _id, address _mktId);    
     
     event ActorAttributeChanged(address indexed _id, bytes32 _name, bytes32 _value, bool _isValid);    
     
     
     /////// FUNCTIONS ///////////////////////////
-    function register(address _id) external returns (bool success);
+    function register(address _id, address _mktId) external returns (bool success);
     
-    function getState(address _id) external view returns (uint state);
+    function getState(address _id, address _mktId) external view returns (uint256 state);
     
     function canUpdate(address _id) external view returns (bool success);
-    
-    function canRetire(address _id) external view returns (bool success);
-    
+      
     function updateState(address _id, uint256 _newState) external returns (bool success);
     
-    function retire(address _id) external returns (bool success);
+    function retire(address _id, address _mktId) external returns (bool success);
 
     function setAttribute(address _id, bytes32 _key, bytes32 _value) external onlyOwner returns (bool success);
 
@@ -178,9 +176,10 @@ Different states are:
 * CREATED (state = 0) - Actor just created in the system
 * WHITELISTED (state = 1) - Actor whitelisted after a curation/verification process
 * BANNED (state = 2) - Actor banned from the system
-* DISABLED (state = 3) - Actor retired or disabled of the system
+* DISABLED (state = 9) - Actor retired or disabled of the system
 
 To save costs, the states are mapped to uint. Additional attributes required by the Actors TCR could be required (see [TCR OEP](../11/README.md)).
+The state is associated to the Marketplace, allowing to have different actor states per marketplace.
 
 
 ### Registering a new Actor <a name="registering-a-new-actor"></a>
@@ -213,6 +212,7 @@ HTTP Output Status Codes:
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
 |password   |string|Account password|
+|marketplaceId|string|Marketplace Id where this user is registered (optional)|
 |attributes   |key-value hashmap|Decentralized ID Document Attributes (optional)|
 |metadata   |Json Object|Free Json object of information to be persisted in Ocean DB if enabled (optional)|
 
@@ -224,6 +224,7 @@ Example:
 ```json
 {	
 	"password": "secret",
+	"marketplaceId": "0x546753482346675aabbcc423542",
 	"attributes": {
 	  "providerEndpoint": "http://example.com/endpoint"
 	},
@@ -264,7 +265,7 @@ The **KEEPER::Decentralized VM** will persist the following information:
 | Attribute | Type | Description |
 |:----------|:-----|:------------|
 |actorId    |address|Owner of the Asset|
-|state      |uint  |TCR state of the user|
+|state      |mapping|TCR state of the user per marketplace (marketplaceId => state)|
 
 Also, in order to compose the Decentralized ID Document, the Keeper will **emit** events with the attributes specified. Those attributes will be used as a
 [cheaper form of storage](https://media.consensys.net/technical-introduction-to-events-and-logs-in-ethereum-a074d65dd61e). Attributes don't need to be in the Smart Contract scope,
@@ -285,7 +286,7 @@ If it's enabled, the Ocean DB layer will interact with the backend to store the 
 | Attribute | Type | Description |
 |:----------|:-----|:------------|
 |actorId    |string|Actor Id|
-|state      |enum  |Internal state information. One of the following("CREATED", "WHITELISTED", "BANNED", "DISABLED")|
+|state      |mapping  |Internal state information per marketplace. One of the following("CREATED", "WHITELISTED", "BANNED", "DISABLED")|
 |attributes   |key-value hash-map|Decentralized ID Document Attributes (optional)|
 |creationDatetime |Datetime |Creation datetime set by the database|
 |metadata   |Json Object|Free Json object with attributes given in the request|
@@ -297,19 +298,19 @@ Different states are:
 * BANNED - Actor banned from the system
 * DISABLED - Actor retired or disabled of the system
 
-Actor state will be set as **CREATED** by the system.
+If a MarketplaceId is provided, the Actor state in that Marketplace will be set as **CREATED** by the system.
 
 
 #### Output
 
-After creating the Actor in the datastores, the AGENT will return a HTTP 202 Accepted message. It means the request has been accepted for processing, but the processing has not been completed.
+After creating the Actor in the data-stores, the AGENT will return a HTTP 202 Accepted message. It means the request has been accepted for processing, but the processing has not been completed.
 
 Using the information stored and provided by the user, the **AGENT** SHOULD compose the output payload to return. It should include the following information:
 
 | Attribute | Type | Description |
 |:----------|:-----|:------------|
 |actorId    |string|Account address|
-|state      |enum  |Internal state information. One of the following("CREATED", "WHITELISTED", "BANNED", "DISABLED")|
+|state      |key-value hash-map |Internal state information per marketplace. Key is the MarketplaceId, Value is one of the following("CREATED", "WHITELISTED", "BANNED", "DISABLED")|
 |attributes   |key-value hashmap|Decentralized ID Document Attributes (optional)|
 |creationDatetime |Datetime |Creation datetime set by the database|
 |metadata   |Json Object|Free Json object with attributes given in the request|
@@ -320,7 +321,9 @@ Using the information stored and provided by the user, the **AGENT** SHOULD comp
 
 ![Retrieve info of an Actor](images/ACT.002.png "ACT.002")
 
-In the [above diagram](diagrams/ACT.002.md), the retrieval of the Actor information state is related with the AGENT and the KEEPER::Decentralized VM. No information is read from Ocean DB. This functionality involves the following implementations:
+In the [above diagram](diagrams/ACT.002.md), the retrieval of the Actor information state is related with the AGENT and the KEEPER::Decentralized VM. 
+No information is read from Ocean DB unless an Ocean DB interface implementation being provided. 
+This functionality involves the following implementations:
 
 #### Ocean Agent API
 
@@ -355,7 +358,10 @@ GET http://localhost:8080/api/v1/actors/0x8f0227d45853a50eefd48dd4fec25d5b3fd229
 ```json
 {
     "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-	"state": "CREATED"
+	"state": {
+	  "0x546753482346675aabbcc423542": "WHITELISTED",
+	  "0xaa79785490584305983045843a2": "BANNED"
+	}
 }
 ```
 
@@ -373,7 +379,17 @@ The Decentralized VM stores the state about the Actors. Using the actorId as key
 
 The information about the state can be obtained integrating the `ActorsRegistry::getState` Smart Contract method.
 
-If the Actor metadata has the state attribute `state == DISABLED` the method should return a **HTTP 404** Not Found message.
+The information about the Actor attributes can be retrieved from the events. When a new Actor attribute is created/updated, the system triggers a **ActorAttributeChanged** event.
+Those attributes encapsulated as events compose the DOD associated to a actorId.
+
+Using the web3 libraries, it's possible to [query](http://web3py.readthedocs.io/en/stable/filters.html) for all the events with topic == ActorAttributeChanged raised by a specific address (actorId).
+
+
+#### Interaction with Ocean DB
+
+The integration with OCEAN DB is optional, so only will works if an implementation backend is provided.
+
+If it's enabled, the AGENT will interact with Ocean DB to retrieve the metadata associated to a specific actorId. 
 
 
 <a name="updating-actor-metadata"></a>
@@ -383,9 +399,10 @@ If the Actor metadata has the state attribute `state == DISABLED` the method sho
 
 In the [above diagram](diagrams/ACT.003.md) the Agent and the Account Manager capabilities are implemented in the AGENT scope.
 
-This method it's a wrapper to edit the Actors Metadata, not the essential (KEEPER::VM) information. So only the metadata information can be updated.
+This method it's a wrapper to edit the Actors Metadata, not the essential (KEEPER::VM) information. So only the metadata information and attributes can be updated.
 
-The KEEPER::Decentralized VM works in this method as authorization mechanism, allowing/denying the user to update the Metadata.
+The KEEPER::Decentralized VM works in this method as authorization mechanism, allowing/denying the user to update the Metadata. 
+Also the KEEPER allows to update the Actor attributes (DOD). Actor attributes are registered using Events. 
 
 The updating of an existing Actor metadata involves the following implementations:
 
@@ -432,19 +449,14 @@ Example:
 }
 ```
 
-#### Accounts Management
-
-The Accounts Manager components it's not involved in this method. 
-
 
 #### Interaction with the Keeper
 
 The Decentralized VM stores the state about the Actors. Using the actorId as key in the Actors collection, the system will authorize or deny the update of the Actor information..
 
-The information about if the actor is enabled or disabled can be obtained integrating the `ActorsRegistry::getState` Smart Contract method.
+The information about if the actor is enabled or disabled (per Marketplace) can be obtained integrating the `ActorsRegistry::getState` Smart Contract method.
 The information about if the actor can be updated can be obtained integrating the `ActorsRegistry::canUpdate` Smart Contract method.
 
-If the Actor metadata has the state attribute `state == DISABLED (9)` the method should return a **HTTP 404** Not Found message.
 If after executing the `ActorsRegistry::canUpdate` method, the Actor can't be updated by the user, the method should return a **HTTP 401** Forbidden message.
 
 The information about the attributes will be registered using the `ActorsRegistry::registerAttribute` Smart Contract method. Attributes will be stored as events.
@@ -483,9 +495,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 Reference: ACT.004
 Path: /api/v1/actors/{actorId}
 HTTP Verb: DELETE
-Caller: Actor
-Input: actorId
-Output: Actor Schema
+Caller: Marketplace
 HTTP Output Status Codes: 
     HTTP 202 - Accepted
     HTTP 400 - Invalid params
@@ -497,6 +507,8 @@ HTTP Output Status Codes:
 | Parameter | Type | Description |
 |:----------|:-----|:------------|
 |actorId    |string|Account address|
+|marketplaceId|string|MarketplaceId where the user must be retired (msg.sender)|
+
 
 
 Example: 
@@ -508,24 +520,22 @@ DELETE http://localhost:8080/api/v1/actors/0x8f0227d45853a50eefd48dd4fec25d5b3fd
 ```json
 {
     "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-    "state": "DISABLED"
+	"state": {
+	  "0x546753482346675aabbcc423542": "DISABLED"
+	}
 }
 ```
-
-#### Accounts Management
-
-The Accounts Manager components it's not involved in this method. 
 
 
 #### Interaction with the Keeper
 
-The Decentralized VM stores the state about the Actors. Using the actorId as key in the Actors collection, the system will authorize or deny the retirement of the Actor information..
+The Decentralized VM stores the state about the Actors associated to a Marketplace. 
+Using the marketplaceId as key in the state mapping, the system will authorize to the Marketplace (msg.sender) to retire or not an Actor for an specific Marketplace.
 
-The information about if the actor is enabled or disabled can be obtained integrating the `ActorsRegistry::getState` Smart Contract method.
-The information about if the actor can be retired can be obtained integrating the `ActorsRegistry::canRetire` Smart Contract method.
+An actor can be disabled or retired of an specific Marketplace using the `ActorsRegistry::retire` Smart Contract method, by the specific Marketplace.
 
 If the Actor metadata has the state attribute `state == DISABLED (9)` the method should return a **HTTP 404** Not Found message.
-If after executing the `ActorsRegistry::canRetire` method, the Actor can't be updated by the user, the method should return a **HTTP 401** Forbidden message.
+If after executing the `ActorsRegistry::retire` method, the Actor can't be updated by the user, the method should return a **HTTP 401** Forbidden message.
 
 
 
@@ -538,12 +548,14 @@ After updating the Actor state in the Database, it will return a HTTP 202 Accept
 
 #### Output
 
-All the information to output is the actorId and state of the user.
+All the information to output is the actorId and state of the user in the marketplaces associated.
 
 ```json
 {
     "actorId": "0x8f0227d45853a50eefd48dd4fec25d5b3fd2295e",
-    "state": "DISABLED"
+	"state": {
+	  "0x546753482346675aabbcc423542": "DISABLED"
+	}
 }
 ```
 
