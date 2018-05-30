@@ -68,7 +68,10 @@ An Ocean ACTOR is a user playing one of multiple of the above roles described.
 
 To allow a Token Curated Registry (TCR) of actors, enabling to curate the users behavior interaction with the system, the actors or users interaction with the system SHOULD be registered.
 This will allow to **Whitelist** or **Ban** the good/bad actors of the system. More information about this will be provided in the [Token Curated Registry OEP](../11/README.md). 
-To allow that, the information available in the system MUST be as minimal as possible. 
+To enable that, the information available in the system MUST be as minimal as possible.
+
+The Actors Registry will allow to register on-chain their decentralized id (DID). In addition to this, some kind of users need be discovered (Providers and Marketplaces mainly).
+Associated to the DID, the Actors Registry will allow to associate a Document (DID Document or DOD) with some basic information for discovery purposes (ie. public endpoints to a provider). 
 
 The system MUST be designed and developed with PRIVACY and ANONYMITY as core principles. 
 
