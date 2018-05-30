@@ -104,7 +104,7 @@ The proposed solution is composed by the interaction of different elements:
 
 We can show the interaction between layers and components using a stack view:
 
-![stack view](images/arch-actors-stack.png)
+![stack view](images/arch-actors-stack.jpg)
 
 The following sections will describe the end to end implementation using a top to bottom approach, starting from the API interface to the Keeper implementation.
 
