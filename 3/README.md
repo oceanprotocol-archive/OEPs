@@ -22,12 +22,11 @@ Table of Contents
         * [Agents and Keepers](#agents-and-keepers)
         * [Communication Protocols](#communication-protocols)
      * [Components](#components)
-        * [Keepers](#keepers)
-           * [Ocean VM](#ocean-vm)
-           * [Ocean DB](#ocean-db)
-           * [Ocean Worker](#ocean-worker)
-        * [Ocean Agent](#ocean-agent)
-     * [Components Interaction](#components-interaction)
+       * [Ocean Agent](#ocean-agent)
+       * [Ocean Keepers](#ocean-keepers)
+       * [Ocean DB](#ocean-db)
+       * [Ocean Worker](#ocean-worker)
+       * [Components Interaction](#components-interaction)
 
 # Ocean Protocol Network Architecture
 
@@ -239,7 +238,7 @@ A database with the following capabilities:
 * Is OPTIONAL and enhances discovery functions in marketplaces
 * OPTIONAL Byzantine fault tolerant (BFT).
 
-#### Ocean Worker
+### Ocean Worker
 
 A work-dispatch engine with the following capabilities:
 
@@ -248,7 +247,7 @@ A work-dispatch engine with the following capabilities:
 * Can challenge AGENTS to provide succinct proofs
 * OPTIONAL fault tolerant (FT)
 
-## Components Interaction
+### Components Interaction
 
 An Ocean Node can run all of those processes or any combination of them. 
 It will allow to have specialized nodes, depending of the requirements of the users running those nodes.
