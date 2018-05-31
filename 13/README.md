@@ -29,7 +29,7 @@ Table of Contents
 
 # Ocean Actors Registry <a name="ocean-actors-registry"></a>
 
-The Ocean Actors Registry (**REG**) is a specification for Ocean Protocol to register to all the actors interacting in the Ocean Network.
+The Ocean Actors Registry (**REG**) is a specification for Ocean Protocol to register actors interacting in the Ocean Network.
 
 This OEP does not focus on actor attributes, whitelisting or curation. It's purely the mechanics of registering and basic handling of actors.
 
@@ -66,14 +66,15 @@ An Ocean ACTOR is a user playing one of multiple of the above roles described.
 
 ## Specification <a name="specification"></a>
 
-To allow a Token Curated Registry (TCR) of actors, enabling to curate the users behavior interaction with the system, the actors or users interaction with the system SHOULD be registered.
-This will allow to **Whitelist** or **Ban** the good/bad actors of the system. More information about this will be provided in the [Token Curated Registry OEP](../11/README.md). 
-To enable that, the information available in the system MUST be as minimal as possible.
+Marketplaces and assets CAN require specific identity requirements for actors to interact with them.
+For example, Token Curated Registries (TCR) of actors are an interesting tool to govern permissions of actors.
+These registries allows to **Whitelist** or **Blacklist** the good/bad actors and grant/revoke permissions. More information about this will be provided in the [Token Curated Registry OEP](../11/README.md). 
+To enable that, the required identity and asset information SHOULD as minimal as possible.
 
-The Actors Registry will allow to register on-chain their decentralized id (DID). In addition to this, some kind of users need be discovered (Providers and Marketplaces mainly).
-Associated to the DID, the Actors Registry will allow to associate a Document (DID Document or DOD) with some basic information for discovery purposes (ie. public endpoints to a provider). 
+Actors Registries allow to register on-chain their decentralized id (DID). In addition to this, some kind of users need be discovered (Providers and Marketplaces mainly).
+Associated to the DID, the Actors Registry will allow to associate a Document (DID Document or DDO) with some basic information for discovery purposes (ie. public endpoints to a provider). 
 
-The system MUST be designed and developed with PRIVACY and ANONYMITY as core principles. 
+The registries MUST be designed and developed with PRIVACY and ANONYMITY as core principles. 
 
 The **Actors** information should be managed using an API. This API should exposes the following capabilities:
 
