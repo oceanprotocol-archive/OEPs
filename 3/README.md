@@ -7,11 +7,10 @@ editor: Dimitri De Jonghe <dimi@oceanprotocol.com>
 contributors: Aitor Argomaniz <aitor@oceanprotocol.com>
 ```
 
-===========
-
 Table of Contents
 =================
 
+  * [Table of Contents](#table-of-contents)
   * [Ocean Protocol Network Architecture](#ocean-protocol-network-architecture)
      * [Change Process](#change-process)
      * [Language](#language)
@@ -22,11 +21,15 @@ Table of Contents
         * [Agents and Keepers](#agents-and-keepers)
         * [Communication Protocols](#communication-protocols)
      * [Components](#components)
-       * [Ocean Agent](#ocean-agent)
-       * [Ocean Keepers](#ocean-keepers)
-       * [Ocean DB](#ocean-db)
-       * [Ocean Worker](#ocean-worker)
-       * [Components Interaction](#components-interaction)
+        * [Ocean Agent](#ocean-agent)
+        * [Ocean Keepers](#ocean-keepers)
+        * [Ocean DB](#ocean-db)
+        * [Ocean Worker](#ocean-worker)
+        * [Router](#router)
+           * [Resolver](#resolver)
+           * [Gossip](#gossip)
+        * [Components Interaction](#components-interaction)
+`
 
 # Ocean Protocol Network Architecture
 

@@ -6,12 +6,35 @@ status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 ```
-
-=================
-
 Table of Contents
 =================
 
+  * [Table of Contents](#table-of-contents)
+  * [Ocean Agent Architecture](#ocean-agent-architecture)
+     * [Change Process](#change-process)
+     * [Language](#language)
+     * [Motivation](#motivation)
+     * [Design Requirements](#design-requirements)
+     * [Agent Protocol Stack](#agent-protocol-stack)
+     * [Plugin System](#plugin-system)
+        * [Service Plugins](#service-plugins)
+        * [Interfaces](#interfaces)
+     * [Service Integrity Layer](#service-integrity-layer)
+        * [Service Proofs](#service-proofs)
+        * [Privacy](#privacy)
+        * [Access Control](#access-control)
+           * [Authentication](#authentication)
+           * [Authorization](#authorization)
+     * [Contract Management](#contract-management)
+     * [Decentralized Interface](#decentralized-interface)
+        * [Orchestration Layer](#orchestration-layer)
+        * [Events Watcher](#events-watcher)
+        * [Data Transfer Objects](#data-transfer-objects)
+        * [Private Key Infrastructure (PKI)](#private-key-infrastructure-pki)
+           * [Accounts](#accounts)
+           * [Wallets](#wallets)
+     * [Connection to External Modules](#connection-to-external-modules)
+        * [Ocean DB integration](#ocean-db-integration)
 
 # Ocean Agent Architecture
 
