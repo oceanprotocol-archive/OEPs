@@ -213,7 +213,7 @@ Provides a service integrity layer to cryptographically secure bindings with off
 as well as privacy & multicast capabilities. 
 This layer abstracts the service contracts at the client side and ensures two-way binding with the KEEPERS
 
-An detailed overview of the Ocean AGENT can be found in  [OEP-5/AGENT](../5/README.md) 
+An detailed overview of the Ocean AGENT can be found in  [OEP-4/AGENT](../4/README.md) 
 
 ### Ocean Keepers
 
@@ -238,6 +238,9 @@ A database with the following capabilities:
 * Is OPTIONAL and enhances discovery functions in marketplaces
 * OPTIONAL Byzantine fault tolerant (BFT).
 
+An detailed overview of the Ocean DB can be found in  [#TODO:OEP-OCEANDB](../<OCEANDB>/README.md)
+
+
 ### Ocean Worker
 
 A work-dispatch engine with the following capabilities:
@@ -246,6 +249,29 @@ A work-dispatch engine with the following capabilities:
 * Performs compute intensive jobs such as mining and proofs validation
 * Can challenge AGENTS to provide succinct proofs
 * OPTIONAL fault tolerant (FT)
+
+An detailed overview of the Ocean Worker can be found in  [#TODO:OEP-OCEANWORKER](../<OCEANWORKER>/README.md)
+
+### Router
+
+As the metadata of assets and actors is not stored on-chain, but rather in Ocean DB, this means only cryptographic 
+identifiers are available on-chain. In order to enhance discovery and usability of the system, one would want to resolve 
+those identifiers.
+
+#### Resolver
+
+The resolver takes a cryptographic identifier (like a DID) and resolves it into a related data object.
+This object could embed metadata information about the resource as well as related service endpoints.
+
+The task of the resolver is to facilitate the mapping between the identifier and the data object. 
+
+#### Gossip
+
+Ocean DB and related services do not have a centralized index such as DNS or Google.
+This means that resource information is scattered amongst multiple actors in the system.
+The gossip protocol allows to communicate the location of resource indices and their mapping
+
+An detailed overview of the router, resolver and gossip protocol can be found in  [#TODO:OEP-ROUTER](../<ROUTER>/README.md)
 
 ### Components Interaction
 
