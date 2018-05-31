@@ -9,9 +9,9 @@
 
 ## Maintainers
 
-Everyone with the ability to merge pull requests. Today that is mainly OceanProtocol employees.
+Everyone with the ability to merge pull requests. Today that is mainly OceanProtocol contributors.
 
-In the future, we can add more people who are not OceanProtocol employees as maintainers.
+In the future, we can add more people to this list.
 
 Some people have specializations:
 
@@ -53,9 +53,12 @@ Short Name    | Title                                                        | T
 [6/INVOKE](6)   | API to register & invoke computer services                      | Standard     | Raw      | TBD
 [7/SONAR](7)   | Searchable OceaN Asset Registry                      | Standard     | Raw      | TBD
 [8/AAT](8)   | Basic Authentication, Accounts & Tokens                      | Standard     | Raw      | TBD
-[9/TX](9)   | API for transactions                      | Standard     | Raw      | TBD
+[9/TX](9)   | API for transactions                      | Standard     | Raw      | Aitor Argomaniz
 [10/OAA](10)   | On-chain Authentication                       | Standard     | Raw      | TBD
-[11/ACS](11)   | API for Curation/Staking                      | Standard     | Raw      | TBD
+[11/CPM](11)   | Ocean Curated Proofs Market                      | Standard     | Draft      | Fang Gong
 [12/GLO](12)   | Public Glossary                      | Meta     | Draft      | Timothy Ley
-[13/Registry](13)   | Ocean Actor Registry                                     | Standard     | Draft      | Aitor Argomaniz
-[14/OAR](4)   | Ocean Asset Registry                      | Standard     | Draft      | Aitor Argomaniz
+[13/REG](13)   | Ocean Actor Registry                                     | Standard     | Raw      | Aitor Argomaniz
+[14/OAR](14)   | Ocean Assets Registry                                     | Standard     | Raw      | Aitor Argomaniz
+[15/OPS](15)   | Ocean Provider Services                      | Standard     | TBD      | TBD
+[16/SALPCHAIN](16)| Lightweight On-Chain Workflow Management System | Standard     | TBD      | Ahmed Abdullah
+

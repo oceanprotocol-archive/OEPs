@@ -1,3 +1,6 @@
+Open on [websequencediagrams.com](https://www.websequencediagrams.com/)
+
+```text
 title Registering an Asset (ASE.001)
 
 # ASE.001
@@ -13,13 +16,13 @@ Agent->Agent: Input validation
 
 Agent-->Publisher: HTTP 400 (Invalid params)
 
-Agent<->Dec VM: Access Control
-Agent-->Publisher: HTTP 401 (Forbidden)
-
-
 Agent->+Orchestrator: Asset Registering
 
 Orchestrator->Dec VM: Register Asset
+Dec VM-->Dec VM: Access Control
+Dec VM-->Orchestrator: Forbidden
+Orchestrator-->Agent: Forbidden
+Agent-->Publisher: HTTP 401 (Forbidden)
 Dec VM->Orchestrator: ACK
 
 Orchestrator->Orchestrator: Is Ocean DB enabled?
@@ -30,9 +33,6 @@ Orchestrator->-Agent: ACK
 
 Agent->Publisher:  HTTP 202 (Asset)
 
-
-
-
-
+```
 
 

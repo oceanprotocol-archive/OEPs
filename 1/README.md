@@ -74,11 +74,12 @@ C4 is meant to provide a reusable optimal collaboration model for open source so
 1. To discuss a patch, people MAY comment on the Platform pull request, on the commit, or elsewhere.
 1. To accept or reject a patch, a Maintainer SHALL use the Platform interface.
 1. Maintainers SHOULD NOT merge their own patches except in exceptional cases, such as non-responsiveness from other Maintainers for an extended period (more than 1-2 days).
-1. Maintainers SHALL NOT make value judgments on correct patches.
-1. Maintainers SHALL merge correct patches from other Contributors rapidly.
+1. Maintainers SHOULD review patches for consistency with architectural decisions and project goals
+1. If there is an issue with the patch preventing acceptance, maintainers SHOULD provide rapid and helpful feedback to enable contributors to amend their patch.
+1. Assuming consistency with above, maintainers SHALL merge correct patches from other Contributors rapidly.
 1. Maintainers MAY merge incorrect patches from other Contributors with the goals of (a) ending fruitless discussions, (b) capturing toxic patches in the historical record, (c) engaging with the Contributor on improving their patch quality.
 1. The user who created an issue SHOULD close the issue after checking the patch is successful.
-1. Any Contributor who has value judgments on a patch SHOULD express these via their own patches.
+1. Any Contributor who has value judgements on a patch SHOULD express these via their own patches.
 1. Maintainers SHOULD close user issues that are left open without action for an uncomfortable period of time.
 
 ### 2.5. Branches and Releases

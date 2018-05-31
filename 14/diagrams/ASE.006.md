@@ -1,3 +1,6 @@
+Open on [websequencediagrams.com](https://www.websequencediagrams.com/)
+
+```text
 title Updating Asset Provider (ASE.006)
 
 # ASE.006
@@ -12,16 +15,17 @@ Provider->Agent: Provider association update req.
 Agent->Agent: Input validation
 Agent-->Provider: HTTP 400 (Bad params)
 
-Agent<->Dec VM: Check if asset, user & association exists
-Agent-->Provider: HTTP 400 (Invalid asset/user)
-
-Agent<->Dec VM: Access Control
-Agent-->Provider: HTTP 401 (Forbidden)
-
 
 Agent->+Orchestrator: Update Provider Associaton
 
-Orchestrator->Dec VM: Update Provider Association
+Orchestrator->Dec VM: Update Asset Provider
+Dec VM-->Dec VM: Check if asset, user & association exists
+Dec VM-->Dec VM: Access Control
+Dec VM-->Orchestrator: Error
+Orchestrator-->Agent: Error
+Agent-->Provider: HTTP 400 (Invalid asset/user)
+Agent-->Provider: HTTP 401 (Forbidden)
+
 Dec VM->Orchestrator: ACK
 Orchestrator-->Ocean DB: Update Provider Association (*optional)
 Ocean DB-->Orchestrator: ACK
@@ -31,5 +35,4 @@ Orchestrator->-Agent: ACK
 Agent->Provider:  HTTP 202 (Asset)
 
 
-
-
+```

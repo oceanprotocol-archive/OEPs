@@ -1,3 +1,6 @@
+Open on [websequencediagrams.com](https://www.websequencediagrams.com/)
+
+```text
 title Retrieve Asset information (ASE.002)
 
 participant Any
@@ -19,9 +22,13 @@ Agent-->Any:HTTP 404 (not found)
 
 Dec. VM->Agent: Asset information
 
-note over Ocean DB: * optional
+Agent-->Agent: Is Ocean DB enabled?
+
 Ocean DB<-->Agent: Asset information
-Agent-->Agent: Build model
+Agent-->Agent: Build Asset model
 
 Agent->Any: HTTP 200 (Asset)
 
+
+
+```

@@ -1,3 +1,6 @@
+Open on [websequencediagrams.com](https://www.websequencediagrams.com/)
+
+```text
 title Updating an Asset (ASE.003)
 
 # ASE.003
@@ -13,13 +16,16 @@ Agent->Agent: Input validation
 
 Agent-->Publisher: HTTP 400 (Invalid input)
 
-Agent<->Dec VM: Access Control
-Agent-->Publisher: HTTP 401 (Forbidden)
-
-
 Agent->+Orchestrator: Asset Update
 
 Orchestrator->Dec VM: Update Asset
+
+Dec VM->Dec VM: Access Control
+Dec VM-->Orchestrator: Forbidden
+Orchestrator-->Agent: Forbidden
+Agent-->Publisher: HTTP 401 (Forbidden)
+
+
 Dec VM->Orchestrator: ACK
 
 Orchestrator-->Ocean DB: Update Asset (* optional)
@@ -28,6 +34,15 @@ Ocean DB-->Orchestrator: ACK
 Orchestrator->-Agent: ACK
 
 Agent->Publisher:  HTTP 202 (Asset)
+
+
+
+
+
+
+```
+
+
 
 
 

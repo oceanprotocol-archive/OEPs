@@ -26,9 +26,6 @@ Table of Contents
          * [Retiring an Asset](#retiring-an-asset)
          * [Make an Asset available through a Provider](#make-an-asset-available-through-a-provider)
          * [Updating Asset Provider](#updating-asset-provider)
-         * [Assignee(s)](#assignees)
-         * [Targeted Release](#targeted-release)
-         * [Status](#status)
       * [Copyright Waiver](#copyright-waiver)
 
       
@@ -84,7 +81,7 @@ Requirements are:
 ## Specification 
 
 The **Asset Metadata** (aka **ASSET**) information should be managed using an API. 
-As general rule, only the INDISPENSABLE information to run the Smart Contracts MUST be stored in te Decentralized VM
+As general rule, only the **INDISPENSABLE** information to run the Smart Contracts MUST be stored in te Decentralized VM.
 This API should exposes the following capabilities:
 
 * Registering a new Asset
@@ -138,6 +135,92 @@ The above diagram shows the high level interactions between the components invol
 The following sections will describe the end to end implementation using a top to bottom approach, 
 starting from the API interface to the Keeper implementation, using the Ocean DB and the Decentralized VM.
 
+In the following diagram you can see the nodes involved in this OEP:
+![Nodes Involved](images/nodes-involved.png "Nodes Involved")
+
+In the following sections you can find the end to end implementation details of the complete OAR functionality.
+
+### Smart Contracts
+
+The KEEPER will store only the essential user information to allow the implementation of the Assets Registry. It means from the KEEPER side, the system MUST NOT store any kind of metadata.
+
+Taking this into account, the skeleton of main implementation should provide the following structs and interfaces:
+
+```solidity
+contract AssetsRegistry {
+
+    uint256 constant STATE_PENDING = 0; // Asset just created
+    uint256 constant STATE_PUBLISHED = 1; // Asset used by at least one provider
+    uint256 constant STATE_UNPUBLISHED = 2; // Asset is not being provided 
+    uint256 constant STATE_DISABLED = 9; // Asset deleted
+
+    struct Asset {
+        address owner;
+        address marketplace;
+        uint256 state;
+    }
+    
+    mapping(byte32 => Asset) assets;
+    
+    /////// EVENTS //////////////////////////////
+    event AssetRegistered(bytes32 indexed _id, address indexed _mktId);    
+    
+    event AssetUpdated(bytes32 indexed _id, address indexed _mktId, uint256 indexed state);    
+      
+    event AssetAttributeChanged(bytes32 indexed _id, address indexed _mktId, bool indexed _isValid, bytes32 _name, bytes32 _value);    
+    
+    /////// FUNCTIONS ///////////////////////////
+    
+    // Allows to register a new asset (assetId) where the owner is the msg.sender of the request
+    // An optional marketplaceId can be given, allowing to it to act in behalf of the user related with the asset
+    function publish(bytes32 _id, address _mktId) external returns (bool success);
+    
+    // Remove the asset of the system (soft delete). 
+    // Only the owner of the asset or marketplace associated can retire an asset
+    function retire(bytes32 _id) external onlyOwnerOrMarketplace returns (bool success);
+    
+    // Returns the address of the owner of a specific asset
+    function getOwner(bytes32 _id) external view returns (address owner);
+    
+    // Returns true or false saying if the address passed as parameter is the owner of the asset
+    // or can act in behalf
+    function isOwner(bytes32 _id, address _address) internal view returns (bool isOwner);
+    
+    // Returns true or false saying if the message.sender can update an asset    
+    function canUpdate(bytes32 _id) internal view returns (bool success);
+    
+    // Update the internal state of an assent
+    // Only the owner or marketplace in behalf can update the state
+    function updateState(bytes32 _id, address _address, uint256 _newState) internal onlyOwnerOrMarketplace returns (bool success);
+    
+    // Returns true or false saying if the message.sender can retire an asset
+    function canRetire(bytes32 _id) internal view returns (bool success);
+
+    // Sugar on top of updateState method. Updates the state to DISABLED
+    // Only the owner or marketplace in behalf can update the state  
+    function retire(address _id, address _mktId) external onlyOwnerOrMarketplace returns (bool success);
+
+    // Add an Attribute associated to an Asset
+    // Attributes are stored as Events. It raises the AssetAttributeChanged event
+    function setAttribute(bytes32 _id, bytes32 _key, bytes32 _value) external onlyOwnerOrMarketplace returns (bool success);
+
+    // Revoke an Attribute associated to an Asset
+    // Attributes are stored as Events. It raises the AssetAttributeChanged event
+    function revokeAttribute(address _id, bytes32 _name, bytes32 _value) external onlyOwnerOrMarketplace returns (bool success);
+    
+}
+
+```
+
+Different states are:
+
+* PENDING (state = 0) - Asset just created
+* PUBLISHED (state = 1) - Asset used by at least one provider
+* UNPUBLISHED (state = 2) - Asset is not being provided 
+* DISABLED (state = 9) - Asset deleted
+
+To save costs, the states are mapped to uint. Additional attributes required by the Actors TCR could be required.
+
 ---
 
 <a name="registering-a-new-asset"></a><a name="ASE.001"></a>
@@ -158,8 +241,6 @@ Reference: ASE.001
 Path: /api/v1/assets
 HTTP Verb: POST
 Caller: The Asset PUBLISHER
-Input: Asset Schema
-Output: Asset Schema
 HTTP Output Status Codes: 
     HTTP 202 - Accepted
     HTTP 400 - Bad request
@@ -175,11 +256,7 @@ HTTP Output Status Codes:
 |assetId    |string|Id of the Asset (optional). If not assetId is provided, the system will generate the id|
 |owner      |string|Owner address. This parameter MUST be validated. This information will not be give as part of the Payload, it will be retrieved from the Authorization HTTP header|
 |marketplaceId    |string|Id of the Marketplace (optional). It indicates if the asset was published through a specific marketplace|
-|name       |string|Asset name (optional)|
-|mimeType   |string|The mime-type of the file (optional)|
-|attributes |array |Array of key, value attributes (optional)|
-|parameters |array | If it's a service or operation, specifies the K,V parameters (optional)|
-|links      |array |List of links to other assets (samples, previous versions, etc.) (optional)|
+|metadata   |json|Attribute able to include any kind of additional information about the asset (optional)|
 
 Because all parameters are optional, an empty payload is allowed to create an Asset.
 In the composition of the HTTP payload, only the assetId and marketplaceId will be in the root of the JSON document. The rest of the parameters (optional), will be included as part of the Metadata entity.
@@ -188,6 +265,7 @@ Example:
 
 ```json
 {	
+    "assetId": "342094823423",
 	"marketplaceId": "0xaabbccdd",
 	"metadata": {
         "name": "transaction logs jan.2018",
@@ -231,11 +309,13 @@ These are the possible values of the **contentState** attribute:
 * UNPUBLISHED - An asset is not being provided
 * DISABLED - Asset deleted
 
+
 Example:
 
 ```json
 {
     "assetId": "123456789abcde", 
+  	"marketplaceId": "0xaabbccdd",
     "owner": "0x1234aa33bb",
     "creationDatetime": "2018-05-18T16:00:00Z",
     "updateDatetime": "2018-05-18T16:00:00Z",
@@ -271,8 +351,9 @@ The **KEEPER::Decentralized VM** will persist the following information:
 | Attribute | Type | Description |
 |:----------|:-----|:------------|
 |assetId    |byte32|Asset Id|
-|actorId    |address|Owner of the Asset|
-|contentState      |uint|TCR State of the Asset|
+|owner      |address|Owner of the Asset|
+|marketplace|address|Address of the Marketplace associated to the asset (optional)|
+|state      |uint|TCR State of the Asset|
 
 Using any of the existing web3 implementation library (web3.js, web3.py, web3.j, etc), it's possible to interact with the VM Smart Contracts.
 
@@ -292,34 +373,6 @@ TransactionReceipt receipt= registry.publish(newAsset.assetId).send();
 
 ```
 
-#### Smart Contracts
-
-The **AssetsRegistry** smart contract layer could expose the following public methods:
-
-```solidity
-
-    function publish(bytes32 _assetId) public returns (bool success) { }
-    
-    function retire(bytes32 _assetId) public returns (bool success) { }
-    
-    function getOwner(bytes32 _assetId) public returns (address owner) { }
-    
-    function isOwner(bytes32 _assetId, address _address) public returns (bool isOwner) { }
-
-    function canUpdate(bytes32 _assetId) public returns (bool canUpdate) { }
-    
-    function canRetire(bytes32 _assetId) public returns (bool canRetire) { }
-    
-```
-
-* publish - allows to register a new asset (assetId) where the owner is the msg.sender of the request
-* retire - remove the asset of the system. Only the owner of the asset can retire an asset
-* getOwner - returns the address of the owner of a specific asset
-* isOwner - Returns true or false saying if the address passed as parameter is the owner of the asset
-* canUpdate - Returns true or false saying if the message.sender can update an asset
-* canRetire - Returns true or false saying if the message.sender can retire an asset
- 
-
 
 #### Interaction with Ocean DB
 
@@ -329,8 +382,8 @@ If the **KEEPER::Ocean DB** is integrated, it will persist the following informa
 |:----------|:-----|:------------|
 |assetId    |string|Id of the Asset|
 |owner    |string|Account address|
-|marketplaceId    |string|Id of the Marketplace (optional)|
-|contentState       |string     |Internal state of the Asset|
+|marketplace    |string|Id of the Marketplace (optional)|
+|state       |string     |Internal state of the Asset|
 |**Metadata**:|     ||
 |creationDatetime   |datetime   |Allocated by the system when was created in the AGENT (universal datetime), time before consensus |
 |updateDatetime     |datetime   |Allocated by the system when was updated the metadata in the AGENT (universal datetime), time before consensus |
@@ -350,7 +403,6 @@ If the **KEEPER::Ocean DB** is integrated, it will persist the following informa
 
 ![Retrieve metadata of an Asset](images/ASE.002.png "ASE.002")
 
-No information is common from Ocean DB.
 The retrieval of an Asset involves the following implementations:
 
 #### Ocean Agent API
@@ -389,7 +441,7 @@ If the length and format doesn't fit the standard address definition, the system
 #### Interaction with the Decentralized VM
 
 The Asset information will be retrieved directly from the **KEEPER::Decentralized VM** Smart Contract interfaces. 
-It's necessary to validate that the ```contentState != DISABLED```.
+It's necessary to validate that the ```state != DISABLED```.
 Disabled Assets MUST return a ```HTTP 404 Not Found``` status code.   
 
 ##### Output
@@ -399,8 +451,9 @@ The essential information is coming from the Decentralized VM. The expected outp
 | Attribute | Type | Description |
 |:----------|:-----|:------------|
 |assetId    |byte32|Asset Id|
-|actorId    |address|Owner of the Asset|
-|contentState      |uint|TCR State of the Asset|
+|owner      |address|Owner of the Asset|
+|marketplace|address|Marketplace associated to the asset (optional)|
+|state      |uint|TCR State of the Asset|
 
 If Ocean DB is enabled, the system will try to retrieve the complete Metadata using the interfaces and **assetId**. 
 If the system is able to do it, the output will include in the metadata section all the extended information provided by the external system. 
@@ -424,7 +477,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 Reference: ASE.003
 Path: /api/v1/assets
 HTTP Verb: PUT
-Caller: The Asset PUBLISHER
+Caller: The Asset PUBLISHER or MARKETPLACE on behalf
 Input: Asset Schema
 Output: Asset Schema
 HTTP Output Status Codes: 
@@ -451,18 +504,11 @@ The AGENT node will be in charge of manage the Assets update.
 
 This method only provide the capabilities to update the following attributes in the the Decentralize VM:
 
-* **marketplaceId**   
+* **marketplace**   
 
 In addition to this, integrates the Decentralized VM to implement the access control mechanism.
 The Access Control checks if the user requesting to Update the Asset, has enough privileges to do it. 
 To do that, the ```canUpdate(assetId)``` method is called. This method should return a boolean value indicating if the Asset can be modified.  
-
-```solidity
-    function canUpdate(bytes32 _assetId) public returns (bool canUpdate) { }
-    
-    function update(bytes32 _assetId, address _marketplaceId) public returns (bool success) { }
-   
-```
 
 If the Asset can be updated, and Ocean DB is enabled, the Orchestration layer will persist the complete Asset metadata in Ocean DB. 
 Also the attribute **updateDatetime** will be updated with the KEEPER universal datetime. 
@@ -480,7 +526,7 @@ The Asset MUST be retired from Ocean DB and the Decentralized VM.
 
 This method implements a soft delete of an Asset. It means the Asset is updated setting the contentState attribute to `DISABLED`. The method will return a HTTP 202 status code and the Asset modified in the response body.
 
-This method only can be integrated by the owner of the Asset.
+This method only can be integrated by the owner of the Asset or a Marketplace allowed to act on behalf.
 
 #### Ocean Agent API
 
@@ -490,7 +536,7 @@ It is necessary to expose a RESTful HTTP interface using the following details:
 Reference: ASE.004
 Path: /api/v1/assets/{assetId}
 HTTP Verb: DELETE
-Caller: The Asset owner
+Caller: The Asset owner or Marketplace on behalf
 Input: assetId
 Output: Asset Schema
 HTTP Output Status Codes: 
@@ -516,7 +562,7 @@ DELETE http://localhost:8080/api/v1/assets/777227d45853a50eefd48dd4fec25d5b3fd22
 
 The expected output implements the Asset model described in the [output parameters section](#asset-model) of the Registering an Asset method.
 
-After execute this method, if everything worked okay, the **contentState** attribute should be **DISABLED**.
+After execute this method, if everything worked okay, the **state** attribute should be **DISABLED**.
 
 
 #### Orchestration Layer
@@ -525,19 +571,12 @@ The AGENT node will be in charge of manage the Assets retirement.
 If Ocean DB is enabled, Assets MUST be updated in Ocean DB and retired from the Decentralized VM.
 
 Before to proceed to any data modification, it's necessary to validate if the address requesting to retire an Asset has privileges to do it. 
-The Access Control component is in charge of this validation. 
-To do that, the ```canRetire(assetId)``` method is called. This method should return a boolean value indicating if the Asset can be retired by the user calling that method.  
+The Access Control component is in charge of this validation (KEEPER). To do that, the ```canRetire(assetId)``` method is called. This method should return a boolean value indicating if the Asset can be retired by the user calling that method.  
 
-```solidity
-    function retire(bytes32 _assetId) public returns (bool success) { }
-
-    function canRetire(bytes32 _assetId) public returns (bool canUpdate) { }   
-```
-
-If the Asset can be retired, the Orchestration layer will execute the **retire** method of the Smart Contract.
+If the Asset can be retired, the Smart Contract will execute the **retire** method.
 
 After to do that, the Orchestration layer will update the following information in Ocean DB:
-* The attribute **contentState** will be updated with the value **DISABLED**.
+* The attribute **state** will be updated with the value **DISABLED**.
 * The attribute **updateDatetime** will be updated with the KEEPER universal datetime. 
 
 The AGENT will coordinate the retirement of an Asset interacting initially with the Decentralized VM. It will return a **Transaction Receipt** (see more details about the [Transaction Receipt model](https://github.com/ethereum/wiki/wiki/JavaScript-API#web3ethgettransactionreceipt)).
@@ -674,6 +713,8 @@ The **associateProvider** method will allow to store this information:
         mapping(uint8 => VerificationProof) proofs;
     }
 
+    event AssetProviderUpdated(bytes32 indexed _id, address indexed _provider, address indexed _marketplace, uint256 indexed state);
+
     function associateProvider(
         bytes32 _assetId, 
         address _providerId, 
@@ -709,6 +750,8 @@ An ASSET can be accessed via multiple PROVIDERS. So It's necessary to associate 
     }
 
 ```
+
+Any modification about one Asset and the Providers associated will raise an event `AssetProviderUpdated`.
 
 <a name="asset-provider-insert-db"></a>
 #### Interaction with Ocean DB 
@@ -848,6 +891,9 @@ In that case the **disassociateProvider** method will allow to delete this assoc
     public returns (bool success) { }
     
 ```
+
+Any modification about one Asset and the Providers associated will raise an event `AssetProviderUpdated`.
+
 
 #### Interaction with Ocean DB
 

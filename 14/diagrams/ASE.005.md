@@ -1,3 +1,6 @@
+Open on [websequencediagrams.com](https://www.websequencediagrams.com/)
+
+```text
 title Associating Asset and Provider (ASE.005)
 
 # ASE.005
@@ -13,13 +16,14 @@ Agent->Agent: Input validation
 Agent-->Provider: HTTP 400 (Bad params)
 
 
-Agent<->Dec VM: Access Control
-Agent-->Provider: HTTP 401 (Forbidden)
-
-
 Agent->+Orchestrator: Provider Association
 
 Orchestrator->Dec VM: Provider Association
+Dec VM->Dec VM: Access Control
+Dec VM-->Orchestrator: Forbidden
+Orchestrator->Agent: Forbidden 
+Agent-->Provider: HTTP 401 (Forbidden)
+
 Dec VM->Orchestrator: ACK
 Orchestrator-->Ocean DB: Provider Association (*optional)
 Ocean DB-->Orchestrator: ACK
@@ -28,3 +32,4 @@ Orchestrator->-Agent: ACK
 
 Agent->Provider:  HTTP 202 (Asset)
 
+```
