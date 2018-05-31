@@ -80,7 +80,7 @@ Requirements are:
 <a name="specification"></a>
 ## Specification 
 
-The **Asset Metadata** (aka **ASSET**) information should be managed using an API. 
+The **ASSET** information should be managed using an API. 
 As general rule, only the **INDISPENSABLE** information to run the Smart Contracts MUST be stored in te Decentralized VM.
 This API should exposes the following capabilities:
 
