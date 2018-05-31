@@ -9,9 +9,9 @@
 
 ## Maintainers
 
-Everyone with the ability to merge pull requests. Today that is mainly OceanProtocol employees.
+Everyone with the ability to merge pull requests. Today that is mainly OceanProtocol contributors.
 
-In the future, we can add more people who are not OceanProtocol employees as maintainers.
+In the future, we can add more people to this list.
 
 Some people have specializations:
 
