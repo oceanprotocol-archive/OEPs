@@ -22,7 +22,6 @@ Table of Contents
          * [Retrieve information of an existing actor](#retrieve-actor)
          * [Updating Actor metadata](#updating-actor-metadata)
          * [Retire an Actor](#retire-an-actor)
-      * [TODO: Events](#events)
       * [Copyright Waiver](#copyright-waiver)
       
 <!--te-->
@@ -85,9 +84,12 @@ The **Actors** information should be managed using an API. This API should expos
 
 Key requirements:
 
+* Actors Registration is not mandatory in all the cases to interact with the system. It's recommended in users dependant of be discovered or curated (PROVIDERS, MARKETPLACES, etc).
 * Only the essential information about Actors will be stored on-chain to allow the implementation of a TCR.
 * AGENT MUST NOT store any information about the accounts (public keys, private keys, passwords or recovery phrases) in any other place than the system KMS.
 * After to be registered, the new Actors MUST have a valid Account Id and a Wallet.
+* After to be registered, the new Actors MUST have associated a valid Decentralized ID (DID).
+* Actors CAN publish attributes, building a Decentralized Document (DDO) associated to their DID. It could includes information to be discovered for third parties. 
 * If a complementary Ocean DB is given as parameter, the information or Metadata about the Actors will be stored in Ocean DB.
 * The storage of Actors Metadata is totally optional.
 * The location of the KMS SHOULD be provided as parameter in the Ocean AGENT initialization script.
@@ -129,7 +131,7 @@ In the following sections you can find the end to end implementation details of 
 
 ### Smart Contracts <a name="smart-contracts"></a>
 
-The KEEPER::Decentralized VM will store the essential user information to allow the implementation of the Actors TCR.
+The KEEPER::Decentralized VM will store the essential user information to allow the implementation of the Actors TCR and the Decentralized ID (DID).
 It means the system MUST NOT store any personal information, enabling PRIVACY and ANONYMITY.
 
 Taking this into account, the skeleton of main implementation should provide the following structs and interfaces:
