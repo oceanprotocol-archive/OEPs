@@ -132,10 +132,15 @@ The above diagram shows the high level interactions between the components invol
 * The OCEAN DB MUST store the relation between the ASSET and the PROVIDER if it's configured/instantiated (this is OPTIONAL)
 
 
+In the below diagram you can see an alternative interaction where the Marketplace is not involved: 
+
+![high level interactions](images/arch-assets-interactions-nomkt.png)
+
 The following sections will describe the end to end implementation using a top to bottom approach, 
 starting from the API interface to the Keeper implementation, using the Ocean DB and the Decentralized VM.
 
 In the following diagram you can see the nodes involved in this OEP:
+
 ![Nodes Involved](images/nodes-involved.png "Nodes Involved")
 
 In the following sections you can find the end to end implementation details of the complete OAR functionality.
@@ -700,6 +705,11 @@ The **associateProvider** method will allow to store this information:
 
 ```solidity
 
+    uint8 constant SCHEME_FREE = 0; // Free Pricing Scheme
+    uint8 constant SCHEME_FIXED = 1; // Fixed Pricing Scheme
+    uint8 constant SCHEME_SERVICE = 2; // Service Pricing Scheme
+    uint8 constant SCHEME_SMARTCONTRACT = 3; // Smart Contract Pricing Scheme
+
     struct Pricing {
         uint8 scheme;
         uint256 price;
@@ -713,14 +723,18 @@ The **associateProvider** method will allow to store this information:
         mapping(uint8 => VerificationProof) proofs;
     }
 
+    // Event triggered when the relation between an Asset and a Provider is updated
     event AssetProviderUpdated(bytes32 indexed _id, address indexed _provider, address indexed _marketplace, uint256 indexed state);
 
-    function associateProvider(
-        bytes32 _assetId, 
-        address _providerId, 
-        mapping (byte32 => Pricing) _pricing, 
-        mapping (byte32 => VerificationProof)) 
-    public returns (bool success) { }
+    // It associates an asset with a provider
+    function associateProvider(bytes32 _assetId, address _providerId) external returns (bool success);
+    
+    // Register the Pricing information to Asset/Provider listing
+    function addProviderPricing(bytes32 _assetId, address _providerId, unit8 scheme, unit256 _price) external returns (bool success);
+    
+    // Register the VerificationProof information to Asset/Provider listing
+    function addProviderProof(bytes32 _assetId, address _providerId, bytes32 _result) external returns (bool success);
+    
     
 ```
 
@@ -867,16 +881,13 @@ The information about the PRICING and VERIFICATION PROOFS MUST be stored in the 
 
 #### Interaction with the Decentralized VM
 
-The **updateProvider** method will allow to update the information:
+The **updateProviderPricing** & **updateProviderProof** methods will allow to update the Pricing and VerificationProofs information:
 
 ```solidity
 
-    function updateProvider(
-        bytes32 _assetId, 
-        address _providerId, 
-        mapping (byte32 => Pricing) _pricing, 
-        mapping (byte32 => VerificationProof)) 
-    public returns (bool success) { }
+    function updateProviderPricing(bytes32 _assetId, address _providerId, unit8 scheme, unit256 _price) external returns (bool success);
+    
+    function updateProviderProof(bytes32 _assetId, address _providerId, bytes32 _result) external returns (bool success);
     
 ```
 
@@ -885,10 +896,7 @@ In that case the **disassociateProvider** method will allow to delete this assoc
 
 ```solidity
 
-    function disassociateProvider(
-        bytes32 _assetId, 
-        address _providerId) 
-    public returns (bool success) { }
+    function disassociateProvider(bytes32 _assetId, address _providerId) external returns (bool success);
     
 ```
 
@@ -990,7 +998,7 @@ The Asset Registry Smart Contract SHOULD provide following methods to interact w
 		function applyListAsset(
 	        bytes32 _assetId, 
 	        address _providerId) 
-	    public returns (bool success) { }
+	    external returns (bool success);
 	
 	```
 
@@ -1000,7 +1008,7 @@ The Asset Registry Smart Contract SHOULD provide following methods to interact w
 	* As such Asset Registry smart contract removes the asset.
 
 	```solidity
-	function retire(bytes32 _assetId) public returns (bool success) { }
+	function retire(bytes32 _assetId) external returns (bool success);
 	```
 	
 
