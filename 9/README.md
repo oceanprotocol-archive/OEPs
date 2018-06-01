@@ -187,9 +187,17 @@ Taking this into account, the skeleton of main implementation should provide the
 
 contract ContractsRegistry {
 
-    struct Contract {
         
+    uint256 constant STATE_DRAFT= 0;
+    uint256 constant STATE_SIGNED= 1;
+    uint256 constant STATE_AUTHORIZED= 2;
+    uint256 constant STATE_SETTLED= 3;
+    uint256 constant STATE_CANCELED= 9;
+        
+    struct Contract {
+       
         bytes32 contractId;
+        
         // Parties involved 
         address publisherId;
         address consumerId;
@@ -210,26 +218,36 @@ contract ContractsRegistry {
     
     mapping(bytes20 => Contract) contracts;
     
-    function register(address _pubId, address _proId, address _conId, address _mktId, bytes32 _assetId, uint price, uint availability) 
-                        external returns (bytes32 contractId) { }
     
-    function getState(bytes32 _contractId) public view returns (uint state) { }
+    /////// EVENTS //////////////////////////////
+    event ContractRegistered(address indexed _pubId, address indexed _proId, address indexed _conId, address indexed _mktId, bytes32 indexed _assetId, bytes32 _contractId);
+    
+    event ContractSigned(bytes32 indexed _contractId, address _signer);
+    
+    event ContractUpdated(bytes32 indexed _contractId, unit256 indexed _state);
+     
+    
+    /////// FUNCTIONS ///////////////////////////
+    function register(address _pubId, address _proId, address _conId, address _mktId, bytes32 _assetId, uint price, uint availability) 
+                        external returns (bytes32 contractId);
+    
+    function getState(bytes32 _contractId) public view returns (uint state);
     
     function getContract(bytes32 _contractId) public view 
-                returns (address _pubId, address _proId, address _conId, address _mktId, bytes32 _assetId, uint _price, uint _availability) { }
+                returns (address _pubId, address _proId, address _conId, address _mktId, bytes32 _assetId, uint _price, uint _availability);
 
     // Given an array of ids of actors signing the contract
-    function signContract(bytes32 _contractId) external returns (bool success) {}
+    function signContract(bytes32 _contractId) external returns (bool success);
 
-    function authorize(bytes32 _contractId) external returns (bool success) {}
+    function authorize(bytes32 _contractId) external returns (bool success);
     
-    function provideAccess(bytes32 _contractId, bytes32 _url, bytes32 _user, bytes32 _passwd, bytes32 _token) external returns (bool success) {} 
+    function provideAccess(bytes32 _contractId, bytes32 _url, bytes32 _user, bytes32 _passwd, bytes32 _token) external returns (bool success); 
 
-    function getConsumptionInfo(bytes32 _contractId) external returns (bytes32 _url, bytes32 _user, bytes32 _passwd, bytes32 _token) {}
+    function getConsumptionInfo(bytes32 _contractId) external returns (bytes32 _url, bytes32 _user, bytes32 _passwd, bytes32 _token);
 
-    function settle(bytes32 _contractId) external returns (bool success) {}
+    function settle(bytes32 _contractId) external returns (bool success);
     
-    function revoke(bytes32 _contractId) external returns (bool success) {}
+    function revoke(bytes32 _contractId) external returns (bool success);
 
 }
 ```
@@ -460,9 +478,6 @@ If no contract is found, the system must return a **HTTP 404** Not Found message
 
 If Ocean DB is enabled, using the contractId as key, the system will retrieve the information about the Contract. So having the Contract information retrieved from the KEEPER::DEC-VM and Ocean DB, the AGENT should compose the output. 
 Taking into account the information given by the KEEPER::DEC-VM should prevail. 
-
-
-
 
 
 
