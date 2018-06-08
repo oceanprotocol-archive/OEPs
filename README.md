@@ -47,8 +47,8 @@ Short Name    | Title                                                        | T
 [1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft      | Dimitri De Jonghe
 [2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
 [3/ARCH](3)   | Ocean Core Architecture                                     | Standard     | Draft      | Dimitri De Jonghe
-[4/KEEPER](4)   | Ocean Keeper Architecture                                     | Standard     | Draft      | Aitor Argomaniz
-[5/AGENT](5)   | Ocean Agent Architecture                                     | Standard     | Draft      | Aitor Argomaniz
+[4/AGENT](4)   | Ocean Agent Protocol Stack                                     | Standard     | Draft      | Aitor Argomaniz
+[5/KEEPER](5)   | Ocean Keeper Architecture                                     | Standard     | Raw        | TBD
 [6/INVOKE](6)   | API to register & invoke computer services                      | Standard     | Raw      | Ahmed Abdullah
 [7/SONAR](7)   | Searchable OceaN Asset Registry                      | Standard     | Raw      | TBD
 [8/AAT](8)   | Basic Authentication, Accounts & Tokens                      | Standard     | Raw      | TBD
