@@ -78,6 +78,7 @@ on-chain based access control for ocean. You can skip this introductory part if 
 familiar with [Json Web Token](#json-web-token), [Json Resource Descriptor](#json-resource-descriptor),
  [OAuth 2.0 Flow](#oauth-2.0-flow), and [Factory Design Pattern](#factory-design-pattern).
  
+
 ### Json Web Token
 
 Json web token (JWT) is used to represent claims securely between parties. It could be stored on 
@@ -246,6 +247,11 @@ You can find the curated list of these projects here [keytechnologies.md](keytec
 ## Access Control Components
 
 This section shows the key components that will be used to build the access control in ocean.
+As shown in the below figure, the current scenario in ocean access control is trying to mimic the traditional access 
+control systems:
+
+![oauth-ocean](images/oauth-ocean.png)
+
 
 ### Resource
 
@@ -343,7 +349,7 @@ Once, the user has a resource promise, now he is able to get a justified purchas
     - AccessExpireDate: timestamp + expire in seconds
 
 
-This receipt is issued by the <code>Ocean's Market contract</code> which is the payment mechanism in ocean protocol.
+This receipt is issued by the <code>Ocean's Market contract</code> which implements the payment mechanism in ocean protocol.
 ### Challenge Identifier
 
 Challenge identifier is a unique identifier for each resource request.
