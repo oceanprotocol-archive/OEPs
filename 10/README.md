@@ -7,6 +7,8 @@ editors:
 contributors: Ahmed Ali <ahmed@oceanprotocol.com>, 
               Samer Sallam <samer@oceanprotocol.com>
 ```
+***DISCLAIMER: THIS IS A WORK IN PROGRESS***
+
 Table of Contents
 =================
 
@@ -21,16 +23,7 @@ Table of Contents
         * [Json Resource Decriptor](#json-resource-descriptor)
         * [OAuth 2.0 Flow](#oauth-2.0-flow)
         * [Factory Design Pattern](#factory-design-pattern)
-     * [Blockchain Survey](#blockchain-survey)
-        * [List of IMS Projects](#list-of-ims-projects)
-        * [Jolocom IMS](#jolocom)
-        * [Blockstack IMS](#blockstack-ims)
-        * [Permissioned Blocks](#permissioned-blocks)
-        * [ConsenSys UPort](#consensys-uport)
-        * [DID Project](#did-project)
-        * [Kimono Secret Sharing](#kimono-secret-sharing)
-        * [Secret Store Parity](#secret-store-parity)
-        * [WebID OIDC](#webid-oidc)
+     * [Key Technologies](#key-technologies)  
      * [Access Control Components](#access-control-components)
         * [Resource](#resource)
         * [Resource Promise](#resource-promise)
@@ -41,12 +34,16 @@ Table of Contents
         * [Temp KeyPair](#temp-keypair)
         * [Finalized Purchase Receipt](#finalized-purchase-receipt)
      * [Access Control Flow](#access-control-flow)
+     * [Threat Models](#threat-models)
+        * [Censorship Attacks](#censorship-attack)
+        * [Fake and Delayed Access](#fake-and-delayed-access)
+     * [References](#references)
      
 
 
 # On Chain Access Control
 
-This document describes the On chain access control: the main [responsibilities](https://github.com/oceanprotocol/OEPs/tree/master/4#access-control), 
+This document describes the On chain access control: the main [requirements](https://github.com/oceanprotocol/OEPs/tree/master/4#access-control), 
 functions, components and implementation details.
 
 ## Change Process
@@ -200,19 +197,19 @@ You can find more details about JRD [RFC6415](https://www.packetizer.com/rfc/rfc
 
 ### OAuth 2.0 Flow
 
-
+TBC 
 
 
 
 ### Factory Design Pattern
 
+TBC
 
-## Blockchain Survey
+
+## Key Technologies
 
 This survey provides a list of projects. We are going to discuss and curate the available systems that already had been developed. These projects 
 provide an on-chain/off-chain identity management. 
-
-### List of IMS Projects
 The following table lists some of them:
 
 ![identity projects](images/identityProjects.png) 
@@ -220,22 +217,9 @@ The following table lists some of them:
 For more information check out this [List of Blockchain based Identity Management systems](https://github.com/peacekeeper/blockchain-identity/).
 
 
-### Jolocom IMS
-
-### Blockstack IMS
-
-
-### Permissioned Blocks
-
-### Consensys UPort
-
-### DID Project
-
-### Kimono Secret Sharing
-
-### Secret Store Parity
-
-### WebID OIDC
+You can find the curated list of these projects here [keytechnologies.md](keytechnologies.md). It has a detailed description about [Jolocom IMS](keytechnologies.md#jolocom-ims), 
+[Blockstack IMS](keytechnologies.md#blockstack-ims), [Permissioned Blocks](keytechnologies.md#permissioned-blocks), [Consensys UPort](keytechnologies.md#consensys-uport), [DID Project](keytechnologies.md#did-project),
+[Kimono Secret Sharing](keytechnologies.md#kimono-secret-sharing), [Secret Store Parity](keytechnologies.md#secret-store-parity) [WebID OIDC](keytechnologies.md#webid-oidc)
 
 ## Access Control Components
 
@@ -291,12 +275,32 @@ It includes the following data:
     - Resource owner public address hash
     - Resource identifier hash
     - Expected delivery date (in seconds)
+    - Access Policy
 
 the resource promise should return:
  
 ```javascript
-sign (hash(cons_addr_hash || Owner_addr_hash || Res_id || expected_date), owner_secret)
+sign (hash(cons_addr_hash || Owner_addr_hash || Res_id || expected_date || access_policy), owner_secret)
 ```
+
+An example for access policy:
+
+```json
+{
+  "id": "${PROVIDER_PUBLIC_ADDRESS_HASH}policies:${CONSUMER_PUBLIC_ADDRESS_HASH}",
+  "subjects": [
+    "${PROMISE_ID}${CONSUMER_PUBLIC_ADDRESS_HASH}"
+  ],
+  "effect": "allow",
+  "resources": [
+    "${RESOURCE_ID}"
+  ],
+  "actions": [
+    "READ"
+  ]
+}
+```
+This policy could be reconstructed from the [commitment contract](#commitment-contract). Policy might include more advanced features such as updating asset metadata, modifying permissions and privilege grants.
 
 The idea behind resource promise is to provide the resource owner the ability to accept/reject based on its 
 resource [capacity planning](https://en.wikipedia.org/wiki/Capacity_planning). 
@@ -416,6 +420,8 @@ contract CommitmentContract{
     address provider;
     bytes32 challenge;
     bool deployed = false;
+    string [] policy_actions;
+    bool policy_effect;
 
     event RaiseCommitment(address consumer, address provider, bytes32 challenge, bytes resource, bytes _jwt_hash);
 
@@ -427,8 +433,10 @@ contract CommitmentContract{
         deployed = true;
     }
 
-    function commit(bytes _resource, _jwt_hash) public {
+    function commit(bytes _resource, bytes _jwt_hash,string _policy_actions, bool _policy_effect) public {
         require(msg.sender == provider);
+        policy_actions = [_policy_actions];
+        policy_effect = true;
         emit RaiseCommitment(consumer, provider, challenge, _resource, _jwt_hash);
     }
 }
@@ -547,8 +555,10 @@ in the future because we already include the [challenge identifier](#challenge-i
     ```javascript
     // Commitment Contract 
     ...
-    function commit(bytes _resource, _jwt_hash) public {
+    function commit(bytes _resource, bytes _jwt_hash,string _policy_actions, bool _policy_effect) public {
         require(msg.sender == provider);
+        policy_actions = ["READ"];
+        policy_effect = true;
         emit RaiseCommitment(consumer, provider, challenge, _resource, _jwt_hash);
     }
     ```
@@ -558,3 +568,44 @@ in the future because we already include the [challenge identifier](#challenge-i
 - **Step 5**: The consumer will decrypt the JWT sign it, then make the get access call (off-chain), and resource owner sends 
 <code>finalizedPurchaseRequest</code> signal using the consumer's <code>signedJWT hash</code>. Finally, the OceanACL contract calls 
 the Ocean Market contract in order to issue [finalized_purchase_receipt](#finalized-purchase-receipt).
+
+## Threat Models
+
+This section lists the expected threat models for access control. The current threat models exclude the problem of [data integrity](https://en.wikipedia.org/wiki/Data_integrity) in terms of 
+data quality and validation (it should be handled by service integerity proofs and curation markets). However there are some expected attacks to be discussed:
+
+### Censorship Attacks
+
+Usually, smart contracts in public blockchain expose all transaction be verified publicly. This will allow any attacker to correlate the generated transactions 
+in order to track the consumer's activity. So, in order to preserve the consumer's privacy , we might need to include one of these technologies in the access control layer:
+
+- **Zero knowledge proofs**: such as [ZKSNARK](https://blog.z.cash/zsl/) (it needs trusted setup), [ZKSTARK](https://eprint.iacr.org/2018/046.pdf), and [BulletProofs](https://web.stanford.edu/~buenz/pubs/bulletproofs.pdf). We can see the 
+    potential behind zero knowledge based proofs especially when it comes to confidential transactions. Find here more information about implementation details of [BulletProofs-lib](https://github.com/bbuenz/BulletProofLib),
+    [LibSTARK](https://github.com/elibensasson/libSTARK).
+    - LIST LIMITATIONS HERE
+- **Generalized State Channels**: This idea was introduced in Bitcoin which called [payment channel](https://bitcoin.org/en/developer-guide#micropayment-channel)
+    where it is used for micropayments. In general, state channel is way to outsource the state transition where the state is locked using multisig contract, outsourced to off-chain channel (where the 
+     transaction processing will be done), finally unlock by updating the state on-chain. Now, there are two main research branch in order to investigate and develop more advanced techniques
+     such as [Counterfactual: Generalized State Channels](https://l4.ventures/papers/statechannels.pdf) and [Pisa: Arbitration Outsourcing for State Channels](http://www0.cs.ucl.ac.uk/staff/P.McCorry/pisa.pdf). The limitation 
+     of the generalized state channels are 
+        
+     -  LIST OF LIMITATIONS HERE
+    
+### Fake and Delayed Access  
+
+TBC
+
+## References
+
+- [JWT Registered claims](https://tools.ietf.org/html/rfc7519#section-4.1)
+- [Json Resource Description - RFC6415](https://www.packetizer.com/rfc/rfc6415/)
+- [List of Blockchain based Identity Management systems](https://github.com/peacekeeper/blockchain-identity/)
+- [Cryptographic schemes and protocols](https://github.com/JHUISI/charm/wiki/Cryptographic-schemes-and-protocols)
+- [Pisa: Arbitration Outsourcing for State Channels](http://www0.cs.ucl.ac.uk/staff/P.McCorry/pisa.pdf)
+- [Counterfactual: Generalized State Channels](https://l4.ventures/papers/statechannels.pdf)
+- [BulletProofs](https://web.stanford.edu/~buenz/pubs/bulletproofs.pdf)
+- [ZKSTARK](https://eprint.iacr.org/2018/046.pdf)
+- [ZKSNARK](https://blog.z.cash/zsl/) 
+- [Json Web Tokens](https://jwt.io/introduction/)
+- [Json Resource Description](https://www.packetizer.com/json/jrd/)
+- [Factory Method Pattern](https://en.wikipedia.org/wiki/Factory_method_pattern)   
