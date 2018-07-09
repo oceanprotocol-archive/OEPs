@@ -622,7 +622,8 @@ It includes different byzantine based attacks on the access control. Access dela
     a resource owner have the right to revoke the access after <code>AccessExpireDate</code> where it is already predefined 
     in the [resource](#resource) for more info checkout [justified purchase receipt](#justified-purchase-receipt). You can find more details about different case scenarios
     
-   ![delayed attacks]()
+   ![delayed attacks](images/threatmodels1.png)
+   
    - If the consumer is unable to get access to the resource, he should deliver the <code>AccessErrorMessage</code> he
     received from resource owner, then the resource owner has to provide the signed JWT from the consumer, that will be considered as proof 
     that a consumer already tried to access. But we don't 
