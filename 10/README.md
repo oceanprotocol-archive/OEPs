@@ -21,6 +21,20 @@ Table of Contents
         * [Json Resource Decriptor](#json-resource-descriptor)
         * [OAuth 2.0 Flow](#oauth-2.0-flow)
         * [Factory Design Pattern](#factory-design-pattern)
+     * [Blockchain Survey](#blockchain-based-ims)
+        * [List of IMS Projects](#list-of-ims-projects)
+        * [Jolocom IMS](#jolocom)
+        * [Blockstack IMS](#blockstack)
+        * [Permissioned Blocks](#permissioned-blocks)
+        * [ConsenSys UPort](#consensys-uport)
+        * [DID Project](#did-project)
+        * [Kimono Secret Sharing](#kimono-secret-sharing)
+        * [Secret Store Parity](#secret-store-parity)
+        * [WebID OIDC](#webid-oidc)
+     * [Access Control Components](#access-control-components)
+        * [Resource](#resource)
+        * [Resource Promise](#resource-promise)
+        * [Justified Purchase Receipt](#justified-purchase-receipt)
      
 
 
@@ -135,3 +149,179 @@ HMACSHA256(
 
 For more information check out this article [introduction to JWT](https://self-issued.info/docs/draft-ietf-oauth-json-web-token.html). 
 
+
+### Json Resource Descriptor
+
+Json resource descriptor or JRD is a standard which is based on [Extensible Resource Descriptor](https://www.packetizer.com/rfc/rfc6415/). It has been used 
+as meta data description for resources on the web where a discovery service such as [WebFinger](https://www.techabulary.com/w/webfinger/) 
+could be used to return public information published about an account, organization, or entity. JRD has the following components:
+
+- expires
+- subject
+- aliases
+- properties
+- links
+
+An example for JRD:
+
+```json
+{
+  "subject" : "acct:jsmith@myapp.com",
+  "properties" :
+  {
+    "http://myapp.com/ns/name" : "John E. Smith"
+  },
+  "links" :
+  [
+    {
+      "rel" : "http://webfinger.net/rel/profile-page",
+      "href" : "http://www.myapp.com/people/jsmith/"
+    },
+    {
+      "rel" : "http://myapp.com/rel/blog",
+      "type" : "text/html",
+      "href" : "http://www.myapp.com/people/paulej/blog/",
+      "titles" :
+      {
+        "en-us" : "John Smith's Blog"
+      }
+    }
+  ]
+}
+```
+You can find more details about JRD [RFC6415](https://www.packetizer.com/rfc/rfc6415/).
+
+
+### OAuth 2.0 Flow
+
+
+
+
+
+### Factory Design Pattern
+
+
+## Blockchain Survey
+
+This survey provides a list of projects. We are going to discuss and curate the available systems that already had been developed. These projects 
+provide an on-chain/off-chain identity management. 
+
+### List of IMS Projects
+The following table lists some of them:
+
+![identity projects](images/identityProjects.png) 
+
+For more information check out this [List of Blockchain based Identity Management systems](https://github.com/peacekeeper/blockchain-identity/).
+
+
+### Jolocom IMS
+
+### Blockstack IMS
+
+
+### Permissioned Blocks
+
+### Consensys UPort
+
+### DID Project
+
+### Kimono Secret Sharing
+
+### Secret Store Parity
+
+### WebID OIDC
+
+## Access Control Components
+
+This section shows the key components that will be used to build the access control in ocean.
+
+### Resource
+
+It uses something similar to the Json Resource Descriptor or [JRD](#json-resource-descriptor) object. It is based on Key/Value pairs that include
+ the following sections:
+
+    - Name
+    - Properties
+    - Links
+    - Access
+
+For instance the below json is a sample resource description (THIS IS NOT THE FINAL RESOURCE TEMPLATE):
+
+```json
+
+{
+  "name" : "1000Genome_dataset_snp_genotyping",
+  "properties" :
+  {
+    "sample_id" : "Exfe23def23jx1flshu3mx",
+    "sample_owner": "John E. Smith"
+  },
+  "access": {
+    "permissioned": true,
+    "discovery": "https://accounts.test.com/.well-known/openid-configuration",
+    "method": "HTTP/HTTPS",
+    "expire_period": 1233339
+  },
+  "links" :{
+      "sample1" : "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/sample1.tree",
+      "sample2" : "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/sample2.tree"
+    },
+}
+```
+
+And the resource identifier is <code>hash(JRD) = 2BEDD341F1851A9C9DE53F1A1A9CBA5AABC9BE299734886316868FE139E3033B
+</code>. Also, you can notice <code>discovery</code> that enables the user to discover public information about the 
+resource publisher/provider. For instance, you will find here more entity discovery details about 
+[Google Entity OpenID](https://accounts.google.com/.well-known/openid-configuration).
+
+
+### Resource Promise
+
+Resource promise represents a signed commitment by resource owner in order to deliver the access tokens in the future.
+The promise itself should be public for everyone to verify in the future that this promise is hashed and signed by the resource owner.
+It includes the following data:
+
+    - Consumer public address hash
+    - Resource owner public address hash
+    - Resource identifier hash
+    - Expected delivery date (in seconds)
+
+the resource promise should return:
+ 
+```javascript
+sign (hash(cons_addr_hash || Owner_addr_hash || Res_id || expected_date), owner_secret)
+```
+
+The idea behind resource promise is to provide the resource owner the ability to accept/reject based on its 
+resource [capacity planning](https://en.wikipedia.org/wiki/Capacity_planning). 
+
+### Justified Purchase Receipt
+
+Once, the user has a resource promise, now he is able to get a justified purchase receipt. This receipt includes:
+
+    - Receipt ID: receipt number
+    - From: consumer address hash
+    - Amount: amount of locked tokens
+    - Locked: True
+    - To: resource owner address hash
+    - Sig: consumer signature (signing this purchase receipt)
+    - Resource_id: Resource identifier
+    - Promise: Resource promise
+    - Date: timestamp
+    - AccessExpireDate: timestamp + expire in seconds
+
+
+This receipt is issued by the <code>Ocean's Market contract</code> which is basically assesses the payment mechanism in ocean protocol.
+### Challenge Identifier
+
+Challenge identifier is a unique identifier for each resource request.
+This identifier is generated by <code>Ocean access control contract</code>. The identifier is generated using the below information:
+
+    - Justified purchase receipt
+    - Resource promise 
+    - Timestamp
+    - Consumer address hash
+    - Resource owner address hash
+
+The Ocean's access control contract is going to send this challenge identifier to resource owner, 
+which in turn will generate JWT (it has the challenge identifier claim).
