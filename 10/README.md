@@ -197,6 +197,28 @@ You can find more details about JRD [RFC6415](https://www.packetizer.com/rfc/rfc
 
 ### OAuth 2.0 Flow
 
+The following Figure describes the flow of OAuth 2.0:
+
+![Oauth Flow](images/oauth.png)
+
+
+####  OAuth actors and components:
+
+- client: TBC
+- Authorization Server: TBC
+- Authorization Grant : TBC
+- Access Token: TBC
+- Scope: TBC
+- Resource Owner: TBC
+- Resource Server: TBC
+- Redirect URI
+- Consent: TBC
+- Front Channel: TBC
+- Back Channel: TBC
+
+
+OAuth 2.0 protocol is not designed for authentication but mainly Authorization. 
+
 TBC 
 
 
@@ -321,7 +343,7 @@ Once, the user has a resource promise, now he is able to get a justified purchas
     - AccessExpireDate: timestamp + expire in seconds
 
 
-This receipt is issued by the <code>Ocean's Market contract</code> which is basically assesses the payment mechanism in ocean protocol.
+This receipt is issued by the <code>Ocean's Market contract</code> which is the payment mechanism in ocean protocol.
 ### Challenge Identifier
 
 Challenge identifier is a unique identifier for each resource request.
@@ -593,7 +615,20 @@ in order to track the consumer's activity. So, in order to preserve the consumer
     
 ### Fake and Delayed Access  
 
-TBC
+The following type of attacks was inspired by [Dimi's research guide for ocean](https://docs.google.com/presentation/d/1Z6Acq2LD3eHPD1SoH_bxHH-XaOKLWemgFiKgWICekys/edit#slide=id.g3c8f40bdce_0_298). 
+It includes different byzantine based attacks on the access control. Access delay might be a result of different scenarios:
+    
+   - If the consumer was granted an access to any arbitrary resource, but he never made the request. At this time, as 
+    a resource owner have the right to revoke the access after <code>AccessExpireDate</code> where it is already predefined 
+    in the [resource](#resource) for more info checkout [justified purchase receipt](#justified-purchase-receipt). You can find more details about different case scenarios
+    
+   ![delayed attacks]()
+   - If the consumer is unable to get access to the resource, he should deliver the <code>AccessErrorMessage</code> he
+    received from resource owner, then the resource owner has to provide the signed JWT from the consumer, that will be considered as proof 
+    that a consumer already tried to access. But we don't 
+    know if this access token is valid or not, at this time, we will run <code>OceanWittnessVerificationGame</code> (***Future Work***). 
+    The same thing could happen in case of fake access. This type of attacks should include ***[Skin-in-the-game](http://nassimtaleb.org/tag/skin-in-the-game/)*** strategies in order 
+    to maintain commitment approach by consumer and provider.
 
 ## References
 
