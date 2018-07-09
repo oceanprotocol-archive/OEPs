@@ -242,13 +242,13 @@ For more information check out this [List of Blockchain based Identity Managemen
 
 You can find the curated list of these projects here [keytechnologies.md](keytechnologies.md). It has a detailed description about [Jolocom IMS](keytechnologies.md#jolocom-ims), 
 [Blockstack IMS](keytechnologies.md#blockstack-ims), [Permissioned Blocks](keytechnologies.md#permissioned-blocks), [Consensys UPort](keytechnologies.md#consensys-uport), [DID Project](keytechnologies.md#did-project),
-[Kimono Secret Sharing](keytechnologies.md#kimono-secret-sharing), [Secret Store Parity](keytechnologies.md#secret-store-parity) [WebID OIDC](keytechnologies.md#webid-oidc)
+[Kimono Secret Sharing](keytechnologies.md#kimono-secret-sharing), [Secret Store Parity](keytechnologies.md#secret-store-parity), and [WebID OIDC](keytechnologies.md#webid-oidc)
 
 ## Access Control Components
 
 This section shows the key components that will be used to build the access control in ocean.
-As shown in the below figure, the current scenario in ocean access control is trying to mimic the traditional access 
-control systems:
+As shown in the below figure, the current scenario in ocean access control is trying to provide some sort of analogy for
+ the traditional access control systems:
 
 ![oauth-ocean](images/oauth-ocean.png)
 
@@ -650,4 +650,7 @@ It includes different byzantine based attacks on the access control. Access dela
 - [ZKSNARK](https://blog.z.cash/zsl/) 
 - [Json Web Tokens](https://jwt.io/introduction/)
 - [Json Resource Description](https://www.packetizer.com/json/jrd/)
-- [Factory Method Pattern](https://en.wikipedia.org/wiki/Factory_method_pattern)   
+- [Factory Method Pattern](https://en.wikipedia.org/wiki/Factory_method_pattern) 
+- [Skin-in-the-game by Nassim Nicholas Taleb](http://nassimtaleb.org/tag/skin-in-the-game/)
+- [IANA - JSON Web Token Claims](https://www.iana.org/assignments/jwt/jwt.xhtml)
+- [The OAuth 2.0 Authorization Framework](https://tools.ietf.org/html/rfc6749) 
