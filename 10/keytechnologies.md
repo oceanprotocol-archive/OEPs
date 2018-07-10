@@ -14,6 +14,60 @@
 
 ## Blockstack IMS
 
+### What is blockstack
+Blockstack is advertised as `A new decentralized internet`
+
+For details on the Blockstack architecture and how the system works refer to 
+https://blockstack.org/whitepaper.pdf
+
+### Authentication system
+* Uses token-based authentication
+* From a user's perspective, authentication seems similar to oAuth and other conventional sign-in methods
+* From a developer perspective, authentication happens entirely client-side
+* Requires the Blockstack browser be installed on user's computer and works with the blockstack.js module
+* Uses two authentication tokens: authRequest, authResponse (which are Json Web Tokens)
+
+Refer to `https://github.com/blockstack/blockstack.js/blob/master/src/auth/README.md` for 
+details of the blockstack authentication flow.
+
+Flow for user sign-in:
+* App creates an authRequest
+* App generates a transit key and signs the authRequest with the private key, and includes the transit public key in the request payload
+* Blockstack browser displays the sign-in dialog to user to authorize the sign-in
+* When accepted, the Blockstack browser creates a authResponse with the user data encrypted using the transit public key.
+This response also includes an App private key which allows the app to access the user's 
+storage bucket on Gaia in addition to other uses
+
+Example request payload:
+const requestPayload = {
+    jti, // UUID
+    iat, // JWT creation time in seconds
+    exp, // JWT expiration time in seconds
+    iss, // legacy decentralized identifier generated from transit key
+    public_keys, // single entry array with public key of transit key
+    domain_name, // app origin
+    manifest_uri, // url to manifest file - must be hosted on app origin
+    redirect_uri, // url to which browser redirects user on auth approval - must be hosted on app origin
+    version, // version tuple
+    do_not_include_profile, // a boolean flag asking browser to send profile url instead of profile object
+    supports_hub_url, // a boolean flag indicating gaia hub support
+    scopes // an array of string values indicating scopes requested by the app
+  }
+
+
+This tutorial demonstrates how the authentication method works in blockstack apps:
+`https://blockstack.org/tutorials/todo-list`
+
+### Developer Installation 
+git clone https://github.com/blockstack/blockstack-browser.git
+cd blockstack-browser
+npm install gulp -g
+npm install 
+npm run dev-proxy
+npm run dev
+
+### Lessons learned
+Making use of JWT and transit public/private key pair for encrypting secrets in transit
 
 ## Permissioned Blocks
 
