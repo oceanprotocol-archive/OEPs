@@ -226,8 +226,13 @@ TBC
 
 ### Factory Design Pattern
 
-TBC
+Factory design pattern is used as means to return specific sub-class from a super class where it includes multiple sub classes.
+The return sub-class depends on the type of input coming from the super class. The figure below show as simple 
+representation where each product represents a sub-class.
 
+![factory pattern](images/factory.png)
+
+Check out [Abstract Factory Pattern](https://en.wikipedia.org/wiki/Abstract_factory_pattern) for more information.
 
 ## Key Technologies
 
@@ -645,12 +650,12 @@ It includes different byzantine based attacks on the access control. Access dela
 - [Cryptographic schemes and protocols](https://github.com/JHUISI/charm/wiki/Cryptographic-schemes-and-protocols)
 - [Pisa: Arbitration Outsourcing for State Channels](http://www0.cs.ucl.ac.uk/staff/P.McCorry/pisa.pdf)
 - [Counterfactual: Generalized State Channels](https://l4.ventures/papers/statechannels.pdf)
-- [BulletProofs](https://web.stanford.edu/~buenz/pubs/bulletproofs.pdf)
-- [ZKSTARK](https://eprint.iacr.org/2018/046.pdf)
-- [ZKSNARK](https://blog.z.cash/zsl/) 
-- [Json Web Tokens](https://jwt.io/introduction/)
+- [BulletProofs - Short Proofs for Confidential Transactions and More](https://web.stanford.edu/~buenz/pubs/bulletproofs.pdf)
+- [ZKSTARK - Scalable, transparent, and post-quantum secure computational integrity](https://eprint.iacr.org/2018/046.pdf)
+- [ZKSNARK - Zero Knowledge Security Layer ZSL](https://blog.z.cash/zsl/) 
+- [Introduction to Json Web Tokens](https://jwt.io/introduction/)
 - [Json Resource Description](https://www.packetizer.com/json/jrd/)
-- [Factory Method Pattern](https://en.wikipedia.org/wiki/Factory_method_pattern) 
+- [Factory Method Pattern - Wikipedia](https://en.wikipedia.org/wiki/Factory_method_pattern) 
 - [Skin-in-the-game by Nassim Nicholas Taleb](http://nassimtaleb.org/tag/skin-in-the-game/)
 - [IANA - JSON Web Token Claims](https://www.iana.org/assignments/jwt/jwt.xhtml)
 - [The OAuth 2.0 Authorization Framework](https://tools.ietf.org/html/rfc6749) 
