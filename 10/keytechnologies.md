@@ -22,7 +22,88 @@
 ## DID Project
 
 ## Kimono Secret Sharing
+### Introduction
 
+Kimono project simply enables you to share secrets/messages on-chain for a period of time. It includes the implementation 
+of [time-lock encryption](https://link.springer.com/content/pdf/10.1007%2Fs10623-018-0461-x.pdf) and [commit and reveal schemes](https://en.wikipedia.org/wiki/Commitment_scheme). 
+
+For simplicity,  time-lock encryption is a cryptographic scheme where secrets are revealed by running decryption algorithm **N** times, and the time-lock interval is controlled by
+the number of cycles you need in order to decrypt the final secret. So for instance, if you have time to decrypt equals **t** and can control the total time to reveal the final secret using 
+**N x t**. 
+The **disadvantage** of time-lock encryption is that it is computationally intensive. 
+
+On the other side commit and reveal schemes has two basic phases:
+- **Commit:** submitting choice to your peers
+- **Reveal:** reveal the choice and let everyone verify it.
+
+Usually, people uses commit/reveal scheme in case of voting or poll. You might need to keep all votes secrets until poll as shown below:
+
+![commit-reveal](images/kimono/commit-reveal.png)
+
+We have final thing to mention, this mechanism needs to submit commits to trusted party (or truested
+third party) but at this time, you have to trust the third part which seems like a single point of failure. So, this leads to a trustless secret sharing environment
+
+### Kimono
+
+Kimono acts as a trustless secret sharing in which applies the time-locking without consuming  a lot of
+resources. The secret is distributed over the network peers which in turn share the secret when time-lock
+is complete. The protocol has four phases:
+
+![protocol phases](images/kimono/kimono-phases.png)
+
+Message parameters linked to published data
+
+![parameters](images/kimono/ipfs-contract.png)
+(source: [here](https://medium.com/@pfh/kimono-trustless-secret-sharing-using-time-locks-on-ethereum-8e7e696494d))
+
+### Potentials Attacks
+
+- Rogue revealers
+
+Rogue is someone doing job on behalf of you. This means rogue revealers might be able to reveal incomplete secret fragments or posting fragments prematurely.
+To avoid this issue, Kinomo's contract stores the hash of each secret fragment and the hash of the original secret and compare these hashes 
+in case of revealing incomplete secrets.
+
+- Off-chain collusion between revealers
+
+Collusion happens when two or more of revealers agreed to share secret fragement. So 
+kimono lets anyone steal the stake of any revealer by proving they have that revealer’s decrypted secret fragment
+
+
+### Setup Kimono contracts
+
+```bash
+$ docker run -it ubuntu bash
+   #  cd ~ && apt-get update
+   #  apt-get install curl
+   #  curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh
+   #  chmod +x nodesource_setup.sh
+   # ./nodesource_setup.sh
+   #  apt-get install -y nodejs
+   #  npm install -g yarn
+   #  npm install -g truffle@4.1.7
+   #  npm install -g solc
+   #  apt-get install software-properties-common
+   #  add-apt-repository ppa:ethereum/ethereum
+   #  apt-get update
+   #  apt-get install solc
+   #  solc --version
+   #  apt-get install git
+   #  git clone https://github.com/hillstreetlabs/kimono.git
+   #  cd kimono/contracts/
+   #  yarn run ganache &
+   #  truffle migrate --reset
+```
+
+To test kinomo contracts make sure that test network port number in truffle.js is <code>8545</code>
+
+```bash
+   #  yarn run test
+```
+
+### Resources
+- [Kimono - trustless secret sharing on Ethereum](https://medium.com/@pfh/kimono-trustless-secret-sharing-using-time-locks-on-ethereum-8e7e696494d)
+- [Prisoner's dilemma](https://en.wikipedia.org/wiki/Prisoner%27s_dilemma)
 ## Secret Store Parity
 
 ## WebID OIDC
