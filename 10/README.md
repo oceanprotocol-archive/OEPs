@@ -641,6 +641,18 @@ It includes different byzantine based attacks on the access control. Access dela
     know if this access token is valid or not, at this time, we will run <code>OceanWittnessVerificationGame</code> (***Future Work***). 
     The same thing could happen in case of fake access. This type of attacks should include ***[Skin-in-the-game](http://nassimtaleb.org/tag/skin-in-the-game/)*** strategies in order 
     to maintain commitment approach by consumer and provider.
+    
+### Replay Like Attack
+
+In this attack we have two scenarios. The first scenario could happen if the consumer tried to leak the <code>signed JWT token</code> to an adversary where they can run a replay attack and consume the 
+[resource](#resource) twice. At this time, *First, the resource owner should signal the ocean ACL contract, 
+that he got the signed token (first time) and accept only one request (which is the first request)* and report a replay attack to <code>Ocean ACL contract</code>.
+
+![replay attack](images/replayattack.png)
+
+The second scenario, if the resource owner (provider) gets the signed token and sends it again to another adversary. We have to cases, if the consumer received the 
+reject message from the resource owner, he should report this to ocean acl contract. The second case if the consumer didnot receive a reject message and was able to 
+consume the resource, at this moment leaking signed token to adversary does not make any sense. 
 
 ## References
 
