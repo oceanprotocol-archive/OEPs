@@ -274,6 +274,10 @@ As shown in the below figure, the current scenario in ocean access control is tr
 ![oauth-ocean](images/oauth-ocean.png)
 
 
+In the traditional access control mechanisms, one of the most popular standards in the web is OAuth2.0. It is used as a means for authorization
+delegation in modern applications. On the other hand the blockchain does not have the third party (a trusted party) in which operates as authorization authority
+ but we have the smart contract (single source of truth) where in our case is 
+the ocean access control contract and rather than using the HTTP/HTTPS protocol, we use the web3 on top of Ethereum blockchain. 
 ### Resource
 
 It uses something similar to the Json Resource Descriptor or [JRD](#json-resource-descriptor) object. It is based on Key/Value pairs that include
