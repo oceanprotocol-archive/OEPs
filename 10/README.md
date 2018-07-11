@@ -35,8 +35,9 @@ Table of Contents
         * [Finalized Purchase Receipt](#finalized-purchase-receipt)
      * [Access Control Flow](#access-control-flow)
      * [Threat Models](#threat-models)
-        * [Censorship Attacks](#censorship-attack)
+        * [Censorship Attacks](#censorship-attacks)
         * [Fake and Delayed Access](#fake-and-delayed-access)
+        * [Replay Like Attack](#replay-like-attack)
      * [References](#references)
      
 
@@ -151,6 +152,13 @@ HMACSHA256(
   secret)
 ```
 
+For instance, the below figure shows how to add more claims such as [Cross-site request forgery](https://en.wikipedia.org/wiki/Cross-site_request_forgery) or <code>CSRF token</code>.
+This token is meant to be used by the server in order to trust only requests that have specific token. For example if an attacker tricked a victim to use a fake login page, the server 
+will only accept the request if this login page has a token issued by its web framework.
+
+![csrf](images/csrf.png)
+
+
 For more information check out this article [introduction to JWT](https://self-issued.info/docs/draft-ietf-oauth-json-web-token.html). 
 
 
@@ -205,22 +213,26 @@ The following Figure describes the flow of OAuth 2.0:
 
 ####  OAuth actors and components:
 
-- client: TBC
-- Authorization Server: TBC
-- Authorization Grant : TBC
-- Access Token: TBC
-- Scope: TBC
-- Resource Owner: TBC
-- Resource Server: TBC
-- Redirect URI
-- Consent: TBC
-- Front Channel: TBC
-- Back Channel: TBC
+- client: Any app or service you (as a user) want to grant it to a private information.
+- Authorization Server: The server that will generate the access token for client
+- Authorization Grant :  Permission
+- Access Token: The token that will be used to allow client get access.
+- Scope: The scope includes what type of data client will be able to access ie. profile, contacts.
+- Resource Owner: Any one who has actually the right to share the data.
+- Resource Server: Where we store or hold the actual data
+- Redirect URI: Also, it is known as the call back. The link that authorization server uses to send the authorization code to the client 
+- Consent: The message you get from the authorization server 
+- Front Channel: This channel runs in the browser level.
+- Back Channel: This is more secure where communication will be between the authorization server and client in order to share the access token
 
 
-OAuth 2.0 protocol is not designed for authentication but mainly Authorization. 
+OAuth 2.0 protocol is not designed for authentication but mainly Authorization. It is provides a 
+a deligated authorization mechanism in which client (myapp.com) could have access to private information such as your contacts list
+by delegating the authorization method to another third party called authorization server. The authorization server will return 
+a consent to the resource owner in order to get accept/reject the request. If yes, the authorization server will use the redirect URL 
+to send the authorization code. The client will use the authorization code in order to get the access token through the back channel. 
 
-TBC 
+
 
 
 
@@ -609,7 +621,7 @@ data quality and validation (it should be handled by service integerity proofs a
 
 ### Censorship Attacks
 
-Usually, smart contracts in public blockchain expose all transaction be verified publicly. This will allow any attacker to correlate the generated transactions 
+Usually, smart contracts in public blockchain expose all the transactions to be verified publicly. This will allow any attacker to correlate the generated transactions 
 in order to track the consumer's activity. So, in order to preserve the consumer's privacy , we might need to include one of these technologies in the access control layer:
 
 - **Zero knowledge proofs**: such as [ZKSNARK](https://blog.z.cash/zsl/) (it needs trusted setup), [ZKSTARK](https://eprint.iacr.org/2018/046.pdf), and [BulletProofs](https://web.stanford.edu/~buenz/pubs/bulletproofs.pdf). We can see the 
