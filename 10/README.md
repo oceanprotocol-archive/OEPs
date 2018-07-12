@@ -653,16 +653,25 @@ interface OceanACL {
     function issuePurchaseRequest(bytes32 _promise, bytes32 _resource_identifier);
     
     // generate justified access request
+    // emits JustifiedAccessRequest(provider, consumer, _justified_purchase_receipt, _promise)
     function issueJustifiedAccessRequest(bytes32 _purchase_receipt, bytes32 _promise, bytes temp_pubkey);
     
     // generate commitment contract
-    function deployCommitmentContract(address _consumer, address _provider, bytes32 _challenge, bytes32 _justified_receipt) public returns (address);
+    function deployCommitmentContract(address _consumer, 
+                                      address _provider, 
+                                      bytes32 _challenge, 
+                                      bytes32 _justified_receipt) public returns (address);
     
     // publish your commitment on-chain by calling commit method in the commitment contract
-    function publishCommitment(bytes32 _resource, bytes _jwt_hash,string _policy_actions, bool _policy_effect) public;
+    function publishCommitment(bytes32 _resource, 
+                               bytes _jwt_hash,
+                               string _policy_actions, 
+                               bool _policy_effect) public;
     
     // generates finalized purchase receipt
-    function issueFinalizedPurchaseReceipt(bytes _signedJWTHash, address _address consumer, bytes32 _justified_receipt);
+    function issueFinalizedPurchaseReceipt(bytes _signedJWTHash, 
+                                           address _address consumer, 
+                                           bytes32 _justified_receipt);
     
 }
 ```
@@ -672,12 +681,12 @@ interface OceanACL {
 ```javascript
 pragma solidity 0.4.23;
 
-Inteface CommitmentContract{
+inteface CommitmentContract{
 
 
     function CommitmentContract(address _consumer, address _provider, bytes32 _challenge);
 
-    function commit(bytes _resource, bytes _jwt_hash) public ;
+    function commit(bytes _resource, bytes32 _jwt_hash, bytes enc_jwt) public ;
 }
 ```
 
@@ -691,10 +700,13 @@ interface OceanMarket{
     ...
     
     // emits JustifiedPurchaseReceipt(purchase_receipt, consumer);
-    function issueJustifiedPurchaseReceipt(bytes32 _resource_promise, bytes32 _resource_identifier, address provider) public payable returns(bool);
+    function issueJustifiedPurchaseReceipt(bytes32 _resource_promise, 
+                                           bytes32 _resource_identifier, 
+                                           address provider) public payable returns(bool);
     
     // emits FinalizedPurchaseReceipt(finalized_purchase_receipt, consumer, provider);
-    function issueFinalizedPurchaseReceipt(bytes32 _justified_purchase_receipt, address consumer, addressprovider);
+    function issueFinalizedPurchaseReceipt(bytes32 _justified_purchase_receipt, 
+                                           address consumer, addressprovider) public;
     
 }
 ```
@@ -705,7 +717,76 @@ TBC
 
 ### Provider Interfaces
 
-TBC
+In the provider side, we have two implementations (front end and backend):
+
+- ***FrontEnd***
+
+```javascript
+    // As a provider you are listening to the access request, so you could create new resource promise as follows
+    // you might check how many promise you made in order to balance the number of request according to your 
+    // capacity planning
+    
+    
+    
+    function check_resource(resource){
+        ...
+        // check resource from provider backend
+        return true;
+    }
+    
+    this.OceanACLInstance.GetResourcePromise({}, {
+      fromBlock: 0,
+      toBlock: 'latest'
+    }).watch((error, event) => {
+        if (event.provider == my_address){
+            if(check_resource(event.resource_identifier)){
+            // generate temporary keypair  
+            resource_promise = sign(hash(consumer_pub_address_hash,
+                             owner_pub_address_hash,
+                             resource_identifier,
+                             expect_date_in_seconds),
+                             owner_secret_key);
+            // invoke publish resource promise function in Ocean ACL contract
+            this.OceanACLContractInstance.publishAccessResourcePromise(resource_promise,
+                                                                consumer_address,  
+                                             {
+                                                 from: this.state.UserAddress, 
+                                                 gas: 1500000
+                                             });
+            }
+        }
+    });
+
+
+
+    // Generate JWT tokens, encrypt them 
+    function generate_encrypted_JWT(pub_key,
+                                    _consumer, 
+                                    _provider, 
+                                    _challenge, 
+                                    _justified_receipt)){
+            ...
+            encrypted_jwt = enc(gen_new_JWT(_consumer, _provider, _challenge, _justified_receipt), pub_key);
+            return encrypted_jwt;
+            
+    }
+    // catch the event generated by justified access request
+    this.OceanACLInstance.JustifiedAccessRequest({}, {
+      fromBlock: 0;
+      toBlock:'latest'
+    }).watch((error, event) => {
+        if(event.provider == my_address) {
+               encrypted_jwt = generate_encrypted_JWT(event.pub_key,
+                                                      event.consumer,
+                                                      event.provider,
+                                                      event.challenge,
+                                                      event.justified_receipt);
+               this.CommitmentContractInstance = getCommitmentContractInstance(commentment_address);
+               jwt_hash = hash(encrypted_jwt);
+               this.CommitmentContractInstance.commit(event.resource, jwt_hash, encrypted_jwt);
+        }
+    });
+```
 
 ### Consumer Interfaces
 
