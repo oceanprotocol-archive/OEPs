@@ -458,7 +458,7 @@ contract Ocnacl {
     .....
     mapping(bytes32 => address) public chanllenge_contracts;
 
-    function newCommitmentContract(address _consumer, address _provider, bytes32 _challenge) public returns (address){
+    function deployCommitmentContract(address _consumer, address _provider, bytes32 _challenge) public returns (address){
         require(msg.sender == provider);
         CommitmentContract c = new CommitContract(_consumer, _provider, _challenge);
         chanllenge_contracts[_challenge] = c;
@@ -636,7 +636,68 @@ the Ocean Market contract in order to issue [finalized_purchase_receipt](#finali
 
 ### Contract Interfaces
 
-TBC
+***1. Ocean Access Control Contract Interfaces***
+```javascript
+pragma solidity 0.4.23;
+
+interface OceanACL {
+    // request new resource access
+    // emits event GetResourcePromise(address consumer, bytes32 resource_identifier)
+    function issueAccessResourcePromise(bytes32 _resource_identifier); 
+    
+    // publish resource promise 
+    // emits event ResourcePromise(bytes32 promise, address consumer, address provider) 
+    function publishAccessResourcePromise(bytes32 _promise, address _consumer);
+    
+    // calls generateJustifiedPurchaseReceipt() in market contract
+    function issuePurchaseRequest(bytes32 _promise, bytes32 _resource_identifier);
+    
+    // generate justified access request
+    function issueJustifiedAccessRequest(bytes32 _purchase_receipt, bytes32 _promise, bytes temp_pubkey);
+    
+    // generate commitment contract
+    function deployCommitmentContract(address _consumer, address _provider, bytes32 _challenge, bytes32 _justified_receipt) public returns (address);
+    
+    // publish your commitment on-chain by calling commit method in the commitment contract
+    function publishCommitment(bytes32 _resource, bytes _jwt_hash,string _policy_actions, bool _policy_effect) public;
+    
+    // generates finalized purchase receipt
+    function issueFinalizedPurchaseReceipt(bytes _signedJWTHash, address _address consumer, bytes32 _justified_receipt);
+    
+}
+```
+
+***2. Commitment Contract Interfaces***
+
+```javascript
+pragma solidity 0.4.23;
+
+Inteface CommitmentContract{
+
+
+    function CommitmentContract(address _consumer, address _provider, bytes32 _challenge);
+
+    function commit(bytes _resource, bytes _jwt_hash) public ;
+}
+```
+
+***3. Market Contract Interfaces***
+
+```javascript
+pragma solidity 0.4.23;
+
+interface OceanMarket{
+    
+    ...
+    
+    // emits JustifiedPurchaseReceipt(purchase_receipt, consumer);
+    function issueJustifiedPurchaseReceipt(bytes32 _resource_promise, bytes32 _resource_identifier, address provider) public payable returns(bool);
+    
+    // emits FinalizedPurchaseReceipt(finalized_purchase_receipt, consumer, provider);
+    function issueFinalizedPurchaseReceipt(bytes32 _justified_purchase_receipt, address consumer, addressprovider);
+    
+}
+```
 
 ### Identity Management Systems
 
