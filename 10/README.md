@@ -248,6 +248,37 @@ representation where each product represents a sub-class.
 
 ![factory pattern](images/factory.png)
 
+Here is a sample json describing what should be included in the commitment <code>struct</code>
+
+```json
+{
+  "challenge_id": "Challenge Identifier",
+  "provider": "Provider Account Address",
+  "consumer": "Consumer Account Address",
+  "publisher": "Publisher Account Address -- Optional",
+  "policy_effect": True,
+  "policies": [
+        "GET",
+        "LIST",
+        "CREATE",
+        "UPDATE",
+        "DELETE"
+  ],
+  "roles": [
+        "PRIMARY",
+        "BILLING",
+        "MANAGEMENT",
+        "ADMIN",
+        "SUPERADMIN"
+    ],
+  "sla": { 
+      "reference_link": "IPFS Hash / web link but should be immutable",
+      "type": "ipfs/storj/swarm",
+  },
+  "response_type": "JWT token, SSH keys, One time password, user/password"
+}
+```
+
 Check out [Abstract Factory Pattern](https://en.wikipedia.org/wiki/Abstract_factory_pattern) for more information.
 
 ## Key Technologies
