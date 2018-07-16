@@ -34,6 +34,7 @@ Table of Contents
         * [Commitment Functions](#commitment-functions)
         * [Temp Encryption KeyPair](#temp-encryption-keypair)
         * [Finalized Purchase Receipt](#finalized-purchase-receipt)
+        * [Access Revocation](#access-revocation)
      * [Access Control Flow](#access-control-flow)
      * [Interfaces](#interfaces)
         * [Contract Interfaces](#contract-interfaces)
@@ -512,6 +513,11 @@ committed yet, the consumer can cancel revoke the whole contract and cancel the 
 This receipt is the same justified purchase receipt except it should be signed by the two parties (resource owner, and consumer).  It will be issued as proof for delivery, where consumer and provider commits the delivery of resource. 
 This final state of access control triggers the ocean market contract to pay back the resource owner.  
 
+
+
+### Access Revocation
+
+TBC
 
 ## Access Control Flow
 
