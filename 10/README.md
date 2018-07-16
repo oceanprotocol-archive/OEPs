@@ -438,65 +438,20 @@ Also, you can notice that the JWT contains two important claims, first is the co
 
 TBC
   
-### Commitment Contract
+### Commitment Functions
 
 Its architecture is similar to the [Factory Design Pattern](#factory-design-pattern) where the ocean access control (the factory) works as an authority 
-that generates instances of the <code>*standard commitment contract*</code>, and deploys it on-chain. This contract should 
-include <code>*publicly verifiable functions*</code> that commit the grant of resource access to a particular consumer.
-Moreover, It should be assigned to the resource owner (provider) only to sign it.
+that generates instances of the <code>*commitment functions*</code>. These functions should 
+include <code>*publicly verifiable functions*</code> that commit the grant of resource access to a particular consumer, [Service Level Agreement](#service-level-agreement), policies, and roles.
+Moreover, It should be signed only once by each parity.
 Finally, it assesses the traceability of access control in the future (for different assigned access control policies to the same asset).
 
-An example about how to implement this type of factory pattern in terms to deploy the commitment contract on chain. The Ocean Access Control 
-contract is going to refers to separate function called <code>newCommitmentContract</code> in order to create the product object 
-or <code>CommitmentContract</code>.
 
-```javascript
-pragma solidity ^0.4.23;
+![commitment functions](images/CommitmentFunction.png)
 
-contract Ocnacl {
-    .....
-    .....
-    mapping(bytes32 => address) public chanllenge_contracts;
+An example about how to implement (THIS PART WILL BE UPDATED BY Sebastian)
 
-    function deployCommitmentContract(address _consumer, address _provider, bytes32 _challenge) public returns (address){
-        require(msg.sender == provider);
-        CommitmentContract c = new CommitContract(_consumer, _provider, _challenge);
-        chanllenge_contracts[_challenge] = c;
-        return c;
-    }
-    
-    ....
-    ....
-}
-
-// sample commitment contract 
-// it needs more updates in the future in order to include the policy, privileges and rules.
-contract CommitmentContract{
-    address consumer;
-    address provider;
-    bytes32 challenge;
-    bool deployed = false;
-    string [] policy_actions;
-    bool policy_effect;
-
-    event RaiseCommitment(address consumer, address provider, bytes32 challenge, bytes resource, bytes _jwt_hash);
-
-    function CommitmentContract(address _consumer, address _provider, bytes32 _challenge){
-        require(deployed == false);
-        consumer = _consumer;
-        provider = _provider;
-        challenge = _challenge;
-        deployed = true;
-    }
-
-    function commit(bytes _resource, bytes _jwt_hash,string _policy_actions, bool _policy_effect) public {
-        require(msg.sender == provider);
-        policy_actions = [_policy_actions];
-        policy_effect = true;
-        emit RaiseCommitment(consumer, provider, challenge, _resource, _jwt_hash);
-    }
-}
-```
+**TBD**
 
 ***Please do note that all public addresses in this contract are hashed.***
 
@@ -669,9 +624,9 @@ interface OceanACL {
                                bool _policy_effect) public;
     
     // generates finalized purchase receipt
-    function issueFinalizedPurchaseReceipt(bytes _signedJWTHash, 
+    function issueFinalizedPurchaseReceiptRequest(bytes _signedJWTHash, 
                                            address _address consumer, 
-                                           bytes32 _justified_receipt);
+                                           bytes32 _justified_receipt, _pod);
     
 }
 ```
@@ -706,7 +661,8 @@ interface OceanMarket{
     
     // emits FinalizedPurchaseReceipt(finalized_purchase_receipt, consumer, provider);
     function issueFinalizedPurchaseReceipt(bytes32 _justified_purchase_receipt, 
-                                           address consumer, addressprovider) public;
+                                           address consumer, addressprovider,
+                                           bytes32 acl_confirmation) public;
     
 }
 ```
@@ -854,7 +810,14 @@ def verifiable_consume_access(jwt, signed_jwt, consumer_pub_key):
 
 def get_proof_of_delivery(signed_jwt, consumer_pub_key):
     #TODO: this function should call contract throught web3.py in order to issue 
-    # a call request for the finalized purchase receipt
+    # a get a confirmation from the consumer that's he already consumed the reseource
+    # 
+
+def get_finalized_purchase_receipt(signed_jwt, pod):
+    # Proof of delivery: it is just a signed message by the consumers says that he already
+    # received the resource.
+    #TODO: call ACL contract 
+    
 ```
 
 
