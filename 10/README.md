@@ -31,7 +31,7 @@ Table of Contents
         * [Challenge Identifier](#challenge-identifier)
         * [JWT Token](#jwt-token)
         * [Service Level Agreement](#service-level-agreement)
-        * [Commitment Contract](#commitment-contract)
+        * [Commitment Functions](#commitment-functions)
         * [Temp Encryption KeyPair](#temp-encryption-keypair)
         * [Finalized Purchase Receipt](#finalized-purchase-receipt)
      * [Access Control Flow](#access-control-flow)
