@@ -22,13 +22,12 @@ Table of Contents
         * [Json Web Token](#json-web-token)
         * [Json Resource Decriptor](#json-resource-descriptor)
         * [OAuth 2.0 Flow](#oauth-2.0-flow)
-        * [Factory Design Pattern](#factory-design-pattern)
      * [Key Technologies](#key-technologies)  
      * [Access Control Components](#access-control-components)
         * [Resource](#resource)
-        * [Resource Promise](#resource-promise)
+        * [Resource Consent](#resource-consent)
         * [Justified Purchase Receipt](#justified-purchase-receipt)
-        * [Challenge Identifier](#challenge-identifier)
+        * [Request Identifier](#request-identifier)
         * [JWT Token](#jwt-token)
         * [Service Level Agreement](#service-level-agreement)
         * [Commitment Functions](#commitment-functions)
@@ -84,7 +83,7 @@ Ocean's on-chain access control SHOULD provide the following responsibilities:
 In this section, we are going to list the most key technologies that will be used as building blocks in order to develop 
 on-chain based access control for ocean. You can skip this introductory part if you already 
 familiar with [Json Web Token](#json-web-token), [Json Resource Descriptor](#json-resource-descriptor),
- [OAuth 2.0 Flow](#oauth-2.0-flow), and [Factory Design Pattern](#factory-design-pattern).
+ and [OAuth 2.0 Flow](#oauth-2.0-flow).
  
 
 ### Json Web Token
@@ -241,17 +240,6 @@ by delegating the authorization method to another third party called authorizati
 a consent to the resource owner in order to get accept/reject the request. If yes, the authorization server will use the redirect URL 
 to send the authorization code. The client will use the authorization code in order to get the access token through the back channel. 
 
-### Factory Design Pattern
-
-Factory design pattern is used as means to return specific sub-class from a super class where it includes multiple sub classes.
-The return sub-class depends on the type of input coming from the super class. The figure below show as simple 
-representation where each product represents a sub-class.
-
-![factory pattern](images/factory.png)
-
-
-
-Check out [Abstract Factory Pattern](https://en.wikipedia.org/wiki/Abstract_factory_pattern) for more information.
 
 ## Key Technologies
 
@@ -321,23 +309,31 @@ resource publisher/provider. For instance, you will find here more entity discov
 [Google Entity OpenID](https://accounts.google.com/.well-known/openid-configuration).
 
 
-### Resource Promise
+### Resource Consent
 
-Resource promise represents a signed commitment by resource owner in order to deliver the access tokens in the future.
-The promise itself should be public for everyone to verify in the future that this promise is hashed and signed by the resource owner.
+Resource consent represents a signed commitment by resource owner in order to deliver the access in the future.
+The consent itself should be public for everyone to verify in the future that this consent is hashed and signed by the resource owner.
 It includes the following data:
 
-    - Consumer public address hash
-    - Resource owner public address hash
-    - Resource identifier hash
-    - Expected delivery date (in seconds)
-    - Access Policy
+    - Resource Id
+    - Policies and Permissions
+    - Service Level Agreement
+    - Available 
+    - Current Timestamp (in seconds)
+    - Expiration time (in seconds)
+    - Discoverable link (this is for internal authorization server configuration)
+    - Timeout (defined by access control contract).
 
-the resource promise should return:
+the resource consent should return:
  
 ```javascript
-sign (hash(cons_addr_hash || Owner_addr_hash || Res_id || expected_date || access_policy), owner_secret)
+sign (hash(Resource_consent_data), owner_secret)
 ```
+
+The policy should be mentioned in the metadata. Policy might include more advanced features such as updating asset metadata, modifying permissions and privilege grants.
+
+The idea behind resource consent is to provide the resource owner the ability to accept/reject based on its 
+resource [capacity planning](https://en.wikipedia.org/wiki/Capacity_planning). 
 
 An example for access policy:
 
@@ -356,14 +352,10 @@ An example for access policy:
   ]
 }
 ```
-This policy could be reconstructed from the [commitment contract](#commitment-contract). Policy might include more advanced features such as updating asset metadata, modifying permissions and privilege grants.
-
-The idea behind resource promise is to provide the resource owner the ability to accept/reject based on its 
-resource [capacity planning](https://en.wikipedia.org/wiki/Capacity_planning). 
 
 ### Justified Purchase Receipt
 
-Once, the user has a resource promise, now he is able to get a justified purchase receipt. This receipt includes:
+Once, the user has a resource consent, now he is able to get a justified purchase receipt. This receipt includes:
 
     - Receipt ID: receipt number
     - From: consumer address hash
@@ -377,20 +369,19 @@ Once, the user has a resource promise, now he is able to get a justified purchas
     - AccessExpireDate: timestamp + expire in seconds
 
 
-This receipt is issued by the <code>Ocean's Market contract</code> which implements the payment mechanism in ocean protocol.
-### Challenge Identifier
+This receipt is issued by the <code>Ocean's Market contract</code> which implements the escrow payment mechanism in ocean protocol.
+### Request Identifier
 
-Challenge identifier is a unique identifier for each resource request.
+Request identifier is a unique identifier for each resource request.
 This identifier is generated by <code>Ocean access control contract</code>. The identifier is generated using the below information:
 
-    - Justified purchase receipt
-    - Resource promise 
-    - Timestamp
-    - Consumer address hash
-    - Resource owner address hash
+    - Resource id
+    - Consumer address 
+    - Provider address
+    - Consumer temp public key 
 
-The Ocean's access control contract is going to send this challenge identifier to resource owner, 
-which in turn will generate JWT (it has the challenge identifier claim).
+The Ocean's access control contract is going to send this request identifier to resource owner, 
+which in turn will generate JWT (it has the request identifier claim).
 
 ### JWT Token
 
@@ -409,12 +400,14 @@ For instance the below <code>json</code> shows an example for  JWT issued by res
   "sub": "WorldCupDatasetForAnalysis",
   "iat": 1516239022,
   "exp": 1526790800,
-  "cons_pubkey": "fb9028b59401a200ff82fa550a292ce0ab2eeeec",
-  "challenge_id":"c998d4906f51ee0677aeda1828cfcf171c88bdc6d35caf",
-  "permissions": {
-    "read": true,
-    "write": false
-  }
+  "consumer_pubkey": "Consumer Public Key",
+  "temp_pubkey": "Temp. Public Key for Encryption",
+  "request_id":"Request Identifier",
+  "consent_hash":"Consent Hash",
+  "resource_id": "Resource Identifier",
+  "timeout": "Timeout comming from AUTH contract",
+  "response_type": "Signed_URL",
+  "Resource_Server_plugin": "Azure",
 },
 // signature
 HMACSHA256(
@@ -433,91 +426,46 @@ fcHVia2V5IjoiMHhmYjkwMjhiNTk0MDFhMjAwZmY4MmZhNTUwYTI5MmNlMGFiMmVlZWVjIiwiY2hhbGx
 zIjp7InJlYWQiOnRydWUsIndyaXRlIjpmYWxzZX19.R96vtPzTQ59qc2YR9f_uMonxuF2c5bU3ftPHm6k9HP8
 ```
 You can see that the parts are separated by dot<code>(.)</code>. Check out this section for more details about [Json Web Token](#json-web-token).
-Also, you can notice that the JWT contains two important claims, first is the consumer public key hash (or public address hash), second the challenge identifier issued by Ocean Access Control contract: <code>"cons_pubkey": "fb9028b59401a200ff82fa550a292ce0ab2eeeec",
-  "challenge_id":"c998d4906f51ee0677aeda1828cfcf171c88bdc6d35caf" </code>. **These claims state that the authorization server (off-chain server) is aware about 
-  what is going on in on-chain. No way to deny it!**
+Also, you can notice that the JWT contains two important claims, first is the consumer public key, second the request identifier issued 
+by Ocean Access Control contract: <code>"cons_pubkey", "request_id" </code>. **These claims state that 
+the authorization server (off-chain server) is aware about what is going on in on-chain. No way to deny it!**
   
 ### Service Level Agreement
 
-TBC
+Service level agreement is publicly accessible and immutable that includes a 
+detailed description of the service quality, availability, responsibilities. 
+The provider imports an immutable IPFS hash reference for the SLA in the commitment.
   
-### Commitment Functions
+### Commitment
 
-Its architecture is similar to the [Factory Design Pattern](#factory-design-pattern) where the ocean access control (the factory) works as an authority 
-that generates instances of the <code>*commitment functions*</code>. These functions should 
-include <code>*publicly verifiable functions*</code> that commit the grant of resource access to a particular consumer, [Service Level Agreement](#service-level-agreement), policies, and roles.
-Moreover, It should be signed only once by each parity.
-Finally, it assesses the traceability of access control in the future (for different assigned access control policies to the same asset).
-
-
-![commitment functions](images/CommitmentFunction.png)
-
-
-Here is a sample json describing what should be included in the commitment <code>struct</code>
-
-```json
-{
-  "challenge_id": "Challenge Identifier",
-  "provider": "Provider Account Address",
-  "consumer": "Consumer Account Address",
-  "publisher": "Publisher Account Address -- Optional",
-  "policy_effect": True,
-  "policies": [
-        "GET",
-        "LIST",
-        "CREATE",
-        "UPDATE",
-        "DELETE"
-  ],
-  "roles": [
-        "PRIMARY",
-        "BILLING",
-        "MANAGEMENT",
-        "ADMIN",
-        "SUPERADMIN"
-    ],
-  "sla": { 
-      "reference_link": "IPFS Hash / web link but should be immutable",
-      "type": "ipfs/storj/swarm",
-  },
-  "response_type": "JWT token, SSH keys, One time password, user/password"
-}
-```
-
-
-An example about how to implement (THIS PART WILL BE UPDATED BY Sebastian)
-
-**TBD**
-
-***Please do note that all public addresses in this contract are hashed.***
+In order to let the commitment be authentic, it should include an encrypted JWT (committed by the provider) and purchase 
+receipt (committed by consumer). *The current implementation puts the JWT in an encrypted form on-chain which will be 
+changed to be more secure in the next release implementation.* 
 
 ### Temp Encryption KeyPair
 
 Temporary keypair is meant to be used as cryptographically secure tool in order to share secrets (ie. JWT) between parties.
 It is generated by consumer ocean client (created on the fly). 
 Even if an attacker managed to steal the temp private key 
-(ie. by bruteforcing keys such as using weak encryption schemes) in order to reveal the JWT, the resource owner (provider) will only accept signed JWT by the consumer 
-(where the hash of his account public key is hardcoded in the CommitmentContract).
+(ie. by brute-forcing keys such as using weak encryption schemes) in order to reveal the JWT, the resource owner (provider) will only accept signed JWT by the consumer 
+(where is stored in the Commitment).
 
 
 #### Generate and revoke keypairs
 
 Generating temporary keypairs should include the revocation certificates where the expiration date of these keys will be the same as <code>AccessExpireDate</code> field in 
-[Justified Purchase Receipt](#justified-purchase-receipt). As a consumer you should never share private key and revocation certificate to any one. In case of
-your private key is compromised you should use the revocation certificate to revoke your key. At this time if the [commitment contract](#commitment-contract) is not 
-committed yet, the consumer can cancel revoke the whole contract and cancel the [Justified Purchase Receipt](#justified-purchase-receipt) by calling <code>revoke</code> function.
+[Resource Consent](#resource-consent). As a consumer you should never share private key and revocation certificate to any one. In case of
+your private key is compromised you should use the revocation certificate to revoke your key. At this time if the [encrypted JWT](#json-web-token) is not 
+committed yet, the consumer can revoke the whole contract and refund the payment  by calling <code>revoke</code> function.
 
 
 ### Finalized Purchase Receipt
 
 This receipt is the same justified purchase receipt except it should be signed by the two parties (resource owner, and consumer).  It will be issued as proof for delivery, where consumer and provider commits the delivery of resource. 
-This final state of access control triggers the ocean market contract to pay back the resource owner.  
+This final state of access control triggers the ocean market contract to pay back the resource owner. 
+The market contract issues the finalized receipt once the delivery of resource is consumed. This includes that the provider should deliver a signed message by the consumer <code>
+(sign(enc(JWT)by_consumer) </code>in order to release the payment.  
 
-
-
-### Access Revocation
-
-TBC
 
 ## Access Control Flow
 
@@ -607,7 +555,7 @@ the promise, justified receipt, and temp public key.
 - **Step 4**: OceanACL contract generates binding or [commitment contract](#commitment-contract) on the fly which works as publicly verifiable 
 and final agreement between the resource consumer and resource owner concerning this [resource](#resource). the commitment contract is
 deployed per each purchase request by OceanACL contract (see <code>CommitmentContract</code> function). We can add a verification game at anytime 
-in the future because we already include the [challenge identifier](#challenge-identifier). The resource owner generates new [JWT](#json-web-token), then encrypt it and put the <code>hash(JWT)</code> in the [commitment contract](#commitment-contract) by calling
+in the future because we already include the [request identifier](#request-identifier). The resource owner generates new [JWT](#json-web-token), then encrypt it and put the <code>hash(JWT)</code> in the [commitment contract](#commitment-contract) by calling
  the <code>commit</code> function.
  
     ```javascript
@@ -617,7 +565,7 @@ in the future because we already include the [challenge identifier](#challenge-i
         require(msg.sender == provider);
         policy_actions = ["READ"];
         policy_effect = true;
-        emit RaiseCommitment(consumer, provider, challenge, _resource, _jwt_hash);
+        emit RaiseCommitment(consumer, provider, request_id, _resource, _jwt_hash);
     }
     ```
    Please do note that the resource owner will only accept signed JWT, so even
@@ -655,7 +603,7 @@ interface OceanACL {
     // generate commitment contract
     function deployCommitmentContract(address _consumer, 
                                       address _provider, 
-                                      bytes32 _challenge, 
+                                      bytes32 _request, 
                                       bytes32 _justified_receipt) public returns (address);
     
     // publish your commitment on-chain by calling commit method in the commitment contract
@@ -680,7 +628,7 @@ pragma solidity 0.4.23;
 inteface CommitmentContract{
 
 
-    function CommitmentContract(address _consumer, address _provider, bytes32 _challenge);
+    function CommitmentContract(address _consumer, address _provider, bytes32 _request_id);
 
     function commit(bytes _resource, bytes32 _jwt_hash, bytes enc_jwt) public ;
 }
@@ -760,10 +708,10 @@ In the provider side, we have two implementations (front end and backend):
     function generate_encrypted_JWT(pub_key,
                                     _consumer, 
                                     _provider, 
-                                    _challenge, 
+                                    _request_id, 
                                     _justified_receipt)){
             ...
-            encrypted_jwt = enc(gen_new_JWT(_consumer, _provider, _challenge, _justified_receipt), pub_key);
+            encrypted_jwt = enc(gen_new_JWT(_consumer, _provider, _request_id, _justified_receipt), pub_key);
             return encrypted_jwt;
             
     }
@@ -781,7 +729,7 @@ In the provider side, we have two implementations (front end and backend):
                                                       event.pub_key,
                                                       event.consumer,
                                                       event.provider,
-                                                      event.challenge,
+                                                      event.request_id,
                                                       event.justified_receipt);
                // create new instance of the commitment contract
                this.CommitmentContractInstance = getCommitmentContractInstance(commentment_address);
@@ -817,7 +765,7 @@ def create_resource_promise(consumer_pub_address_hash,
 # _private_claims = { 
 #   "pubkey": '0XDNEN23IERN2MDKFKKNJSDFJNSDSU232',
 #   "provider": 'myprovider.com',
-#   "challenge": '93jdj2efdndhdlsjshh33h323329sjsdk',
+#   "request_id": '93jdj2efdndhdlsjshh33h323329sjsdk',
 #   "justified_receipt":'generated_justified_receipt_id',
 # }
 #   
