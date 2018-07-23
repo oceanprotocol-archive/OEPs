@@ -3,7 +3,11 @@ shortname: 10/AUTH
 name: On-chain Access Control
 type: Standard
 status: Raw
-editors: 
+editors: Ahmed Ali <ahmed@oceanprotocol.com>,
+         Samer Sallam <samer@oceanprotocol.com>,
+         Fang Gong <fang@oceanprotocol.com>,
+         Sebastian Gerske  <sebastian@oceanprotocol.com>,
+         Aitor Argomaniz <aitor@oceanprotocol.com>,
 contributors: Ahmed Ali <ahmed@oceanprotocol.com>, 
               Samer Sallam <samer@oceanprotocol.com>
 ```
@@ -489,7 +493,7 @@ emits an event <code>RequestAccessConsent</code>.
 ### Phase 2: Commit Phase
 
 - This phase implements the provider commitment by calling <code>CommitAccessRequest</code> including the 
-encrypted final [resource consent](#resource-consent).
+ final [resource consent](#resource-consent).
 - The Consumer listens to <code>CommitmentConsent</code> Event which indicates the acceptance of the provider for 
 delivering the resource. 
 Consequently, the consumer will call <code>sendPayment</code> in the market contract in order to issue a [justified purchase receipt](#justified-purchase-receipt).
@@ -504,7 +508,7 @@ by calling <code>deliverAccessToken</code>.
 decrypt [jwt](#json-web-token) and calls <code>consumeResource</code> that make a off-chain call to provider using <code>discovery url</code>.
 
 - The provider should receive <code>signedEncJWT</code>, verify the signed message and JWT, then generate the 
-response based on the response type and the internal resource server and returns the output by calling <code>deliverResponse</code>. 
+response based on the response type and the internal resource server and returns the expected output. 
 
 - Finally, the provider sends <code>signedEncJWT</code> as a proof-of-access to <code>Auth.sol</code> in order to verify 
 the delivery of access token by calling <code>verifyAccessTokenDelivery</code>, the contract will verify the signed message and 
@@ -515,80 +519,167 @@ send release payment signal to the <code>market.sol</code> contract.
 
 ### Contract Interfaces
 
-***1. Ocean Access Control Contract Interfaces***
-```javascript
-pragma solidity 0.4.23;
-
-interface OceanACL {
-    // request new resource access
-    // emits event GetResourcePromise(address consumer, bytes32 resource_identifier)
-    function issueAccessResourcePromise(bytes32 _resource_identifier); 
-    
-    // publish resource promise 
-    // emits event ResourcePromise(bytes32 promise, address consumer, address provider) 
-    function publishAccessResourcePromise(bytes32 _promise, address _consumer);
-    
-    // calls generateJustifiedPurchaseReceipt() in market contract
-    function issuePurchaseRequest(bytes32 _promise, bytes32 _resource_identifier);
-    
-    // generate justified access request
-    // emits JustifiedAccessRequest(provider, consumer, _justified_purchase_receipt, _promise)
-    function issueJustifiedAccessRequest(bytes32 _purchase_receipt, bytes32 _promise, bytes temp_pubkey);
-    
-    // generate commitment contract
-    function deployCommitmentContract(address _consumer, 
-                                      address _provider, 
-                                      bytes32 _request, 
-                                      bytes32 _justified_receipt) public returns (address);
-    
-    // publish your commitment on-chain by calling commit method in the commitment contract
-    function publishCommitment(bytes32 _resource, 
-                               bytes _jwt_hash,
-                               string _policy_actions, 
-                               bool _policy_effect) public;
-    
-    // generates finalized purchase receipt
-    function issueFinalizedPurchaseReceiptRequest(bytes _signedJWTHash, 
-                                           address _address consumer, 
-                                           bytes32 _justified_receipt, _pod);
-    
-}
-```
-
-***2. Commitment Contract Interfaces***
+***1. Ocean Access Control Contract Functions***
 
 ```javascript
-pragma solidity 0.4.23;
 
-inteface CommitmentContract{
+    // Sevice level agreement published on immutable storage
+    struct SLA {
+        string slaRef; // reference link or i.e IPFS hash
+        string slaType; // type such as PDF/DOC/JSON/XML file.
+    }
 
+    // final agreement
+    struct Commitment {
+        string encJWT;  // encrypted JWT using consumer's temp public key
+        bytes32 receiptId;
+    }
 
-    function CommitmentContract(address _consumer, address _provider, bytes32 _request_id);
+    // consent (initial agreement) provides details about the service availability given by the provider.
+    struct Consent {
+        bytes32 resource; // resource id
+        string permissions; // comma sparated permissions in one string
+        SLA serviceLevelAgreement;
+        bool available; // availability of the resource
+        uint256 timestamp; // in seconds
+        uint256 expire;  // in seconds
+        string discovery; // this is for authorization server configuration in the provider side
+        uint256 timeout; // if the consumer didn't receive verified claim from the provider within timeout
+        // the consumer can cancel the request and refund the payment from market contract
+    }
 
-    function commit(bytes _resource, bytes32 _jwt_hash, bytes enc_jwt) public ;
-}
-```
+    struct ACL {
+        address consumer;
+        address provider;
+        bytes32 resource;
+        Consent consent;
+        string pubkey; // temp public key for access token encryption
+        Commitment commitment;
+        AccessStatus status; // Requested, Committed, Delivered, Revoked
+    }
 
-***3. Market Contract Interfaces***
+    mapping(bytes32 => ACL) private aclEntries;
 
-```javascript
-pragma solidity 0.4.23;
+    ...
+    
+    
+    // Access Control Status
+    enum AccessStatus {Requested, Committed, Delivered, Revoked};
+    
+    // modifiers and access control
+    modifier isAccessRequested(bytes32 id) {
+        require(aclEntries[id].status == AccessStatus.Requested);
+        _;
+    }
 
-interface OceanMarket{
+    modifier isAccessComitted(bytes32 id) {
+        require(aclEntries[id].status == AccessStatus.Committed);
+        _;
+    }
+    
     
     ...
     
-    // emits JustifiedPurchaseReceipt(purchase_receipt, consumer);
-    function issueJustifiedPurchaseReceipt(bytes32 _resource_promise, 
-                                           bytes32 _resource_identifier, 
-                                           address provider) public payable returns(bool);
+    // phase 1
+    function initiateAccessRequest(bytes32 id, bytes32 resourceId, address provider, string pubKey, uint256 timeout)
+    public {
+        //TODO: initialize SLA, Commitment, and claim
+        //TODO: initialize acl handler
+        ...
+        emit RequestAccessConsent(id, msg.sender, provider, resourceId, timeout);
+    }
     
-    // emits FinalizedPurchaseReceipt(finalized_purchase_receipt, consumer, provider);
-    function issueFinalizedPurchaseReceipt(bytes32 _justified_purchase_receipt, 
-                                           address consumer, addressprovider,
-                                           bytes32 acl_confirmation) public;
+    // phase 2
+    function commitAccessRequest(bytes32 id, bool available, uint256 expire, string discovery, string permissions, string slaLink, string slaType, bytes32 jwtHash)
+    public onlyProvider(id) isAccessRequested(id){
+        if (available && now < expire) {
+            ...
+            emit CommitConsent(id, expire, discovery, permissions, slaLink);
+        }else{
+            aclEntries[id].status = AccessStatus.Revoked;
+            emit RefundPayment(aclEntries[id].consumer, aclEntries[id].provider, id);
+        }
+    }
     
-}
+    function cancelConsent(bytes32 id)
+    public
+    isAccessRequested(id) {
+        ...
+    }
+    
+    // phase 3
+    function deliverAccessToken(bytes32 id, string encryptedJWT) public onlyProvider(id) isAccessComitted(id) {
+    
+        emit PublishEncryptedToken(id, encryptedJWT);
+    }
+    
+    
+    function verifyAccessTokenDelivery(bytes32 id, bytes32 proofJWTHash) public onlyProvider(id) isAccessComitted(id) {
+        
+        
+    }
+    
+    function verifyAccessStatus(bytes32 id, AccessStatus status) public view returns (bool) {
+        
+    }
+    
+```
+
+
+***2. Market Contract Interfaces***
+
+```javascript
+
+struct Payment {
+       address sender; 	      // consumer or anyone else would like to make the payment (automatically set to be msg.sender)
+       address receiver;      // provider or anyone (set by the sender of funds)
+       PaymentState state;		// payment state
+       uint256 amount; 	      // amount of tokens to be transferred
+       uint256 date; 	        // timestamp of the payment event (in sec.)
+       uint256 expiration;    // consumer may request refund after expiration timestamp (in sec.)
+    }
+    enum PaymentState {Locked, Released, Refunded}
+    mapping(bytes32 => Payment) mPayments;  // mapping from id to associated payment struct
+
+    event PaymentReceived(bytes32 indexed _paymentId, address indexed _receiver, uint256 _amount, uint256 _expire);
+    event PaymentReleased(bytes32 indexed _paymentId, address indexed _receiver);
+    event PaymentRefunded(bytes32 indexed _paymentId, address indexed _sender);
+
+    // the sender makes payment
+    function sendPayment(bytes32 _paymentId, address _receiver, uint256 _amount, uint256 _expire) public validAddress(msg.sender) returns (bool){
+      // consumer make payment to Market contract
+      require(mToken.transferFrom(msg.sender, address(this), mAssets[assetId].price));
+      mPayments[_paymentId] = Payment(msg.sender, _receiver, string(PaymentState.Paid), _amount, now, _expire);
+      emit PaymentReceived(_paymentId, _receiver, _amount, _expire);
+      return true;
+    }
+
+    // the consumer release payment to receiver
+    function releasePayment(bytes32 _paymentId) public onlySenderAccount isPaid(_paymentId) returns (bool){
+      // update state to avoid re-entry attack
+      mPayments[_paymentId].state == string(PaymentState.Released);
+      require(mToken.transfer(mPayments[_paymentId].receiver, mPayments[_paymentId].amount));
+      emit PaymentReleased(_paymentId, mPayments[_paymentId].receiver);
+      return true;
+    }
+
+    // refund payment
+    function refundPayment(bytes32 _paymentId) public isLocked(_paymentId) returns (bool){
+      mPayments[_paymentId].state == string(PaymentState.Refunded);
+      require(mToken.transfer(mPayments[_paymentId].sender, mPayments[_paymentId].amount));
+      emit PaymentRefunded(_paymentId, mPayments[_paymentId].sender);
+      return true;
+    }
+
+    // utitlity function - verify the payment
+    function verifyPayment(bytes32 _paymentId, string _status) public view returns(bool){
+        if(mPayments[_paymentId].state == _status){
+            return true;
+        }
+        return false;
+    }
+
+
 ```
 
 ### Identity Management Systems
