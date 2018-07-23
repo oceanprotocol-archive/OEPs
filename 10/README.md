@@ -471,7 +471,7 @@ The market contract issues the finalized receipt once the delivery of resource i
 
 The following steps describe the workflow of access control:
 
-![proposal](images/proposal.png)
+![proposal](images/acflow.png)
 
 
 - **Step 1**: As a consumer, you got a [resource identifier](#resource) from a marketplace, you are going to 
