@@ -275,10 +275,9 @@ the ocean access control contract and rather than using the HTTP/HTTPS protocol,
 It uses something similar to the Json Resource Descriptor or [JRD](#json-resource-descriptor) object. It is based on Key/Value pairs that include
  the following sections:
 
-    - Name
-    - Properties
-    - Links
-    - Access
+    - subject
+    - properties
+    - expires
 
 For instance the below json is a sample resource description:
 
