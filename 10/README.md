@@ -280,33 +280,40 @@ It uses something similar to the Json Resource Descriptor or [JRD](#json-resourc
     - Links
     - Access
 
-For instance the below json is a sample resource description (THIS IS NOT THE FINAL RESOURCE TEMPLATE):
+For instance the below json is a sample resource description:
 
 ```json
 
 {
-  "name" : "1000Genome_dataset_snp_genotyping",
+  "subject" : "resource_id@provider_address",
   "properties" :
   {
-    "sample_id" : "Exfe23def23jx1flshu3mx",
-    "sample_owner": "John E. Smith"
-  },
-  "access": {
-    "permissioned": true,
-    "discovery": "https://accounts.test.com/.well-known/openid-configuration",
-    "method": "HTTP/HTTPS",
-    "expire_period": 1233339
-  },
-  "links" :{
-      "sample1" : "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/sample1.tree",
-      "sample2" : "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/sample2.tree"
+    "name" : "1000Genome_dataset_snp_genotyping",
+    "links": {
+          "dataset1" : "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/sample1.tree",
+          "dataset2" : "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/sample2.tree"
     },
+    "size": "OPTIONAL",
+    "endpoint": "https://myprovider.com/service/endpoints",
+    "description": "resource description",
+    "sla": "service level agreement reference",
+    "permissions": {
+            "read": true,
+            "write": false,
+            "create": false,
+            "update": false,
+            "delete": false
+    },
+    "medata": "metadata reference in marketplace",
+    "response_type": "expected response type (singed url, ssh keys, OTP, etc)"
+  },
+  "expires": "date in seconds"
 }
 ```
 
 And the resource identifier is <code>hash(JRD) = 2BEDD341F1851A9C9DE53F1A1A9CBA5AABC9BE299734886316868FE139E3033B
-</code>. Also, you can notice <code>discovery</code> that enables the user to discover public information about the 
-resource publisher/provider. For instance, you will find here more entity discovery details about 
+</code>. Also, you can notice <code>endpoint</code> that enables the user to discover public information about the 
+resource publisher/provider and how to consume it. For instance, you will find here more entity discovery details about 
 [Google Entity OpenID](https://accounts.google.com/.well-known/openid-configuration).
 
 
@@ -641,38 +648,26 @@ struct Payment {
     event PaymentReleased(bytes32 indexed _paymentId, address indexed _receiver);
     event PaymentRefunded(bytes32 indexed _paymentId, address indexed _sender);
 
+
     // the sender makes payment
     function sendPayment(bytes32 _paymentId, address _receiver, uint256 _amount, uint256 _expire) public validAddress(msg.sender) returns (bool){
-      // consumer make payment to Market contract
-      require(mToken.transferFrom(msg.sender, address(this), mAssets[assetId].price));
-      mPayments[_paymentId] = Payment(msg.sender, _receiver, string(PaymentState.Paid), _amount, now, _expire);
-      emit PaymentReceived(_paymentId, _receiver, _amount, _expire);
-      return true;
+        ...
     }
 
     // the consumer release payment to receiver
     function releasePayment(bytes32 _paymentId) public onlySenderAccount isPaid(_paymentId) returns (bool){
-      // update state to avoid re-entry attack
-      mPayments[_paymentId].state == string(PaymentState.Released);
-      require(mToken.transfer(mPayments[_paymentId].receiver, mPayments[_paymentId].amount));
-      emit PaymentReleased(_paymentId, mPayments[_paymentId].receiver);
-      return true;
+        ... 
     }
 
     // refund payment
     function refundPayment(bytes32 _paymentId) public isLocked(_paymentId) returns (bool){
-      mPayments[_paymentId].state == string(PaymentState.Refunded);
-      require(mToken.transfer(mPayments[_paymentId].sender, mPayments[_paymentId].amount));
-      emit PaymentRefunded(_paymentId, mPayments[_paymentId].sender);
-      return true;
+        ...
+     
     }
 
     // utitlity function - verify the payment
     function verifyPayment(bytes32 _paymentId, string _status) public view returns(bool){
-        if(mPayments[_paymentId].state == _status){
-            return true;
-        }
-        return false;
+        ...
     }
 
 ```
@@ -684,20 +679,16 @@ data quality and validation (it should be handled by service integrity proofs an
 
 ### Censorship Attacks
 
-Usually, smart contracts in public blockchain expose all the transactions to be verified publicly. This will allow any attacker to correlate the generated transactions 
+Usually, smart contracts in public blockchain expose all the transactions to be publicly verifiable. This will allow any attacker to correlate the generated transactions 
 in order to track the consumer's activity. So, in order to preserve the consumer's privacy , we might need to include one of these technologies in the access control layer:
 
 - **Zero knowledge proofs**: such as [ZKSNARK](https://blog.z.cash/zsl/) (it needs trusted setup), [ZKSTARK](https://eprint.iacr.org/2018/046.pdf), and [BulletProofs](https://web.stanford.edu/~buenz/pubs/bulletproofs.pdf). We can see the 
     potential behind zero knowledge based proofs especially when it comes to confidential transactions. Find here more information about implementation details of [BulletProofs-lib](https://github.com/bbuenz/BulletProofLib),
     [LibSTARK](https://github.com/elibensasson/libSTARK).
-    - LIST LIMITATIONS HERE
 - **Generalized State Channels**: This idea was introduced in Bitcoin which called [payment channel](https://bitcoin.org/en/developer-guide#micropayment-channel)
     where it is used for micropayments. In general, state channel is way to outsource the state transition where the state is locked using multisig contract, outsourced to off-chain channel (where the 
      transaction processing will be done), finally unlock by updating the state on-chain. Now, there are two main research branch in order to investigate and develop more advanced techniques
-     such as [Counterfactual: Generalized State Channels](https://l4.ventures/papers/statechannels.pdf) and [Pisa: Arbitration Outsourcing for State Channels](http://www0.cs.ucl.ac.uk/staff/P.McCorry/pisa.pdf). The limitation 
-     of the generalized state channels are 
-        
-     -  LIST OF LIMITATIONS HERE
+     such as [Counterfactual: Generalized State Channels](https://l4.ventures/papers/statechannels.pdf) and [Pisa: Arbitration Outsourcing for State Channels](http://www0.cs.ucl.ac.uk/staff/P.McCorry/pisa.pdf).
     
 ### Fake and Delayed Access  
 
