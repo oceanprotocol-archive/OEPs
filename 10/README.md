@@ -39,10 +39,8 @@ Table of Contents
         * [Finalized Purchase Receipt](#finalized-purchase-receipt)
      * [Access Control Flow](#access-control-flow)
      * [Interfaces](#interfaces)
-        * [Contract Interfaces](#contract-interfaces)
-        * [Identity Management Systems](#identity-management-systems)
-        * [Provider Interfaces](#provider-interfaces)
-        * [Consumer Interfaces](#consumer-interfaces)
+        * [Access Control Contract](#access-control-contract)
+        * [Market Contract](#market-contract)
      * [Threat Models](#threat-models)
         * [Censorship Attacks](#censorship-attacks)
         * [Fake and Delayed Access](#fake-and-delayed-access)
@@ -517,9 +515,7 @@ send release payment signal to the <code>market.sol</code> contract.
 
 ## Interfaces
 
-### Contract Interfaces
-
-***1. Ocean Access Control Contract Functions***
+### Access Control Contract
 
 ```javascript
 
@@ -626,7 +622,7 @@ send release payment signal to the <code>market.sol</code> contract.
 ```
 
 
-***2. Market Contract Interfaces***
+### Market Contract
 
 ```javascript
 
