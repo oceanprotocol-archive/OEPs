@@ -217,6 +217,8 @@ The following Figure describes the flow of OAuth 2.0:
 
 ![Oauth Flow](images/oauth.png)
 
+source: [Protocol flow](https://tools.ietf.org/html/rfc6749#section-1.2)
+
 
 ####  OAuth actors and components:
 
