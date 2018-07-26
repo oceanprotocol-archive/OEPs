@@ -75,7 +75,7 @@ Ocean's on-chain access control SHOULD provide the following responsibilities:
 
 - Verifiable on-chain Access control.
 - Accountability (bad actors abusing the system)
-- Integrity of different Authentication mechanisms
+- Ease of integration and backward compatibility with existing authentication frameworks
 - Unlinkability and anonymity of users's transaction
 - Expose on-chain/off-chain interfaces for access control 
 
@@ -98,8 +98,8 @@ The json is stored in an encoded form such as [Base64URL](https://tools.ietf.org
  be verified by the authorization server. The JWT is fully compatible with [OAuth 2.0](#oauth-2.0-flow) standard.
 
 #### Use cases
-The main two use cases are the authorization, and information exchange. Authorization could be conducted in case of 
-a user logged in, as a resource owner you can include this token for each the request sent to the client. 
+The main two use cases are the [authorization](https://en.wikipedia.org/wiki/Authorization), and [information exchange of claims](https://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#rfc.section.4). Authorization could be conducted in case of 
+a user is [authenticated](https://en.wikipedia.org/wiki/Authentication), as a resource owner you can include this token for each the request sent to the client. 
 Also, it could be used for information exchange where JWT uses pub/priv 
 key pairs to sign claims as shown below.
 
@@ -217,17 +217,19 @@ The following Figure describes the flow of OAuth 2.0:
 
 ![Oauth Flow](images/oauth.png)
 
+source: [Protocol flow](https://tools.ietf.org/html/rfc6749#section-1.2)
+
 
 ####  OAuth actors and components:
 
-- client: Any app or service you (as a user) want to grant it to a private information.
+- client: Any app or service the resource owner (as a user) want to grant access to private information.
 - Authorization Server: The server that will generate the access token for client
 - Authorization Grant :  Permission
 - Access Token: The token that will be used to allow client get access.
 - Scope: The scope includes what type of data client will be able to access ie. profile, contacts.
 - Resource Owner: Any one who has actually the right to share the data.
 - Resource Server: Where we store or hold the actual data
-- Redirect URI: Also, it is known as the call back. The link that authorization server uses to send the authorization code to the client 
+- Redirect URI: . The link that authorization server uses to send the authorization code to the client 
 - Consent: The message you get from the authorization server 
 - Front Channel: This channel runs in the browser level.
 - Back Channel: This is more secure where communication will be between the authorization server and client in order to share the access token
@@ -330,12 +332,6 @@ It includes the following data:
     - Expiration time (in seconds)
     - Discoverable link (this is for internal authorization server configuration)
     - Timeout (defined by access control contract).
-
-the resource consent should return:
- 
-```javascript
-sign (hash(Resource_consent_data), owner_secret)
-```
 
 The policy should be mentioned in the metadata. Policy might include more advanced features such as updating asset metadata, modifying permissions and privilege grants.
 
