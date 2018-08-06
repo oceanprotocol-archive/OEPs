@@ -392,12 +392,12 @@ Json Web Token as mentioned before it is used as a means to represent claims sec
 For instance the below <code>json</code> shows an example for  JWT issued by resource owner for particular consumer.
 
 ```json
-// header
+//Header
 {
   "alg": "HS256",
   "typ": "JWT"
 },
-// payload
+//Payload
 {
   "iss": "resourceowner.com",
   "sub": "WorldCupDatasetForAnalysis",
@@ -410,9 +410,11 @@ For instance the below <code>json</code> shows an example for  JWT issued by res
   "resource_id": "Resource Identifier",
   "timeout": "Timeout comming from AUTH contract",
   "response_type": "Signed_URL",
-  "Resource_Server_plugin": "Azure",
+  "resource_server_plugin": "Azure",
+  "service_endpoint": "<myserver>/cosume/",
+  "nonce": "<token_hex(32)>",
 },
-// signature
+//Signature
 HMACSHA256(
   base64UrlEncode(header) + "." +
   base64UrlEncode(payload),
