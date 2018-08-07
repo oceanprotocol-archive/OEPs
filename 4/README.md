@@ -54,7 +54,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The goal of this document is to describe the responsibilities and architecture of an Ocean AGENT node. 
 
-In the Ocean network, AGENTS implement a variety of behavior that contribute data services to the network.
+In the Ocean network, AGENTS implement a variety of behaviors that contribute data services to the network.
 For example: AGENTS can provide services such as data sets, algorithms, storage, computational power, service curation, 
 verification, market makers and so on.  
 
@@ -95,7 +95,7 @@ Reciprocally the same software is used for consuming the services and managing r
 Independently of the API consumption mechanism, the AGENT is in charge of building the internal 
 object models using the incoming messages provided by the **KEEPER components interfaces**.
  
-This marshaling and un-marshaling operations will allow using a common internal data model across all the application. 
+This marshaling and un-marshaling operations will allow using a common internal data model across the entire application. 
 
 The Agent also will orchestrate the interaction with the Keeper components, allowing to provide a high level view 
 from the consumer side, interacting with the decentralized VM and the **Ocean DB**.
@@ -143,8 +143,8 @@ For example Amazon EC2, Truebit, Weeve, XAIN, Enigma, etc.
 Like Amazon S3, IPFS, BigchainDB, SWARM, etc.
 * **UX/UI Providers** - In charge of providing visual interfacing with the system.
 
-Because is cumbersome to define upfront the different providers to integrate, it's important 
-to implement a pluggable mechanism allowing to extend the systems supported by the system.
+Because it is cumbersome to define upfront the different providers to integrate, it is important 
+to implement a pluggable mechanism allowing to extend the connections supported by the system.
 
 ![Ocean Agent Plugins System](images/agent-plugins.png)
 
@@ -169,7 +169,7 @@ Details of the plugin system are discussed in [#TODO:OEP-PLUGIN](../<PLUGIN>/REA
 
 ### Interfaces
 
-Interfaces are charge of interacting with off-chain services, libraries, cloud/micro-services and more.
+Interfaces are in charge of interacting with off-chain services, libraries, cloud/micro-services and more.
 In essence, they connect relevant services that can bring value to the ocean network.
 The interfaces expose the service integrity layer that allows data services and consumers to interact with service contracts.
    
@@ -189,14 +189,14 @@ to the changes happening in the KEEPER level. For example, if a change in a cont
 ![Websocket](images/comm-ws.png)
 
 * **Event Driven** - Provided by a Pub/Sub interface. In some scenarios where the execution of an action 
-can take some time (more than 2 or seconds) could be recommended to allow async consumption mechanisms. 
+can take some time (more than about 2 seconds) we would recommended to allow async consumption mechanisms. 
 This could be an optimal configuration when the Ocean Agent is running in conjunction with a Marketplace.
 
 ![Event Driven](images/comm-bus.png)
 
-* **P2P** - Provided by a Peer to Peer interface. in charge of maintain peer to peer communication between AGENTS. This communication can be used to implement:
-  - Direct messaging between parties - Allowing for example the agree Contracts terms before to formalize the contract or direct sharing of Assets consumptions information between the provider and the consumer 
-  - Assets transferring between different Ocean actors - In the actors that are giving access directly to some assets without using a third-party provider, would be possible to share directly the Assets between parties.
+* **P2P** - Provided by a Peer to Peer interface. It is in charge of maintain peer to peer communication between AGENTS. This communication can be used to implement:
+  - Direct messaging between parties - Allowing for example the agree Contracts terms before formalizing the contract or direct sharing of Assets consumptions information between the provider and the consumer 
+  - Assets transferring between different Ocean actors - In the actors that are giving access directly to some assets without using a third-party provider, it would be possible to share directly the Assets between parties.
 
 ![P2P Communication](images/comm-p2p.png)  
 
@@ -287,7 +287,7 @@ All the requests giving invalid authentication parameters will return a **HTTP 4
 
 #### Authorization
 
-In the authorization phase it's necessary to validate that a user is able execute a specific action, 
+In the authorization phase it's necessary to validate that a user is able to execute a specific action, 
 ie. access a data service or modify the metadata information of a specific asset. 
 
 On-chain authorization requires information associated to ownership of the resources to be stored on-chain.
@@ -387,13 +387,13 @@ The AGENT will provide the interfaces to:
 
 ### Data Transfer Objects
 
-he Keeper interface module should implement an extensible interfaces system allowing to plug different 
-communication protocols to establish the communication between the Ocean Agent and the the Keepers network. 
+The Keeper interface module should implement an extensible interfaces system allowing to plug different 
+communication protocols to establish the communication between the Ocean Agent and the Keepers network. 
 This component is in charge of the following capabilities:
 
 * Interact with the KEEPER components
 * Compose the transactions payload necessary by the Keeper nodes
-* Orchestrate the execution of multiple Keeper requests when be necessary
+* Orchestrate the execution of multiple Keeper requests when is necessary
 
 Initially, HTTP RPC is the easiest candidate to integrate in the communication with the Decentralized VM. 
 
