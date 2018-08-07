@@ -219,7 +219,7 @@ The Ocean Agent logically acts is a middleware component. This layer facilitates
 
 Lastly, the Ocean ARCH can be deconstructed into its funcational, independent components and component features:
 
-![Funcational Building Blocks](images/ocean-components.png)
+![Functional Building Blocks](images/ocean-component-architecture.PNG)
 
 ### Ocean Client Software & Services
 
