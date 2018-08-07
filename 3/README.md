@@ -203,24 +203,42 @@ The image depicts a PUB/SUB method of communication as an example
 
 ## Components
 
-At the most simplistic level, the Ocean architecture can be broken down into 3 core components: the keeper/contracts, the agent, and the front-end. Operating between these components are requests that faciltate syncronized operations, and events that can take place asynchronously.
+At its most simplistic, the Ocean architecture can be broken down into 3 core components: the Keeper/Contracts, the Agent, and the Frontend. Operating between these components are requests that faciltate synchronized operations, and events that can take place asynchronously.
 
-![Baseline Building Blocks](images/simple-architecture.png)
+![Baseline Building Blocks](images/Simple-Architecture.PNG)
 
-The Ocean ARCH is composed of independent components:
+This simplified architecture can be further deconstructed into its logical component pieces.  
+
+![Logical Building Blocks](images/Logical_Architecture.PNG)
+
+At the logical level, the Frontend will be a standard deployment consisting of different user designs and associated experiences depending on the application. For example, the Publisher interface will differ in workflow from that of the Consumer, while a Marketplace would wrap both of these workflows within a common design. The Frontend will also consist of libraries that can be used to extend the usage of existing interfaces.
+
+The Ocean Client provides the interfaces that facilitate interactions between the Frontend and the Ocean Agent. These interfaces will provide reusable protocol functionality for Ocean's segmented activities (i.e. Provider vs. Publisher vs. Consumer activities). 
+
+The Ocean Agent logically acts is a middleware component. This layer facilitates additional protocol functionality like access control and proof services via the Ocean Keeper. Additionally, the Agent includes the OceanDB interface for metadata capture, storage, and retrieval, thus simplifying asset registration and discovery. 
+
+Lastly, the Ocean ARCH can be deconstructed into its funcational, independent components and component features:
 
 ![Funcational Building Blocks](images/ocean-components.png)
+
+### Ocean Client Software & Services
+
+To begin with, this is the layer that most ecosystem actors will interface with. Initially this will include the Ocean Reference Marketplace, but is intended to facilitate the integration of other 3rd party applications for functionality like discovery, mash-ups, reporting, analytics, model development and deployment, curation, signalling, etc.
 
 ### Ocean Agent
 
 An abstraction layer in charge of exposing a common and stable API to the network consumers. 
 
-The client outputs transactions that are send to the keeper. 
-Provides a service integrity layer to cryptographically secure bindings with off-chain services, 
+* The client outputs transactions that are sent to the keeper. 
+* Provides a service integrity layer to cryptographically secure bindings with off-chain services, 
 as well as privacy & multicast capabilities. 
-This layer abstracts the service contracts at the client side and ensures two-way binding with the KEEPERS
+* This layer abstracts the service contracts at the client side and ensures two-way binding with the KEEPERS
 
 An detailed overview of the Ocean AGENT can be found in  [OEP-4/AGENT](../4/README.md) 
+
+### Ocean Client
+
+As an integral part of the Ocean Agent, the Ocean Client Implements Ocean's Service Integrity and Orchestration capabilities, allowing for services to be requested, ordered, scheduled, verfied, and curated. These actions can then be orchestrated into service pipelines for end-to-end solution provisioning. 
 
 ### Ocean Keepers
 
