@@ -228,7 +228,7 @@ To begin with, this is the layer that most ecosystem actors will interface with.
 
 ### Ocean Client
 
-The Ocean Client is a thin An abstraction layer in charge of exposing a common and stable API to the network consumers.
+The Ocean Client is a thin abstraction layer in charge of exposing a common and stable API to the network consumers.
 
 ### Ocean Agent
 
