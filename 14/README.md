@@ -646,76 +646,6 @@ The AGENT node will be in charge of manage the association between PROVIDERS and
 The information about the PRICING and VERIFICATION PROOFS MUST be stored in the Decentralized DB. The complete information (Metadata + Pricing + etc.) will be send also to Ocean DB if it's enabled. 
  
 
-#### Interaction with the Decentralized VM
-
-The Assets Registry Smart Contract SHOULD provide the structs and the method necessary to register the association between a PROVIDER and the ASSET.
-The **associateProvider** method will allow to store this information:
-
-```solidity
-
-    uint8 constant SCHEME_FREE = 0; // Free Pricing Scheme
-    uint8 constant SCHEME_FIXED = 1; // Fixed Pricing Scheme
-    uint8 constant SCHEME_SERVICE = 2; // Service Pricing Scheme
-    uint8 constant SCHEME_SMARTCONTRACT = 3; // Smart Contract Pricing Scheme
-
-    struct Pricing {
-        uint8 scheme;
-        uint256 price;
-    }
-    struct VerificationProof {
-        byte32 expectedResult;
-    }
-
-    struct ProviderListing {
-        mapping(uint8 => Pricing) pricing;
-        mapping(uint8 => VerificationProof) proofs;
-    }
-
-    // Event triggered when the relation between an Asset and a Provider is updated
-    event AssetProviderUpdated(bytes32 indexed _id, address indexed _provider, address indexed _marketplace, uint256 indexed state);
-
-    // It associates an asset with a provider
-    function associateProvider(bytes32 _assetId, address _providerId) external returns (bool success);
-    
-    // Register the Pricing information to Asset/Provider listing
-    function addProviderPricing(bytes32 _assetId, address _providerId, unit8 scheme, unit256 _price) external returns (bool success);
-    
-    // Register the VerificationProof information to Asset/Provider listing
-    function addProviderProof(bytes32 _assetId, address _providerId, bytes32 _result) external returns (bool success);
-    
-    
-```
-
-The information to store in the **KEEPER::Decentralized VM** SHOULD be the minimal possible, so only the following information will be persisted:
-
-| Attribute | Type | Description |
-|:----------|:-----|:------------|
-|Pricing - scheme  |uint8|relation to the scheme enum (0 => "FREE", 1 => "FIXED", 2 => "SERVICE", 3 => "SMARTCONTRACT") |
-|Pricing - price  |uint256|Price applying. 0 if scheme is FREE (0)|
-|VerificationProof - expectedResult  |byte32|Expected result of the Verification Proof|
-
-Pricing scheme can be mapped to unsigned integers for efficiency:
-
-* 0 => FREE
-* 1 => FIXED
-* 2 => SERVICE
-* 3 => SMART CONTRACT 
-
-An ASSET can be accessed via multiple PROVIDERS. So It's necessary to associate a new **ProviderListing** to the Asset. 
-
-```solidity
-
-    struct Asset {
-        ..
-        mapping(address => ProviderListing) providers;
-        ..
-    }
-
-```
-
-Any modification about one Asset and the Providers associated will raise an event `AssetProviderUpdated`.
-
-<a name="asset-provider-insert-db"></a>
 #### Interaction with Ocean DB 
 
 If it's enabled, the **KEEPER::Ocean DB** will persist **Pricing** and **VerificationProofs** as nested objects associated to a specific providerId.
@@ -952,11 +882,11 @@ The Asset Registry Smart Contract SHOULD provide following methods to interact w
 
 * *Case 2: User challenges the existing asset:*
 	* User creates a challenge of "_assetId" and triggers the voting process with TCR Smart Contract;
-	* The TCR Smart Contract SHOULD call `retire` methods in Asset Registry if voting result is to remove the asset from the marketplace;
-	* As such Asset Registry smart contract removes the asset.
+	* The TCR Smart Contract SHOULD call `changeListingStatus` methods in Asset Registry if voting result is to remove the asset from the marketplace;
+	* As such Asset Registry smart contract disables access to the asset by changing its status to be false.
 
 	```solidity
-	function retire(bytes32 _assetId) external returns (bool success);
+	function changeListingStatus(bytes32 listing, bytes32 assetId) public returns(bool);
 	```
 	
 
