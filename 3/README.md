@@ -33,7 +33,8 @@ Table of Contents
 
 # Ocean Protocol Network Architecture
 
-This document gives an overview of the Ocean Network Architecture. 
+This document gives an overview of the Ocean Network Architecture from a baseline level, a deconstructed logical level, and a more detailed functional level. 
+
 It specifies what components can be found in the network and how they interact with each other.
 
 This specification is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper).
@@ -79,7 +80,7 @@ The following design requirements guide the development of the Ocean Protocol:
 * MUST respect rights of owners and creators.
 * MUST support data services of all types, including:
   - Data assets
-  - Data operations including:
+  - Data operations including (but not limited to):
     - Data transformation operations
     - Machine learning operations
     - Data interaction and visualisation libraries
@@ -89,38 +90,38 @@ and multiple decentralized and centralized technology stacks
 * MUST store a record of all asset provenance
 * MUST allow metadata governance (as defined by domain specific use cases)
 * MUST allow custom control logic for assets and interactions
-* SHOULD incentivize the network towards ecosystem objectives and the commons
+* SHOULD incentivize the network towards ecosystem objectives and the Commons
 
 
 Decentralization impacts the network design in the following ways:
 
-- there are no centralized components at the protocol level
-- nodes in the network are assumed to be Byzantine and Sybil actors
-- events and messages in the network are recorded as signed transactions
-- the full history of transactions is stored as a cryptographically linked data structure
-- business logic that triggers state transitions 
+- There are no centralized components at the protocol level
+- Nodes in the network are assumed to be Byzantine and Sybil actors
+- Events and messages in the network are recorded as signed transactions
+- The full history of transactions is stored as a cryptographically linked data structure
+- Manifests as business logic and associated workflows that trigger state transitions 
 
 ## Ocean Protocol Network Model
 
 ### At a glance
 
 Ocean protocol is a decentralized network for data service supply chains.
-Such a network allows to connect to, monetize on and curate arbitrary data services.
+Such a network allows connection to, monetization on, and curation of arbitrary data services.
 
 ![Service Contracts Interaction](images/data-pipeline.png)
 
 Service contracts provide an interface between a service PROVIDER and CONSUMER.
-A basic contract would allow a CONSUMER to pay (or simply ask) for a (free) service and hence gain access to that service.
+A basic contract would allow a CONSUMER to pay (or simply ask) for a (free) service and consequently gain access to that service.
 Upon a service request, a proof of service is delivered together with a service response. 
 
 ![Service Contracts Interaction](images/service-contract.png)
 
-In practice, the service contracts are smart contracts that run on a decentralized infrastructure.
+In practice, the service contracts are smart contracts that run on decentralized infrastructure.
 We'll refer to the network operators as KEEPERS.
 The client software that interacts with the smart contracts and services are called AGENTS.
 
 Note that in many cases data services from other (de)centralized networks will be part of a service supply chain.
-Such networks operate with their native tokens and service proofs (Filecoin/Proof-of-SpaceTime, Truebit/Verifiers, 
+Where applicable, such networks operate with their native tokens and service proofs (Filecoin/Proof-of-SpaceTime, Truebit/Verifiers, 
 Enigma/Private contracts, ...). 
 In Ocean protocol, BRIDGE nodes allow for inter-blockchain communication (IBC).
 Their responsibility is to connect different networks with Ocean network in order to provide a single interface for 
@@ -134,9 +135,9 @@ At the core of the network are nodes that can be either AGENTS and KEEPERS.
 Each node in the network can be regarded as an AGENT with certain behavior.
 
 AGENTS run software that is responsible for:
-- exposing internal attributes and services of the AGENT
-- setting up connections between services
-- interact with KEEPERS by means of transactions and smart contracts 
+- Exposing internal attributes and services of the AGENT
+- Setting up connections between services
+- Interacting with KEEPERS by means of transactions and smart contracts. 
 
 Depending on the service provided to the network, different types of behavior 
 can be observed in the network such as CONSUMERS, PROVIDERS, MARKETPLACES, PUBLISHERS, CURATORS and VERIFIERS.
@@ -170,7 +171,7 @@ We foresee a few ways to set up contracts:
 
 * Facilitation by a marketplace
 * Peer-to-peer between AGENTS
-* Open ended on-chain. ie send a valid TX to the contract address and gain service access
+* Open ended on-chain (i.e. send a valid TX to the contract address and gain service access).
 
 It should be noted that a minimum viable Ocean network only requires KEEPERS, CONSUMERS and combined PUBLISHER-PROVIDERS.
 
@@ -180,7 +181,7 @@ Ocean Network foresees 3 types of communication channels:
 
 1. AGENT-AGENT communication
 
-At this layer we have for example the service connections between service provider and consumer. 
+At this layer we have, for example, the service connections between service provider and consumer. 
 Potentially, these channels allow full duplex communication.
 The access and privacy of the channel is coordinated by the contract layers below.
 
@@ -188,7 +189,7 @@ The access and privacy of the channel is coordinated by the contract layers belo
 2. AGENT-KEEPER communication
 
 AGENTS communicate on-chain by means of signed transactions and event listeners or event polling.
-KEEPERS subscribe to these transactions and either validate them and store them in a pool of unconfirmed transactions (MEMPOOL)
+KEEPERS subscribe to these transactions and either validate them or store them in a pool of unconfirmed transactions (MEMPOOL).
 
 3. KEEPER-KEEPER communication
 
@@ -197,7 +198,7 @@ The consensus algorithms may need to coordinate between faulty, Byzantine and Sy
 
 
 Below, you can find a representation of the network with an emphasis to communication channels.
-The image depicts a PUB/SUB method of communication as an example
+The image depicts a PUB/SUB method of communication as an example.
 
 ![Agent Communication](images/agent-communication-channels.png)
 
