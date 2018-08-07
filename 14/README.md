@@ -154,77 +154,25 @@ Taking this into account, the skeleton of main implementation should provide the
 ```solidity
 contract AssetsRegistry {
 
-    uint256 constant STATE_PENDING = 0; // Asset just created
-    uint256 constant STATE_PUBLISHED = 1; // Asset used by at least one provider
-    uint256 constant STATE_UNPUBLISHED = 2; // Asset is not being provided 
-    uint256 constant STATE_DISABLED = 9; // Asset deleted
-
     struct Asset {
         address owner;
-        address marketplace;
-        uint256 state;
+        uint256 price;
+        bool active;
     }
     
-    mapping(byte32 => Asset) assets;
+    // associate asset id to the Asset struct
+    mapping(bytes32 => Asset) public mAssets; 
     
     /////// EVENTS //////////////////////////////
-    event AssetRegistered(bytes32 indexed _id, address indexed _mktId);    
-    
-    event AssetUpdated(bytes32 indexed _id, address indexed _mktId, uint256 indexed state);    
-      
-    event AssetAttributeChanged(bytes32 indexed _id, address indexed _mktId, bool indexed _isValid, bytes32 _name, bytes32 _value);    
+    event AssetRegistered(bytes32 indexed _assetId, address indexed _owner);   
     
     /////// FUNCTIONS ///////////////////////////
     
     // Allows to register a new asset (assetId) where the owner is the msg.sender of the request
-    // An optional marketplaceId can be given, allowing to it to act in behalf of the user related with the asset
-    function publish(bytes32 _id, address _mktId) external returns (bool success);
-    
-    // Remove the asset of the system (soft delete). 
-    // Only the owner of the asset or marketplace associated can retire an asset
-    function retire(bytes32 _id) external onlyOwnerOrMarketplace returns (bool success);
-    
-    // Returns the address of the owner of a specific asset
-    function getOwner(bytes32 _id) external view returns (address owner);
-    
-    // Returns true or false saying if the address passed as parameter is the owner of the asset
-    // or can act in behalf
-    function isOwner(bytes32 _id, address _address) internal view returns (bool isOwner);
-    
-    // Returns true or false saying if the message.sender can update an asset    
-    function canUpdate(bytes32 _id) internal view returns (bool success);
-    
-    // Update the internal state of an assent
-    // Only the owner or marketplace in behalf can update the state
-    function updateState(bytes32 _id, address _address, uint256 _newState) internal onlyOwnerOrMarketplace returns (bool success);
-    
-    // Returns true or false saying if the message.sender can retire an asset
-    function canRetire(bytes32 _id) internal view returns (bool success);
-
-    // Sugar on top of updateState method. Updates the state to DISABLED
-    // Only the owner or marketplace in behalf can update the state  
-    function retire(address _id, address _mktId) external onlyOwnerOrMarketplace returns (bool success);
-
-    // Add an Attribute associated to an Asset
-    // Attributes are stored as Events. It raises the AssetAttributeChanged event
-    function setAttribute(bytes32 _id, bytes32 _key, bytes32 _value) external onlyOwnerOrMarketplace returns (bool success);
-
-    // Revoke an Attribute associated to an Asset
-    // Attributes are stored as Events. It raises the AssetAttributeChanged event
-    function revokeAttribute(address _id, bytes32 _name, bytes32 _value) external onlyOwnerOrMarketplace returns (bool success);
-    
+    function register(bytes32 assetId, uint256 price) public validAddress(msg.sender) returns (bool success);
 }
 
 ```
-
-Different states are:
-
-* PENDING (state = 0) - Asset just created
-* PUBLISHED (state = 1) - Asset used by at least one provider
-* UNPUBLISHED (state = 2) - Asset is not being provided 
-* DISABLED (state = 9) - Asset deleted
-
-To save costs, the states are mapped to uint. Additional attributes required by the Actors TCR could be required.
 
 ---
 
