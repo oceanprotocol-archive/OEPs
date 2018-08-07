@@ -867,17 +867,13 @@ The **Challenge** object includes the following attributes:
 The Asset Registry Smart Contract SHOULD provide following methods to interact with TCR in two scenarios:
 
 * *Case 1: registering new dataset initiates the voting process when TCR is enabled:*
-	* The function `applyListAsset` creates a challenge of `_assetId`; 
+	* The function `apply ` creates a challenge of `_listing` for data asset; 
 	* The challenge triggers the voting process;
 	* Depends on the result, the function returns "true" if most voters agree to list the new dataset and new dataset can be listed in the marketplace;
 	* It returns "false" if not and new dataset is disabled. 
 
 	```solidity
-		function applyListAsset(
-	        bytes32 _assetId, 
-	        address _providerId) 
-	    external returns (bool success);
-	
+	function apply(bytes32 _listing, uint _amount, string _data) externa;
 	```
 
 * *Case 2: User challenges the existing asset:*
