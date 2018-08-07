@@ -203,6 +203,8 @@ The image depicts a PUB/SUB method of communication as an example
 
 ## Components
 
+Test.
+
 The Ocean ARCH is composed of independent components:
 
 ![Building Blocks](images/ocean-components.png)
