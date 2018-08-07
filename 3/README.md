@@ -216,7 +216,7 @@ At the logical level, the Frontend will be a standard deployment consisting of d
 
 The Ocean Client provides the interfaces that facilitate interactions between the Frontend and the Ocean Agent. These interfaces will provide reusable protocol functionality for Ocean's segmented activities (i.e. Provider vs. Publisher vs. Consumer activities). 
 
-The Ocean Agent logically acts is a middleware component. This layer facilitates additional protocol functionality like access control and proof services via the Ocean Keeper. Additionally, the Agent includes the OceanDB interface for metadata capture, storage, and retrieval, thus simplifying asset registration, signalling, and discovery. 
+The Ocean Agent logically acts as a middleware component. This layer facilitates additional protocol functionality like access control and proof services via the Ocean Keeper. Additionally, the Agent includes the OceanDB interface for metadata capture, storage, and retrieval, thus simplifying asset registration, signalling, and discovery. 
 
 Lastly, the Ocean ARCH can be deconstructed into its functional, independent components and component features:
 
