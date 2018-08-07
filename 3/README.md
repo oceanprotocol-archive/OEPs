@@ -205,7 +205,7 @@ The image depicts a PUB/SUB method of communication as an example
 
 At the most simplistic level, the Ocean architecture can be broken down into 3 core components: the keeper/contracts, the agent, and the front-end. Operating between these components are requests that faciltate syncronized operations, and events that can take place asynchronously.
 
-![Baseline Building Blocks]()
+![Baseline Building Blocks](images/simple-architecture.png)
 
 The Ocean ARCH is composed of independent components:
 
