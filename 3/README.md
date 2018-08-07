@@ -239,7 +239,7 @@ An detailed overview of the Ocean AGENT can be found in  [OEP-4/AGENT](../4/READ
 
 ### Ocean Client
 
-As an integral part of the Ocean Agent, the Ocean Client Implements Ocean's Service Integrity and Orchestration capabilities, allowing for services to be requested, ordered, scheduled, verfied, and curated. These actions can then be orchestrated into service pipelines for end-to-end solution provisioning. 
+As an integral part of the Ocean Agent, the Ocean Client implements Ocean's Service Integrity and Orchestration capabilities, allowing for services to be requested, ordered, scheduled, verfied, and curated. These actions can then be orchestrated into service pipelines for end-to-end solution provisioning. 
 
 ### Ocean Keepers
 
