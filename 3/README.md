@@ -204,7 +204,7 @@ The image depicts a PUB/SUB method of communication as an example.
 
 ## Components
 
-At its most simplistic, the Ocean architecture can be broken down into 3 core components: the Keeper/Contracts, the Agent, and the Frontend. Operating between these components are requests that faciltate synchronized operations, and events that can take place asynchronously.
+At its most simplistic, the Ocean architecture can be broken down into 3 core components: the Keeper/Contracts, the Agent, and the Frontend. Operating between these components are requests that facilitate synchronized operations, and events that can take place asynchronously.
 
 ![Baseline Building Blocks](images/Simple-Architecture.PNG)
 
@@ -216,9 +216,9 @@ At the logical level, the Frontend will be a standard deployment consisting of d
 
 The Ocean Client provides the interfaces that facilitate interactions between the Frontend and the Ocean Agent. These interfaces will provide reusable protocol functionality for Ocean's segmented activities (i.e. Provider vs. Publisher vs. Consumer activities). 
 
-The Ocean Agent logically acts is a middleware component. This layer facilitates additional protocol functionality like access control and proof services via the Ocean Keeper. Additionally, the Agent includes the OceanDB interface for metadata capture, storage, and retrieval, thus simplifying asset registration and discovery. 
+The Ocean Agent logically acts is a middleware component. This layer facilitates additional protocol functionality like access control and proof services via the Ocean Keeper. Additionally, the Agent includes the OceanDB interface for metadata capture, storage, and retrieval, thus simplifying asset registration, signalling, and discovery. 
 
-Lastly, the Ocean ARCH can be deconstructed into its funcational, independent components and component features:
+Lastly, the Ocean ARCH can be deconstructed into its functional, independent components and component features:
 
 ![Functional Building Blocks](images/ocean-component-architecture.PNG)
 
