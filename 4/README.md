@@ -95,9 +95,9 @@ Reciprocally the same software is used for consuming the services and managing r
 Independently of the API consumption mechanism, the AGENT is in charge of building the internal 
 object models using the incoming messages provided by the **KEEPER components interfaces**.
  
-This marshaling and un-marshaling operations will allow using a common internal data model across all the application. 
+This marshaling and un-marshaling operations will allow using a common internal data model across the entire application. 
 
-The Agent also will orchestrate the interaction with the Keeper components, allowing to provide a high level view 
+The Agent also will orchestrate the interaction with the Keeper components, allowing the provision of a high level view 
 from the consumer side, interacting with the decentralized VM and the **Ocean DB**.
 
 ![Protocol Stack](images/agent-components.png)
@@ -143,7 +143,7 @@ For example Amazon EC2, Truebit, Weeve, XAIN, Enigma, etc.
 Like Amazon S3, IPFS, BigchainDB, SWARM, etc.
 * **UX/UI Providers** - In charge of providing visual interfacing with the system.
 
-Because is cumbersome to define upfront the different providers to integrate, it's important 
+Because it is cumbersome to define upfront the different providers to integrate, it's important 
 to implement a pluggable mechanism allowing to extend the systems supported by the system.
 
 ![Ocean Agent Plugins System](images/agent-plugins.png)
@@ -194,8 +194,8 @@ This could be an optimal configuration when the Ocean Agent is running in conjun
 
 ![Event Driven](images/comm-bus.png)
 
-* **P2P** - Provided by a Peer to Peer interface. in charge of maintain peer to peer communication between AGENTS. This communication can be used to implement:
-  - Direct messaging between parties - Allowing for example the agree Contracts terms before to formalize the contract or direct sharing of Assets consumptions information between the provider and the consumer 
+* **P2P** - Provided by a Peer to Peer interface. in charge of maintaining peer to peer communication between AGENTS. This communication can be used to implement:
+  - Direct messaging between parties - Allowing for example the agree Contracts terms before to formalize the contract or direct sharing of Assets consumption information between the provider and the consumer 
   - Assets transferring between different Ocean actors - In the actors that are giving access directly to some assets without using a third-party provider, would be possible to share directly the Assets between parties.
 
 ![P2P Communication](images/comm-p2p.png)  
@@ -231,7 +231,7 @@ homomorphic encryption (HE), trusted execution environments, on-premise, multipa
 In this layer both AGENTS MAY negotiate privacy details for the CONNECTION.
 
 Due to limited capabilities of privacy suites like MPC, HE and ZK, 
-not all service capabilities at the application level WILL supported.
+not all service capabilities at the application level WILL be supported.
 
 The AGENT WILL implement a Privacy Protocol allowing to negotiate the privacy requirements between parties.
 In a non-homogeneous network, different nodes can provide alternative mechanisms (hardware or software) 
@@ -287,10 +287,10 @@ All the requests giving invalid authentication parameters will return a **HTTP 4
 
 #### Authorization
 
-In the authorization phase it's necessary to validate that a user is able execute a specific action, 
+In the authorization phase it's necessary to validate that a user is able to execute a specific action, 
 ie. access a data service or modify the metadata information of a specific asset. 
 
-On-chain authorization requires information associated to ownership of the resources to be stored on-chain.
+On-chain authorization requires information associated to ownership of the resources to be stored on-chain. 
 
 The authorization will be implemented as an on-chain access control module driven by
 service contracts that are deployed on the decentralized VM. 
@@ -344,7 +344,7 @@ The orchestration Layer acts as a mediator between different components and can 
 
 * Using a sync orchestration layer, abstracting/encapsulating the execution of multiple components 
 using a [Mediator pattern](https://en.wikipedia.org/wiki/Mediator_pattern). 
-The mediator can executes one by one all the steps involved in one execution workflow.
+The mediator can execute one by one all the steps involved in one execution workflow.
 * Evolving the Mediator pattern to introduce a pub/sub mechanism. 
 In that case, the mediator publish a new event in a specific topic of the events bus. 
 Multiple subscribers can listen to that topic implementing the behaviour of the individual phases. 
@@ -383,11 +383,11 @@ The AGENT will provide the interfaces to:
   - Subscribe to all the events sent to a smart contract address (TO)
   - The combination of the previous two
   - Filter by TOPIC (specific event)
-* Retrieve all the historic transactions related an address  
+* Retrieve all the historic transactions related to an address  
 
 ### Data Transfer Objects
 
-he Keeper interface module should implement an extensible interfaces system allowing to plug different 
+The Keeper interface module should implement an extensible interfaces system allowing to plug different 
 communication protocols to establish the communication between the Ocean Agent and the the Keepers network. 
 This component is in charge of the following capabilities:
 
