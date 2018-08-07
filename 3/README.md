@@ -226,9 +226,13 @@ Lastly, the Ocean ARCH can be deconstructed into its functional, independent com
 
 To begin with, this is the layer that most ecosystem actors will interface with. Initially this will include the Ocean Reference Marketplace, but is intended to facilitate the integration of other 3rd party applications for functionality like discovery, mash-ups, reporting, analytics, model development and deployment, curation, signalling, etc.
 
+### Ocean Client
+
+The Ocean Client is a thin An abstraction layer in charge of exposing a common and stable API to the network consumers.
+
 ### Ocean Agent
 
-An abstraction layer in charge of exposing a common and stable API to the network consumers. 
+The Agent handles all non-blockchain related core functionality, including compute and storage interfaces, and connections to Ocean Keepers. Additionally, the Agent implements Ocean's Service Integrity and Orchestration capabilities, allowing for services to be requested, ordered, scheduled, verfied, and curated. These actions can then be orchestrated into service pipelines for end-to-end solution provisioning. 
 
 * The client outputs transactions that are sent to the keeper. 
 * Provides a service integrity layer to cryptographically secure bindings with off-chain services, 
@@ -236,10 +240,6 @@ as well as privacy & multicast capabilities.
 * This layer abstracts the service contracts at the client side and ensures two-way binding with the KEEPERS
 
 An detailed overview of the Ocean AGENT can be found in  [OEP-4/AGENT](../4/README.md) 
-
-### Ocean Client
-
-As an integral part of the Ocean Agent, the Ocean Client implements Ocean's Service Integrity and Orchestration capabilities, allowing for services to be requested, ordered, scheduled, verfied, and curated. These actions can then be orchestrated into service pipelines for end-to-end solution provisioning. 
 
 ### Ocean Keepers
 
