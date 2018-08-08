@@ -229,6 +229,8 @@ To save costs, the states are mapped to uint. Additional attributes required by 
 
 ---
 
+## Asset Lifecycle
+
 <a name="registering-a-new-asset"></a><a name="ASE.001"></a>
 ### Registering a new Asset 
 
@@ -293,6 +295,35 @@ Example:
             "url": "http://example.com/samples/tx/2018/01.csv"
         }]
 	}
+}
+```
+
+Attributes might include extra information about the access, permissions, policies and service level agreement as shown below:
+
+```json
+{	
+    //...
+	"metadata": {
+        //...   
+        "attributes": [{
+               "responseType": "Signed_URL",
+                "resourceServerPlugin": "Azure",
+                "serviceEndpoint": "https://provider123.com/cosume/?assetid=123344556",
+                "permissions":{
+                    "READ":true,
+                    "WRITE": false,
+                    "DELETE": false,
+                    "UPDATE": false
+                },
+                "ServiceLevelAgreement":{
+                    "type": "PDF",
+                    "reference": "https://provider123.com/sla/123sla.pdf"
+                }
+                
+             }]
+        
+        },
+      //...
 }
 ```
 
@@ -590,6 +621,8 @@ After of that the Orchestration layer will update the above attributes in Ocean 
 
 
 ---
+
+## Extra Asset Capabilities
 
 <a name="provider-asset"></a><a name="ASE.005"></a>
 ### Make an Asset available through a Provider 
