@@ -524,105 +524,151 @@ send release payment signal to the <code>market.sol</code> contract.
 
 ```javascript
 
-    // Sevice level agreement published on immutable storage
-    struct SLA {
-        string slaRef; // reference link or i.e IPFS hash
-        string slaType; // type such as PDF/DOC/JSON/XML file.
-    }
+    pragma solidity 0.4.24;
 
-    // final agreement
-    struct Commitment {
-        string encJWT;  // encrypted JWT using consumer's temp public key
-        bytes32 receiptId;
+import '../OceanMarket.sol';
+
+contract OceanAuth {
+
+    // marketplace global variables
+    OceanMarket private market;
+
+    // Sevice level agreement published on immutable storage
+    struct AccessAgreement {
+        string accessAgreementRef;  // reference link or i.e IPFS hash
+        string accessAgreementType; // type such as PDF/DOC/JSON/XML file.
     }
 
     // consent (initial agreement) provides details about the service availability given by the provider.
     struct Consent {
-        bytes32 resource; // resource id
-        string permissions; // comma sparated permissions in one string
-        SLA serviceLevelAgreement;
-        bool available; // availability of the resource
-        uint256 timestamp; // in seconds
-        uint256 expire;  // in seconds
-        string discovery; // this is for authorization server configuration in the provider side
-        uint256 timeout; // if the consumer didn't receive verified claim from the provider within timeout
+        bytes32 resourceId;                   // resource id
+        string permissions;                 // comma sparated permissions in one string
+        AccessAgreement accessAgreement;
+        bool isAvailable;                     // availability of the resource
+        uint256 startDate;                  // in seconds
+        uint256 expirationDate;                     // in seconds
+        string discovery;                   // this is for authorization server configuration in the provider side
+        uint256 timeout;                    // if the consumer didn't receive verified claim from the provider within timeout
         // the consumer can cancel the request and refund the payment from market contract
     }
 
-    struct ACL {
+    struct AccessControlRequest {
         address consumer;
         address provider;
-        bytes32 resource;
+        bytes32 resourceId;
         Consent consent;
-        string pubkey; // temp public key for access token encryption
-        Commitment commitment;
+        string tempPubKey; // temp public key for access token encryption
+        bytes encryptedAccessToken;
         AccessStatus status; // Requested, Committed, Delivered, Revoked
     }
 
-    mapping(bytes32 => ACL) private aclEntries;
-
-    ...
-    
-    
-    // Access Control Status
-    enum AccessStatus {Requested, Committed, Delivered, Revoked};
+    mapping(bytes32 => AccessControlRequest) private accessControlRequests;
+    enum AccessStatus {Requested, Committed, Delivered, Revoked}
     
     // modifiers and access control
     modifier isAccessRequested(bytes32 id) {
-        require(aclEntries[id].status == AccessStatus.Requested);
+        require(accessControlRequests[id].status == AccessStatus.Requested, 'Status not requested.');
         _;
     }
 
-    modifier isAccessComitted(bytes32 id) {
-        require(aclEntries[id].status == AccessStatus.Committed);
+    modifier isAccessCommitted(bytes32 id) {
+        require(accessControlRequests[id].status == AccessStatus.Committed, 'Status not Committed.');
         _;
     }
-    
-    
-    ...
-    
-    // phase 1
-    function initiateAccessRequest(bytes32 id, bytes32 resourceId, address provider, string pubKey, uint256 timeout)
-    public {
-        //TODO: initialize SLA, Commitment, and claim
-        //TODO: initialize acl handler
-        ...
-        emit RequestAccessConsent(id, msg.sender, provider, resourceId, timeout);
+
+    modifier onlyProvider(bytes32 id) {
+        require(accessControlRequests[id].provider == msg.sender, 'Sender is not Provider.');
+        _;
     }
-    
-    // phase 2
-    function commitAccessRequest(bytes32 id, bool available, uint256 expire, string discovery, string permissions, string slaLink, string slaType, bytes32 jwtHash)
-    public onlyProvider(id) isAccessRequested(id){
-        if (available && now < expire) {
-            ...
-            emit CommitConsent(id, expire, discovery, permissions, slaLink);
-        }else{
-            aclEntries[id].status = AccessStatus.Revoked;
-            emit RefundPayment(aclEntries[id].consumer, aclEntries[id].provider, id);
-        }
+
+    modifier onlyConsumer(bytes32 id) {
+        require(accessControlRequests[id].consumer == msg.sender, 'Sender is not consumer.');
+        _;
     }
-    
-    function cancelConsent(bytes32 id)
-    public
-    isAccessRequested(id) {
-        ...
+
+    // events
+    event AccessConsentRequested(bytes32 _id, address _consumer, address _provider, bytes32 _resourceId, uint _timeout, string _pubKey);
+    event AccessRequestCommitted(bytes32 _id, uint256 _expirationDate, string _discovery, string _permissions, string _accessAgreementRef);
+    event AccessRequestRejected(address _consumer, address _provider, bytes32 _id);
+    event AccessRequestRevoked(address _consumer, address _provider, bytes32 _id);
+    event EncryptedTokenPublished(bytes32 _id, bytes _encryptedAccessToken);
+    event AccessRequestDelivered(address _consumer, address _provider, bytes32 _id);
+
+    //
+    constructor(address _marketAddress) public {
+       
     }
-    
-    // phase 3
-    function deliverAccessToken(bytes32 id, string encryptedJWT) public onlyProvider(id) isAccessComitted(id) {
-    
-        emit PublishEncryptedToken(id, encryptedJWT);
+
+    // 1. Access Request Phase
+    function initiateAccessRequest(bytes32 resourceId, 
+                                   address provider, 
+                                   string pubKey, 
+                                   uint256 timeout) 
+    public returns (bool)     {
+      
     }
+
+    // 2. commit phase
+    function commitAccessRequest(bytes32 id, 
+                                 bool isAvailable, 
+                                 uint256 expirationDate, 
+                                 string discovery, 
+                                 string permissions, 
+                                 string accessAgreementRef, 
+                                 string accessAgreementType)
+    public onlyProvider(id) 
+    isAccessRequested(id) 
+    returns (bool) {
+       
+    }
+
+    function cancelAccessRequest(bytes32 id) public isAccessCommitted(id) onlyConsumer(id) {
+       
+    }
+
+    // 3. Delivery phase
     
-    
-    function verifyAccessTokenDelivery(bytes32 id, bytes32 proofJWTHash) public onlyProvider(id) isAccessComitted(id) {
+    function deliverAccessToken(bytes32 id, 
+                                bytes encryptedAccessToken) 
+    public onlyProvider(id) 
+    isAccessCommitted(id) 
+    returns (bool) {
         
+    }
+     
+
+    // provider uses this function to verify the signature comes from the consumer
+    function verifySignature(address _addr, 
+                             bytes32 msgHash, 
+                             uint8 v, 
+                             bytes32 r, 
+                             bytes32 s) 
+    public pure returns (bool) {
         
     }
-    
-    function verifyAccessStatus(bytes32 id, AccessStatus status) public view returns (bool) {
+
+    // provider verify the access token is delivered to consumer and request for payment
+    function verifyAccessTokenDelivery(bytes32 id, 
+                                       address _addr, 
+                                       bytes32 msgHash, 
+                                       uint8 v, 
+                                       bytes32 r, 
+                                       bytes32 s) 
+    public 
+    onlyProvider(id) 
+    isAccessCommitted(id) 
+    returns (bool) {
+       
+    }
+
+    // verify status of access request
+    function verifyCommitted(bytes32 id, 
+                             uint256 status) 
+    public view returns (bool) {
         
     }
+
+}
     
 ```
 
