@@ -32,7 +32,7 @@ Short Name    | Title                                                        | T
 [2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
 [3/ARCH](3)   | Ocean Core Architecture                                      | Standard     | Draft      | Dimitri De Jonghe
 [4/AGENT](4)   | Ocean Agent Protocol Stack                                  | Standard     | Draft      | Aitor Argomaniz
-[10/OAA](10)   | On-chain Authentication                       				 | Standard     | Draft      | Ahmed Abdullah
+[10/OAA](10)   | On-Chain Access Control                       				 | Standard     | Draft      | Ahmed Ali
 
 
 # Current Participants
