@@ -5,7 +5,8 @@ type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
-		Fang Gong <fang@oceanprotocol.com>
+              Fang Gong <fang@oceanprotocol.com>
+              Ahmed Ali <ahmed@oceanprotocol.com>
 ```
 
 <!--ts-->
@@ -18,13 +19,14 @@ Table of Contents
       * [Change Process](#change-process)
       * [Language](#language)
       * [Motivation](#motivation)
-      * [Specification](#specification)
-         * [Proposed Solution](#proposed-solution)
+      * [Proposed Solution](#proposed-solution)
+      * [Asset Lifecycle](#asset_lifecycle)
          * [Registering a new Asset](#registering-a-new-asset)
-         * [Retrieve metadata of an Asset](#retrieve-metadata-of-an-asset)
+         * [Retrieve Metadata of an Asset](#retrieve-metadata-of-an-asset)
          * [Updating Asset Metadata](#updating-asset-metadata)
          * [Retiring an Asset](#retiring-an-asset)
-         * [Make an Asset available through a Provider](#make-an-asset-available-through-a-provider)
+      * [Extra Asset Capabilities](#extra_asset_capabilities)
+         * [Make an Asset available](#make-an-asset-available-through-a-provider)
          * [Updating Asset Provider](#updating-asset-provider)
       * [Copyright Waiver](#copyright-waiver)
 
@@ -77,8 +79,8 @@ Requirements are:
 * PROVIDER provides SERVICE and PROOF VERIFIER validates PROOF
 * OCEAN DB is optional/pluggable, OAR MUST work without an OCEAN DB backend 
   
-<a name="specification"></a>
-## Specification 
+
+## Proposed Solution 
 
 The **ASSET** information should be managed using an API. 
 As general rule, only the **INDISPENSABLE** information to run the Smart Contracts MUST be stored in te Decentralized VM.
@@ -98,8 +100,7 @@ The following restrictions apply during the design/implementation of this OEP:
 * Only the very basic information about the Assets (ids and pricing) MUST be stored in the Decentralized VM too 
 * AGENT MUST NOT store any information about the Assets or Actors during this process
 
-<a name="proposed-solution"></a>
-### Proposed Solution 
+
 
 The proposed solution is composed by the interaction of different elements:
 
