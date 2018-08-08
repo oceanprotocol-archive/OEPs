@@ -6,35 +6,34 @@ status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 ```
+
 Table of Contents
 =================
 
-  * [Table of Contents](#table-of-contents)
-  * [Ocean Agent Architecture](#ocean-agent-architecture)
-     * [Change Process](#change-process)
-     * [Language](#language)
-     * [Motivation](#motivation)
-     * [Design Requirements](#design-requirements)
-     * [Agent Protocol Stack](#agent-protocol-stack)
-     * [Plugin System](#plugin-system)
-        * [Service Plugins](#service-plugins)
-        * [Interfaces](#interfaces)
-     * [Service Integrity Layer](#service-integrity-layer)
-        * [Service Proofs](#service-proofs)
-        * [Privacy](#privacy)
-        * [Access Control](#access-control)
-           * [Authentication](#authentication)
-           * [Authorization](#authorization)
-     * [Contract Management](#contract-management)
-     * [Decentralized Interface](#decentralized-interface)
-        * [Orchestration Layer](#orchestration-layer)
-        * [Events Watcher](#events-watcher)
-        * [Data Transfer Objects](#data-transfer-objects)
-        * [Private Key Infrastructure (PKI)](#private-key-infrastructure-pki)
-           * [Accounts](#accounts)
-           * [Wallets](#wallets)
-     * [Connection to External Modules](#connection-to-external-modules)
-        * [Ocean DB integration](#ocean-db-integration)
+   * [Table of Contents](#table-of-contents)
+   * [Ocean Agent Architecture](#ocean-agent-architecture)
+      * [Change Process](#change-process)
+      * [Language](#language)
+      * [Motivation](#motivation)
+      * [Design Requirements](#design-requirements)
+      * [Agent Protocol Stack](#agent-protocol-stack)
+      * [Plugin System](#plugin-system)
+         * [Service Plugins](#service-plugins)
+         * [Interfaces](#interfaces)
+      * [Service Integrity Layer](#service-integrity-layer)
+         * [Service Proofs](#service-proofs)
+         * [Privacy](#privacy)
+         * [Access Control](#access-control)
+            * [Authentication](#authentication)
+            * [Authorization](#authorization)
+      * [Contract Management](#contract-management)
+      * [Decentralized Interface](#decentralized-interface)
+         * [Orchestration Layer](#orchestration-layer)
+         * [Events Watcher](#events-watcher)
+         * [Data Transfer Objects](#data-transfer-objects)
+      * [Connection to External Modules](#connection-to-external-modules)
+         * [Ocean DB integration](#ocean-db-integration)
+
 
 # Ocean Agent Architecture
 
@@ -52,11 +51,12 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Motivation
 
-The goal of this document is to describe the responsibilities and architecture of an Ocean AGENT node. 
+The goal of this document is to describe the responsibilities and architecture of an Ocean AGENT node. Also referenced as PROVIDER in some documents.
+
 
 In the Ocean network, AGENTS implement a variety of behavior that contribute data services to the network.
-For example: AGENTS can provide services such as data sets, algorithms, storage, computational power, service curation, 
-verification, market makers and so on.  
+For example: AGENTS can provide access to services such as data sets, algorithms, storage, computational power, service curation,
+verification, market makers and so on.
 
 AGENTS need to be able to talk to each other as well as to the network KEEPERS.
 The network architecture talks about that, see [3/ARCH](../3/README.md).
@@ -74,7 +74,8 @@ AGENT is client-side software. The main responsibilities of AGENT are:
 * Facilitate the integration of various Ocean services 
 * Enable the communication between AGENTS and with the KEEPER network
 * Exposing a common and stable interface to network consumers
-* Integrate with external services or providers (compute, data, orchestration, ...)
+* Integrate with external metadata providers
+* Integrate with external services or providers (compute, data, metadata, ...)
 * Exposing a cryptographically secure interface for off-chain service proofs, privacy and access control 
 * Implement necessary identity components for authentication and authorization of AGENTS
 * Compose valid transactions to interact with the keeper network 
@@ -95,10 +96,11 @@ Reciprocally the same software is used for consuming the services and managing r
 Independently of the API consumption mechanism, the AGENT is in charge of building the internal 
 object models using the incoming messages provided by the **KEEPER components interfaces**.
  
-This marshaling and un-marshaling operations will allow using a common internal data model across all the application. 
+This marshaling and un-marshaling operations will allow using a common internal data model across the entire application. 
+
 
 The Agent also will orchestrate the interaction with the Keeper components, allowing to provide a high level view 
-from the consumer side, interacting with the decentralized VM and the **Ocean DB**.
+from the consumer side, interacting with the decentralized VM and the **Ocean DB** (Metadata storage).
 
 ![Protocol Stack](images/agent-components.png)
 
@@ -143,8 +145,9 @@ For example Amazon EC2, Truebit, Weeve, XAIN, Enigma, etc.
 Like Amazon S3, IPFS, BigchainDB, SWARM, etc.
 * **UX/UI Providers** - In charge of providing visual interfacing with the system.
 
-Because is cumbersome to define upfront the different providers to integrate, it's important 
-to implement a pluggable mechanism allowing to extend the systems supported by the system.
+Because it is cumbersome to define upfront the different providers to integrate, it is important 
+to implement a pluggable mechanism allowing to extend the connections supported by the system.
+
 
 ![Ocean Agent Plugins System](images/agent-plugins.png)
 
@@ -156,20 +159,9 @@ From there onwards, the integration with the rest of the system is abstracted.
 Depending on the implementation of the system, the usage of one plugin or another one 
 could be made by configuration or using dependency injection.
 
-```java
-public StorageProvider interface {
-
-    bool store(Asset asset);
-    Asset retrieve(URL url);
-    ..
-}
-```
-
-Details of the plugin system are discussed in [#TODO:OEP-PLUGIN](../<PLUGIN>/README.md)
-
 ### Interfaces
 
-Interfaces are charge of interacting with off-chain services, libraries, cloud/micro-services and more.
+Interfaces are in charge of interacting with off-chain services, libraries, cloud/micro-services and more.
 In essence, they connect relevant services that can bring value to the ocean network.
 The interfaces expose the service integrity layer that allows data services and consumers to interact with service contracts.
    
@@ -189,14 +181,15 @@ to the changes happening in the KEEPER level. For example, if a change in a cont
 ![Websocket](images/comm-ws.png)
 
 * **Event Driven** - Provided by a Pub/Sub interface. In some scenarios where the execution of an action 
-can take some time (more than 2 or seconds) could be recommended to allow async consumption mechanisms. 
+can take some time (more than about 2 seconds) we would recommended to allow async consumption mechanisms. 
 This could be an optimal configuration when the Ocean Agent is running in conjunction with a Marketplace.
 
 ![Event Driven](images/comm-bus.png)
 
-* **P2P** - Provided by a Peer to Peer interface. in charge of maintain peer to peer communication between AGENTS. This communication can be used to implement:
-  - Direct messaging between parties - Allowing for example the agree Contracts terms before to formalize the contract or direct sharing of Assets consumptions information between the provider and the consumer 
-  - Assets transferring between different Ocean actors - In the actors that are giving access directly to some assets without using a third-party provider, would be possible to share directly the Assets between parties.
+
+* **P2P** - Provided by a Peer to Peer interface. It is in charge of maintain peer to peer communication between AGENTS. This communication can be used to implement:
+  - Direct messaging between parties - Allowing for example the agree Contracts terms before formalizing the contract or direct sharing of Assets consumptions information between the provider and the consumer 
+  - Assets transferring between different Ocean actors - In the actors that are giving access directly to some assets without using a third-party provider, it would be possible to share directly the Assets between parties.
 
 ![P2P Communication](images/comm-p2p.png)  
 
@@ -220,7 +213,7 @@ enabling the communications allowing to challenge/retrieve the required Proofs o
 
 Using the [Service Plugins](#service-plugins) system, this module will interface with off-chain providers to obtain the proofs needed.
 
-Details of the service proofs are discussed in [#TODO:OEP-PROOFS](../<PROOFS>/README.md) 
+Details of the service proofs will be discussed in an independent OEP.
 
 ### Privacy
 
@@ -231,7 +224,7 @@ homomorphic encryption (HE), trusted execution environments, on-premise, multipa
 In this layer both AGENTS MAY negotiate privacy details for the CONNECTION.
 
 Due to limited capabilities of privacy suites like MPC, HE and ZK, 
-not all service capabilities at the application level WILL supported.
+not all service capabilities at the application level WILL be supported.
 
 The AGENT WILL implement a Privacy Protocol allowing to negotiate the privacy requirements between parties.
 In a non-homogeneous network, different nodes can provide alternative mechanisms (hardware or software) 
@@ -239,22 +232,14 @@ implementing some privacy capabilities.
 
 In such scenario of one can assume that different users running Ocean Agents can require and implement 
 different privacy capabilities to negotiate with other agents. This means that each AGENT will define a list 
-of the **"privacy systems"** supported. For example:
-
-```
-privacy {
-	mpc= "sign,encrypt,query"
-	tee= "intel,arm"
-	zk= "syft,libsnarks"
-}
-```
+of the **"privacy systems"** supported.
 
 In order to establish a successful connection, 2 different AGENT's SHOULD share the information about their supported 
 privacy suits using a handshake protocol. If they have a common or compatible method, the exchange of messages can
 be bidirectionally encoded and decoded. 
 
 
-Details of the privacy module are discussed in [#TODO:OEP-PRIVACY](../<PRIVACY>/README.md) 
+Details of the privacy module will be discussed in an independent OEP.
 
 ### Access Control
 
@@ -272,7 +257,7 @@ _Authenticated_ and _Authorized_ in the system, allowing (or denying) the manage
 In general, authentication is the process of validating that somebody really is who he claims to be. 
 Authorization refers to rules that determine who is allowed to do what.  
 
-Details of the access module are discussed in [#TODO:OEP-ACCESS](../<ACCESS>/README.md) 
+Details of the access module are discussed in the [On-Chain Access Control OEP](../10/README.md)
 
 #### Authentication
 
@@ -287,10 +272,10 @@ All the requests giving invalid authentication parameters will return a **HTTP 4
 
 #### Authorization
 
-In the authorization phase it's necessary to validate that a user is able execute a specific action, 
+In the authorization phase it's necessary to validate that a user is able to execute a specific action, 
 ie. access a data service or modify the metadata information of a specific asset. 
 
-On-chain authorization requires information associated to ownership of the resources to be stored on-chain.
+On-chain authorization requires information associated to ownership of the resources to be stored on-chain. 
 
 The authorization will be implemented as an on-chain access control module driven by
 service contracts that are deployed on the decentralized VM. 
@@ -314,7 +299,7 @@ The contract management layer foresees the coordination of a service CONTRACT be
 Example contract protocols include peer-to-peer escrow contracts, marketplace-based contracts, 
 as well as CONTRACT resolution mechanisms such as judging and verification.
 
-Details of the contract management layer are discussed in [#TODO:OEP-CONTRACT-MANAGEMENT](../<CONTRACT-MANAGEMENT>/README.md) 
+Details of the contract management will be discussed in an independent OEP.
 
 ## Decentralized Interface
 
@@ -324,11 +309,11 @@ This layer provides account management libraries and ensures that ledger-specifi
 This layer SHOULD also listen to events generated by state changes on the keeper 
 and provide necessary callbacks and hooks. 
 
-Details of the identity layer are discussed in [#TODO:OEP-WALLET](../<WALLET>/README.md) 
+Details of the identity layer will be discussed in an independent OEP.
 
 ### Orchestration Layer
 
-Service contracts can be composed of multiple components, workflows and networks.  
+Service contracts can be composed of multiple components, workflows and networks.
 The _orchestration layer_ is in charge of composing and keeping track of complex workflows.
 These workflows are a result of the interactions of multiple service executions that use 
 the incoming requests and events as inputs. 
@@ -344,7 +329,7 @@ The orchestration Layer acts as a mediator between different components and can 
 
 * Using a sync orchestration layer, abstracting/encapsulating the execution of multiple components 
 using a [Mediator pattern](https://en.wikipedia.org/wiki/Mediator_pattern). 
-The mediator can executes one by one all the steps involved in one execution workflow.
+The mediator can execute one by one all the steps involved in one execution workflow.
 * Evolving the Mediator pattern to introduce a pub/sub mechanism. 
 In that case, the mediator publish a new event in a specific topic of the events bus. 
 Multiple subscribers can listen to that topic implementing the behaviour of the individual phases. 
@@ -360,21 +345,6 @@ Events expose notifications from the KEEPERS network when relevant actions happe
 From the AGENT side, the events watcher module will be in charge of watching those events 
 to trigger further actions. 
 
-```javascript
-var subscription = web3.eth.subscribe('logs', {
-    address: '0x123456..',
-    topics: ['0x12345...']
-}, function(error, result){
-    if (!error)
-        console.log(log);
-});
-
-// unsubscribe from an event stream
-subscription.unsubscribe(function(error, success){
-    if(success)
-        console.log('Successfully unsubscribed!');
-});
-```
 
 The AGENT will provide the interfaces to:
 
@@ -383,75 +353,30 @@ The AGENT will provide the interfaces to:
   - Subscribe to all the events sent to a smart contract address (TO)
   - The combination of the previous two
   - Filter by TOPIC (specific event)
-* Retrieve all the historic transactions related an address  
+* Retrieve all the historic transactions related to an address  
 
 ### Data Transfer Objects
 
-he Keeper interface module should implement an extensible interfaces system allowing to plug different 
-communication protocols to establish the communication between the Ocean Agent and the the Keepers network. 
+The Keeper interface module should implement an extensible interfaces system allowing to plug different 
+
+communication protocols to establish the communication between the Ocean Agent and the Keepers network. 
 This component is in charge of the following capabilities:
 
 * Interact with the KEEPER components
 * Compose the transactions payload necessary by the Keeper nodes
-* Orchestrate the execution of multiple Keeper requests when be necessary
+* Orchestrate the execution of multiple Keeper requests when is necessary
 
 Initially, HTTP RPC is the easiest candidate to integrate in the communication with the Decentralized VM. 
 
 To interact with the Smart Contracts, the AGENT will provide different [Data Transfer Objects](https://en.wikipedia.org/wiki/Data_transfer_object) (DTO). 
 Those will allow to abstract the integration with the contracts in an easier way.
 
-![Keeper Communication](images/orchestration-dtos.png)
-
-The worker nodes will expose a p2p interface supporting some commands allowing to raise proof challenges.
-
-The implementation of this module is highly linked to the Keeper API definition. 
-
-
-### Private Key Infrastructure (PKI)
-
-#### Accounts
-
-An account is a human-readable identifier (public key) stored on the decentralized VM. 
-Every transaction has its permissions evaluated under the configured authority of an account. 
-The grants of each account will be validated by the access control system. 
-The user permissions must be met for a transaction signed under that authority to be considered valid. 
-Transactions are signed by a client that has a loaded and unlocked a wallet. 
-
-The AGENT will provide the capabilities to manage the accounts creation. 
-It will use the [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) definition for the creation of wallets and accounts.
-An example implementation is the **Accounts API** provided by the **Parity** client.
-
-This will be detailed in the [Actors Registry OEP 13](../13/REG). 
-
-#### Wallets
-
-The wallet component is in charge of protecting and using sensitive information such as private keys. 
-These keys may or may not be granted permission to an account authority on the KEEPER level.
-A wallet manages a private/public key pair which is used to cryptographically sign transactions and 
-prove ownership on the network. The Ocean Agent will provide the wallet capabilities that allows 
-the monetary interactions in the network.
-
-The reference for wallet definitions to be used are:
-
-* [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) - Describes hierarchical deterministic 
-wallets (or "HD Wallets"). Those are wallets which can be shared partially or entirely with different 
-systems, each with or without the ability to spend coins. 
-* [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) - Describes the 
-implementation of a mnemonic code or mnemonic sentence, a group of easy to remember words, 
-for the generation of deterministic wallets.
-* [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) - Defines a logical 
-hierarchy for deterministic wallets based on an algorithm described in BIP32, 
-and purpose scheme described in [BIP43](https://github.com/bitcoin/bips/blob/master/bip-0043.mediawiki).
-
-As an example, the management of the Wallets can be implemented using the **Parity** client.
-More information will be provided in the [Actors Registry OEP](../13/README.md) and [Wallet OEP](../README.md). 
-
 ## Connection to External Modules
 
 The AGENT will connect to:
 
 * **Decentralized VM** - Providing the smart contracts implementing the core business logic
-* **Ocean DB** - Interfacing with an external and pluggable storage system
+* **Ocean DB** - Interfacing with an external and pluggable Metadata storage system
 * **Ocean Worker** - Accepts cryptographic challenges and validations via p2p commands 
 
 Those capabilities will be integrated from the AGENT using different protocols. 
@@ -476,48 +401,6 @@ defining only the interfaces allows to integrate a centralized (Oracle, Kafka, E
 
 The AGENT SHALL provide a mechanism to check the config parameters given during the start-up of the process.
 Depending on those parameters the AGENT will invoke the plugin at runtime if a backend is provided.
-
-Below you can find an example of a configuration file enabling the integration with an external system: 
-
-```properties
-
-# It could be true or false, false by default
-agent.backend.enabled=true
-
-agent.backend.implClass=com.example.mydatabase.MyDatabaseImpl
-
-# All the options in the config tree can be passed as parameters to the backend plugin
-agent.backend.config.hostname=localhost
-agent.backend.config.port=1234
-agent.backend.config.user=john
-agent.backend.config.password=john
-agent.backend.config.xxxx=WhateverNeeded
-
-``` 
-
-And this could be the initial definition of a generic interface:
-
-```java
-
-public abstract class OceanPluginFactory {
-    
-    public static OceanPluginFactory builder(Config config) {}
-    
-}
-
-public interface OceanBackendPlugin {
-    
-    public boolean connect(Config conf);
-    
-    public boolean disconnect();
-    
-    public boolean isConnected();
-    
-    public boolean write(List<T> items);
-    
-}
-
-```
 
 The Orchestration Layer will be in charge or invoke the optional backend if it's provided. 
 As a rule of thumb, the Decentralized VM is always the main and minimal storage and source of truth of the system.
