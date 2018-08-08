@@ -10,6 +10,7 @@ editors: Ahmed Ali <ahmed@oceanprotocol.com>,
          Aitor Argomaniz <aitor@oceanprotocol.com>,
 contributors: Ahmed Ali <ahmed@oceanprotocol.com>, 
               Samer Sallam <samer@oceanprotocol.com>
+              Dimitri De Jonghe <dimi@oceanprotocol.com>
 ```
 ***DISCLAIMER: THIS IS A WORK IN PROGRESS***
 
