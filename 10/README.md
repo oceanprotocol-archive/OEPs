@@ -524,9 +524,10 @@ send release payment signal to the <code>market.sol</code> contract.
 
 ```javascript
 
-    pragma solidity 0.4.24;
+pragma solidity 0.4.24;
 
 import '../OceanMarket.sol';
+
 
 contract OceanAuth {
 
@@ -565,28 +566,25 @@ contract OceanAuth {
     mapping(bytes32 => AccessControlRequest) private accessControlRequests;
     enum AccessStatus {Requested, Committed, Delivered, Revoked}
     
-    // modifiers and access control
+    // @modifiers and access control
     modifier isAccessRequested(bytes32 id) {
         require(accessControlRequests[id].status == AccessStatus.Requested, 'Status not requested.');
         _;
     }
-
     modifier isAccessCommitted(bytes32 id) {
         require(accessControlRequests[id].status == AccessStatus.Committed, 'Status not Committed.');
         _;
     }
-
     modifier onlyProvider(bytes32 id) {
         require(accessControlRequests[id].provider == msg.sender, 'Sender is not Provider.');
         _;
     }
-
     modifier onlyConsumer(bytes32 id) {
         require(accessControlRequests[id].consumer == msg.sender, 'Sender is not consumer.');
         _;
     }
 
-    // events
+    // @events
     event AccessConsentRequested(bytes32 _id, address _consumer, address _provider, bytes32 _resourceId, uint _timeout, string _pubKey);
     event AccessRequestCommitted(bytes32 _id, uint256 _expirationDate, string _discovery, string _permissions, string _accessAgreementRef);
     event AccessRequestRejected(address _consumer, address _provider, bytes32 _id);
@@ -677,40 +675,69 @@ contract OceanAuth {
 
 ```javascript
 
-struct Payment {
-       address sender; 	      // consumer or anyone else would like to make the payment (automatically set to be msg.sender)
-       address receiver;      // provider or anyone (set by the sender of funds)
-       PaymentState state;		// payment state
-       uint256 amount; 	      // amount of tokens to be transferred
-       uint256 date; 	        // timestamp of the payment event (in sec.)
-       uint256 expiration;    // consumer may request refund after expiration timestamp (in sec.)
+   struct Payment {
+        address sender;       // consumer or anyone else would like to make the payment (automatically set to be msg.sender)
+        address receiver;     // provider or anyone (set by the sender of funds)
+        PaymentState state;   // payment state
+        uint256 amount;       // amount of tokens to be transferred
+        uint256 date;         // timestamp of the payment event (in sec.)
+        uint256 expiration;   // consumer may request refund after expiration timestamp (in sec.)
     }
+    
     enum PaymentState {Locked, Released, Refunded}
     mapping(bytes32 => Payment) mPayments;  // mapping from id to associated payment struct
-
+    
+    // @events
     event PaymentReceived(bytes32 indexed _paymentId, address indexed _receiver, uint256 _amount, uint256 _expire);
     event PaymentReleased(bytes32 indexed _paymentId, address indexed _receiver);
     event PaymentRefunded(bytes32 indexed _paymentId, address indexed _sender);
 
 
+    // @modifiers
+    modifier isLocked(bytes32 _paymentId) {
+        require(mPayments[_paymentId].state == PaymentState.Locked, 'State is not Locked');
+        _;
+    }
+    modifier isAuthContract() {
+        require(msg.sender == authAddress, 'Sender is not authorization contract.');
+        _;
+    }
+
+    
+    constructor(address _tokenAddress, address _tcrAddress) public {
+      
+    }
+
+    
     // the sender makes payment
-    function sendPayment(bytes32 _paymentId, address _receiver, uint256 _amount, uint256 _expire) public validAddress(msg.sender) returns (bool){
+    /* solium-disable-next-line */
+    function sendPayment(bytes32 _paymentId, 
+                         address _receiver, 
+                         uint256 _amount, 
+                         uint256 _expire) 
+    public 
+    validAddress(msg.sender) 
+    returns (bool) {
         ...
     }
 
-    // the consumer release payment to receiver
-    function releasePayment(bytes32 _paymentId) public onlySenderAccount isPaid(_paymentId) returns (bool){
-        ... 
+     // the consumer release payment to receiver
+    function releasePayment(bytes32 _paymentId) 
+    public isLocked(_paymentId) 
+    isAuthContract() returns (bool) {
+       ...
     }
 
     // refund payment
-    function refundPayment(bytes32 _paymentId) public isLocked(_paymentId) returns (bool){
+    function refundPayment(bytes32 _paymentId) 
+    public isLocked(_paymentId) 
+    isAuthContract() returns (bool) {
         ...
-     
     }
 
     // utitlity function - verify the payment
-    function verifyPayment(bytes32 _paymentId, string _status) public view returns(bool){
+    function verifyPaymentReceived(bytes32 _paymentId) 
+    public view returns (bool) {
         ...
     }
 
