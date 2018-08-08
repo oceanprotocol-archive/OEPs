@@ -142,7 +142,7 @@ starting from the API interface to the Keeper implementation, using the Ocean DB
 
 In the following diagram you can see the nodes involved in this OEP:
 
-![Nodes Involved](images/nodes-involved.png "Nodes Involved")
+![Nodes Involved](images/nodes-involved1.png "Nodes Involved")
 
 In the following sections you can find the end to end implementation details of the complete OAR functionality.
 
