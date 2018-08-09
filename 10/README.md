@@ -63,11 +63,10 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Motivation
 
-The goal of this document is to provide a technical details about on-chain access control in ocean protocol.
+The goal of this document is to provide technical details about on-chain access control in ocean protocol.
 
-In the Ocean network, entities, individuals and organizations have challenging problems 
-of effectively managing their resources on-chain. As the advent of outsourcing data, 
-the need for verifiable access control through public blockchains is dramatically increasing. 
+In the Ocean network, entities, individuals and organizations face the challenging problem 
+of effectively accessing and managing their resources on-chain. Managing data on-chain thus requires the implementation of verifiable access control.
 
 
 ## Design Requirements
@@ -82,25 +81,24 @@ Ocean's on-chain access control SHOULD provide the following responsibilities:
 
 ## Introduction
 
-In this section, we are going to list the most key technologies that will be used as building blocks in order to develop 
-on-chain based access control for ocean. You can skip this introductory part if you already 
+In this section, we are going to list the various methods that will be used as building blocks in order to develop 
+on-chain based access control for ocean. You can skip this introductory part if you are already 
 familiar with [Json Web Token](#json-web-token), [Json Resource Descriptor](#json-resource-descriptor),
  and [OAuth 2.0 Flow](#oauth-2.0-flow).
  
 
 ### Json Web Token
 
-Json web token (JWT) is used to represent claims securely between parties. It could be stored on 
-local storage. It uses
+Json web token (JWT) is used to represent claims securely between parties. It can be stored on 
+local storage. It furthermore uses
 Open Standard [RFC7519](https://tools.ietf.org/html/rfc7519). The key point is that every token is digitally signed by 
 the issuer (resource owner) using different supported schemes such as [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)#Signing_messages), 
 [ECDSA](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm), [HMAC](https://en.wikipedia.org/wiki/HMAC). 
 The json is stored in an encoded form such as [Base64URL](https://tools.ietf.org/html/rfc7515#appendix-C) where it is easy to 
- be verified by the authorization server. The JWT is fully compatible with [OAuth 2.0](#oauth-2.0-flow) standard.
+be verified by the authorization server. The JWT is fully compatible with the [OAuth 2.0](#oauth-2.0-flow) standard.
 
 #### Use cases
-The main two use cases are the [authorization](https://en.wikipedia.org/wiki/Authorization), and [information exchange of claims](https://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#rfc.section.4). Authorization could be conducted in case of 
-a user is [authenticated](https://en.wikipedia.org/wiki/Authentication), as a resource owner you can include this token for each the request sent to the client. 
+The two main use cases are the [authorization](https://en.wikipedia.org/wiki/Authorization), and [information exchange of claims](https://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#rfc.section.4). Authorization can be given once a user is [authenticated](https://en.wikipedia.org/wiki/Authentication) as a resource owner.
 Also, it could be used for information exchange where JWT uses pub/priv 
 key pairs to sign claims as shown below.
 
@@ -109,7 +107,7 @@ key pairs to sign claims as shown below.
 JWT structure includes three components:
 - Header:
 
-This part includes the name of hashing algorithm and the type of token itself. It includes the name of hashing algorithm due to the wide range of 
+This part includes the name of the hashing algorithm and the type of token itself. It includes the name of hashing algorithm due to the wide range of 
 hashing algorithms, so we don't know which one exactly will be used by the authorization server.
 ```json
 {
@@ -121,7 +119,7 @@ hashing algorithms, so we don't know which one exactly will be used by the autho
 - Payload:
 
 This part includes all claims that authorization server will provide for access in the future. There are three
-types of claims the first one is <code>*[Registered claims](https://tools.ietf.org/html/rfc7519#section-4.1)*</code> 
+types of claims. The first one is <code>*[Registered claims](https://tools.ietf.org/html/rfc7519#section-4.1)*</code> 
 . It is not a  <code>mandatory</code> but it is preferable to be included. Registered claims section has the following items:
 
     - "iss" (Issuer) Claim
@@ -132,7 +130,7 @@ types of claims the first one is <code>*[Registered claims](https://tools.ietf.o
     - "iat" (Issued At) Claim
     - "jti" (JWT ID) Claim
 
-There is another type of claims called <code>*Public claims*</code> which is basically, any claim 
+The second type of claim is called <code>*Public claims*</code> which is basically any claim 
 that could be either registered in [IANA "JSON Web Token Claims"](https://www.iana.org/assignments/jwt/jwt.xhtml) registry  or 
 any public name but it must be a collision resistant name. 
 Finally, the last one is <code>Private claims</code>
@@ -150,7 +148,7 @@ An example for payload:
 
 - Signature:
 
-Signature is verifiable way to prove for the authorization server that he is the one who signed this token. The signature includes
+Signature is verifiable way to prove to the authorization server that he is the one who signed this token. The signature includes
 the header and payload as shown below:
 
 ```bash
@@ -160,9 +158,9 @@ HMACSHA256(
   secret)
 ```
 
-For instance, the below figure shows how to add more claims such as [Cross-site request forgery](https://en.wikipedia.org/wiki/Cross-site_request_forgery) or <code>CSRF token</code>.
-This token is meant to be used by the server in order to trust only requests that have specific token. For example if an attacker tricked a victim to use a fake login page, the server 
-will only accept the request if this login page has a token issued by its web framework.
+For instance, the figure below shows how to add more claims such as [Cross-site request forgery](https://en.wikipedia.org/wiki/Cross-site_request_forgery) or <code>CSRF token</code>.
+This token is meant to be used by the server in order to trust only the requests that have a specific token. For example if an attacker tried to trick a victim into using a fake login page, the server 
+would only accept the request if this login page had a token issued by its web framework.
 
 ![csrf](images/csrf.png)
 
@@ -223,31 +221,31 @@ source: [Protocol flow](https://tools.ietf.org/html/rfc6749#section-1.2)
 
 ####  OAuth actors and components:
 
-- client: Any app or service the resource owner (as a user) want to grant access to private information.
+- client: Any app or service that the resource owner (as a user) wants to grant access to some private information.
 - Authorization Server: The server that will generate the access token for client
 - Authorization Grant :  Permission
-- Access Token: The token that will be used to allow client get access.
+- Access Token: The token that will be used to allow the client to get access.
 - Scope: The scope includes what type of data client will be able to access ie. profile, contacts.
-- Resource Owner: Any one who has actually the right to share the data.
+- Resource Owner: Any one who actually has the right to share the data.
 - Resource Server: Where we store or hold the actual data
 - Redirect URI: . The link that authorization server uses to send the authorization code to the client 
 - Consent: The message you get from the authorization server 
-- Front Channel: This channel runs in the browser level.
+- Front Channel: This channel runs in the browser level
 - Back Channel: This is more secure where communication will be between the authorization server and client in order to share the access token
 
 Find [here](https://oauth2.thephpleague.com/terminology/) more information about the OAuth2.0 terminology.
 
 
-OAuth 2.0 protocol is not designed for authentication but mainly Authorization. It is provides a 
-a deligated authorization mechanism in which client (myapp.com) could have access to private information such as your contacts list
+OAuth 2.0 protocol is not designed for Authentication but mainly Authorization. It provides 
+a delegated authorization mechanism in which client (myapp.com) could have access to private information such as your contacts list
 by delegating the authorization method to another third party called authorization server. The authorization server will return 
-a consent to the resource owner in order to get accept/reject the request. If yes, the authorization server will use the redirect URL 
-to send the authorization code. The client will use the authorization code in order to get the access token through the back channel. 
+a consent to the resource owner in order to get accept/reject the request. If accepted, the authorization server will use the redirect URL 
+to send the authorization code. The client will use the authorization code to get the access token through the back channel. 
 
 
 ## Key Technologies
 
-This survey provides a list of projects. We are going to discuss and curate the available systems that already had been developed. These projects 
+This survey provides a list of projects that are part of the ecosystem we are building for. These projects 
 provide an on-chain/off-chain identity management. 
 The following table lists some of them:
 
@@ -270,9 +268,8 @@ As shown in the below figure, the current scenario in ocean access control is tr
 
 
 In the traditional access control mechanisms, one of the most popular standards in the web is OAuth2.0. It is used as a means for authorization
-delegation in modern applications. On the other hand the blockchain does not have the third party (a trusted party) in which operates as authorization authority
- but we have the smart contract (single source of truth) where in our case is 
-the ocean access control contract and rather than using the HTTP/HTTPS protocol, we use the web3 on top of Ethereum blockchain. 
+delegation in modern applications. On the other hand the blockchain does not have the third party (a trusted party) which can operate as an authorization authority
+However, we deploy smart contracts (single source of truth) sontaining the ocean access control contract and rather than using the HTTP/HTTPS protocol, we use the web3 on top of the Ethereum blockchain. 
 ### Resource
 
 It uses something similar to the Json Resource Descriptor or [JRD](#json-resource-descriptor) object. It is based on Key/Value pairs that include
@@ -314,15 +311,15 @@ For instance the below json is a sample resource description:
 ```
 
 And the resource identifier is <code>hash(JRD) = 2BEDD341F1851A9C9DE53F1A1A9CBA5AABC9BE299734886316868FE139E3033B
-</code>. Also, you can notice <code>endpoint</code> that enables the user to discover public information about the 
-resource publisher/provider and how to consume it. For instance, you will find here more entity discovery details about 
+</code>. Also, you can notice <code>endpoint</code> that it enables the user to discover public information about the 
+resource publisher/provider. Here you will find more entity discovery details about 
 [Google Entity OpenID](https://accounts.google.com/.well-known/openid-configuration).
 
 
 ### Resource Consent
 
-Resource consent represents a signed commitment by resource owner in order to deliver the access in the future.
-The consent itself should be public for everyone to verify in the future that this consent is hashed and signed by the resource owner.
+Resource consent represents a signed commitment by resource owners to deliver the access in the future.
+The consent itself should be public for everyone to verify that this consent is actually hashed and signed by the resource owner.
 It includes the following data:
 
     - Resource Id
@@ -359,7 +356,7 @@ An example for access policy:
 
 ### Justified Purchase Receipt
 
-Once, the user has a resource consent, now he is able to get a justified purchase receipt. This receipt includes:
+Once the user has a resource consent he is able to get a justified purchase receipt. This receipt includes:
 
     - Receipt ID: receipt number
     - From: consumer address hash
@@ -384,13 +381,13 @@ This identifier is generated by <code>Ocean access control contract</code>. The 
     - Provider address
     - Consumer temp public key 
 
-The Ocean's access control contract is going to send this request identifier to resource owner, 
+The Ocean's access control contract is going to send this request identifier to the resource owner, 
 which in turn will generate JWT (it has the request identifier claim).
 
 ### JWT Token
 
-Json Web Token as mentioned before it is used as a means to represent claims securely between parties. 
-For instance the below <code>json</code> shows an example for  JWT issued by resource owner for particular consumer.
+Json Web Token as mentioned before is used as a means to represent claims securely between parties. 
+For instance the below <code>json</code> shows an example for JWT issued by resource owner for a particular consumer.
 
 ```json
 //Header
@@ -434,42 +431,42 @@ zIjp7InJlYWQiOnRydWUsIndyaXRlIjpmYWxzZX19.R96vtPzTQ59qc2YR9f_uMonxuF2c5bU3ftPHm6
 You can see that the parts are separated by dot<code>(.)</code>. Check out this section for more details about [Json Web Token](#json-web-token).
 Also, you can notice that the JWT contains two important claims, first is the consumer public key, second the request identifier issued 
 by Ocean Access Control contract: <code>"cons_pubkey", "request_id" </code>. **These claims state that 
-the authorization server (off-chain server) is aware about what is going on in on-chain. No way to deny it!**
+the authorization server (off-chain server) is aware about what is going on-chain.**
   
 ### Service Level Agreement
 
-Service level agreement is publicly accessible and immutable that includes a 
-detailed description of the service quality, availability, responsibilities. 
+Service level agreement is publicly accessible and immutable. It also includes a 
+detailed description of the service quality, availability and responsibilities of parties. 
 The provider imports an immutable IPFS hash reference for the SLA in the commitment.
   
 ### Commitment
 
 In order to let the commitment be authentic, it should include an encrypted JWT (committed by the provider) and purchase 
 receipt (committed by consumer). *The current implementation puts the JWT in an encrypted form on-chain which will be 
-changed to be more secure in the next release implementation.* 
+updated for security in the next release implementation.* 
 
 ### Temp Encryption Keys
 
-Temporary keypair is meant to be used as cryptographically secure tool in order to share secrets (ie. JWT) between parties.
+Temporary keypair is meant to be used as a cryptographically secure tool in order to share secrets (ie. JWT) between parties.
 It is generated by consumer ocean client (created on the fly). 
 Even if an attacker managed to steal the temp private key 
-(ie. by brute-forcing keys such as using weak encryption schemes) in order to reveal the JWT, the resource owner (provider) will only accept signed JWT by the consumer 
+(ie. by brute-forcing keys such as using weak encryption schemes) in order to reveal the JWT, the resource owner (provider) will only accept the signed JWT by the consumer 
 (where is stored in the Commitment).
 
 
 #### Generate and revoke keypairs
 
 Generating temporary keypairs should include the revocation certificates where the expiration date of these keys will be the same as <code>AccessExpireDate</code> field in 
-[Resource Consent](#resource-consent). As a consumer you should never share private key and revocation certificate to any one. In case of
+[Resource Consent](#resource-consent). As a consumer you should never share your private key and revocation certificate to any one. In case
 your private key is compromised you should use the revocation certificate to revoke your key. At this time if the [encrypted JWT](#json-web-token) is not 
-committed yet, the consumer can revoke the whole contract and refund the payment  by calling <code>revoke</code> function.
+committed yet, the consumer can revoke the whole contract and refund the payment by calling the <code>revoke</code> function.
 
 
 ### Finalized Purchase Receipt
 
-This receipt is the same justified purchase receipt except it should be signed by the two parties (resource owner, and consumer).  It will be issued as proof for delivery, where consumer and provider commits the delivery of resource. 
-This final state of access control triggers the ocean market contract to pay back the resource owner. 
-The market contract issues the finalized receipt once the delivery of resource is consumed. This includes that the provider should deliver a signed message by the consumer <code>
+This receipt is the same justified purchase receipt except that it should be signed by both parties (resource owner and resource consumer).  It will be issued as proof for delivery, where consumer and provider commit to the delivery of the resource. 
+The final state of the access control triggers the ocean market contract to pay back the resource owner. 
+The market contract issues the finalized receipt once the delivery of the resource is finalized. This includes that the provider should deliver a signed message to the consumer <code>
 (sign(enc(JWT)by_consumer) </code>in order to release the payment.  
 
 
@@ -487,7 +484,7 @@ The flow is composed of three phases:
 
 
 ### Phase 1: Request Resource
-In this phase consumer and provider work on generating initial agreement as follows:
+In this phase consumer and provider work on generating an initial agreement as follows:
 
 - Consumer generates temp public/private keys, then calls an <code>initialAccessRequest</code> which in turn
 emits an event <code>RequestAccessConsent</code>.
@@ -495,23 +492,23 @@ emits an event <code>RequestAccessConsent</code>.
 
 ### Phase 2: Commit Phase
 
-- This phase implements the provider commitment by calling <code>CommitAccessRequest</code> including the 
+- In this phase the provider implements commitment by calling <code>CommitAccessRequest</code> including the 
  final [resource consent](#resource-consent).
-- The Consumer listens to <code>CommitmentConsent</code> Event which indicates the acceptance of the provider for 
-delivering the resource. 
+- The Consumer listens to the <code>CommitmentConsent</code> Event which indicates the acceptance of the provider to
+deliver the resource. 
 Consequently, the consumer will call <code>sendPayment</code> in the market contract in order to issue a [justified purchase receipt](#justified-purchase-receipt).
 - Finally, The provider listens to <code>ConsumerCommitedPayment</code> in order deliver the access tokens.
 
 
 ### Phase 3: Delivery Phase
 
-- The provider generates and encrypt [jwt](#json-web-token) using the consumer's temp public key and sends it back to the consumer
+- The provider generates and encrypts [jwt](#json-web-token) using the consumer's temp public key and sends it to the consumer
 by calling <code>deliverAccessToken</code>.
 - The consumer will be signalled by listening to <code>PublishEncryptedAccessToken</code> event. He/she is going to 
-decrypt [jwt](#json-web-token) and calls <code>consumeResource</code> that make a off-chain call to provider using <code>discovery url</code>.
+decrypt [jwt](#json-web-token) and call <code>consumeResource</code> to make an off-chain call to the provider using <code>discovery url</code>.
 
 - The provider should receive <code>signedEncJWT</code>, verify the signed message and JWT, then generate the 
-response based on the response type and the internal resource server and returns the expected output. 
+response based on the response type and the internal resource server and return the expected output. 
 
 - Finally, the provider sends <code>signedEncJWT</code> as a proof-of-access to <code>Auth.sol</code> in order to verify 
 the delivery of access token by calling <code>verifyAccessTokenDelivery</code>, the contract will verify the signed message and 
@@ -746,19 +743,19 @@ contract OceanAuth {
 ## Threat Models
 
 This section lists the expected threat models for access control. The current threat models exclude the problem of [data integrity](https://en.wikipedia.org/wiki/Data_integrity) in terms of 
-data quality and validation (it should be handled by service integrity proofs and curation markets). However there are some expected attacks to be discussed:
+data quality and validation (this should be handled by service integrity proofs and curation markets). However there are some expected attacks to be discussed:
 
-### Censorship Attacks
+### Compromising privacy
 
-Usually, smart contracts in public blockchain expose all the transactions to be publicly verifiable. This will allow any attacker to correlate the generated transactions 
-in order to track the consumer's activity. So, in order to preserve the consumer's privacy , we might need to include one of these technologies in the access control layer:
+Usually, public blockchain smart contracts expose all transactions to be publicly verifiable. This allows any attacker to correlate the generated transactions 
+in order to track the consumer's activity                               . So, in order to preserve the consumer's privacy , we might need to include one of these technologies in the access control layer:
 
 - **Zero knowledge proofs**: such as [ZKSNARK](https://blog.z.cash/zsl/) (it needs trusted setup), [ZKSTARK](https://eprint.iacr.org/2018/046.pdf), and [BulletProofs](https://web.stanford.edu/~buenz/pubs/bulletproofs.pdf). We can see the 
     potential behind zero knowledge based proofs especially when it comes to confidential transactions. Find here more information about implementation details of [BulletProofs-lib](https://github.com/bbuenz/BulletProofLib),
     [LibSTARK](https://github.com/elibensasson/libSTARK).
 - **Generalized State Channels**: This idea was introduced in Bitcoin which called [payment channel](https://bitcoin.org/en/developer-guide#micropayment-channel)
-    where it is used for micropayments. In general, state channel is way to outsource the state transition where the state is locked using multisig contract, outsourced to off-chain channel (where the 
-     transaction processing will be done), finally unlock by updating the state on-chain. Now, there are two main research branch in order to investigate and develop more advanced techniques
+    where it is used for micropayments. In general, state channels are a way to outsource the state transition where the state is locked using multisig contract, outsourced to off-chain channel (where the 
+     transaction processing will be done), finally unlock by updating the state on-chain. Now, there are two main research branches in order to investigate and develop more advanced techniques
      such as [Counterfactual: Generalized State Channels](https://l4.ventures/papers/statechannels.pdf) and [Pisa: Arbitration Outsourcing for State Channels](http://www0.cs.ucl.ac.uk/staff/P.McCorry/pisa.pdf).
     
 ### Fake and Delayed Access  
@@ -767,17 +764,17 @@ The following type of attacks was inspired by [Dimi's research guide for ocean](
 It includes different byzantine based attacks on the access control. Access delay might be a result of different scenarios:
     
    - If the consumer was granted an access to any arbitrary resource, but he never made the request. At this time, as 
-    a resource owner have the right to revoke the access after <code>AccessExpireDate</code> where it is already predefined 
+    a resource owner has the right to revoke the access after <code>AccessExpireDate</code> which is already predefined 
     in the [resource](#resource) for more info checkout [justified purchase receipt](#justified-purchase-receipt). You can find more details about different case scenarios
     
    ![delayed attacks](images/threatmodels1.png)
    
    - If the consumer is unable to get access to the resource, he should deliver the <code>AccessErrorMessage</code> he
-    received from resource owner, then the resource owner has to provide the signed JWT from the consumer, that will be considered as proof 
-    that a consumer already tried to access. But we don't 
-    know if this access token is valid or not, at this time, we will run <code>OceanWittnessVerificationGame</code> (***Future Work***). 
+    received from resource owner, then the resource owner has to provide the signed JWT from the consumer. This will be considered as proof 
+    that a consumer already tried to access. At this time we don't 
+    know if this access token is valid or not, so we will run <code>OceanWittnessVerificationGame</code> (***Future Work***). 
     The same thing could happen in case of fake access. This type of attacks should include ***[Skin-in-the-game](http://nassimtaleb.org/tag/skin-in-the-game/)*** strategies in order 
-    to maintain commitment approach by consumer and provider.
+    to maintain the commitment approach by consumer and provider.
     
 ### Replay Like Attack
 
@@ -787,9 +784,9 @@ that he got the signed token (first time) and accept only one request (which is 
 
 ![replay attack](images/replayattack.png)
 
-The second scenario, if the resource owner (provider) gets the signed token and sends it back to another adversary. We have two cases, if the consumer received the 
-reject message from the resource owner, he should report this to ocean acl contract. The second case if the consumer did not receive a reject message and was able to 
-consume the resource, at this moment leaking signed token to adversary does not make any sense. 
+The second scenario holds if the resource owner (provider) gets the signed token and sends it to another potential user. Again, we have two different cases. The first case holds if the consumer received the 
+reject message from the resource owner, he should report this to ocean acl contract. The second case holds if the consumer did not receive a reject message and was able to 
+consume the resource, at this moment leaking a signed token to an adversary does not make any sense. 
 
 ## References
 
