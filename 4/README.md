@@ -100,7 +100,7 @@ This marshaling and un-marshaling operations will facilitate a common internal d
 
 
 The Agent will also orchestrate the interaction with the KEEPER components, facilitating the provision of a high level view 
-from the consumer side, interacting with the decentralized VM and the **OceanDB** (Metadata storage).
+from the consumer side, interacting with the decentralized VM and the **Ocean DB** (Metadata storage).
 
 ![Protocol Stack](images/agent-components.png)
 
