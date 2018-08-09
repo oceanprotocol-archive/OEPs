@@ -24,8 +24,7 @@ Table of Contents
          * [Registering a new Asset](#registering-a-new-asset)
          * [Retrieve Metadata of an Asset](#retrieve-metadata-of-an-asset)
          * [Updating Asset Metadata](#updating-asset-metadata)
-         * [Retiring an Asset](#retiring-an-asset)  
-      * [Token Curation Registry](#token-curation-registry)
+         * [Retiring an Asset](#retiring-an-asset)
       * [Copyright Waiver](#copyright-waiver)
       
 
@@ -82,7 +81,7 @@ Requirements are:
 ## Proposed Solution 
 
 The **ASSET** information should be managed using an API. 
-As general rule, only the **INDISPENSABLE** information to run the Smart Contracts MUST be stored in te Decentralized VM.
+As general rule, only the **INDISPENSABLE** information to run the Smart Contracts MUST be stored in te Keeper VM.
 This API should exposes the following capabilities:
 
 * Registering a new Asset
@@ -96,7 +95,7 @@ The following restrictions apply during the design/implementation of this OEP:
 * The Assets registered in the system MUST be associated to the Actors registering the Assets
 * The Actors associated to the Assets (PUBLISHER or PROVIDER) MUST have a valid Account Id in the system
 * The information or Metadata about the Assets will be stored in Ocean DB if the user plugs a valid Ocean DB implementation
-* Only the very basic information about the Assets (ids and pricing) MUST be stored in the Decentralized VM too 
+* Only the very basic information about the Assets (ids and pricing) MUST be stored in the Keeper VM too 
 * AGENT MUST NOT store any information about the Assets or Actors during this process
 
 
@@ -105,8 +104,8 @@ The proposed solution is composed by the interaction of different elements:
 
 * A high level HTTP API exposing the methods required to manage the Assets Registry (AGENT)
 * A Keeper node registering the complete Assets metadata (KEEPER - Ocean DB). This is optional and depends of the user parameters.
-* A Keeper node registering the Asset IDs (KEEPER - Decentralized VM)
-* A backend orchestration layer (AGENT) in charge of coordinating the persistence of the Assets in both backends consistently (Ocean DB & Decentralized VM)
+* A Keeper node registering the Asset IDs (KEEPER VM)
+* A backend orchestration layer (AGENT) in charge of coordinating the persistence of the Assets in both backends consistently (Ocean DB & Keeper VM)
 
 We can show the interaction between layers and components using a stack view:
 
@@ -123,8 +122,8 @@ The above diagram shows the high level interactions between the components invol
 * The AGENT MUST validate the basic parameters sent by the PUBLISHER
 * The AGENT MUST authenticate the PUBLISHER sending the request
 * The AGENT MUST authorize the user via KEEPER
-* The AGENT MUST orchestrate the Asset registering in the OCEAN DB and DECENTRALIZED VM
-* The DECENTRALIZED VM MUST only store as less information as possible. Only the main IDs and pricing information
+* The AGENT MUST orchestrate the Asset registering in the OCEAN DB and Keeper VM
+* The Keeper VM MUST only store as less information as possible. Only the main IDs and pricing information
 * The OCEAN DB MUST store the complete ASSET Metadata if it's configured/instantiated (this is OPTIONAL)
 * The AGENT MUST validate the basic parameters sent by the PUBLISHER
 * The AGENT MUST authenticate the PUBLISHER sending the request
@@ -137,7 +136,7 @@ In the below diagram you can see an alternative interaction where the Marketplac
 ![high level interactions](images/arch-assets-interactions-nomkt.png)
 
 The following sections will describe the end to end implementation using a top to bottom approach, 
-starting from the API interface to the Keeper implementation, using the Ocean DB and the Decentralized VM.
+starting from the API interface to the Keeper implementation, using the Ocean DB and the Keeper VM.
 
 In the following diagram you can see the nodes involved in this OEP:
 
@@ -517,12 +516,6 @@ HTTP Output Status Codes:
 |assetID    |string|The Asset ID given in the URL|
 
 
-Example: 
-
-```http
-DELETE http://localhost:8080/api/v1/assets/777227d45853a50eefd48dd4fec25d5b3fd2295e
-``` 
-
 ##### Output
 
 The expected output implements the Asset model described in the [output parameters section](#asset-model) of the Registering an Asset method.
@@ -532,21 +525,8 @@ After execute this method, if everything worked okay, the **state** attribute sh
 
 #### Orchestration Layer
 
-The AGENT node will be in charge of manage the Assets retirement. 
-If Ocean DB is enabled, Assets MUST be updated in Ocean DB and retired from the Decentralized VM.
-
-Before to proceed to any data modification, it's necessary to validate if the address requesting to retire an Asset has privileges to do it. 
-The Access Control component is in charge of this validation (KEEPER). To do that, the ```canRetire(assetId)``` method is called. This method should return a boolean value indicating if the Asset can be retired by the user calling that method.  
-
-If the Asset can be retired, the Smart Contract will execute the **retire** method.
-
-After to do that, the Orchestration layer will update the following information in Ocean DB:
-* The attribute **state** will be updated with the value **DISABLED**.
-* The attribute **updateDatetime** will be updated with the KEEPER universal datetime. 
-
-The AGENT will coordinate the retirement of an Asset interacting initially with the Decentralized VM. It will return a **Transaction Receipt** (see more details about the [Transaction Receipt model](https://github.com/ethereum/wiki/wiki/JavaScript-API#web3ethgettransactionreceipt)).
-After of that the Orchestration layer will update the above attributes in Ocean DB if it's enabled.
-
+The publisher will send a signal to the market contract in order to retire an asset. This asset will be no longer accessible throught blockchain.
+ As a result, the agent will be notified by the emitted event <code>AssetRetired</code>, and make a call to delete this asset from Ocean DB.
 
 
 ### Assignee(s)
