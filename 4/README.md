@@ -51,10 +51,10 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Motivation
 
-The goal of this document is to describe the responsibilities and architecture of an Ocean AGENT node. Also referenced as PROVIDER in some documents.
+The goal of this document is to describe the responsibilities and architecture of an Ocean AGENT node, also referenced as PROVIDER in some documents.
 
 
-In the Ocean network, AGENTS implement a variety of behavior that contribute data services to the network.
+In the Ocean network, AGENTS implement a variety of actions that contribute data services to the network.
 For example: AGENTS can provide access to services such as data sets, algorithms, storage, computational power, service curation,
 verification, market makers and so on.
 
@@ -62,7 +62,7 @@ AGENTS need to be able to talk to each other as well as to the network KEEPERS.
 The network architecture talks about that, see [3/ARCH](../3/README.md).
 Hence, part of the intention of this document is to describe the different interaction patterns between them.
 
-At the same time, the AGENT implements an internal architecture based in different layers and modules. 
+At the same time, the AGENT implements an internal architecture based on different layers and modules. 
 This document MUST provide a common framework and definition to drive technical implementations. 
 
 The detailed components SHOULD be used as building blocks, allowing to synthesize different scenarios.
@@ -114,7 +114,7 @@ Components at this level are responsible for:
 3. (Remote) communication and integration with service interfaces, tools and libraries
 
 
-As an example, consider following data delivery scenario:
+As an example, consider the following data delivery scenario:
 
 - A data PROVIDER publishes a datum ASSET offering together 
 with CONNECTION details such as authorization and encryption.
@@ -131,7 +131,7 @@ to cryptographic CHALLENGES.
 
 - At any point the CONTRACT resolution is triggered and the provider MAY revoke ACCESS.
 
-The high level description as well as the  developer and user experience for this scenario
+The high level description as well as the developer and user experience for this scenario
 SHALL be implemented at this level. 
 
 ### Service Plugins
@@ -157,7 +157,7 @@ providers would only require the implementation of the communication with a new 
 From there onwards, the integration with the rest of the system is abstracted.
 
 Depending on the implementation of the system, the usage of one plugin or another one 
-could be made by configuration or using dependency injection.
+could be made by configuration or using a dependency injection.
 
 ### Interfaces
 
@@ -166,7 +166,7 @@ In essence, they connect relevant services that can bring value to the ocean net
 The interfaces expose the service integrity layer that allows data services and consumers to interact with service contracts.
    
 
-Initially the AGENT will expose a HTTP RESTful API, but is designed to expose the API's or consume requests in different ways.
+Initially the AGENT will expose a HTTP RESTful API, but it is designed to expose the API's or consume requests in different ways.
 Because of that the AGENT should expose the API's in different formats allowing integration mechanisms 
 that can be used depending on the use case. The main interaction mechanisms are:
  
@@ -175,7 +175,7 @@ The API will expose different HTTP methods implementing the defined actions.
 
 ![Request/Response](images/comm-http.png)
 
-* **Async Websocket** - Provided by the Websocket interface. Useful when some users need to be subscribed 
+* **Async Websocket** - Provided by the Websocket interface. This is useful when users need to be subscribed 
 to the changes happening in the KEEPER level. For example, if a change in a contract is happening. 
 
 ![Websocket](images/comm-ws.png)
@@ -187,9 +187,9 @@ This could be an optimal configuration when the Ocean Agent is running in conjun
 ![Event Driven](images/comm-bus.png)
 
 
-* **P2P** - Provided by a Peer to Peer interface. It is in charge of maintain peer to peer communication between AGENTS. This communication can be used to implement:
-  - Direct messaging between parties - Allowing for example the agree Contracts terms before formalizing the contract or direct sharing of Assets consumptions information between the provider and the consumer 
-  - Assets transferring between different Ocean actors - In the actors that are giving access directly to some assets without using a third-party provider, it would be possible to share directly the Assets between parties.
+* **P2P** - Provided by a Peer to Peer interface. It is in charge of maintaining peer to peer communication between AGENTS. This communication can be used to implement:
+  - Direct messaging between parties - Allowing for example the agreement on Contracts terms before formalizing the contract or direct sharing of Assets consumptions information between the provider and the consumer 
+  - Assets transferring between different Ocean actors - for example when actors are giving access to some asset directly without using a third-party provider.
 
 ![P2P Communication](images/comm-p2p.png)  
 
@@ -209,7 +209,7 @@ Components in this layer grant service access, set up privacy protocols and deli
 Service proofs are meant to publicly verify the off-chain data services and connections. 
 Multiple data service proofs that enhance data and compute integrity can be foreseen in this component. 
 The AGENT is responsible to generate the relevant proofs and interact with all the different providers, 
-enabling the communications allowing to challenge/retrieve the required Proofs of Service.
+enabling to challenge/retrieve the required Proofs of Service.
 
 Using the [Service Plugins](#service-plugins) system, this module will interface with off-chain providers to obtain the proofs needed.
 
@@ -227,14 +227,14 @@ Due to limited capabilities of privacy suites like MPC, HE and ZK,
 not all service capabilities at the application level WILL be supported.
 
 The AGENT WILL implement a Privacy Protocol allowing to negotiate the privacy requirements between parties.
-In a non-homogeneous network, different nodes can provide alternative mechanisms (hardware or software) 
-implementing some privacy capabilities.
+In a non-homogeneous network, different nodes can provide alternative mechanisms (hardware or software, 
+implementing different levels privacy capabilities.
 
-In such scenario of one can assume that different users running Ocean Agents can require and implement 
+In such a scenario one can assume that different users running Ocean Agents can require and implement 
 different privacy capabilities to negotiate with other agents. This means that each AGENT will define a list 
 of the **"privacy systems"** supported.
 
-In order to establish a successful connection, 2 different AGENT's SHOULD share the information about their supported 
+In order to establish a successful connection, 2 different AGENTS SHOULD share the information about their supported 
 privacy suits using a handshake protocol. If they have a common or compatible method, the exchange of messages can
 be bidirectionally encoded and decoded. 
 
@@ -251,7 +251,7 @@ signed tokens, signed URLs, on-chain role-based access control (RBAC), OAuth and
 
 ![Agent Access Control](images/agent-access-control.png)
 
-Access control systems provides services connected to Ocean network the ability 
+Access control systems connected to Ocean network are
 _Authenticated_ and _Authorized_ in the system, allowing (or denying) the management of the resources.
 
 In general, authentication is the process of validating that somebody really is who he claims to be. 
@@ -261,10 +261,10 @@ Details of the access module are discussed in the [On-Chain Access Control OEP](
 
 #### Authentication
 
-In the AGENT scope the authentication layer is very thin, and it's in charge mainly of 
+In the AGENT scope the authentication layer is very thin, and it is in charge mainly of 
 verifying the minimal identity information (public key, DID, openID, ...) associated to the transactions.
 
-In all the HTTP API interactions, the component integrating the API SHOULD send his public key as part 
+In every HTTP API interaction, the component integrating the API SHOULD send his public key as part 
 of the HTTP request using the ```Authorization``` HTTP Header 
 (see [RFC 7325](https://tools.ietf.org/html/rfc7235#page-7)).
 
@@ -272,7 +272,7 @@ All the requests giving invalid authentication parameters will return a **HTTP 4
 
 #### Authorization
 
-In the authorization phase it's necessary to validate that a user is able to execute a specific action, 
+In the authorization phase it is necessary to validate that a user is able to execute a specific action, 
 ie. access a data service or modify the metadata information of a specific asset. 
 
 On-chain authorization requires information associated to ownership of the resources to be stored on-chain. 
@@ -280,30 +280,30 @@ On-chain authorization requires information associated to ownership of the resou
 The authorization will be implemented as an on-chain access control module driven by
 service contracts that are deployed on the decentralized VM. 
 
-The access control module implement the association between the service session information and the method execution. 
+The access control module implements the association between the service session information and the method execution. 
 Service contracts in the decentralized VM component dictate the service access and form the basis for the 
 authentication layer. It includes to answer the following questions:
 
-* Does the connection request originated from the owner of the resource (```msg.sender == owner```)? 
+* Does the connection request originate from the owner of the resource (```msg.sender == owner```)? 
 The ownership of a resource allows to execute highly restricted operations 
 on the resource (like administrator rights to manage the service).
-* In which context can the user sending the request access (read or write) to the resource? 
-The resource can have associated a Access Control List (ACL) defining who can do what and when. 
-* Can the user sending the request change the ownership of the resource?
+* In which context can the user sending the request access (read or write) gain access to the resource? 
+The resource can have an associated Access Control List (ACL) defining who can do what and when. 
+
 
 
 ## Contract Management 
 
-The contract management layer foresees the coordination of a service CONTRACT between all involved AGENTS and KEEPER networks.
+The contract management layer oversees the coordination of a service CONTRACT between all involved AGENTS and KEEPER networks.
 
-Example contract protocols include peer-to-peer escrow contracts, marketplace-based contracts, 
+Example: Contract protocols include peer-to-peer escrow contracts, marketplace-based contracts, 
 as well as CONTRACT resolution mechanisms such as judging and verification.
 
 Details of the contract management will be discussed in an independent OEP.
 
 ## Decentralized Interface
 
-The decentralized interface layer provides modules to create sufficient token and network specific components such as wallets and drivers
+The decentralized interface layer allows modules to create sufficient token and network specific components such as wallets and drivers.
 This layer provides account management libraries and ensures that ledger-specific transactions can be composed and signed.
 
 This layer SHOULD also listen to events generated by state changes on the keeper 
@@ -319,9 +319,9 @@ These workflows are a result of the interactions of multiple service executions 
 the incoming requests and events as inputs. 
 Some scenarios require the execution of multiple steps before completion, for example:
 
-* Contract Settlement - When it's received an API request providing a proof of service, the Ocean AGENT requires to:
+* Contract Settlement - When an API request is received providing a proof of service, the Ocean AGENT requires to:
   - Store the Proof of Service information on-chain
-  - Validate if all the proof of services were correctly provided such that the state of the contract can be updated to Settled
+  - Validate whether all the proof of services were correctly provided such that the state of the contract can be updated to Settled
   - Notify all the contract parties
 * External DB integration - If an external backend is provided, the Orchestration Layer will invoke the method to persist the objects sent to the Decentralized VM.
 
@@ -329,9 +329,9 @@ The orchestration Layer acts as a mediator between different components and can 
 
 * Using a sync orchestration layer, abstracting/encapsulating the execution of multiple components 
 using a [Mediator pattern](https://en.wikipedia.org/wiki/Mediator_pattern). 
-The mediator can execute one by one all the steps involved in one execution workflow.
+The mediator can execute all the steps involved in one execution workflow.
 * Evolving the Mediator pattern to introduce a pub/sub mechanism. 
-In that case, the mediator publish a new event in a specific topic of the events bus. 
+In that case, the mediator publishes a new event in a specific topic of the events bus. 
 Multiple subscribers can listen to that topic implementing the behaviour of the individual phases. 
 Those subscribers can emit events to different topics to notify the state of their actions.
 
@@ -358,7 +358,6 @@ The AGENT will provide the interfaces to:
 ### Data Transfer Objects
 
 The Keeper interface module should implement an extensible interfaces system allowing to plug different 
-
 communication protocols to establish the communication between the Ocean Agent and the Keepers network. 
 This component is in charge of the following capabilities:
 
@@ -383,27 +382,27 @@ Those capabilities will be integrated from the AGENT using different protocols.
 
 ### Ocean DB integration
 
-Capabilities such as metadata publishing, discovery, caching require a data store with query capabilities.
+Capabilities such as metadata publishing, discovery, and caching require a data store with query capabilities.
 Fully decentralized data storage is prone to costly infrastructure requirements, consistency issues and 
 data liability. Hence Ocean protocol shall not mandate a decentralized storage but rather make it a pluggable option.
 
 Some characteristics about the Ocean DB integration:
 
-* Ocean DB as backend is **optional** and **pluggable**. This means that an AGENT MUST be able to run without any Ocean DB as backend
+* Ocean DB as backend is **optional** and **pluggable**. This means that an AGENT MUST is able to run without any Ocean DB as backend
 * The AGENT COULD provide the interfaces to implement different storage implementations and integrate them as backend
 * Different users or marketplaces MAY require to integrate different storage systems, 
 providing different capabilities. The interface MUST describe a basic interface in order to be integrated in the AGENT
 * Because of the totally flexible and agnostic approach of the AGENT, 
-defining only the interfaces allows to integrate a centralized (Oracle, Kafka, Elastic Search, etc.) or decentralized backend (BigchainDB, IPFS, etc.)
+the setup of interfaces allows to integrate a centralized (Oracle, Kafka, Elastic Search, etc.) or decentralized backend (BigchainDB, IPFS, etc.)
 * The backend could be local, distributed or decentralized depending of the system integrated
 
 ![Pluggable Backend](images/pluggable-backend.png)
 
-The AGENT SHALL provide a mechanism to check the config parameters given during the start-up of the process.
+The AGENT SHALL provide a mechanism to check the config parameters given during the initial stages of the process.
 Depending on those parameters the AGENT will invoke the plugin at runtime if a backend is provided.
 
-The Orchestration Layer will be in charge or invoke the optional backend if it's provided. 
-As a rule of thumb, the Decentralized VM is always the main and minimal storage and source of truth of the system.
+The Orchestration Layer will be in charge or invoke the optional backend if it is provided. 
+As a rule of thumb, the Decentralized VM is always the main storage format and source of truth of the system.
 
 
 
