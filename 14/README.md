@@ -221,6 +221,8 @@ contract AssetsRegistry {
 <a name="asset_lifecycle"></a>
 ## Asset Lifecycle
 
+This section describes the life cycle of the asset registry in Ocean protocol.
+
 <a name="registering-a-new-asset"></a><a name="ASE.001"></a>
 ### Registering a new Asset 
 
@@ -397,7 +399,6 @@ If the **AGENT::Ocean DB** is integrated, it will persist the following informat
 
 
 
----
 
 <a name="retrieve-asset"></a><a name="ASE.002"></a>
 ### Retrieve metadata of an Asset 
@@ -436,36 +437,13 @@ Example:
 GET http://localhost:8080/api/v1/assets/777227d45853a50eefd48dd4fec25d5b3fd2295e
 ```
 
-#### Interaction with the Decentralized VM
-
-The Asset information will be retrieved directly from the **KEEPER::Decentralized VM** Smart Contract interfaces. 
-It's necessary to validate that the ```state != DISABLED```.
-Disabled Assets MUST return a ```HTTP 404 Not Found``` status code.   
-
-##### Output
-
-The essential information is coming from the Decentralized VM. The expected output will provide the following attributes: 
-
-| Attribute | Type | Description |
-|:----------|:-----|:------------|
-|assetId    |byte32|Asset Id|
-|owner      |address|Owner of the Asset|
-|marketplace|address|Marketplace associated to the asset (optional)|
-|state      |uint|TCR State of the Asset|
-
-If Ocean DB is enabled, the system will try to retrieve the complete Metadata using the interfaces and **assetId**. 
-If the system is able to do it, the output will include in the metadata section all the extended information provided by the external system. 
-
-
----
 
 <a name="update-asset"></a><a name="ASE.003"></a>
 ### Updating Asset Metadata 
 
 ![Updating Asset Metadata](images/ASE.003.png "ASE.003")
 
-In the above diagram the Agent and the Orchestration capabilities are implemented in the AGENT scope.
-The registering of a new Asset involves the following implementations:
+In the above diagram the Agent and the Orchestration capabilities are implemented in the AGENT. Asset involves the following parameters that could be updated:
 
 #### Ocean Agent API
 
@@ -496,23 +474,12 @@ Internal state attributes and the rest of the attributes can't be modified using
 The expected output implements the Asset model described in the [output parameters section](#asset-model) of the Registering an Asset method.
 
 
-#### Orchestration Layer
+#### Updating Asset flow
 
-The AGENT node will be in charge of manage the Assets update. 
+The AGENT node will be in charge of manage the Assets update by sending <code>Asset update</code> signal to 
+ocean market contract in order to commit the new <code>metadata hash</code> and keep track the metadata version
+ in smart contract, then make a call to the ocean DB in order to commit the final update. 
 
-This method only provide the capabilities to update the following attributes in the the Decentralize VM:
-
-* **marketplace**   
-
-In addition to this, integrates the Decentralized VM to implement the access control mechanism.
-The Access Control checks if the user requesting to Update the Asset, has enough privileges to do it. 
-To do that, the ```canUpdate(assetId)``` method is called. This method should return a boolean value indicating if the Asset can be modified.  
-
-If the Asset can be updated, and Ocean DB is enabled, the Orchestration layer will persist the complete Asset metadata in Ocean DB. 
-Also the attribute **updateDatetime** will be updated with the KEEPER universal datetime. 
-
-
----
 
 <a name="retire-asset"></a><a name="ASE.004"></a>
 ### Retiring an Asset 
@@ -520,7 +487,7 @@ Also the attribute **updateDatetime** will be updated with the KEEPER universal 
 ![Retire an Asset](images/ASE.004.png "ASE.004")
 
 In the above diagram the Agent and the Orchestrator capabilities are implemented in the AGENT scope.
-The Asset MUST be retired from Ocean DB and the Decentralized VM.
+The Asset MUST be retired from Ocean DB and the keeper VM.
 
 This method implements a soft delete of an Asset. It means the Asset is updated setting the contentState attribute to `DISABLED`. The method will return a HTTP 202 status code and the Asset modified in the response body.
 
@@ -581,110 +548,6 @@ The AGENT will coordinate the retirement of an Asset interacting initially with 
 After of that the Orchestration layer will update the above attributes in Ocean DB if it's enabled.
 
 
----
-
-<a name="asset-tcr"></a>
-### Token Curation Registry
-
-Token curation registry (TCR) is used to maintain a list of high quality assets through challenge-voting process:
-
-* Voting process can be initiated by:
-	- New Asset applies to be listed in the marketplace
-	- Existing Asset is challenged by any user
-	- All participants including applicant, voter and challenger need to deposit tokens for challenge or voting
-	- Deposits of minority in voting result will be distributed to majority party
-* Each participant can vote for or against the asset according to their opinion.
-* After the voting result is revealed, the token deposit will be distributed among winning parties.
-* Depends on the voting result, the asset will be accepted to be listed or removed from the marketplace. 
-
-#### TCR Smart Contract
-
-The TCR Smart Contract can be implemented as a stand-alone module which interacts with the Assets Registry through Interface Functions. 
-
-Let us introduce the data struct and functions of TCR smart contract first, and then discuss the interaction to Assets Registry smart contract.
-
-The TCR smart contract SHOULD provide the structs including `listing` and `challenge`:  
-
-```solidity
-    // Maps assetId to associated listing data
-    mapping(string => Listing) public listings;
-    
-    // Maps challengeIDs to associated challenge data
-    mapping(uint => Challenge) public challenges;
-    
-	// Listing data struct
-	struct Listing {
-		uint		version;
-		uint		applicationExpiry;
-		bool		whitelisted;
-		uint		challengeID;
-		string		description;
-	}
-	
-	
-	// Challenge data struct
-	struct Challenge {
-		uint		rewardPool;
-		address		challenger;
-		uint		stake;
-		uint		totalTokens;
-		bool		resolved;
-		mapping(address => bool) tokenClasims; 
-	}  
-```
-
-The **Listing** object includes the following attributes:
-
-| Parameter | Type | Description |
-|:----------|:-----|:------------|
-|version | uint | the version of TCR contract |
-|applicationExpiry  |uint| Expiration date of application stage|
-|whitelisted  |bool   | Indicates registry status|
-|challengeID       |uint| voting ID in challenge stage|
-|description|string|Description about the TCR (optional)|
-
-The **Challenge** object includes the following attributes:
-
-| Parameter | Type | Description |
-|:----------|:-----|:------------|
-|rewardPool  |uint| pool of tokens to be distributed to winning voters|
-|challenger | address| owner of challenge|
-| resolved | bool | indicates challenge is resolved |
-|stake | uint | number of tokens at stake |
-|totalTokens | uint | number of tokens used in voting by the winning side |
-|tokenClasims | mapping(address=>bool) | indicates whether a voter has claimed reward |
-
-#### Interaction with the Asset Registry
-
-The Asset Registry Smart Contract SHOULD provide following methods to interact with TCR in two scenarios:
-
-* *Case 1: registering new dataset initiates the voting process when TCR is enabled:*
-	* The function `applyListAsset` creates a challenge of `_assetId`; 
-	* The challenge triggers the voting process;
-	* Depends on the result, the function returns "true" if most voters agree to list the new dataset and new dataset can be listed in the marketplace;
-	* It returns "false" if not and new dataset is disabled. 
-
-	```solidity
-		function applyListAsset(
-	        bytes32 _assetId, 
-	        address _providerId) 
-	    external returns (bool success);
-	
-	```
-
-* *Case 2: User challenges the existing asset:*
-	* User creates a challenge of "_assetId" and triggers the voting process with TCR Smart Contract;
-	* The TCR Smart Contract SHOULD call `retire` methods in Asset Registry if voting result is to remove the asset from the marketplace;
-	* As such Asset Registry smart contract removes the asset.
-
-	```solidity
-	function retire(bytes32 _assetId) external returns (bool success);
-	```
-	
-
----
-
-#### Ocean Agent API
 
 ### Assignee(s)
 Primary assignee(s): @aaitor, @diminator
