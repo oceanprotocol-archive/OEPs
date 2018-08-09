@@ -6,9 +6,10 @@ title Updating an Asset (ASE.003)
 # ASE.003
 participant Publisher
 participant Agent
-participant Orchestrator
-participant Dec VM
+participant Keeper VM
 participant Ocean DB
+
+Publisher->Publisher: Calculate metadata (Hash)
 
 Publisher->Agent: Asset Update request
 
@@ -16,27 +17,23 @@ Agent->Agent: Input validation
 
 Agent-->Publisher: HTTP 400 (Invalid input)
 
-Agent->+Orchestrator: Asset Update
+Agent->Keeper VM: Asset Update
+Keeper VM->Keeper VM: Access Control
 
-Orchestrator->Dec VM: Update Asset
+Keeper VM-->Agent: Forbidden
 
-Dec VM->Dec VM: Access Control
-Dec VM-->Orchestrator: Forbidden
-Orchestrator-->Agent: Forbidden
 Agent-->Publisher: HTTP 401 (Forbidden)
 
 
-Dec VM->Orchestrator: ACK
+Keeper VM->Agent: ACK
 
-Orchestrator-->Ocean DB: Update Asset (* optional)
-Ocean DB-->Orchestrator: ACK
+Keeper VM<-->Publisher: Event AssetUpdated
 
-Orchestrator->-Agent: ACK
+Agent->Ocean DB: Update Metadata (including hash)
+Ocean DB->Agent: ACK
+
 
 Agent->Publisher:  HTTP 202 (Asset)
-
-
-
 
 
 
