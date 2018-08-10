@@ -6,32 +6,32 @@ title Registering an Asset (ASE.001)
 # ASE.001
 participant Publisher
 participant Agent
-participant Orchestrator
-participant Dec VM
+participant Keeper VM
 participant Ocean DB
 
-Publisher->Agent: Asset Register request
+
+Publisher->Publisher: Calculate metadata (Hash)
+
+Publisher->Keeper VM: Asset Register request (pricing, hash)
+Keeper VM-->Keeper VM: Validation
+Keeper VM->Publisher: ACK
+
+Keeper VM<-->Publisher: Event AssetRegistered
+Publisher->Agent: Asset Metadata Register request (assetId, metadata, hash)
 
 Agent->Agent: Input validation
 
 Agent-->Publisher: HTTP 400 (Invalid params)
 
-Agent->+Orchestrator: Asset Registering
 
-Orchestrator->Dec VM: Register Asset
-Dec VM-->Dec VM: Access Control
-Dec VM-->Orchestrator: Forbidden
-Orchestrator-->Agent: Forbidden
-Agent-->Publisher: HTTP 401 (Forbidden)
-Dec VM->Orchestrator: ACK
-
-Orchestrator->Orchestrator: Is Ocean DB enabled?
-Orchestrator<-->Ocean DB: Register Asset
+Agent->Agent: Is Ocean DB enabled?
+Agent->Ocean DB: Register Metadata
 
 
-Orchestrator->-Agent: ACK
+Ocean DB->Agent: ACK
 
 Agent->Publisher:  HTTP 202 (Asset)
+
 
 ```
 

@@ -7,33 +7,26 @@ title Retiring an Asset (ASE.004)
 # ASE.004
 participant Publisher
 participant Agent
-participant Orchestrator
-participant Dec VM
+participant Keeper VM
 participant Ocean DB
 
-Publisher->Agent: Asset Register request
+Publisher->Keeper VM: Retire Asset (assetId)
 
-Agent->Agent: Input validation
+Keeper VM->Keeper VM: Input validation
+Keeper VM-->Publisher: Error (Invalid params)
 
-Agent-->Publisher: HTTP 400 (Invalid user)
+Keeper VM->Keeper VM: Access Control
+Keeper VM-->Publisher: Error (Forbidden)
+
+Keeper VM->Publisher: ACK
 
 
-Agent->+Orchestrator: Retire Asset
 
-Orchestrator->Dec VM: Retire Asset
-Dec VM->Dec VM: Access Control
-Dec VM-->Orchestrator: Forbidden
-Orchestrator-->Agent: Forbidden
-Agent-->Publisher: HTTP 401 (Forbidden)
+Keeper VM<-->Publisher: Event AssetRetired
+Keeper VM<-->Agent: Event AssetRetired
 
-Dec VM->Orchestrator: ACK
-Orchestrator-->Ocean DB: Retire Asset (* optional)
-Ocean DB-->Orchestrator: ACK
-
-Orchestrator->-Agent: ACK
-
-Agent->Publisher:  HTTP 202 (Asset)
-
+Agent->Ocean DB: Retire Asset
+Ocean DB->Agent: ACK
 
 
 ```
