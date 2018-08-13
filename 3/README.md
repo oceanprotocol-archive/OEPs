@@ -49,9 +49,9 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Motivation
 
-Ocean Protocol connects data service PROVIDERS with CONSUMERS using 
+Ocean Protocol connects data service SUPPLIERS with CONSUMERS using 
 contractual agreements to ensure attribution, payments, audit trails and privacy.
-Data service providers are seen in the broad sense of a data intelligence ecosystem:
+Data service suppliers are seen in the broad sense of a data intelligence ecosystem:
 data, scripts, algorithms, storage, computation, scheduling, privacy and more. 
 
 The ARCH covers a conceptual framework for provisioning contractual CONNECTIONS,
@@ -110,7 +110,7 @@ Such a network allows connection to, monetization on, and curation of arbitrary 
 
 ![Service Contracts Interaction](images/data-pipeline.png)
 
-Service contracts provide an interface between a service PROVIDER and CONSUMER.
+Service contracts provide an interface between a service SUPPLIER and CONSUMER.
 A basic contract would allow a CONSUMER to pay (or simply ask) for a (free) service and consequently gain access to that service.
 Upon a service request, a proof of service is delivered together with a service response. 
 
@@ -140,7 +140,7 @@ AGENTS run software that is responsible for:
 - Interacting with KEEPERS by means of transactions and smart contracts. 
 
 Depending on the service provided to the network, different types of behavior 
-can be observed in the network such as CONSUMERS, PROVIDERS, MARKETPLACES, PUBLISHERS, CURATORS and VERIFIERS.
+can be observed in the network such as CONSUMERS, SUPPLIERS, MARKETPLACES, PUBLISHERS, CURATORS and VERIFIERS.
 
 KEEPERS are nodes that form the Ocean consensus network (also known as miners or validators in other projects). 
 These nodes have replicated behavior that is coordinated by a consensus protocol.
@@ -173,7 +173,7 @@ We foresee a few ways to set up contracts:
 * Peer-to-peer between AGENTS
 * Open ended on-chain (i.e. send a valid TX to the contract address and gain service access).
 
-It should be noted that a minimum viable Ocean network only requires KEEPERS, CONSUMERS and combined PUBLISHER-PROVIDERS.
+It should be noted that a minimum viable Ocean network only requires KEEPERS, CONSUMERS and combined PUBLISHER-SUPPLIERS.
 
 ### Communication Protocols
 
@@ -181,7 +181,7 @@ Ocean Network foresees 3 types of communication channels:
 
 1. AGENT-AGENT communication
 
-At this layer we have, for example, the service connections between service provider and consumer. 
+At this layer we have, for example, the service connections between service supplier and consumer. 
 Potentially, these channels allow full duplex communication.
 The access and privacy of the channel is coordinated by the contract layers below.
 
@@ -214,7 +214,7 @@ This simplified architecture can be further deconstructed into its logical compo
 
 At the logical level, the Frontend will be a standard deployment consisting of different user designs and associated experiences depending on the application. For example, the Publisher interface will differ in workflow from that of the Consumer, while a Marketplace would wrap both of these workflows within a common design. The Frontend will also consist of libraries that can be used to extend the usage of existing interfaces.
 
-The Ocean Client provides the interfaces that facilitate interactions between the Frontend and the Ocean Agent. These interfaces will provide reusable protocol functionality for Ocean's segmented activities (i.e. Provider vs. Publisher vs. Consumer activities). 
+The Ocean Client provides the interfaces that facilitate interactions between the Frontend and the Ocean Agent. These interfaces will provide reusable protocol functionality for Ocean's segmented activities (i.e. Supplier vs. Publisher vs. Consumer activities). 
 
 The Ocean Agent logically acts as a middleware component. This layer facilitates additional protocol functionality like access control and proof services via the Ocean Keeper. Additionally, the Agent includes the OceanDB interface for metadata capture, storage, and retrieval, thus simplifying asset registration, signalling, and discovery. 
 
