@@ -50,16 +50,16 @@ In the future, we can add more people to this list.
 
 Some people have specializations:
 
-- MarketPlaces: @mikera
-- Research [Nautilus]: @diminator, @trentmc
-- Core [Tethys]: @aaitor
+- Tribes: @diminator
+- Research: @diminator, @trentmc
+- Ocean Core [Tethys](https://github.com/oceanprotocol/ocean/projects/2): @aaitor
 
 ## Administrators (Founders and Others)
 
-- Mike - @mikera
 - Aitor - @aaitor
 - Ahmed - @aabdulwahed
-- Don - @dgossen
 - Dimi - @diminator
+- Don - @dgossen
+- Mike - @mikera
 - Trent - @trentmc
 
