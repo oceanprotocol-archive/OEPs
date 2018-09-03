@@ -31,8 +31,9 @@ Short Name    | Title                                                        | T
 [1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft      | Dimitri De Jonghe
 [2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
 [3/ARCH](3)   | Ocean Core Architecture                                      | Standard     | Draft      | Dimitri De Jonghe
-[4/AGENT](4)   | Ocean Agent Protocol Stack                                  | Standard     | Draft      | Aitor Argomaniz
-[10/OAA](10)   | On-Chain Access Control                       				 | Standard     | Draft      | Ahmed Ali
+[4/AGENT](4)  | Ocean Agent Protocol Stack                                   | Standard     | Draft      | Aitor Argomaniz
+[7/DID](7)    | Decentralized Identifiers                                    | Standard     | Draft      | Aitor Argomaniz
+[10/OAA](10)  | On-Chain Access Control                       				 | Standard     | Draft      | Ahmed Ali
 
 
 # Current Participants
