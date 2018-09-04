@@ -13,6 +13,16 @@ Table of Contents
 =================
 
    * [Table of Contents](#table-of-contents)
+   * [Decentralized Identifiers](#decentralized-identifiers)
+      * [Change Process](#change-process)
+      * [Language](#language)
+      * [Motivation](#motivation)
+      * [Specification](#specification)
+      * [Proposed Solution](#proposed-solution)
+         * [Decentralized ID's (DID)](#decentralized-ids-did)
+         * [Registry](#registry)
+         * [Resolver](#resolver)
+      * [Metadata Integrity](#metadata-integrity)
 
       
 <!--te-->
@@ -59,6 +69,7 @@ Requirements are:
 * ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
 * ASSETS can be resolved using a Decentralized ID (DID) included on-chain and off-chain
 * A Decentralized Distributed Object (**DDO**) represents the ASSET metadata
+* Any kind of object registered in Ocean SHOULD have a DID allowing to uniquely identify that object in the system
 * ASSET DDO (metadata off-chain) is associated to the ASSET information stored on-chain using a common **DID**
 * A **DID** can be resolved to get access to a **DDO**
 * ASSET DDO's can be updated without updating the on-chain information
@@ -97,23 +108,106 @@ did:ocn:21tDAKCERh95uGgKbJNHYp
 
 The complete specs can be found in the [W3C Decentralized Identifiers (DIDs) document](https://w3c-ccg.github.io/did-spec/)
 
+### Registry
+
+To register the different kind of objects can be stored in a **simple** register contract named **IdRegistry**.
+The key of the Identity entity in Ocean is the **DID**. Associated to this DID we have a Mapping of key-value attributes,
+allowing to associate publicly information to DID's. This could be used to add public information allowing for example
+to discover/resolve a DID.
+There are two main options to implement this:
+
+* Associate to the DID a mapping of key-value attributes to be stored as new entries of a smart contract variable
+
+* Emit events associated to the DID. Events works pretty well as a kind of cost effective storage. This is the recommended approach.
+
+Here a draft **IdRegistry** implementation:
+
+```solidity
+
+// This piece of code is for reference only!
+// Doesn't include any validation, types could be reviewed, enums, etc
+
+contract IdRegistry {
+
+    struct Identity {
+        address owner; // owner of the Identity
+        bytes32 did;
+        unint256 type; // type of Identity object (Asset, Actor, Workflow, ..)
+    }
+
+    mapping (bytes32 => Identity) identities; // list of identities
+
+    // Option 1. Attributes as K,V stored as part of internal object attributes
+    mapping (bytes32 => mapping (bytes32 => bytes32) ) identities; // list identities attributes
+
+    // Option 2. Attributes as events (recommended)
+    event DidAttributeRegistered(
+        bytes32 indexed did,
+        address indexed owner,
+        uint256 indexed type,
+        bytes32 indexed key,
+        bytes32 value,
+        uint updateAt
+    );
+
+    constructor(bytes32 _did, uint256 _type) public {
+    }
+
+    function registerAttribute(bytes32 _did, bytes32 _key, bytes32 _value) public returns (bool) {
+        // Option 1.
+        identities[_did][_key] = _value;
+
+        // Option 2. (recommended)
+        DidAttributeRegistered(_did, msg.sender, identities[_did].type, _key, _value, now);
+    }
+}
+
+```
+
+To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"provider"** with the public hostname of that provider:
+```
+registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "provider", "https://myprovider.example.com")
+```
+
+
+### Resolver
+
+To resolve a DID to the associated DDO, some information is stored on-chain associated to the DID. In the approach recommended in the scope of this OEP, this is stored
+as an attribute associated to the ```DidAttributeRegistered``` event. Because the did and key are indexed parameters of the event, a consumer in any supported web3 language,
+could filter the ```DidAttributeRegistered``` events filtering by the DID and the key named **"provider"**.
+
+This is an example in Javascript using web3.js:
+
+```javascript
+var event = contractInstance.DidAttributeRegistered( {did: "did:ocn:21tDAKCERh95uGgKbJNHYp", "key": "provider"}, {fromBlock: 0, toBlock: 'latest'});
+```
+
+Here in Python using web3.py:
+
+```python
+event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'provider'})
+```
+
+This logic could be encapsulated in the client libraries in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
+Using this information a consumer can query directly to the provider able to return the DDO.
+
+Here you have the complete flow using as example a new ASSET:
+
 ![DID Resolver](images/did-resolver.png)
 
-To resolve a DID to the associated DDO, some information is stored on-chain associated to the DID.
-There are two options:
+Steps:
 
-**TO BE COMPLETED**
-
-* Associate to the DID a mapping of attributes to be stored as new entries of a smart contract mapping
-
-* Emit events associated to the DID. Event's are cost effective on-chain ...
-
-
-### Metadata Integrity
-
-The Metadata Integrity (**META-INT**) is a specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain Asset.
+1. A PUBLISHER, using the KEEPER, register the new ASSET providing the DID and the attribute to resolve the provider
+1. The KEEPER register the ASSET using the OceanMarket Smart Contract and after of that register the identity using the IdRegistry Smart Contract. In this point, the attribute is raised as a new event
+1. The PUBLISHER publish the DDO using the provider specified in the first point
+1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **provider** attribute associated to the DID directly from the KEEPER
+1. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
 
 
+
+## Metadata Integrity
+
+The Metadata Integrity policy is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
 
 ![Sequence Diagram](images/ddo-integrity-sequence.png)
 
