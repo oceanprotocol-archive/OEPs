@@ -22,9 +22,12 @@ Table of Contents
          * [Decentralized ID's (DID)](#decentralized-ids-did)
          * [Registry](#registry)
          * [Resolver](#resolver)
+      * [Changes Required](#changes-required)
       * [Metadata Integrity](#metadata-integrity)
+         * [Proposed solution](#proposed-solution-1)
+      * [Changes Required](#changes-required-1)
 
-      
+
 <!--te-->
 
 
@@ -61,6 +64,7 @@ The main motivations of this OEP are:
 
 Requirements are:
 
+* The DID resolving capabilities MUST be exposed in the client libraries, enabling to resolve a DDO directly in a totally transparent way
 * ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER
 * KEEPER stores on-chain only the essential information about ASSETS
 * PROVIDERS store the ASSET metadata off-chain
@@ -172,6 +176,18 @@ registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "provider", "https://myprovi
 
 ### Resolver
 
+The resolving capabilities will be encapsulated in the Ocean Client libraries (Javascript, Python, ..), allowing to resolve a DDO directly speaking with the KEEPER.
+No third-party requests or API need to be integrated. This allows to have a simple a seam-less integration from the consumer side.
+
+This is a generic definition of what could be exposed in the client libraries from an API point of view:
+
+```java
+function DDO resolve(String did)  {
+  // black magic
+  return ddo;
+}
+```
+
 To resolve a DID to the associated DDO, some information is stored on-chain associated to the DID. In the approach recommended in the scope of this OEP, this is stored
 as an attribute associated to the ```DidAttributeRegistered``` event. Because the did and key are indexed parameters of the event, a consumer in any supported web3 language,
 could filter the ```DidAttributeRegistered``` events filtering by the DID and the key named **"provider"**.
@@ -204,16 +220,47 @@ Steps:
 1. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
 
 
+## Changes Required
+
+The list of changes to apply in the proposed solution are:
+
+* Modify the function creating the id to return a DID compliant id - KEEPER
+* Create the new IdRegistry Smart Contract - KEEPER
+* Integrate the call to the IdRegistry contract in the OceanMarketplace contract - KEEPER
+* Implement the resolving function of a DDO given a DID - CLIENT LIBRARIES
+
 
 ## Metadata Integrity
 
 The Metadata Integrity policy is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
 
+An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DDO) stored in OCEANDB.
+Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
+The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
+
+### Proposed solution
+
 ![Sequence Diagram](images/ddo-integrity-sequence.png)
 
 The solution included in the above diagram includes the following steps:
 
-1. The PUBLISHER, before publish any ASSET information, calculate the **HASH** using the **DDO** .
-   To do that, the PUBLISHER will use from the frontend side a common Ocean library using the same algorithm under the hood.
+1. The PUBLISHER, before publish any ASSET information, calculate the **HASH** using the **DDO** as input.
+   To do that, the PUBLISHER will use from the client side a common Ocean library using the same algorithm.
+1. The PUBLISHER, in the process of registering an ASSET on-chain specifies the **HASH** in addition of the existing parameters.
+1. The KEEPER register the ASSET and associate the HASH calculated using the DDO associated to the ASSET.
+1. After a CONSUMER get access to an ASSET, could store internally the HASH referencing to the DDO he purchased
+1. In a posterior consumption, after resolving the DDO, the CONSUMER using the client library can calculate the HASH of the DDO just obtained
+1. If the HASH obtained is not the same than the HASH associated in the original purchase, means the DDO was modified afterwards
+1. This, depending of the agreed conditions, could means an exit clause of some contracts
 
-**TO BE COMPLETED**
+The HASH could be an optional parameter in the registering of the ASSET. If it's not specified, means the DDO can be updated without any limitation.
+
+## Changes Required
+
+The list of changes to apply in the proposed solution are:
+
+* Define a one-way algorithm to use to calculate the HASH function (SHA-3 is suggested)
+* Create a new method to calculate the HASH - CLIENT LIBRARIES
+* Modify OceanMarketplace allowing to specify the HASH during the ASSET registry - KEEPER
+* Integrate the HASH function with the ASSET registry process - CLIENT LIBRARIES
+* Integrate the HASH calculation in the CONSUMER side - CLIENT LIBRARIES
