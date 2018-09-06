@@ -1,5 +1,5 @@
 ```
-shortname: 6/Invoke
+shortname: 6/CSAPI
 name: API to register & invoke computer services   
 type: Standard
 status: Raw
