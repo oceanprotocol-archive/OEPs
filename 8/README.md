@@ -73,7 +73,8 @@ Attribute       |   Type        |   Required    | Description
 **compression** | Text          | No            | File compression (e.g. no, gzip, bzip2, etc)
 **contentType** | Text          | Yes           | File format if applicable
 **workExample** | Text          | No            | Example of the concept of this asset
-**links**       | Text          | No            | List of links for data samples, or links to find out more information
+**contentUrls** | Text          | Yes            | List of content urls resolving the ASSET files
+**links**       | Text       | No         | List of links for data samples, or links to find out more information
 **inLanguage**  | Text          | No            | The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47)
 **tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
 
@@ -113,7 +114,7 @@ Here a represnetation of an example Asset using the schema described:
 {
     "base": {
         "name": "UK Weather information 2011",
-        "description": "Weather information of UK including temperature and humedity",
+        "description": "Weather information of UK including temperature and humidity",
         "size": "3.1gb",
         "dateCreated": "2012-02-01T10:55:11+00:00",
         "author": "Met Office",
@@ -122,8 +123,9 @@ Here a represnetation of an example Asset using the schema described:
         "encoding": "UTF-8",
         "compression": "zip",
         "contentType": "text/csv",
-        "workExample": "stationId,latitude,longitude,datetime,temperature,humedity\n
+        "workExample": "stationId,latitude,longitude,datetime,temperature,humidity\n
                         423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
+        "contentUrls": ["https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"],
         "links": ["http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"          ,"http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-averages-25km/" ],
         "inLanguage": "en",
         "tags": "weather, uk, 2011, temperature, humedity"
