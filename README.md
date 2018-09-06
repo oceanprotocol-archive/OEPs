@@ -1,37 +1,21 @@
-**DISCLAIMER: THIS IS A WORK IN PROGRESS**
+[![banner](doc/img/repo-banner@2x.png)](https://oceanprotocol.com)
 
-# Current Participants
+<h1 align="center">OceanProtocol Enhancement Proposals (OEPs)</h1>
 
-## Contributors
+> 💧 Ocean Protocol
+> [oceanprotocol.com](https://oceanprotocol.com)
 
-- Anyone who wants to contribute
-- The whole [OceanProtocol Team](https://github.com/orgs/oceanprotocol/people)
 
-## Maintainers
+Table of Contents
+=================
 
-Everyone with the ability to merge pull requests. Today that is mainly OceanProtocol employees.
+   * [OceanProtocol Enhancement Proposals (OEPs)](#oceanprotocol-enhancement-proposals-oeps)
+   * [Current OEPs](#current-oeps)
+   * [Current Participants](#current-participants)
+      * [Contributors](#contributors)
+      * [Maintainers](#maintainers)
+      * [Administrators (Founders and Others)](#administrators-founders-and-others)
 
-In the future, we can add more people who are not OceanProtocol employees as maintainers.
-
-Some people have specializations:
-
-- MarketPlaces: @mikera
-- Simulator [Aquarium]: @mikera
-- Research [Nautilus]: @diminator, @trentmc
-- Core [Tethys]: @aaitor
-
-## Administrators (Founders and Others)
-
-- Mike - @mikera
-- Aitor - @aaitor
-- Ahmed - @aabdulwahed
-- Don - @dgossen
-- Dimi - @diminator
-- Trent - @trentmc
-
-Note: Administrators serve limited terms of six months or less. That's the idea, anyway.
-
-# OceanProtocol Enhancement Proposals (OEPs)
 
 This is the OceanProtocol Enhancement Proposal project. We collect OEPs for APIs, protocols, and processes.
 
@@ -46,14 +30,36 @@ Short Name    | Title                                                        | T
 --------------|--------------------------------------------------------------|----------|------------|-------
 [1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft      | Dimitri De Jonghe
 [2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
-[3/ARCH](3)   | Ocean Core Architecture                                     | Standard     | Draft      | Aitor Argomaniz
-[4/OAR](4)   | Ocean Asset Registry                      | Standard     | Draft      | Aitor Argomaniz
-[5/OCS](5)   | Ocean Provider Services                      | Standard     | Raw      | Aitor Argomaniz
-[6/INVOKE](6)   | API to register & invoke computer services                      | Standard     | Raw      | TBD
-[7/SONAR](7)   | Searchable OceaN Asset Registry                      | Standard     | Raw      | TBD
-[8/AAT](8)   | Basic Authentication, Accounts & Tokens                      | Standard     | Raw      | TBD
-[9/TX](9)   | API for transactions                      | Standard     | Raw      | TBD
-[10/OAA](10)   | On-chain Authentication                       | Standard     | Raw      | TBD
-[11/ACS](11)   | API for Curation/Staking                      | Standard     | Raw      | TBD
-[12/GLO](12)   | Public Glossary                      | Meta     | Draft      | Timothy Ley
-[13/Registry](13)   | Ocean Actor Registry                                     | Standard     | Draft      | Aitor Argomaniz
+[3/ARCH](3)   | Ocean Core Architecture                                      | Standard     | Draft      | Dimitri De Jonghe
+[4/AGENT](4)   | Ocean Agent Protocol Stack                                  | Standard     | Draft      | Aitor Argomaniz
+[10/OAA](10)   | On-Chain Access Control                       				 | Standard     | Draft      | Ahmed Ali
+
+
+# Current Participants
+
+## Contributors
+
+- Anyone who wants to contribute
+- The whole [OceanProtocol Team](https://github.com/orgs/oceanprotocol/people)
+
+## Maintainers
+
+Everyone with the ability to merge pull requests. Today that is mainly OceanProtocol contributors.
+
+In the future, we can add more people to this list.
+
+Some people have specializations:
+
+- Tribes: @diminator
+- Research: @diminator, @trentmc
+- Ocean Core [Tethys](https://github.com/oceanprotocol/ocean/projects/2): @aaitor
+
+## Administrators (Founders and Others)
+
+- Aitor - @aaitor
+- Ahmed - @aabdulwahed
+- Dimi - @diminator
+- Don - @dgossen
+- Mike - @mikera
+- Trent - @trentmc
+
