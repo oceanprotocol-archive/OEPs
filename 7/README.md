@@ -52,12 +52,14 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Design a solution to extend the current architecture to use Decentralized Identifiers (DID) and Decentralized Distributed Objects (DDO)
-* Understand how to register information on-chain with off-chain information associated
+* Design a solution to extend the current architecture to use **Decentralized Identifiers (DID)** and **DID description objects (DDO)**
+* Understand how to register information on-chain with off-chain integrity associated
 * Understand how to resolve DID's into DDO's
 * Design a solution facilitating to have the on-chain and off-chain information aligned
 * Establishing the mechanism to know if the DDO associted to a DID was modified
 * Defining the common mechanisms, interfaces and API's to implemented the designed solution
+* Define how Ocean assets, agents and tribes can be modeled with a DID/DDO data model
+* Understand how DID hubs are formed, and how they integrate a business and storage layer
 
 
 ## Specification
@@ -68,6 +70,7 @@ Requirements are:
 * ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER
 * KEEPER stores on-chain only the essential information about ASSETS
 * PROVIDERS store the ASSET metadata off-chain
+* KEEPER doesn't store any ASSET metadata
 * OCEAN doesn't store ASSET files contents
 * An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER and metadata stored in OCEANDB
 * ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
@@ -135,29 +138,29 @@ contract IdRegistry {
 
     struct Identity {
         address owner; // owner of the Identity
-        bytes32 did;
+        string did;
         unint256 type; // type of Identity object (Asset, Actor, Workflow, ..)
     }
 
-    mapping (bytes32 => Identity) identities; // list of identities
+    mapping (string => Identity) identities; // list of identities
 
     // Option 1. Attributes as K,V stored as part of internal object attributes
-    mapping (bytes32 => mapping (bytes32 => bytes32) ) identities; // list identities attributes
+    mapping (string => mapping (bytes32 => string) ) identities; // list identities attributes
 
     // Option 2. Attributes as events (recommended)
     event DidAttributeRegistered(
-        bytes32 indexed did,
+        string indexed did,
         address indexed owner,
         uint256 indexed type,
         bytes32 indexed key,
-        bytes32 value,
+        string value,
         uint updateAt
     );
 
     constructor(bytes32 _did, uint256 _type) public {
     }
 
-    function registerAttribute(bytes32 _did, bytes32 _key, bytes32 _value) public returns (bool) {
+    function registerAttribute(string _did, bytes32 _key, string _value) public returns (bool) {
         // Option 1.
         identities[_did][_key] = _value;
 
@@ -192,6 +195,8 @@ To resolve a DID to the associated DDO, some information is stored on-chain asso
 as an attribute associated to the ```DidAttributeRegistered``` event. Because the did and key are indexed parameters of the event, a consumer in any supported web3 language,
 could filter the ```DidAttributeRegistered``` events filtering by the DID and the key named **"provider"**.
 
+A DDO pointing to a DID could be resolved hierarchically using the same mechanism.
+
 This is an example in Javascript using web3.js:
 
 ```javascript
@@ -215,7 +220,7 @@ Steps:
 
 1. A PUBLISHER, using the KEEPER, register the new ASSET providing the DID and the attribute to resolve the provider
 1. The KEEPER register the ASSET using the OceanMarket Smart Contract and after of that register the identity using the IdRegistry Smart Contract. In this point, the attribute is raised as a new event
-1. The PUBLISHER publish the DDO using the provider specified in the first point
+1. The PUBLISHER publish the DDO in the metadata-store/OCEANDB provided by PROVIDER
 1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **provider** attribute associated to the DID directly from the KEEPER
 1. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
 
@@ -264,3 +269,8 @@ The list of changes to apply in the proposed solution are:
 * Modify OceanMarketplace allowing to specify the HASH during the ASSET registry - KEEPER
 * Integrate the HASH function with the ASSET registry process - CLIENT LIBRARIES
 * Integrate the HASH calculation in the CONSUMER side - CLIENT LIBRARIES
+
+## References
+
+* https://w3c-ccg.github.io/did-spec/
+* https://github.com/WebOfTrustInfo/rebooting-the-web-of-trust-fall2016/blob/master/topics-and-advance-readings/did-spec-working-draft-03.md
