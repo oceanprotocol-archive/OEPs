@@ -33,7 +33,7 @@ Short Name    | Title                                                        | T
 [2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
 [3/ARCH](3)   | Ocean Core Architecture                                      | Standard     | Draft      | Dimitri De Jonghe
 [4/AGENT](4)  | Ocean Agent Protocol Stack                                   | Standard     | Draft      | Aitor Argomaniz
-[8/ASSET-ONT](8)| Assets Metadata Ontology                                   | Standard     | Raw      | Aitor Argomaniz
+[8/ASSET-DDO](8)| Assets Metadata Ontology                                   | Standard     | Raw      | Aitor Argomaniz
 [10/OAA](10)  | On-Chain Access Control                       				 | Standard     | Draft      | Ahmed Ali
 
 

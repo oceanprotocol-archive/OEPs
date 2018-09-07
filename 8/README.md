@@ -1,5 +1,5 @@
 ```
-shortname: 8/ASSET-ONT
+shortname: 8/ASSET-DDO
 name: Assets Metadata Ontology
 type: Standard
 status: Raw
@@ -57,7 +57,7 @@ The main motivations of this OEP are:
 
 ## Base attributes
 
-Base attributes are always part of the DDo schema. Those attributes could be mandatory if they need to be completed by the publisher or can be stored empty. The following attributes are included as part of the Asset Metadata:
+Base attributes are always part of the DDO schema. Those attributes could be mandatory if they need to be completed by the publisher or can be stored empty. The following attributes are included as part of the Asset Metadata:
 
 
 Attribute       |   Type        |   Required    | Description
