@@ -67,7 +67,7 @@ Attribute       |   Type        |   Required    | Description
 **dateCreated** | DateTime      | Yes           | The date on which  was created or was added
 **size**        | Text          | Yes           | Size of the asset (e.g. 18mb). In the absence of a unit (mb, kb etc.), KB will be assumed
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.)
-**license**     | Text          | Yes           | Short name referencing to the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Expecified, etc. ). If it's not specified, the following value will be added: "No License Expecified"
+**license**     | Text          | Yes           | Short name referencing to the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specifiedified"
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default
 **encoding**    | Text          | No            | File encoding (e.g. UTF-8)
 **compression** | Text          | No            | File compression (e.g. no, gzip, bzip2, etc)
