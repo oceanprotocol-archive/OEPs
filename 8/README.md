@@ -132,7 +132,7 @@ Here a representation of an example Asset using the schema described:
             {"fieldsDescription": "http://data.ceda.ac.uk/badc/ukcp09/"}
          ],
         "inLanguage": "en",
-        "tags": "weather, uk, 2011, temperature, humedity"
+        "tags": "weather, uk, 2011, temperature, humidity"
 
     },
     "curation": {
