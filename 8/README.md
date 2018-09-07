@@ -72,9 +72,9 @@ Attribute       |   Type        |   Required    | Description
 **encoding**    | Text          | No            | File encoding (e.g. UTF-8)
 **compression** | Text          | No            | File compression (e.g. no, gzip, bzip2, etc)
 **contentType** | Text          | Yes           | File format if applicable
-**workExample** | Text          | No            | Example of the concept of this asset
-**contentUrls** | Text          | Yes            | List of content urls resolving the ASSET files
-**links**       | Text       | No         | List of links for data samples, or links to find out more information
+**workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
+**contentUrls** | Text          | Yes           | List of content urls resolving the ASSET files
+**links**       | Text       | No               | Mapping of links for data samples, or links to find out more information. The key represents the topic of the link, the value is the proper link
 **inLanguage**  | Text          | No            | The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47)
 **tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
 
@@ -85,7 +85,7 @@ In order to normalize the different possible rating attributes after a process o
 
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
-**rating**     | Decimal       | Yes              | Decimal values between 0 and 1. 0 is the default value
+**rating**     | Number (decimal)       | Yes              | Decimal values between 0 and 1. 0 is the default value
 **numVotes**    | Integer       | Yes              | Number of votes. 0 is the default value
 **schema**      | Text          | No              | Schema applied to calculate the rating
 
@@ -97,7 +97,7 @@ These are examples of attributes that can enhance the discoverability of a resou
 
 * sla: Service Level Agreement
 * industry
-* category: can be assigned to a category in addition to having labels
+* category: can be assigned to a category in addition to having tags
 * note: any additional information worthy of highlighting (description maybe sufficient)
 * updateFrequency: how often are updates expected (seldome, annual, quarterly, etc.), or is the resource static (never expected to get updated)
 * termsOfService
@@ -108,7 +108,7 @@ Additional attributes are totally free to add and can be defined by the publishe
 
 ## Example
 
-Here a represnetation of an example Asset using the schema described:
+Here a representation of an example Asset using the schema described:
 
 ```json
 {
@@ -126,7 +126,11 @@ Here a represnetation of an example Asset using the schema described:
         "workExample": "stationId,latitude,longitude,datetime,temperature,humidity\n
                         423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
         "contentUrls": ["https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"],
-        "links": ["http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"          ,"http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-averages-25km/" ],
+        "links": [
+            {"sample1": "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"},
+            {"sample2": "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-averages-25km/"},
+            {"fieldsDescription": "http://data.ceda.ac.uk/badc/ukcp09/"}
+         ],
         "inLanguage": "en",
         "tags": "weather, uk, 2011, temperature, humedity"
 
@@ -148,6 +152,7 @@ Here a represnetation of an example Asset using the schema described:
 ## References
 
 [Schema.org](https://schema.org/) is a collaborative, community activity with a mission to create, maintain, and promote schemas for structured data on the Internet,
+Data types use the [Schema.org primitive data types](https://schema.org/DataType).
 
 Schemas:
 
