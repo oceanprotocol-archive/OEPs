@@ -29,7 +29,7 @@ Table of Contents
 This OEP doesn't detail the exact method of registering ASSETS on-chain or publishing metadata in a metadata store.
 
 Each Ocean Asset (dataset, algorithm, etc.) must have a base ontology associated with it.
-This metadata (DDO) is stored in the oceandb and can be accessed using the Decentralized ID (DID).
+This metadata, also called **DID descriptor objects (DDO)**, is stored in the OCEANDB and can be accessed using the **Decentralized ID (DID)**.
 Assets without proper descriptive metadata can have poor visibility and discoverability.
 
 The Asset ontology is based in the public schema.org [DataSet schema](https://schema.org/Dataset).
