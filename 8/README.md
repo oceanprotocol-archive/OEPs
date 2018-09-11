@@ -77,6 +77,7 @@ Attribute       |   Type        |   Required    | Description
 **links**       | Text       | No               | Mapping of links for data samples, or links to find out more information. The key represents the topic of the link, the value is the proper link
 **inLanguage**  | Text          | No            | The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47)
 **tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
+**price**       | Number        | Yes           | Price of the asset.
 
 
 ## Curation attributes
@@ -95,6 +96,8 @@ Attribute       |   Type        |   Required    | Description
 
 These are examples of attributes that can enhance the discoverability of a resource:
 
+* checksum: Checksum of attributes to be able to compare if there are changes in the asset that you are purchasing.
+Empty if there is not sent.
 * sla: Service Level Agreement
 * industry
 * category: can be assigned to a category in addition to having tags
@@ -132,7 +135,8 @@ Here a representation of an example Asset using the schema described:
             {"fieldsDescription": "http://data.ceda.ac.uk/badc/ukcp09/"}
          ],
         "inLanguage": "en",
-        "tags": "weather, uk, 2011, temperature, humidity"
+        "tags": "weather, uk, 2011, temperature, humidity",
+        "price": 10
 
     },
     "curation": {
