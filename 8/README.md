@@ -60,12 +60,13 @@ The main motivations of this OEP are:
 Base attributes are always part of the DDO schema. Those attributes could be mandatory if they need to be completed by the publisher or can be stored empty. The following attributes are included as part of the Asset Metadata:
 
 
-Attribute       |   Type        |   Required    | Description
-----------------|---------------|---------------|----------------------
-**name**        | Text          | Yes           | Descriptive name of the Asset
-**description** | Text          | No            | Details of what the resource is. For a data set explain what the data represents and what it can be used for
-**dateCreated** | DateTime      | Yes           | The date on which  was created or was added
-**size**        | Text          | Yes           | Size of the asset (e.g. 18mb). In the absence of a unit (mb, kb etc.), KB will be assumed
+| Attribute       | Type     | Required | Description                                                                                                  | Reference to Standard                                                |
+|-----------------|----------|----------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| **name**        | Text     | Yes      | Descriptive name of the Asset                                                                                |                                                                      |
+| **description** | Text     | No       | Details of what the resource is. For a data set explain what the data represents and what it can be used for |                                                                      |
+| **dateCreated** | DateTime | Yes      | The date on which  was created or was added                                                                  |                                                                      |
+| **size**        | Text     | Yes      | Size of the asset (e.g. 18mb). In the absence of a unit (mb, kb etc.), KB will be assumed                    | [link](https://www.w3.org/TR/vocab-dcat/#Property:distribution_size) |
+|                 |          |          |                                                                                                              |                                                                      |
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.)
 **license**     | Text          | Yes           | Short name referencing to the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specifiedified"
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default
@@ -76,7 +77,7 @@ Attribute       |   Type        |   Required    | Description
 **contentUrls** | Text          | Yes           | List of content urls resolving the ASSET files
 **links**       | Text       | No               | Mapping of links for data samples, or links to find out more information. The key represents the topic of the link, the value is the proper link
 **inLanguage**  | Text          | No            | The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47)
-**tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
+**keywords**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
 **price**       | Number        | Yes           | Price of the asset. If not specified would be 0.
 
 
