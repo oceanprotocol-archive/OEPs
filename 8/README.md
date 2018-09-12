@@ -96,15 +96,18 @@ Attribute       |   Type        |   Required    | Description
 
 These are examples of attributes that can enhance the discoverability of a resource:
 
-* checksum: Checksum of attributes to be able to compare if there are changes in the asset that you are purchasing.
-Empty if there is not sent.
-* sla: Service Level Agreement
-* industry
-* category: can be assigned to a category in addition to having tags
-* note: any additional information worthy of highlighting (description maybe sufficient)
-* updateFrequency: how often are updates expected (seldome, annual, quarterly, etc.), or is the resource static (never expected to get updated)
-* termsOfService
-* privacy
+| Attribute         | Description                                                                                                                  |
+| -                 | -                                                                                                                            |
+| checksum          | Checksum of attributes to be able to compare if there are changes in the asset that you are purchasing.                      |
+| sla               | Service Level Agreement                                                                                                      |
+| industry          |                                                                                                                              |
+| category          | can be assigned to a category in addition to having tags                                                                     |
+| updateFrequency   | how often are updates expected (seldome, annual, quarterly, etc.), or is the resource static (never expected to get updated) |
+| termsOfService    |                                                                                                                              |
+| privacy           |                                                                                                                              |
+| keyword           | A list of keywords/tags describing a dataset                                                                                 |
+| structured-markup | A link to machine readable structured markup (such as ttl/json-ld/rdf) describing the dataset                                |
+|                   |                                                                                                                              |
 
 Additional attributes are totally free to add and can be defined by the publisher of the DDO, in addition to the base attributes
 
@@ -145,7 +148,9 @@ Here a representation of an example Asset using the schema described:
         "schema": "Binary Votting"
     },
     "additionalInformation" : {
-        "updateFrecuency": "yearly"
+        "updateFrecuency": "yearly",
+        "structuredMarkup" : [ { "uri" : "http://skos.um.es/unescothes/C01194/jsonld", "mediaType" : "application/ld+json"},
+                               { "uri" : "http://skos.um.es/unescothes/C01194/turtle", "mediaType" : "text/turtle"}]
     }
 }
 ```
