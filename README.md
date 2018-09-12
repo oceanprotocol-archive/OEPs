@@ -27,6 +27,7 @@ The process to add or change a OEP is the following:
 # Current OEPs
 
 
+
 Short Name    | Title                                                        | Type     | Status     | Editor
 --------------|--------------------------------------------------------------|----------|------------|-------
 [1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft      | Dimitri De Jonghe
@@ -35,7 +36,6 @@ Short Name    | Title                                                        | T
 [4/AGENT](4)  | Ocean Agent Protocol Stack                                   | Standard     | Draft      | Aitor Argomaniz
 [8/ASSET-DDO](8)| Assets Metadata Ontology                                   | Standard     | Raw      | Aitor Argomaniz
 [10/OAA](10)  | On-Chain Access Control                       				 | Standard     | Draft      | Ahmed Ali
-
 
 
 # Current Participants
