@@ -84,6 +84,7 @@ Requirements are:
 * Any kind of object registered in Ocean MUST have a **URN** allowing to uniquely identify that object in the system
 * ASSET Metadata (off-chain) is associated to the ASSET information stored on-chain using a common **URN**
 * A **URN** can be resolved to get access to extended **Metadata**
+* ASSET Metadata could be provided by one or more than one providers
 * ASSETs Metadata can be updated without updating the on-chain information
 * ASSET information stored in the keeper will include a **checksum** attribute
 * The ASSET on-chain checksum attribute, includes a one-way HASH calculated using the DDO content
@@ -134,7 +135,16 @@ Schema:
 ```
 
 Where <NID> is the Namespace Identifier, and <NSS> is the Namespace Specific String.
-The leading "urn:" sequence is case-insensitive. The Namespace ID determines the _syntactic_ interpretation of the Namespace Specific String
+The leading "urn:" sequence is case-insensitive. The Namespace ID determines the _syntactic_ interpretation of the Namespace Specific String.
+
+In practice, a possible URN's to use in Ocean refering an Asset is:
+
+```text
+urn:asset:123456aabbcc
+```
+
+To avoid additional extra costs, only the Namespace Specific String (NSS) will be stored in the specific Smart Contract.
+It means in any Assets Registry variable, only the NSS will be stored.
 
 
 ### Actors Identity
@@ -150,6 +160,8 @@ There are two main options to implement this:
 * Associate to the DID a mapping of key-value attributes to be stored as new entries of a smart contract variable
 
 * Emit events associated to the DID. Events works pretty well as a kind of cost effective storage. This is the recommended approach.
+
+Contract Events are a useful feature for storing data from smart contracts exclusively for off-chain use.
 
 Here a draft **DIdRegistry** implementation:
 
@@ -174,6 +186,7 @@ contract DIdRegistry {
     event DidAttributeRegistered(
         string indexed did,
         address indexed owner,
+        bool indexed active,
         bytes32 indexed key,
         string value,
         uint updateAt
@@ -194,6 +207,7 @@ contract DIdRegistry {
 ```
 
 To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"provider"** with the public hostname of that provider:
+
 ```
 registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "provider", "https://myprovider.example.com")
 ```
@@ -222,13 +236,13 @@ A DDO pointing to a DID could be resolved hierarchically using the same mechanis
 This is an example in Javascript using web3.js:
 
 ```javascript
-var event = contractInstance.DidAttributeRegistered( {did: "did:ocn:21tDAKCERh95uGgKbJNHYp", "key": "provider"}, {fromBlock: 0, toBlock: 'latest'});
+var event = contractInstance.DidAttributeRegistered( {did: "did:ocn:21tDAKCERh95uGgKbJNHYp", "key": "provider", "active": true}, {fromBlock: 0, toBlock: 'latest'});
 ```
 
 Here in Python using web3.py:
 
 ```python
-event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'provider'})
+event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'provider', 'active': true})
 ```
 
 This logic could be encapsulated in the client libraries in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
@@ -239,7 +253,66 @@ Using this information a consumer can query directly to the provider able to ret
 
 #### Registry of Assets
 
-TODO:
+Currently the existing Ocean ASSETS are stored as part of the `OceanMarket` Smart Contract, but there is not a provider associated to it.
+Having this implementation, and because we want to avoid to store the **NSS** fragment of the **URN**, the existing Asset ID syntax will be the same.
+
+In addition to this, to associate a provider to an ASSET the following modifications are necessary in the `OceanMarket` contract:
+
+* Modify the `registerAsset` method allowing to specify the provider DID and emit the `AssetAttributeRegistered` event
+* Define a new `registerAssetAttribute` method allowing to associate an attribute to an existing asset
+* Define a new `unregisterAssetAttribute` method allowing to de-activate an existing attribute
+
+The following Solidity example could be used as reference of the modifications to apply:
+
+```solidity
+
+contract OceanMarket {
+
+    // ..
+
+    event AssetAttributeRegistered(
+        string indexed assetId,
+        bytes32 indexed key,
+        string indexed value,
+        bool indexed active,
+        uint updateAt
+    );
+
+    function register(bytes32 assetId, uint256 price, bytes32 key, string value)
+        public validAddress(msg.sender) returns (bool success) {
+
+        // ..
+
+        emit AssetAttributeRegistered(assetId, key, value, true);
+        // ..
+    }
+
+    function registerAssetAttribute(assetId, bytes32 key, string value) _onlyAssetOwner returns (bool) {
+        emit AssetAttributeRegistered(assetId, key, value, true);
+    }
+
+    function unregisterAssetAttribute(assetId, bytes32 key, string value) _onlyAssetOwner returns (bool) {
+        emit AssetAttributeRegistered(assetId, key, value, false);
+    }
+
+    // ..
+
+```
+
+Asset attributes have associated the `active` flag (true or false). It allows to disable existing attributes, and from the client perspective filtering and getting only the active attributes.
+In that scope, an `unregister` method could be implemented, allowing to de-activate an existing attribute.
+
+Examples:
+```
+register("123abc456", 999, "provider", "did:ocn:9988776655443322110000");
+registerAssetAttribute("123abc456", "provider", "did:ocn:21tDAKCERh95uGgKbJNHYp");
+registerAssetAttribute("123abc456", "provider", "did:ocn:aaaaaaaaaaaaaa");
+unregisterAssetAttribute("123abc456", "provider", "did:ocn:21tDAKCERh95uGgKbJNHYp");
+```
+
+After the execution of the previous code, 4 independent `AssetAttributeRegistered` are emitted about the **provider** key.
+Because the events are sorted by block number, a consumer of the events could reconstruct the state of the active Asset attributes using this information.
+This list would be the list of active providers associated to an Asset.
 
 
 #### Assets Resolver
@@ -255,9 +328,10 @@ Here you have the complete flow using as example a new ASSET:
 Steps:
 
 1. A PUBLISHER, using the KEEPER, register the new ASSET providing the ASSET URN and the attribute to resolve the provider (DID)
-1. The KEEPER register the ASSET using the OceanMarket Smart Contract and after of that register the identity using the DIdRegistry Smart Contract. In this point, the attribute is raised as a new event
+1. The KEEPER register the ASSET using the OceanMarket Smart Contract. As part of the registerAsset function, a new event is emitted with the Provider DID as Attribute
 1. The PUBLISHER publish the Metadata in the metadata-store/OCEANDB provided by PROVIDER
-1. A CONSUMER (it could be a frontend application or a backend software), having an ASSET URN and using a client library (Python or Javascript) get the **provider** DID attribute associated to the URN directly from the KEEPER
+1. A CONSUMER (it could be a frontend application or a backend software), having an ASSET URN and using a client library (SQUID libraries) get the **provider** DID attribute associated to the URN directly from the KEEPER
+1. The CONSUMER library (SQUID) using the Provider DID get the provider public url attribute
 1. The CONSUMER, using the provider public url, query directly to the provider passing the URN to obtain the Asset Metadata
 
 
