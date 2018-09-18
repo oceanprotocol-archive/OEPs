@@ -20,12 +20,18 @@ Table of Contents
       * [Specification](#specification)
       * [Proposed Solution](#proposed-solution)
          * [Decentralized ID's (DID)](#decentralized-ids-did)
-         * [Registry](#registry)
-         * [Resolver](#resolver)
+         * [Actors Identity](#actors-identity)
+            * [Registry](#registry)
+            * [DID Resolver](#did-resolver)
+         * [Assets Identification](#assets-identification)
+            * [Registry of Assets](#registry-of-assets)
+            * [Assets Resolver](#assets-resolver)
       * [Changes Required](#changes-required)
       * [Metadata Integrity](#metadata-integrity)
          * [Proposed solution](#proposed-solution-1)
       * [Changes Required](#changes-required-1)
+      * [References](#references)
+
 
 
 <!--te-->
@@ -52,12 +58,13 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Design a solution to extend the current architecture to use **Uniform Resource Names (URN)**, **Decentralized Identifiers (DID)** and **DID description objects (DDO)**
+* Design a solution to extend the current Ocean architecture to use  **Decentralized Identifiers (DID)** and **DID description objects (DDO)**
 * Understand how to register information on-chain with off-chain integrity associated
 * Understand how to resolve DID's into DDO's
+* Understand how to resolve Assets Metadata using Assets IDs
 * Design a solution facilitating to have the on-chain and off-chain information aligned
-* Establishing the mechanism to know if the DDO associted to a DID was modified
-* Defining the common mechanisms, interfaces and API's to implemented the designed solution
+* Establishing the mechanism to know if the DDO associated to a DID was modified
+* Defining the common mechanisms, interfaces and APIs to implemented the designed solution
 * Define how Ocean assets, agents and tribes can be modeled with a DID/DDO data model
 * Understand how DID hubs are formed, and how they integrate a business and storage layer
 
@@ -74,16 +81,16 @@ Requirements are:
 * KEEPER doesn't store any ASSET metadata
 * OCEAN doesn't store ASSET files contents
 * SUBJECTS (Ocean actors) could be identified using a **Decentralized ID (DID)** included on-chain and off-chain
-* ACTORS don't need to be registered. Only ACTORS requiring to be discovered by others require a simple registering mechanism
+* ACTORS don't need to be registered. Only ACTORS requiring to be discovered by others require a simple registration mechanism
 * A Decentralized Distributed Object (**DDO**) represents the metadata of an Actor
-* A **DID** can be resolved to get access to a **DDO**
-* DDO's can be updated without updating the on-chain information
+* A **DID** can be resolved into a **DDO**
+* DDOs can be updated without updating the on-chain information
 * An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER and metadata stored in OCEANDB
 * ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
-* ASSETS can be resolved using a **Uniform Resource Name (URN)** included on-chain and off-chain
-* Any kind of object registered in Ocean MUST have a **URN** allowing to uniquely identify that object in the system
-* ASSET Metadata (off-chain) is associated to the ASSET information stored on-chain using a common **URN**
-* A **URN** can be resolved to get access to extended **Metadata**
+* An ASSET is identified using an ASSET ID
+* Any kind of object registered in Ocean MUST have a **Uniform Resource Names (URN)** allowing to uniquely identify that object in the system
+* ASSET Metadata (off-chain) is associated to the ASSET information stored on-chain using a common **ASSET ID**
+* A **ASSET ID** can be resolved to get access to extended **Metadata**
 * ASSET Metadata could be provided by one or more than one providers
 * ASSETs Metadata can be updated without updating the on-chain information
 * ASSET information stored in the keeper will include a **checksum** attribute
@@ -122,59 +129,34 @@ did:ocn:21tDAKCERh95uGgKbJNHYp
 The complete specs can be found in the [W3C Decentralized Identifiers (DIDs) document](https://w3c-ccg.github.io/did-spec/)
 
 
-### Uniform Resource Names (URN)
-
-Uniform Resource Names (URNs) are intended to serve as persistent, location-independent, resource identifiers and are designed to make
-it easy to map other namespaces (which share the properties of URNs) into URN-space. Therefore, the URN syntax provides a means to encode
-character data in a form that can be sent in existing protocols, transcribed on most keyboards, etc.
-
-Schema:
-
-```text
-<URN> ::= "urn:" <NID> ":" <NSS>
-```
-
-Where <NID> is the Namespace Identifier, and <NSS> is the Namespace Specific String.
-The leading "urn:" sequence is case-insensitive. The Namespace ID determines the _syntactic_ interpretation of the Namespace Specific String.
-
-In practice, a possible URN's to use in Ocean refering an Asset is:
-
-```text
-urn:asset:123456aabbcc
-```
-
-To avoid additional extra costs, only the Namespace Specific String (NSS) will be stored in the specific Smart Contract.
-It means in any Assets Registry variable, only the NSS will be stored.
-
-
 ### Actors Identity
 
 #### Registry
 
-To register an Actor, who requires to be located, the simple will provide a **simple** register contract named **DIdRegistry**.
+To register an Actor, requiring to be located, a simple register contract named **DidRegistry** will be provided.
 The key of the Identity entity in Ocean is the **DID**. Associated to this DID we have a Mapping of key-value attributes,
 allowing to associate publicly information to DID's. This could be used to add public information allowing for example
-to discover/resolve a DID.
-There are two main options to implement this:
+to discover/resolve a DID. There are two main options to implement this:
 
 * Associate to the DID a mapping of key-value attributes to be stored as new entries of a smart contract variable
 
-* Emit events associated to the DID. Events works pretty well as a kind of cost effective storage. This is the recommended approach.
+* Emit events associated to the DID. Events works pretty well as a kind of cost effective storage. This is the **recommended approach**.
 
 Contract Events are a useful feature for storing data from smart contracts exclusively for off-chain use.
 
-Here a draft **DIdRegistry** implementation:
+Here a draft **DidRegistry** implementation:
 
 ```solidity
 
 // This piece of code is for reference only!
 // Doesn't include any validation, types could be reviewed, enums, etc
 
-contract DIdRegistry {
+contract DidRegistry {
 
     struct Identity {
         address owner; // owner of the Identity
         string did;
+        mapping (bytes32 => string) attributes; // key => value attributes
     }
 
     mapping (string => Identity) identities; // list of identities
@@ -182,11 +164,9 @@ contract DIdRegistry {
     // Option 1. Attributes as K,V stored as part of internal object attributes
     mapping (string => mapping (bytes32 => string) ) identities; // list identities attributes
 
-    // Option 2. Attributes as events (recommended)
+    // Attributes are emited as events
     event DidAttributeRegistered(
         string indexed did,
-        address indexed owner,
-        bool indexed active,
         bytes32 indexed key,
         string value,
         uint updateAt
@@ -195,56 +175,34 @@ contract DIdRegistry {
     constructor(bytes32 _did) public {
     }
 
-    function registerAttribute(string _did, bytes32 _key, string _value) public returns (bool) {
-        // Option 1.
+    function registerAttribute(string _did, bytes32 _key, string _value) public _onlyOwner returns (bool) {
+        // Registering Identity
         identities[_did][_key] = _value;
 
-        // Option 2. (recommended)
-        DidAttributeRegistered(_did, msg.sender, identities[_did].type, _key, _value, now);
+        // Emitting event about new Attribute registered
+        emit DidAttributeRegistered(_did, _key, _value, now);
+    }
+
+    function getAttribute(string _did, bytes32 _key) public view returns (string) {
+        return identities[_did][_key];
     }
 }
 
 ```
 
-To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"provider"** with the public hostname of that provider:
+To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"url"** with the public address of that provider:
 
 ```
-registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "provider", "https://myprovider.example.com")
+registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "url", "https://myprovider.example.com/")
 ```
 
 
 #### DID Resolver
 
-The resolving capabilities will be encapsulated in the Ocean Client libraries (Javascript, Python, ..), allowing to resolve a DDO directly speaking with the KEEPER.
+The resolving capabilities will be encapsulated in the Ocean Client libraries (Javascript, Python, ..), allowing to resolve a DDO directly interacting with the KEEPER.
 No third-party requests or API need to be integrated. This allows to have a simple a seam-less integration from the consumer side.
 
-This is a generic definition of what could be exposed in the client libraries from an API point of view:
-
-```java
-function DDO resolve(String did)  {
-  // black magic
-  return ddo;
-}
-```
-
-To resolve a DID to the associated DDO, some information is stored on-chain associated to the DID. In the approach recommended in the scope of this OEP, this is stored
-as an attribute associated to the ```DidAttributeRegistered``` event. Because the did and key are indexed parameters of the event, a consumer in any supported web3 language,
-could filter the ```DidAttributeRegistered``` events filtering by the DID and the key named **"provider"**.
-
-A DDO pointing to a DID could be resolved hierarchically using the same mechanism.
-
-This is an example in Javascript using web3.js:
-
-```javascript
-var event = contractInstance.DidAttributeRegistered( {did: "did:ocn:21tDAKCERh95uGgKbJNHYp", "key": "provider", "active": true}, {fromBlock: 0, toBlock: 'latest'});
-```
-
-Here in Python using web3.py:
-
-```python
-event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'provider', 'active': true})
-```
-
+Only calling to the `getAttribute` method about an specific DID would be possible to get the public url associated to that DID.
 This logic could be encapsulated in the client libraries in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
 Using this information a consumer can query directly to the provider able to return the DDO.
 
@@ -302,22 +260,27 @@ contract OceanMarket {
 Asset attributes have associated the `active` flag (true or false). It allows to disable existing attributes, and from the client perspective filtering and getting only the active attributes.
 In that scope, an `unregister` method could be implemented, allowing to de-activate an existing attribute.
 
-Examples:
-```
-register("123abc456", 999, "provider", "did:ocn:9988776655443322110000");
-registerAssetAttribute("123abc456", "provider", "did:ocn:21tDAKCERh95uGgKbJNHYp");
-registerAssetAttribute("123abc456", "provider", "did:ocn:aaaaaaaaaaaaaa");
-unregisterAssetAttribute("123abc456", "provider", "did:ocn:21tDAKCERh95uGgKbJNHYp");
-```
-
-After the execution of the previous code, 4 independent `AssetAttributeRegistered` are emitted about the **provider** key.
 Because the events are sorted by block number, a consumer of the events could reconstruct the state of the active Asset attributes using this information.
 This list would be the list of active providers associated to an Asset.
 
 
 #### Assets Resolver
 
-TODO:
+To resolve the provider URL associated to an asset, the Provider DID is stored on-chain associated to the asset using events. In the approach recommended in the scope of this OEP, this is stored
+as an attribute associated to the ```AssetAttributeRegistered``` event. Because the assetId and key are indexed parameters of the event, a consumer in any supported web3 language,
+could filter the ```AssetAttributeRegistered``` events filtering by the **assetId** and the key named **"provider"**.
+
+This is an example in Javascript using web3.js:
+
+```javascript
+var event = contractInstance.AssetAttributeRegistered( {assetId: "12345678", "key": "provider", "active": true}, {fromBlock: 0, toBlock: 'latest'});
+```
+
+Here in Python using web3.py:
+
+```python
+event = mycontract.events.AssetAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'assetId': '12345678', 'key': 'provider', 'active': true})
+```
 
 
 
@@ -339,10 +302,10 @@ Steps:
 
 The list of changes to apply in the proposed solution are:
 
-* Modify the function creating the Asset Id to return a URN compliant id - KEEPER
 * Create a new function to generate a valid DID - KEEPER
-* Create the new DIdRegistry Smart Contract - KEEPER
-* Integrate the call to the DIdRegistry contract in the OceanMarketplace contract - KEEPER
+* Create the new DidRegistry Smart Contract - KEEPER
+* When a new Asset is created, it's checked if the DID exists in the DidRegistry - KEEPER
+* If DID doesn't exist, integrate the call to the DidRegistry constructor in the OceanMarketplace contract - KEEPER
 * Implement the resolving function of a Provider public URL given a a DID - CLIENT LIBRARIES
 * Implement the resolving function of a ASSET Metadata an ASSET URN - CLIENT LIBRARIES
 
