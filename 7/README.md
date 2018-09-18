@@ -52,7 +52,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Design a solution to extend the current architecture to use **Decentralized Identifiers (DID)** and **DID description objects (DDO)**
+* Design a solution to extend the current architecture to use **Uniform Resource Names (URN)**, **Decentralized Identifiers (DID)** and **DID description objects (DDO)**
 * Understand how to register information on-chain with off-chain integrity associated
 * Understand how to resolve DID's into DDO's
 * Design a solution facilitating to have the on-chain and off-chain information aligned
@@ -68,21 +68,26 @@ Requirements are:
 
 * The DID resolving capabilities MUST be exposed in the client libraries, enabling to resolve a DDO directly in a totally transparent way
 * ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER
+* PUBLISHER or OWNERS of ASSETS could delegate some usage permissions regarding those ASSETS
 * KEEPER stores on-chain only the essential information about ASSETS
 * PROVIDERS store the ASSET metadata off-chain
 * KEEPER doesn't store any ASSET metadata
 * OCEAN doesn't store ASSET files contents
+* SUBJECTS (Ocean actors) could be identified using a **Decentralized ID (DID)** included on-chain and off-chain
+* ACTORS don't need to be registered. Only ACTORS requiring to be discovered by others require a simple registering mechanism
+* A Decentralized Distributed Object (**DDO**) represents the metadata of an Actor
+* A **DID** can be resolved to get access to a **DDO**
+* DDO's can be updated without updating the on-chain information
 * An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER and metadata stored in OCEANDB
 * ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
-* ASSETS can be resolved using a Decentralized ID (DID) included on-chain and off-chain
-* A Decentralized Distributed Object (**DDO**) represents the ASSET metadata
-* Any kind of object registered in Ocean SHOULD have a DID allowing to uniquely identify that object in the system
-* ASSET DDO (metadata off-chain) is associated to the ASSET information stored on-chain using a common **DID**
-* A **DID** can be resolved to get access to a **DDO**
-* ASSET DDO's can be updated without updating the on-chain information
+* ASSETS can be resolved using a **Uniform Resource Name (URN)** included on-chain and off-chain
+* Any kind of object registered in Ocean MUST have a **URN** allowing to uniquely identify that object in the system
+* ASSET Metadata (off-chain) is associated to the ASSET information stored on-chain using a common **URN**
+* A **URN** can be resolved to get access to extended **Metadata**
+* ASSETs Metadata can be updated without updating the on-chain information
 * ASSET information stored in the keeper will include a **checksum** attribute
 * The ASSET on-chain checksum attribute, includes a one-way HASH calculated using the DDO content
-* After the DDO resolving, the DDO HASH can be calculated off-chain to validate if the on-chain and off-chain information is aligned
+* After the Metadata resolving, the Metadata HASH can be calculated off-chain to validate if the on-chain and off-chain information is aligned
 * A HASH not matching with the checksum on-chain means the DDO was modified without the on-chain update
 * The function to calculate the HASH MUST BE standard
 
@@ -92,8 +97,8 @@ Requirements are:
 ### Decentralized ID's (DID)
 
 A DID is a unique identifier that can be resolved or de-referenced to a standard resource describing the entity (a DID Document or DDO).
-If we apply this to Ocean, the DID would be the unique identifier of an object represented in Ocean (ie. the Asset ID of an ASSET or the Actor ID of a USER).
-The DDO would be the METADATA information associated to this object that is stored off-chain on Ocean.
+If we apply this to Ocean, the DID would be the unique identifier of an actor interacting in Ocean (the Actor ID of a USER).
+The DDO would be the METADATA information associated to this Actor DID that is stored off-chain on Ocean.
 
 DID schema:
 
@@ -115,9 +120,28 @@ did:ocn:21tDAKCERh95uGgKbJNHYp
 
 The complete specs can be found in the [W3C Decentralized Identifiers (DIDs) document](https://w3c-ccg.github.io/did-spec/)
 
-### Registry
 
-To register the different kind of objects can be stored in a **simple** register contract named **IdRegistry**.
+### Uniform Resource Names (URN)
+
+Uniform Resource Names (URNs) are intended to serve as persistent, location-independent, resource identifiers and are designed to make
+it easy to map other namespaces (which share the properties of URNs) into URN-space. Therefore, the URN syntax provides a means to encode
+character data in a form that can be sent in existing protocols, transcribed on most keyboards, etc.
+
+Schema:
+
+```text
+<URN> ::= "urn:" <NID> ":" <NSS>
+```
+
+Where <NID> is the Namespace Identifier, and <NSS> is the Namespace Specific String.
+The leading "urn:" sequence is case-insensitive. The Namespace ID determines the _syntactic_ interpretation of the Namespace Specific String
+
+
+### Actors Identity
+
+#### Registry
+
+To register an Actor, who requires to be located, the simple will provide a **simple** register contract named **DIdRegistry**.
 The key of the Identity entity in Ocean is the **DID**. Associated to this DID we have a Mapping of key-value attributes,
 allowing to associate publicly information to DID's. This could be used to add public information allowing for example
 to discover/resolve a DID.
@@ -127,19 +151,18 @@ There are two main options to implement this:
 
 * Emit events associated to the DID. Events works pretty well as a kind of cost effective storage. This is the recommended approach.
 
-Here a draft **IdRegistry** implementation:
+Here a draft **DIdRegistry** implementation:
 
 ```solidity
 
 // This piece of code is for reference only!
 // Doesn't include any validation, types could be reviewed, enums, etc
 
-contract IdRegistry {
+contract DIdRegistry {
 
     struct Identity {
         address owner; // owner of the Identity
         string did;
-        unint256 type; // type of Identity object (Asset, Actor, Workflow, ..)
     }
 
     mapping (string => Identity) identities; // list of identities
@@ -151,13 +174,12 @@ contract IdRegistry {
     event DidAttributeRegistered(
         string indexed did,
         address indexed owner,
-        uint256 indexed type,
         bytes32 indexed key,
         string value,
         uint updateAt
     );
 
-    constructor(bytes32 _did, uint256 _type) public {
+    constructor(bytes32 _did) public {
     }
 
     function registerAttribute(string _did, bytes32 _key, string _value) public returns (bool) {
@@ -177,7 +199,7 @@ registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "provider", "https://myprovi
 ```
 
 
-### Resolver
+#### DID Resolver
 
 The resolving capabilities will be encapsulated in the Ocean Client libraries (Javascript, Python, ..), allowing to resolve a DDO directly speaking with the KEEPER.
 No third-party requests or API need to be integrated. This allows to have a simple a seam-less integration from the consumer side.
@@ -212,27 +234,43 @@ event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest'
 This logic could be encapsulated in the client libraries in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
 Using this information a consumer can query directly to the provider able to return the DDO.
 
+
+### Assets Identification
+
+#### Registry of Assets
+
+TODO:
+
+
+#### Assets Resolver
+
+TODO:
+
+
+
 Here you have the complete flow using as example a new ASSET:
 
 ![DID Resolver](images/did-resolver.png)
 
 Steps:
 
-1. A PUBLISHER, using the KEEPER, register the new ASSET providing the DID and the attribute to resolve the provider
-1. The KEEPER register the ASSET using the OceanMarket Smart Contract and after of that register the identity using the IdRegistry Smart Contract. In this point, the attribute is raised as a new event
-1. The PUBLISHER publish the DDO in the metadata-store/OCEANDB provided by PROVIDER
-1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **provider** attribute associated to the DID directly from the KEEPER
-1. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
+1. A PUBLISHER, using the KEEPER, register the new ASSET providing the ASSET URN and the attribute to resolve the provider (DID)
+1. The KEEPER register the ASSET using the OceanMarket Smart Contract and after of that register the identity using the DIdRegistry Smart Contract. In this point, the attribute is raised as a new event
+1. The PUBLISHER publish the Metadata in the metadata-store/OCEANDB provided by PROVIDER
+1. A CONSUMER (it could be a frontend application or a backend software), having an ASSET URN and using a client library (Python or Javascript) get the **provider** DID attribute associated to the URN directly from the KEEPER
+1. The CONSUMER, using the provider public url, query directly to the provider passing the URN to obtain the Asset Metadata
 
 
 ## Changes Required
 
 The list of changes to apply in the proposed solution are:
 
-* Modify the function creating the id to return a DID compliant id - KEEPER
-* Create the new IdRegistry Smart Contract - KEEPER
-* Integrate the call to the IdRegistry contract in the OceanMarketplace contract - KEEPER
-* Implement the resolving function of a DDO given a DID - CLIENT LIBRARIES
+* Modify the function creating the Asset Id to return a URN compliant id - KEEPER
+* Create a new function to generate a valid DID - KEEPER
+* Create the new DIdRegistry Smart Contract - KEEPER
+* Integrate the call to the DIdRegistry contract in the OceanMarketplace contract - KEEPER
+* Implement the resolving function of a Provider public URL given a a DID - CLIENT LIBRARIES
+* Implement the resolving function of a ASSET Metadata an ASSET URN - CLIENT LIBRARIES
 
 
 ## Metadata Integrity
