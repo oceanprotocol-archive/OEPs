@@ -58,14 +58,14 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Design a solution to extend the current Ocean architecture to use  **Decentralized Identifiers (DID)** and **DID description objects (DDO)**
+* Design a solution to extend the current Ocean architecture to use  **Decentralized Identifiers (DID)** and **DID description objects (DID Document)**
 * Understand how to register information on-chain with off-chain integrity associated
-* Understand how to resolve DID's into DDO's
+* Understand how to resolve DID's into DID Document's
 * Understand how to resolve Assets Metadata using Assets IDs
 * Design a solution facilitating to have the on-chain and off-chain information aligned
-* Establishing the mechanism to know if the DDO associated to a DID was modified
+* Establishing the mechanism to know if the DID Document associated to a DID was modified
 * Defining the common mechanisms, interfaces and APIs to implemented the designed solution
-* Define how Ocean assets, agents and tribes can be modeled with a DID/DDO data model
+* Define how Ocean assets, agents and tribes can be modeled with a DID/DID Document data model
 * Understand how DID hubs are formed, and how they integrate a business and storage layer
 
 
@@ -73,7 +73,7 @@ The main motivations of this OEP are:
 
 Requirements are:
 
-* The DID resolving capabilities MUST be exposed in the client libraries, enabling to resolve a DDO directly in a totally transparent way
+* The DID resolving capabilities MUST be exposed in the client libraries, enabling to resolve a DID Document directly in a totally transparent way
 * ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER
 * PUBLISHER or OWNERS of ASSETS could delegate some usage permissions regarding those ASSETS
 * KEEPER stores on-chain only the essential information about ASSETS
@@ -82,9 +82,9 @@ Requirements are:
 * OCEAN doesn't store ASSET files contents
 * SUBJECTS (Ocean actors) could be identified using a **Decentralized ID (DID)** included on-chain and off-chain
 * ACTORS don't need to be registered. Only ACTORS requiring to be discovered by others require a simple registration mechanism
-* A Decentralized Distributed Object (**DDO**) represents the metadata of an Actor
-* A **DID** can be resolved into a **DDO**
-* DDOs can be updated without updating the on-chain information
+* A Decentralized Distributed Object (**DID Document**) represents the metadata of an Actor
+* A **DID** can be resolved into a **DID Document**
+* DID Documents can be updated without updating the on-chain information
 * An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER and metadata stored in OCEANDB
 * ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
 * An ASSET is identified using an ASSET ID
@@ -94,9 +94,9 @@ Requirements are:
 * ASSET Metadata could be provided by one or more than one providers
 * ASSETs Metadata can be updated without updating the on-chain information
 * ASSET information stored in the keeper will include a **checksum** attribute
-* The ASSET on-chain checksum attribute, includes a one-way HASH calculated using the DDO content
+* The ASSET on-chain checksum attribute, includes a one-way HASH calculated using the DID Document content
 * After the Metadata resolving, the Metadata HASH can be calculated off-chain to validate if the on-chain and off-chain information is aligned
-* A HASH not matching with the checksum on-chain means the DDO was modified without the on-chain update
+* A HASH not matching with the checksum on-chain means the DID Document was modified without the on-chain update
 * The function to calculate the HASH MUST BE standard
 
 
@@ -104,9 +104,9 @@ Requirements are:
 
 ### Decentralized ID's (DID)
 
-A DID is a unique identifier that can be resolved or de-referenced to a standard resource describing the entity (a DID Document or DDO).
+A DID is a unique identifier that can be resolved or de-referenced to a standard resource describing the entity (a DID Document).
 If we apply this to Ocean, the DID would be the unique identifier of an actor interacting in Ocean (the Actor ID of a USER).
-The DDO would be the METADATA information associated to this Actor DID that is stored off-chain on Ocean.
+The DID Document would be the METADATA information associated to this Actor DID that is stored off-chain on Ocean.
 
 DID schema:
 
@@ -151,7 +151,7 @@ Here a draft **DidRegistry** implementation:
 // This piece of code is for reference only!
 // Doesn't include any validation, types could be reviewed, enums, etc
 
-contract DidRegistry {
+contract DIDRegistry {
 
     struct Identity {
         address owner; // owner of the Identity
@@ -190,7 +190,7 @@ contract DidRegistry {
 
 ```
 
-To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"url"** with the public address of that provider:
+To register the provider publicly resolving the DID Document associated to a DID, we will register an attribute **"url"** with the public address of that provider:
 
 ```
 registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "url", "https://myprovider.example.com/")
@@ -199,12 +199,12 @@ registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "url", "https://myprovider.e
 
 #### DID Resolver
 
-The resolving capabilities will be encapsulated in the Ocean Client libraries (Javascript, Python, ..), allowing to resolve a DDO directly interacting with the KEEPER.
+The resolving capabilities will be encapsulated in the Ocean Client libraries (Javascript, Python, ..), allowing to resolve a DID Document directly interacting with the KEEPER.
 No third-party requests or API need to be integrated. This allows to have a simple a seam-less integration from the consumer side.
 
 Only calling to the `getAttribute` method about an specific DID would be possible to get the public url associated to that DID.
-This logic could be encapsulated in the client libraries in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
-Using this information a consumer can query directly to the provider able to return the DDO.
+This logic could be encapsulated in the client libraries in different languages, allowing to the client applications to get the attributes enabling to resolve the DID Document associated to the DID.
+Using this information a consumer can query directly to the provider able to return the DID Document.
 
 
 ### Assets Identification
@@ -314,9 +314,9 @@ The list of changes to apply in the proposed solution are:
 
 The Metadata Integrity policy is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
 
-An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DDO) stored in OCEANDB.
-Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
-The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
+An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DID Document) stored in OCEANDB.
+Technically a user could update the DID Document accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
+The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DID Document was modified after a previous agreement.
 
 ### Proposed solution
 
@@ -324,16 +324,16 @@ The motivation of this is to facilitate a mechanism allowing to the CONSUMER of 
 
 The solution included in the above diagram includes the following steps:
 
-1. The PUBLISHER, before publish any ASSET information, calculate the **HASH** using the **DDO** as input.
+1. The PUBLISHER, before publish any ASSET information, calculate the **HASH** using the **DID Document** as input.
    To do that, the PUBLISHER will use from the client side a common Ocean library using the same algorithm.
 1. The PUBLISHER, in the process of registering an ASSET on-chain specifies the **HASH** in addition of the existing parameters.
-1. The KEEPER register the ASSET and associate the HASH calculated using the DDO associated to the ASSET.
-1. After a CONSUMER get access to an ASSET, could store internally the HASH referencing to the DDO he purchased
-1. In a posterior consumption, after resolving the DDO, the CONSUMER using the client library can calculate the HASH of the DDO just obtained
-1. If the HASH obtained is not the same than the HASH associated in the original purchase, means the DDO was modified afterwards
+1. The KEEPER register the ASSET and associate the HASH calculated using the DID Document associated to the ASSET.
+1. After a CONSUMER get access to an ASSET, could store internally the HASH referencing to the DID Document he purchased
+1. In a posterior consumption, after resolving the DID Document, the CONSUMER using the client library can calculate the HASH of the DID Document just obtained
+1. If the HASH obtained is not the same than the HASH associated in the original purchase, means the DID Document was modified afterwards
 1. This, depending of the agreed conditions, could means an exit clause of some contracts
 
-The HASH could be an optional parameter in the registering of the ASSET. If it's not specified, means the DDO can be updated without any limitation.
+The HASH could be an optional parameter in the registering of the ASSET. If it's not specified, means the DID Document can be updated without any limitation.
 
 ## Changes Required
 
