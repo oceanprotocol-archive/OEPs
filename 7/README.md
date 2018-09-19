@@ -4,7 +4,8 @@ name: Decentralized Identifiers
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: 
+contributors: Aitor Argomaniz <aitor@oceanprotocol.com>
+              Ahmed Ali <ahmed@oceanprotocol.com>
 ```
 
 <!--ts-->
