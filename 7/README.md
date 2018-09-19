@@ -96,7 +96,7 @@ Requirements are:
 * ASSETs Metadata can be updated without updating the on-chain information
 * ASSET information stored in the keeper will include a **checksum** attribute
 * The ASSET on-chain checksum attribute, includes a one-way HASH calculated using the DID Document content
-* After the Metadata resolving, the Metadata HASH can be calculated off-chain to validate if the on-chain and off-chain information is aligned
+* After resolving the Metadata, the Metadata HASH can be calculated off-chain to validate if the on-chain and off-chain information is aligned
 * A HASH not matching with the checksum on-chain means the DID Document was modified without the on-chain update
 * The function to calculate the HASH MUST BE standard
 
@@ -291,12 +291,13 @@ Here you have the complete flow using as example a new ASSET:
 
 Steps:
 
-1. A PUBLISHER, using the KEEPER, register the new ASSET providing the ASSET URN and the attribute to resolve the provider (DID)
+1. A PUBLISHER, using the KEEPER, register the new ASSET providing the full ASSET URL and the attribute to resolve the provider (DID) + ASSET ID
 1. The KEEPER register the ASSET using the OceanMarket Smart Contract. As part of the registerAsset function, a new event is emitted with the Provider DID as Attribute
-1. The PUBLISHER publish the Metadata in the metadata-store/OCEANDB provided by PROVIDER
-1. A CONSUMER (it could be a frontend application or a backend software), having an ASSET URN and using a client library (SQUID libraries) get the **provider** DID attribute associated to the URN directly from the KEEPER
+1. The PUBLISHER publish the Metadata in the metadata-store/OCEANDB provided by PROVIDER which is resolved using Base-URL. 
+1. Base-url can be used to fetch the DDO of the provider,Base url + asset id (or other id in the future), can be used to directly retrieve the asset Metadata. This is so that we avoid unnecessary extra call in the middle.
+1. A CONSUMER (it could be a frontend application or a backend software), having an ASSET URL and using a client library (SQUID libraries) get the **provider** DID attribute associated to the URN directly from the KEEPER
 1. The CONSUMER library (SQUID) using the Provider DID get the provider public url attribute
-1. The CONSUMER, using the provider public url, query directly to the provider passing the URN to obtain the Asset Metadata
+1. The CONSUMER, using the provider public url, query directly to the provider passing the URL to obtain the Asset Metadata
 
 
 ## Changes Required
@@ -314,10 +315,6 @@ The list of changes to apply in the proposed solution are:
 ## Metadata Integrity
 
 The Metadata Integrity policy is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
-
-An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DID Document) stored in OCEANDB.
-Technically a user could update the DID Document accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
-The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DID Document was modified after a previous agreement.
 
 ### Proposed solution
 
