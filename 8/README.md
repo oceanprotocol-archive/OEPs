@@ -63,6 +63,7 @@ Base attributes are always part of the DDO schema. Those attributes could be man
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name of the Asset
+**type**        | Text          | Yes           | Type of the Asset. Helps to filter by kind of asset, initially ("dataset", "algorithm", "container", "workflow", "other")
 **description** | Text          | No            | Details of what the resource is. For a data set explain what the data represents and what it can be used for
 **dateCreated** | DateTime      | Yes           | The date on which  was created or was added
 **size**        | Text          | Yes           | Size of the asset (e.g. 18mb). In the absence of a unit (mb, kb etc.), KB will be assumed
@@ -120,6 +121,7 @@ Here a representation of an example Asset using the schema described:
 {
     "base": {
         "name": "UK Weather information 2011",
+        "type": "dataset",
         "description": "Weather information of UK including temperature and humidity",
         "size": "3.1gb",
         "dateCreated": "2012-02-01T10:55:11+00:00",
