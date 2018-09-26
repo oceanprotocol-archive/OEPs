@@ -72,7 +72,7 @@ Requirements are:
 * PROVIDERS store the ASSET metadata off-chain
 * KEEPER doesn't store any ASSET metadata
 * OCEAN doesn't store ASSET files contents
-* An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER and metadata stored in OCEANDB
+* An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER, metadata stored by a Metadata Provider exposing a standard Meta API and asset data stored by a storage provider exposing a standard Storage API
 * ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
 * ASSETS can be resolved using a Decentralized ID (DID) included on-chain and off-chain
 * A Decentralized Distributed Object (**DDO**) represents the ASSET metadata
