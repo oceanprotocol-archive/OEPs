@@ -52,7 +52,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Design a solution to extend the current architecture to use **Decentralized Identifiers (DID)** and **DID description objects (DDO)**
+* Design a solution to extend the current architecture to use **Decentralized Identifiers (DID)** and **DID Documents (DDO)**
 * Understand how to register information on-chain with off-chain integrity associated
 * Understand how to resolve DID's into DDO's
 * Design a solution facilitating to have the on-chain and off-chain information aligned
@@ -75,9 +75,9 @@ Requirements are:
 * An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER and metadata stored in OCEANDB
 * ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
 * ASSETS can be resolved using a Decentralized ID (DID) included on-chain and off-chain
-* A Decentralized Distributed Object (**DDO**) represents the ASSET metadata
+* A Decentralized Distributed Object (**DDO**) should includes the ASSET metadata
 * Any kind of object registered in Ocean SHOULD have a DID allowing to uniquely identify that object in the system
-* ASSET DDO (metadata off-chain) is associated to the ASSET information stored on-chain using a common **DID**
+* ASSET DDO (and the metadata included as part of the DDO) is associated to the ASSET information stored on-chain using a common **DID**
 * A **DID** can be resolved to get access to a **DDO**
 * ASSET DDO's can be updated without updating the on-chain information
 * ASSET information stored in the keeper will include a **checksum** attribute
@@ -115,9 +115,45 @@ did:ocn:21tDAKCERh95uGgKbJNHYp
 
 The complete specs can be found in the [W3C Decentralized Identifiers (DIDs) document](https://w3c-ccg.github.io/did-spec/)
 
+### DID Documents (DDO)
+
+If a DID is the index key in a key-value pair, then the DID Document is the value to which the index key points.
+The combination of a DID and its associated DID Document forms the root record for a decentralized identifier.
+
+![DDO Content](images/ddo-content.png)
+
+A DDO document is composed by the standard DDO attributes like:
+
+* context
+* id:
+* services
+
+In addition to this, the asset metadata can be included as part of the DDO inside the service entry, using the type **AssetsMetadataService**.
+Example:
+
+```json
+{
+  "@context": "https://example.org/example-method/v1",
+  "id": "did:example:123456789abcdefghi",
+  "authentication": [{ ... }],
+  "service": [{
+    "type": "AssetsMetadataService",
+    "serviceEndpoint": "https://myservice.org/assets/",
+    "metadata": {
+        "title": "my asset",
+        "description": "blabla"
+    }
+  }]
+}
+```
+
+You can find a complete reference of the asset metadata in the scope of the [OEP-8](8).
+Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the w3c did spec.
+
+
 ### Registry
 
-To register the different kind of objects can be stored in a **simple** register contract named **IdRegistry**.
+To register the different kind of objects can be stored in a **simple** register contract named **DidRegistry**.
 The key of the Identity entity in Ocean is the **DID**. Associated to this DID we have a Mapping of key-value attributes,
 allowing to associate publicly information to DID's. This could be used to add public information allowing for example
 to discover/resolve a DID.
@@ -127,27 +163,23 @@ There are two main options to implement this:
 
 * Emit events associated to the DID. Events works pretty well as a kind of cost effective storage. This is the recommended approach.
 
-Here a draft **IdRegistry** implementation:
+Here a draft **DidRegistry** implementation:
 
 ```solidity
 
 // This piece of code is for reference only!
 // Doesn't include any validation, types could be reviewed, enums, etc
 
-contract IdRegistry {
+contract DidRegistry {
 
     struct Identity {
         address owner; // owner of the Identity
-        string did;
         unint256 type; // type of Identity object (Asset, Actor, Workflow, ..)
     }
 
-    mapping (string => Identity) identities; // list of identities
+    mapping (string => Identity) identities; // list of identities, mapping: identities[did] = Identity
 
-    // Option 1. Attributes as K,V stored as part of internal object attributes
-    mapping (string => mapping (bytes32 => string) ) identities; // list identities attributes
-
-    // Option 2. Attributes as events (recommended)
+    // Attributes as events (recommended)
     event DidAttributeRegistered(
         string indexed did,
         address indexed owner,
@@ -161,9 +193,6 @@ contract IdRegistry {
     }
 
     function registerAttribute(string _did, bytes32 _key, string _value) public returns (bool) {
-        // Option 1.
-        identities[_did][_key] = _value;
-
         // Option 2. (recommended)
         DidAttributeRegistered(_did, msg.sender, identities[_did].type, _key, _value, now);
     }
@@ -209,7 +238,7 @@ Here in Python using web3.py:
 event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'provider'})
 ```
 
-This logic could be encapsulated in the client libraries in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
+This logic could be encapsulated in the client libraries (**Squid**) in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
 Using this information a consumer can query directly to the provider able to return the DDO.
 
 Here you have the complete flow using as example a new ASSET:
