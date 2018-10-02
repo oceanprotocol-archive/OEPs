@@ -234,6 +234,58 @@ The list of changes to apply in the proposed solution are:
 * Integrate the call to the IdRegistry contract in the OceanMarketplace contract - KEEPER
 * Implement the resolving function of a DDO given a DID - CLIENT LIBRARIES
 
+## DDO Hash Algorithm
+
+To reliably hash the contents of a DDO excluding the DDO id.
+
+The DDO hash can then be used to include in calculating a subsequent DID. 
+
+The following DDO fields will be assembled as a single string in the following sequence:
+
+1. created
+1. publicKey_1.type
+1. publicKey_1.value
+1. publicKey_n.type
+1. publicKey_n.value
+1. service_1.type
+1. service_1.serviceEndpoint
+1. service_n.type
+1. service_n.serviceEndpoint
+
+All fields are optional, so if they are not in the DDO, then they are not added to the string.
+
+If none of these fields are present in the DDO, then the hash cannot be calculated.
+
+Once the string is created a Web3.SHA3 ( Keccak-256 ) hash is calculated on the string.
+
+
+*Example of a DDO*
+
+```json
+{
+  "@context": "https://w3id.org/did/v1",
+  "created": "2002-10-10T17:00:00Z",
+  "id": "did:example:123456789abcdefghi",
+  "publicKey": [{
+    "id": "did:example:123456789abcdefghi#keys-1",
+    "type": "RsaVerificationKey2018",
+    "owner": "did:example:123456789abcdefghi",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\n"
+  }
+  "service": [{
+    "id": "did:example:123456789abcdefghi;openid",
+    "type": "OpenIdConnectVersion1.0Service",
+    "serviceEndpoint": "https://openid.example.com/"
+  }]
+}
+```
+*Example assembled string used for hash calculation*
+
+```bash
+    "2002-10-10T17:00:00ZRsaVerificationKey2018-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\nOpenIdConnectVersion1.0Servicehttps://openid.example.com/"
+    
+```
+
 
 ## Metadata Integrity
 
