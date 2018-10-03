@@ -4,7 +4,7 @@ name: Decentralized Identifiers
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: 
+contributors:
 ```
 
 <!--ts-->
@@ -238,23 +238,23 @@ The list of changes to apply in the proposed solution are:
 
 To reliably hash the contents of a DDO excluding the DDO id.
 
-The DDO hash can then be used to include in calculating a subsequent DID. 
+The DDO hash can then be used to include in calculating a subsequent DID.
 
 The following DDO fields will be assembled as a single string in the following sequence:
 
 1. created
-1. publicKey_1.type
-1. publicKey_1.value
-1. publicKey_n.type
-1. publicKey_n.value
-1. service_1.type
-1. service_1.serviceEndpoint
-1. service_n.type
-1. service_n.serviceEndpoint
+1. publicKey[n].type
+1. publicKey[n].value
+1. authentication[n].publicKey.type
+1. authentication[n].publicKey.value
+1. service[n].type
+1. service[n].serviceEndpoint
+
 
 All fields are optional, so if they are not in the DDO, then they are not added to the string.
 
-If none of these fields are present in the DDO, then the hash cannot be calculated.
+
+If none of these fields are present in the DDO, then the hash cannot be calculated and an error is raised.
 
 Once the string is created a Web3.SHA3 ( Keccak-256 ) hash is calculated on the string.
 
@@ -263,27 +263,48 @@ Once the string is created a Web3.SHA3 ( Keccak-256 ) hash is calculated on the 
 
 ```json
 {
-  "@context": "https://w3id.org/did/v1",
-  "created": "2002-10-10T17:00:00Z",
-  "id": "did:example:123456789abcdefghi",
-  "publicKey": [{
+"@context": "https://w3id.org/did/v1",
+"created": "2002-10-10T17:00:00Z",
+"id": "did:example:123456789abcdefghi",
+"publicKey": [{
     "id": "did:example:123456789abcdefghi#keys-1",
     "type": "RsaVerificationKey2018",
     "owner": "did:example:123456789abcdefghi",
     "publicKeyPem": "-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\n"
-  }
-  "service": [{
+}],
+"authentication": [{
+    "type": "RsaSignatureAuthentication2018",
+    "publicKey": "did:example:123456789abcdefghi#keys-1"
+}, {
+    "type": "RsaSignatureAuthentication2018",
+    "publicKey": {
+    "id": "did:example:123456789abcdefghi#keys-2",
+    "type": "Ed25519VerificationKey2018",
+    "owner": "did:example:pqrstuvwxyz0987654321",
+    "publicKeyBase58": "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV"
+}
+}],
+"service": [{
     "id": "did:example:123456789abcdefghi;openid",
     "type": "OpenIdConnectVersion1.0Service",
     "serviceEndpoint": "https://openid.example.com/"
-  }]
+}]
 }
 ```
 *Example assembled string used for hash calculation*
 
-```bash
-    "2002-10-10T17:00:00ZRsaVerificationKey2018-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\nOpenIdConnectVersion1.0Servicehttps://openid.example.com/"
-    
+```python
+    values= [
+        "2002-10-10T17:00:00Z",                                 # created
+        "RsaVerificationKey2018",                               # public key type
+        "-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\n",      # public key value
+        "Ed25519VerificationKey2018".                           # authentication public key type
+        "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV",         # authentication public key value
+        "OpenIdConnectVersion1.0Service",                       # service type
+        "https://openid.example.com/",                          # service endpoind
+    ]
+    hash = Webb3.sha3("".join(values))
+
 ```
 
 
