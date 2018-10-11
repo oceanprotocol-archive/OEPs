@@ -154,14 +154,15 @@ Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.gi
 ### Registry
 
 To register the different kind of objects can be stored in a **simple** register contract named **DidRegistry**.
-The key of the Identity entity in Ocean is the **DID**. Associated to this DID we have a Mapping of key-value attributes,
-allowing to associate publicly information to DID's. This could be used to add public information allowing for example
-to discover/resolve a DID.
-There are two main options to implement this:
+This DidRegistry can act as generic/flexible way to associate Resources (ie. Assets) to the public providers resolving the DDO (and Metadata included) of those resources.
+The key of the Identity entity in Ocean is the **DID**. Each entity will have a unique DID.
+To resolve the DDO associated to a Resource (Asset), associated to this Resource DID we have the DID of the Provider giving access to this Resource.
+The Provider will have associated a mapping (key - value) of attributes. One of those can be used to related with the public service returning the DDO of a specific resource.
 
-* Associate to the DID a mapping of key-value attributes to be stored as new entries of a smart contract variable
+Applied to Assets, typically are part of a Service Agreement. The suggested approach to implement this is:
 
-* Emit events associated to the DID. Events works pretty well as a kind of cost effective storage. This is the recommended approach.
+* Associate the Resource (ie. Asset DID) to the Provider DID
+* Each Provider will have associated a Public URL where the provider is exposing the DDO's
 
 Here a draft **DidRegistry** implementation:
 
@@ -174,16 +175,21 @@ contract DidRegistry {
 
     struct Identity {
         address owner; // owner of the Identity
-        unint256 type; // type of Identity object (Asset, Actor, Workflow, ..)
+        string providerDid;
+    }
+
+    struct Provider {
+        mapping (bytes32 => string) attributes;
     }
 
     mapping (string => Identity) identities; // list of identities, mapping: identities[did] = Identity
+    mapping (bytes32 => Provider) providers; // list of providers, mapping: providers[did] = Provider
 
     // Attributes as events (recommended)
     event DidAttributeRegistered(
         string indexed did,
         address indexed owner,
-        uint256 indexed type,
+        string indexed providerDid,
         bytes32 indexed key,
         string value,
         uint updateAt
@@ -192,17 +198,24 @@ contract DidRegistry {
     constructor(bytes32 _did, uint256 _type) public {
     }
 
-    function registerAttribute(string _did, bytes32 _key, string _value) public returns (bool) {
-        // Option 2. (recommended)
-        DidAttributeRegistered(_did, msg.sender, identities[_did].type, _key, _value, now);
+    function register(string _resourceDID, string _providerDID, bytes32 _key, string _value) public returns (bool) {
+        // It's necessary to check if the provider was already there
+        // In that case is not necessary to add a new Provider (cheaper, only first time we write info about a provider)
+        providers[_providerDID][_key]= _value;
+
+        // Associating the resourceDID to the providerDID resolving the resource DID to the DDO
+        identities[_resourceDID].owner= msg.sender;
+        identities[_resourceDID].owner= _providerDID;
+
+        DidAttributeRegistered(_did, msg.sender, _providerDID, _key, _value, now);
     }
 }
 
 ```
 
-To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"provider"** with the public hostname of that provider:
+To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"service-ddo"** with the public hostname of that provider:
 ```
-registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "provider", "https://myprovider.example.com")
+registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "did:ocn:328aabb94534935864312", "service-ddo", "https://myprovider.example.com/ddo")
 ```
 
 
@@ -222,20 +235,20 @@ function DDO resolve(String did)  {
 
 To resolve a DID to the associated DDO, some information is stored on-chain associated to the DID. In the approach recommended in the scope of this OEP, this is stored
 as an attribute associated to the ```DidAttributeRegistered``` event. Because the did and key are indexed parameters of the event, a consumer in any supported web3 language,
-could filter the ```DidAttributeRegistered``` events filtering by the DID and the key named **"provider"**.
+could filter the ```DidAttributeRegistered``` events filtering by the DID and the key named **"service-ddo"**.
 
 A DDO pointing to a DID could be resolved hierarchically using the same mechanism.
 
 This is an example in Javascript using web3.js:
 
 ```javascript
-var event = contractInstance.DidAttributeRegistered( {did: "did:ocn:21tDAKCERh95uGgKbJNHYp", "key": "provider"}, {fromBlock: 0, toBlock: 'latest'});
+var event = contractInstance.DidAttributeRegistered( {did: "did:ocn:21tDAKCERh95uGgKbJNHYp", "key": "service-ddo"}, {fromBlock: 0, toBlock: 'latest'});
 ```
 
 Here in Python using web3.py:
 
 ```python
-event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'provider'})
+event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'service-ddo'})
 ```
 
 This logic could be encapsulated in the client libraries (**Squid**) in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
@@ -247,10 +260,10 @@ Here you have the complete flow using as example a new ASSET:
 
 Steps:
 
-1. A PUBLISHER, using the KEEPER, register the new ASSET providing the DID and the attribute to resolve the provider
-1. The KEEPER register the ASSET using the OceanMarket Smart Contract and after of that register the identity using the IdRegistry Smart Contract. In this point, the attribute is raised as a new event
+1. A PUBLISHER, using the KEEPER, register the new Resource (ie. ASSET) providing the DID and the DID of the Provider acting as Public service returning the DDO of the Resource (ASSET)
+1. The KEEPER register the Resource using the Service Agreement Smart Contract and after of that register the identity using the DidRegistry Smart Contract. In this point, the attribute is raised as a new event
 1. The PUBLISHER publish the DDO in the metadata-store/OCEANDB provided by PROVIDER
-1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **provider** attribute associated to the DID directly from the KEEPER
+1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **service-ddo** attribute associated to the DID directly from the KEEPER
 1. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
 
 
@@ -259,8 +272,8 @@ Steps:
 The list of changes to apply in the proposed solution are:
 
 * Modify the function creating the id to return a DID compliant id - KEEPER
-* Create the new IdRegistry Smart Contract - KEEPER
-* Integrate the call to the IdRegistry contract in the OceanMarketplace contract - KEEPER
+* Create the new DidRegistry Smart Contract - KEEPER
+* Integrate the call to the DidRegistry contract in the OceanMarketplace or Service Agreement contract (depending of the moment of integration of this) - KEEPER
 * Implement the resolving function of a DDO given a DID - CLIENT LIBRARIES
 
 
