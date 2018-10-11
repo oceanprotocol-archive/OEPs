@@ -4,7 +4,7 @@ name: Decentralized Identifiers
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: 
+contributors: Mike Anderson <mike.anderson@dex.sg>
 ```
 
 <!--ts-->
@@ -33,10 +33,28 @@ Table of Contents
 
 # Decentralized Identifiers
 
-This OEP doesn't detail the exact method of registering ASSETS on-chain or publishing metadata in a metadata store.
+This OEP presents an approach to using the W3C DID specification within OCean for the following purposes:
+- Providing identifiers for Actors and Assets on Ocean
+- Providing the ability to resolve a DDO (on-chain) for relevant Actors (especially service providers who need to expose API endpoints for the ecosystem
+- Providing a way to locate cryptographically verifiable metadata for assets under the control of a service provider
 
-This specification is based on [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper), [3/ARCH](../3/README.md) and [4/AGENT](../4/README.md).
+A DID for an Actor in Ocean takes the follwoing format:
 
+`did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826`
+
+Where the hexadecimal ID is the the ethereum account address of the Actor
+
+A DID for an Asset in Ocean takes the following format:
+
+`did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826/c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470`
+
+Where the two hexadecimal IDs are the ethereum account address of the Actor managing the Asset and ID of the Asset. The ID 
+of the asset in turn is defined as the Hash (Keccak256?) of the Asset Metadata.
+
+This scheme presents the following useful properties:
+- It is possible to address the same Asset provided by multiple Service Providers (e.g. an asset is listed on multple marketplaces for sale).
+- It is possible to extend this scheme to sub-Assets by extending the DID path
+- There is no requirment for Assets to be registered on-chain, allowing for efficient off-chain registration of Assets and associated Metadata
 
 ## Change Process
 
@@ -52,14 +70,10 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Design a solution to extend the current architecture to use **Decentralized Identifiers (DID)** and **DID description objects (DDO)**
-* Understand how to register information on-chain with off-chain integrity associated
-* Understand how to resolve DID's into DDO's
-* Design a solution facilitating to have the on-chain and off-chain information aligned
-* Establishing the mechanism to know if the DDO associted to a DID was modified
+* Define a standard to identify Actors and Assets on Ocean using **Decentralized Identifiers (DID)** 
+* Present a solution to resolve service endpoints for service providers via **DID description objects (DDO)**
 * Defining the common mechanisms, interfaces and API's to implemented the designed solution
-* Define how Ocean assets, agents and tribes can be modeled with a DID/DDO data model
-* Understand how DID hubs are formed, and how they integrate a business and storage layer
+* Enable Ocean assets, agents and tribes to be modelled with a DID/DDO data model
 
 
 ## Specification
@@ -69,21 +83,14 @@ Requirements are:
 * The DID resolving capabilities MUST be exposed in the client libraries, enabling to resolve a DDO directly in a totally transparent way
 * ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER
 * KEEPER stores on-chain only the essential information about ASSETS
-* PROVIDERS store the ASSET metadata off-chain
+* MATA AGENTS store the ASSET metadata off-chain
 * KEEPER doesn't store any ASSET metadata
-* OCEAN doesn't store ASSET files contents
-* An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER, metadata stored by a Metadata Provider exposing a standard Meta API and asset data stored by a storage provider exposing a standard Storage API
-* ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
-* ASSETS can be resolved using a Decentralized ID (DID) included on-chain and off-chain
-* A Decentralized Distributed Object (**DDO**) represents the ASSET metadata
-* Any kind of object registered in Ocean SHOULD have a DID allowing to uniquely identify that object in the system
-* ASSET DDO (metadata off-chain) is associated to the ASSET information stored on-chain using a common **DID**
-* A **DID** can be resolved to get access to a **DDO**
-* ASSET DDO's can be updated without updating the on-chain information
-* ASSET information stored in the keeper will include a **checksum** attribute
-* The ASSET on-chain checksum attribute, includes a one-way HASH calculated using the DDO content
-* After the DDO resolving, the DDO HASH can be calculated off-chain to validate if the on-chain and off-chain information is aligned
-* A HASH not matching with the checksum on-chain means the DDO was modified without the on-chain update
+* An ASSET is modeled in OCEAN as Asset Metadata stored by a Meta Agent Provider exposing a standard Meta API and asset data stored by a storage provider exposing a standard Meta API
+* ASSETS have no on-chain information (unless they are referenced in Service Agreements)
+* Any kind of object Ocean SHOULD have a DID allowing users to uniquely identify that object in the system
+* An Actor's **DID** can be resolved to get access to a **DDO** using an on-chain resolver
+* An Asset ID is the HASH of the Asset Metadata
+* An Asset's **DID** is defined as the DID of the Actors providing the metadata of the asset, extended with the Asset ID as part of the DID path
 * The function to calculate the HASH MUST BE standard
 
 
@@ -93,7 +100,6 @@ Requirements are:
 
 A DID is a unique identifier that can be resolved or de-referenced to a standard resource describing the entity (a DID Document or DDO).
 If we apply this to Ocean, the DID would be the unique identifier of an object represented in Ocean (ie. the Asset ID of an ASSET or the Actor ID of a USER).
-The DDO would be the METADATA information associated to this object that is stored off-chain on Ocean.
 
 DID schema:
 
@@ -110,7 +116,7 @@ idchar             = ALPHA / DIGIT / "." / "-"
 In Ocean, the DID looks:
 
 ```text
-did:ocn:21tDAKCERh95uGgKbJNHYp
+did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826
 ```
 
 The complete specs can be found in the [W3C Decentralized Identifiers (DIDs) document](https://w3c-ccg.github.io/did-spec/)
@@ -121,11 +127,13 @@ To register the different kind of objects can be stored in a **simple** register
 The key of the Identity entity in Ocean is the **DID**. Associated to this DID we have a Mapping of key-value attributes,
 allowing to associate publicly information to DID's. This could be used to add public information allowing for example
 to discover/resolve a DID.
+
 There are two main options to implement this:
 
 * Associate to the DID a mapping of key-value attributes to be stored as new entries of a smart contract variable
-
 * Emit events associated to the DID. Events works pretty well as a kind of cost effective storage. This is the recommended approach.
+
+As a result of considering these two option, Ocean implements the Registry events keyed to the DID
 
 Here a draft **IdRegistry** implementation:
 
