@@ -33,10 +33,11 @@ Table of Contents
 
 # Decentralized Identifiers
 
-This OEP presents an approach to using the W3C DID specification within OCean for the following purposes:
-- Providing identifiers for Actors and Assets on Ocean
+This OEP presents an approach to using the W3C DID specification within Ocean for the following purposes:
+- Providing decentralised identifiers (DIDs) for Actors on Ocean
+- Providing way to address Assets as resources managed under the DID of a relevant Actor
 - Providing the ability to resolve a DDO (on-chain) for relevant Actors (especially service providers who need to expose API endpoints for the ecosystem
-- Providing a way to locate cryptographically verifiable metadata for assets under the control of a service provider
+- Providing a way to cryptographically verify metadata for assets 
 
 A DID for an Actor in Ocean takes the follwoing format:
 
@@ -44,7 +45,7 @@ A DID for an Actor in Ocean takes the follwoing format:
 
 Where the hexadecimal ID is the the ethereum account address of the Actor
 
-A DID for an Asset in Ocean takes the following format:
+An Asset with Metadata provider by an Actor can the be addressed in the following format:
 
 `did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826/c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470`
 
@@ -54,7 +55,7 @@ of the asset in turn is defined as the Hash (Keccak256?) of the Asset Metadata.
 This scheme presents the following useful properties:
 - It is possible to address the same Asset provided by multiple Service Providers (e.g. an asset is listed on multple marketplaces for sale).
 - It is possible to extend this scheme to sub-Assets by extending the DID path
-- There is no requirment for Assets to be registered on-chain, allowing for efficient off-chain registration of Assets and associated Metadata
+- There is no requirement for Assets to be registered on-chain, allowing for efficient off-chain registration of Assets and associated Metadata
 
 ## Change Process
 
@@ -70,8 +71,9 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Define a standard to identify Actors and Assets on Ocean using **Decentralized Identifiers (DID)** 
-* Present a solution to resolve service endpoints for service providers via **DID description objects (DDO)**
+* Define a standard to identify Actors in Ocean using **Decentralized Identifiers (DID)** 
+* Present a solution to resolve service endpoints for Actors who are service providers via **DID description objects (DDO)**
+* Provide a standard to identify Assets as resources addressed via the DID of the relevant service provider
 * Defining the common mechanisms, interfaces and API's to implemented the designed solution
 * Enable Ocean assets, agents and tribes to be modelled with a DID/DDO data model
 
@@ -90,7 +92,7 @@ Requirements are:
 * Any kind of object Ocean SHOULD have a DID allowing users to uniquely identify that object in the system
 * An Actor's **DID** can be resolved to get access to a **DDO** using an on-chain resolver
 * An Asset ID is the HASH of the Asset Metadata
-* An Asset's **DID** is defined as the DID of the Actors providing the metadata of the asset, extended with the Asset ID as part of the DID path
+* An Asset can be identified using the DID of the Actor providing the metadata of the asset, extended with the Asset ID as part of the DID path
 * The function to calculate the HASH MUST BE standard
 
 
@@ -118,6 +120,8 @@ In Ocean, the DID looks:
 ```text
 did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826
 ```
+
+As per section 3.3 of the DID spec (https://w3c-ccg.github.io/did-spec/#paths): "A DID path SHOULD be used to address resources available via a DID service endpoint" therefore we use DID paths to address Assets managed by the relevant Actor.
 
 The complete specs can be found in the [W3C Decentralized Identifiers (DIDs) document](https://w3c-ccg.github.io/did-spec/)
 
