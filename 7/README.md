@@ -34,18 +34,32 @@ Table of Contents
 # Decentralized Identifiers
 
 This OEP presents an approach to using the W3C DID specification within Ocean for the following purposes:
-- Providing decentralised identifiers (DIDs) for Actors on Ocean
-- Providing way to address Assets as resources managed under the DID of a relevant Actor
-- Providing the ability to resolve a DDO (on-chain) for relevant Actors (especially service providers who need to expose API endpoints for the ecosystem
+- Providing decentralised identifiers (DIDs) for Identities on Ocean
+- Providing way to address Assets as resources managed under the DID of a relevant Identity
+- Providing the ability to resolve a DDO (on-chain) for relevant Identities (especially service providers who need to expose API endpoints for the ecosystem
 - Providing a way to cryptographically verify metadata for assets 
 
-A DID for an Actor in Ocean takes the follwoing format:
+For the purposes for this OEP, an Identity can be any entity that wishes to register a self-sovereign DID/DDO on
+the Ocean network. Currently this is anticipated to include the following:
+- Any Tribe that wishes to manage metadata for Assets, which is required to offer the Meta API
+- Any off-chain service that needs to provide endpoints for Ocean Agent APIs (including marketplaces, service providers etc.)
+- Any other Actor with an ethereum account who wishes to provide a DDO on Ocean
+
+A DID/DDO is **mandatory** for any Identity wishing to offer Ocean Agent APIs to the ecosystem, because
+it is necessary to do this so that a client (using e.g. squid.py) can locate relevant service endpoints
+in a standardised way. A DID/DDO is optional for all other cases. In particular, data publishers
+and consumers need not register a DID/DDO providing they utilise a marketplace / tribe or other
+service that provides the necessary APIs on their behalf.
+
+A DID for an Identity in Ocean takes the following format:
 
 `did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826`
 
-Where the hexadecimal ID is the the ethereum account address of the Actor
+Where the hexadecimal ID is the the ethereum account address of the Identity
 
-An Asset with Metadata provider by an Actor can the be addressed in the following format:
+TODO: consider alternative way to allocate IDs to Identities
+
+An Asset with Metadata provider by an Identity can the be addressed in the following format:
 
 `did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826/c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470`
 
@@ -71,8 +85,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Define a standard to identify Actors in Ocean using **Decentralized Identifiers (DID)** 
-* Present a solution to resolve service endpoints for Actors who are service providers via **DID description objects (DDO)**
+* Define a standard to identify Identities in Ocean using **Decentralized Identifiers (DID)** 
+* Present a solution to resolve service endpoints for Identities who are service providers via **DID description objects (DDO)**
 * Provide a standard to identify Assets as resources addressed via the DID of the relevant service provider
 * Defining the common mechanisms, interfaces and API's to implemented the designed solution
 * Enable Ocean assets, agents and tribes to be modelled with a DID/DDO data model
@@ -83,16 +97,17 @@ The main motivations of this OEP are:
 Requirements are:
 
 * The DID resolving capabilities MUST be exposed in the client libraries, enabling to resolve a DDO directly in a totally transparent way
+* IDENTITIES are self-sovereign identities who wish to register a DID/DDO on Ocean
 * ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER
 * KEEPER stores on-chain only the essential information about ASSETS
-* MATA AGENTS store the ASSET metadata off-chain
+* META AGENTS store the ASSET metadata off-chain
 * KEEPER doesn't store any ASSET metadata
-* An ASSET is modeled in OCEAN as Asset Metadata stored by a Meta Agent Provider exposing a standard Meta API and asset data stored by a storage provider exposing a standard Meta API
+* An ASSET is modelled in OCEAN as ASSET Metadata stored by a Meta Agent exposing a standard Meta API and asset data stored by a storage provider exposing a standard Meta API
 * ASSETS have no on-chain information (unless they are referenced in Service Agreements)
 * Any kind of object Ocean SHOULD have a DID allowing users to uniquely identify that object in the system
-* An Actor's **DID** can be resolved to get access to a **DDO** using an on-chain resolver
+* An IDENTITY's **DID** can be resolved to get access to a **DDO** using an on-chain resolver
 * An Asset ID is the HASH of the Asset Metadata
-* An Asset can be identified using the DID of the Actor providing the metadata of the asset, extended with the Asset ID as part of the DID path
+* An Asset can be identified using a DID of an IDENTITY providing the metadata of the asset, by extending the DID with the Asset ID as part of the DID path
 * The function to calculate the HASH MUST BE standard
 
 
@@ -101,7 +116,7 @@ Requirements are:
 ### Decentralized ID's (DID)
 
 A DID is a unique identifier that can be resolved or de-referenced to a standard resource describing the entity (a DID Document or DDO).
-If we apply this to Ocean, the DID would be the unique identifier of an object represented in Ocean (ie. the Asset ID of an ASSET or the Actor ID of a USER).
+If we apply this to Ocean, the DID would be the unique identifier of Identity represented in Ocean.
 
 DID schema:
 
@@ -122,6 +137,9 @@ did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826
 ```
 
 As per section 3.3 of the DID spec (https://w3c-ccg.github.io/did-spec/#paths): "A DID path SHOULD be used to address resources available via a DID service endpoint" therefore we use DID paths to address Assets managed by the relevant Actor.
+
+As per section 9.1 of the DID spec there is no upper limit on DID length, but in Ocean we elect to limit
+DIDs (including DID paths) to 2000 characters to ensure maximum interoperability with clients / URLs.
 
 The complete specs can be found in the [W3C Decentralized Identifiers (DIDs) document](https://w3c-ccg.github.io/did-spec/)
 
