@@ -87,6 +87,15 @@ Attribute       |   Type        |   Required    | Description
 **contentType** | Text          | Yes           | File format if applicable
 **contentUrls** | Text          | No           | List of content urls resolving the ASSET files
 
+## Invokable service attributes
+
+In addition to the base attributes, the following Attributes are defined for invokeable services only (with type: "invoke")
+
+Invokable services are defined in greater detail in OEP6.
+
+Attribute       |   Type        |   Required    | Description
+----------------|---------------|---------------|----------------------
+**params**        | Text          | Yes           | A list of parameters accepted by the invokable service
 
 
 ## Additional Information
