@@ -24,15 +24,17 @@ Table of Contents
 
 
 
-# Assets Metadata Ontology
+# Asset Metadata 
 
-This OEP doesn't detail the exact method of registering ASSETS on-chain or publishing metadata in a metadata store.
+Ocean has a core mission of making data assets visible and discoverable, with a decentralised protocol for data exchange.
 
-Each Ocean Asset (dataset, algorithm, etc.) must have a base ontology associated with it.
-This metadata, also called **DID descriptor objects (DDO)**, is stored in the OCEANDB and can be accessed using the **Decentralized ID (DID)**.
-Assets without proper descriptive metadata can have poor visibility and discoverability.
+As such, each Ocean Asset (dataset, algorithm, etc.) has Asset Metadata associated with it. Asset Metadata is created by the asset publisher, and hashed to ensure integrity and ensure that the asset can be subsequently referenced as part of the provenance of other assets.
 
-The Asset ontology is based in the public schema.org [DataSet schema](https://schema.org/Dataset).
+Assets without proper descriptive metadata can have poor visibility and discoverability, so it is generally in the publisher's interest to ensure good metadata is made available.
+
+The Asset ontology for datasets is based in the public schema.org [DataSet schema](https://schema.org/Dataset).
+
+This OEP doesn't detail the exact method of registering or publishing metadata in a metadata store.
 
 
 ## Change Process
@@ -49,15 +51,15 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Specify the common attributes that HAVE to be added in any ASSET DDO stored in the system
-* Normalize the attributes to use in any curation process, allowing to have a common structure to sort and filter the DDO's
-* Identify the recommended additional attributes that SHOULD be included in a DDO to facilitate the ASSETS search
-* Provide an example of a possible structured ASSET DDO and additional links for reference
+* Specify the common attributes that HAVE to be added in Asset Metadata
+* Normalize the attributes to use in any curation process, allowing to have a common structure to sort and filter the Asset Metadata
+* Identify the recommended additional attributes that SHOULD be included in Asset Metadata to facilitate the ASSETS search
+* Provide an example of a possible structured Asset Metadata and additional links for reference
 
 
 ## Base attributes
 
-Base attributes are always part of the DDO schema. Those attributes could be mandatory if they need to be completed by the publisher or can be stored empty. The following attributes are included as part of the Asset Metadata:
+Base attributes are always part of the Asset Metadata schema. Those attributes could be mandatory if they need to be completed by the publisher or can be stored empty. The following attributes are included as part of the Asset Metadata:
 
 
 Attribute       |   Type        |   Required    | Description
