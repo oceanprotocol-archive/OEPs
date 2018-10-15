@@ -32,8 +32,6 @@ As such, each Ocean Asset (dataset, algorithm, etc.) has Asset Metadata associat
 
 Assets without proper descriptive metadata can have poor visibility and discoverability, so it is generally in the publisher's interest to ensure good metadata is made available.
 
-The Asset ontology for datasets is based in the public schema.org [DataSet schema](https://schema.org/Dataset).
-
 This OEP doesn't detail the exact method of registering or publishing metadata in a metadata store.
 
 
@@ -51,8 +49,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
+* Establish a standard Asset Metadata format to allow interoperability between participants in the Ocean ecosystem
 * Specify the common attributes that HAVE to be added in Asset Metadata
-* Normalize the attributes to use in any curation process, allowing to have a common structure to sort and filter the Asset Metadata
 * Identify the recommended additional attributes that SHOULD be included in Asset Metadata to facilitate the ASSETS search
 * Provide an example of a possible structured Asset Metadata and additional links for reference
 
@@ -80,18 +78,6 @@ Attribute       |   Type        |   Required    | Description
 **links**       | Text       | No               | Mapping of links for data samples, or links to find out more information. The key represents the topic of the link, the value is the proper link
 **inLanguage**  | Text          | No            | The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47)
 **tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
-**price**       | Number        | Yes           | Price of the asset. If not specified would be 0.
-
-
-## Curation attributes
-
-In order to normalize the different possible rating attributes after a process of curation, this is the normalize list of attributes to define:
-
-Attribute       |   Type        |   Required    | Description
-----------------|---------------|---------------|----------------------
-**rating**     | Number (decimal)       | Yes              | Decimal values between 0 and 1. 0 is the default value
-**numVotes**    | Integer       | Yes              | Number of votes. 0 is the default value
-**schema**      | Text          | No              | Schema applied to calculate the rating
 
 
 
@@ -121,36 +107,28 @@ Here a representation of an example Asset using the schema described:
 
 ```json
 {
-    "base": {
-        "name": "UK Weather information 2011",
-        "type": "dataset",
-        "description": "Weather information of UK including temperature and humidity",
-        "size": "3.1gb",
-        "dateCreated": "2012-02-01T10:55:11+00:00",
-        "author": "Met Office",
-        "license": "CC-BY",
-        "copyrightHolder": "Met Office",
-        "encoding": "UTF-8",
-        "compression": "zip",
-        "contentType": "text/csv",
-        "workExample": "stationId,latitude,longitude,datetime,temperature,humidity\n
+    "name": "UK Weather information 2011",
+    "type": "dataset",
+    "description": "Weather information of UK including temperature and humidity",
+    "size": "3.1gb",
+    "dateCreated": "2012-02-01T10:55:11+00:00",
+    "author": "Met Office",
+    "license": "CC-BY",
+    "copyrightHolder": "Met Office",
+    "encoding": "UTF-8",
+    "compression": "zip",
+    "contentType": "text/csv",
+    "workExample": "stationId,latitude,longitude,datetime,temperature,humidity\n
                         423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
-        "contentUrls": ["https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"],
-        "links": [
-            {"sample1": "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"},
-            {"sample2": "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-averages-25km/"},
-            {"fieldsDescription": "http://data.ceda.ac.uk/badc/ukcp09/"}
-         ],
-        "inLanguage": "en",
-        "tags": "weather, uk, 2011, temperature, humidity",
-        "price": 10
+    "contentUrls": ["https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"],
+    "links": [
+        {"sample1": "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"},
+        {"sample2": "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-averages-25km/"},
+        {"fieldsDescription": "http://data.ceda.ac.uk/badc/ukcp09/"}
+    ],
+    "inLanguage": "en",
+    "tags": ["weather", "uk", "2011", "temperature", "humidity"],
 
-    },
-    "curation": {
-        "rating": 0.93
-        "numVotes": 123,
-        "schema": "Binary Votting"
-    },
     "additionalInformation" : {
         "updateFrecuency": "yearly",
         "structuredMarkup" : [ { "uri" : "http://skos.um.es/unescothes/C01194/jsonld", "mediaType" : "application/ld+json"},
@@ -166,6 +144,8 @@ Here a representation of an example Asset using the schema described:
 
 [Schema.org](https://schema.org/) is a collaborative, community activity with a mission to create, maintain, and promote schemas for structured data on the Internet,
 Data types use the [Schema.org primitive data types](https://schema.org/DataType).
+
+The Asset ontology for datasets is based in the public schema.org [DataSet schema](https://schema.org/Dataset).
 
 Schemas:
 
