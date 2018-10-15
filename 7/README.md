@@ -109,7 +109,7 @@ Requirements are:
 * An IDENTITY's **DID** can be resolved to get access to a **DDO** using an on-chain resolver
 * An Asset ID is the HASH of the Asset Metadata
 * An Asset can be identified using a DID of an IDENTITY providing the metadata of the asset, by extending the DID with the Asset ID as part of the DID path
-* The function to calculate the HASH MUST BE standard
+* The function to calculate the HASH MUST BE an Ocean standard (keccak256 proposed)
 
 
 ## Proposed Solution
@@ -320,7 +320,7 @@ The solution included in the above diagram includes the following steps:
 
 The list of changes to apply in the proposed solution are:
 
-* Define a one-way algorithm to use to calculate the HASH function (SHA-3 is suggested)
+* Define a one-way algorithm to use to calculate the HASH function (keccak256 is suggested)
 * Create a new method to calculate the HASH - CLIENT LIBRARIES
 * Modify OceanMarketplace allowing to specify the HASH during the ASSET registry - KEEPER
 * Integrate the HASH function with the ASSET registry process - CLIENT LIBRARIES
