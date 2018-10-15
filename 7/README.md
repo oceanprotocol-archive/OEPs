@@ -65,7 +65,7 @@ An Asset with Metadata provider by an Identity can the be addressed in the follo
 `did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826/c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470`
 
 Where the two hexadecimal IDs are the ethereum account address of the Actor managing the Asset and ID of the Asset. The ID 
-of the asset in turn is defined as the Hash (Keccak256?) of the Asset Metadata.
+of the asset in turn is defined as the Hash (Keccak256) of the Asset Metadata.
 
 This scheme presents the following useful properties:
 - It is possible to address the same Asset provided by multiple Service Providers (e.g. an asset is listed on multple marketplaces for sale).
