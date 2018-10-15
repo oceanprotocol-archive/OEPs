@@ -22,6 +22,7 @@ Table of Contents
          * [Decentralized ID's (DID)](#decentralized-ids-did)
          * [Registry](#registry)
          * [Resolver](#resolver)
+         * [Ocean standard endpoints](#ocean-standard-endpoints)
       * [Changes Required](#changes-required)
       * [Metadata Integrity](#metadata-integrity)
          * [Proposed solution](#proposed-solution-1)
@@ -254,6 +255,32 @@ Steps:
 1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **provider** attribute associated to the DID directly from the KEEPER
 1. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
 
+### Ocean standard endpoints
+
+In order to enable clients to locate specfic APIs, we must define standard endpoints.
+These endpoints are optional, but required if an Identity wishes their endpoints to be consumed
+by standard Ocean client tools.
+
+Endpoints are specified in the following form:
+
+```json
+{
+  "service": [{
+    "type": "Ocean.Meta.v1",
+    "serviceEndpoint": "https://mobi.com/meta"
+  }]
+}
+```
+
+Currently these endpoints are defined to be:
+
+Type                   |   Description
+-----------------------|----------------------
+Ocean.Meta.v1          | Endpoint for the Meta Agent API v1 (OEP15 - TBC)
+Ocean.Market.v1        | Endpoint for the Market Agent API
+Ocean.Storage.v1       | Endpoint for a generalised storage API
+Ocean.Invoke.v1        | Endpoint for an invokable service API
+
 
 ## Changes Required
 
@@ -269,26 +296,25 @@ The list of changes to apply in the proposed solution are:
 
 The Metadata Integrity policy is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
 
-An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DDO) stored in OCEANDB.
-Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
-The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
+An ASSET in the system is composed by:
+- On-chain information maintained by the KEEPER (e.g. references to the Asset in Service Agreements)
+- Off-chain Asset Metadata stored in an appropriate Meta Agent, which is Hashed to provide an Asset ID
+- Any resources related to the provision of the asset (storage , compute etc.) maintained by other providers
+
+Clients should validate the Asset Metadata using the Asset ID to ensure integrity of the Asset Metadata
 
 ### Proposed solution
 
 ![Sequence Diagram](images/ddo-integrity-sequence.png)
+TODO: update sequence diagram
 
 The solution included in the above diagram includes the following steps:
 
-1. The PUBLISHER, before publish any ASSET information, calculate the **HASH** using the **DDO** as input.
+1. The PUBLISHER, before publishing any ASSET information, calculate the **HASH** using the **Asset Metadata** as input.
    To do that, the PUBLISHER will use from the client side a common Ocean library using the same algorithm.
-1. The PUBLISHER, in the process of registering an ASSET on-chain specifies the **HASH** in addition of the existing parameters.
-1. The KEEPER register the ASSET and associate the HASH calculated using the DDO associated to the ASSET.
-1. After a CONSUMER get access to an ASSET, could store internally the HASH referencing to the DDO he purchased
-1. In a posterior consumption, after resolving the DDO, the CONSUMER using the client library can calculate the HASH of the DDO just obtained
-1. If the HASH obtained is not the same than the HASH associated in the original purchase, means the DDO was modified afterwards
-1. This, depending of the agreed conditions, could means an exit clause of some contracts
+1. The PUBLISHER transmits the Hash and the Asset Metadata to appropriate Meta Agent
+1. Clients may now obtain the Asset Metadata using the DID of the Meta Agent extended with the Hash of the Asset Metadata
 
-The HASH could be an optional parameter in the registering of the ASSET. If it's not specified, means the DDO can be updated without any limitation.
 
 ## Changes Required
 
