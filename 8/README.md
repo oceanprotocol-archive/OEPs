@@ -63,7 +63,7 @@ Base attributes are always part of the Asset Metadata schema. Those attributes c
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name of the Asset
-**type**        | Text          | Yes           | Type of the Asset. Helps to filter by kind of asset, initially ("dataset", "algorithm", "container", "workflow", "other")
+**type**        | Text          | Yes           | Type of the Asset. Helps to filter by kind of asset, initially ("dataset", "invoke", "algorithm", "container", "workflow", "other")
 **description** | Text          | No            | Details of what the resource is. For a data set explain what the data represents and what it can be used for
 **dateCreated** | DateTime      | Yes           | The date on which  was created or was added
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.)
@@ -89,7 +89,7 @@ Attribute       |   Type        |   Required    | Description
 
 ## Invokable service attributes
 
-In addition to the base attributes, the following Attributes are defined for invokeable services only (with type: "invoke")
+In addition to the base attributes, the following Attributes are defined for invokable services only (with type: "invoke")
 
 Invokable services are defined in greater detail in OEP6.
 
