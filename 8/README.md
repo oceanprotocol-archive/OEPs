@@ -12,12 +12,12 @@ Table of Contents
 =================
 
    * [Table of Contents](#table-of-contents)
-   * [Assets Metadata Ontology](#assets-metadata-ontology)
+   * [Asset Metadata](#asset-metadata)
       * [Change Process](#change-process)
       * [Language](#language)
       * [Motivation](#motivation)
       * [Base attributes](#base-attributes)
-      * [Curation attributes](#curation-attributes)
+      * [Dataset attributes](#dataset-attributes)
       * [Additional Information](#additional-information)
       * [Example](#example)
       * [References](#references)
@@ -66,18 +66,26 @@ Attribute       |   Type        |   Required    | Description
 **type**        | Text          | Yes           | Type of the Asset. Helps to filter by kind of asset, initially ("dataset", "algorithm", "container", "workflow", "other")
 **description** | Text          | No            | Details of what the resource is. For a data set explain what the data represents and what it can be used for
 **dateCreated** | DateTime      | Yes           | The date on which  was created or was added
-**size**        | Text          | Yes           | Size of the asset (e.g. 18mb). In the absence of a unit (mb, kb etc.), KB will be assumed
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.)
 **license**     | Text          | Yes           | Short name referencing to the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specifiedified"
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default
-**encoding**    | Text          | No            | File encoding (e.g. UTF-8)
-**compression** | Text          | No            | File compression (e.g. no, gzip, bzip2, etc)
-**contentType** | Text          | Yes           | File format if applicable
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
-**contentUrls** | Text          | Yes           | List of content urls resolving the ASSET files
 **links**       | Text       | No               | Mapping of links for data samples, or links to find out more information. The key represents the topic of the link, the value is the proper link
 **inLanguage**  | Text          | No            | The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47)
 **tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
+
+
+## Dataset attributes
+
+In addition to the base attributes, the following Attributes are defined for data assets only (with type: "dataset")
+
+Attribute       |   Type        |   Required    | Description
+----------------|---------------|---------------|----------------------
+**size**        | Text          | Yes           | Size of the asset (e.g. 18mb). In the absence of a unit (mb, kb etc.), KB will be assumed
+**encoding**    | Text          | No            | File encoding (e.g. UTF-8)
+**compression** | Text          | No            | File compression (e.g. no, gzip, bzip2, etc)
+**contentType** | Text          | Yes           | File format if applicable
+**contentUrls** | Text          | No           | List of content urls resolving the ASSET files
 
 
 
