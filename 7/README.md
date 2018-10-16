@@ -4,7 +4,7 @@ name: Decentralized Identifiers
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: 
+contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 ```
 
 <!--ts-->
@@ -149,6 +149,35 @@ Example:
 
 You can find a complete reference of the asset metadata in the scope of the [OEP-8](8).
 Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the w3c did spec.
+
+
+#### How to compute a DID for a DDO
+
+It is possible to compute the DID for a DDO using a deterministic approach.
+This way we can ensure that:
+
+- the DID is an integrity check for the DDO
+- the DDO is signed and the DID cannot be issued by non-holders of the private key(s) in the DDO document
+- the DDO and DID are independent of the underlying decentralized VM
+- each DID is content addressed
+
+Following approach computes the DID after signing and hashing a DDO:
+
+1. Fill in the DDO fields related to the identity. The `signature` and `did` fields are left empty
+2. Compute the `signature` field: ie. sign the DDO after step (1) and fill in the `signature` field
+3. Compute the `did` field: marshall and hash the DDO after step (2) and fill in the `did` field
+4. Publish the DDO and DID
+
+A related example for such an approach can be found in [the BigchainDB specs](https://github.com/bigchaindb/BEPs/tree/master/13#how-to-construct-a-transaction)
+
+#### Length of a DID
+
+The length of a DID requires to be compliant with the underlying storage layer and function calls.
+
+Given that decentralized virtual machines make use of contract languages such as Solidity and WASM, it is advised to fit the DID in structures such as `bytes32`.
+
+Since each `byte` can hold `2^7 (128)` UTF-8 or ASCII encoded variables, the number of potential `bytes32` words is `2^224 (=(2^7)^32)`.
+Potentially `8 bytes` are reserved by an (unoptimized) prefix like `did:ocn:`, this leaves `2^168 (=(2^7)^(32-8))` words (with a [birthday bound](https://en.wikipedia.org/wiki/Birthday_attack) of `2^84`).
 
 
 ### Registry
