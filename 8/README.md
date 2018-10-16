@@ -70,10 +70,30 @@ Attribute       |   Type        |   Required    | Description
 **license**     | Text          | Yes           | Short name referencing to the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specifiedified"
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
-**links**       | Text       | No               | Mapping of links for data samples, or links to find out more information. The key represents the topic of the link, the value is the proper link
+**links**       | Array of Link | No               | Mapping of links for data samples, or links to find out more information. 
 **inLanguage**  | Text          | No            | The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47)
 **tags**        | Array of Text | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
 
+### Links
+
+An array of Links can be provided to give supplementary information about an Asset, e.g.
+
+```json
+[
+	{
+		"name" : "Sample of Asset Data",
+		"type" : "sample",
+		"url": "https://foo.com/sample.csv"
+	}
+	{
+		"name" : "Data Format Definition",
+		"type" : "format",
+		"AssetID: "4d517500da0acb0d65a716f61330969334630363ce4a6a9d39691026ac7908ea"
+	}	
+]
+```
+
+Links may be to either a URL or another Asset.
 
 ## Dataset attributes
 
