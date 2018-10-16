@@ -17,16 +17,15 @@ Table of Contents
 
 # Metadata Agent API
 
-This OEP decribes the API by which Meta Agents in the Ocean ecosystem can store and provide verifiable metadata to Ocean clients.
+This OEP describes the API by which Meta Agents in the Ocean ecosystem can store and provide verifiable metadata to Ocean clients.
 
-Metadata is identified by the hash of its content, i.e. a Meta Agent acts as content-addressable storage of metadata files.
+Metadata is identified by the hash of its content, i.e. a Meta Agent acts as content-addressable storage of metadata records.
 
-
+This service is primary used for storing Asset meta data, but should be open enough to provide meta data storage for other forms of metadata within the Ocean ecosystem.
 
 ## Change Process
 
 This document is governed by the [2/COSS](../2/README.md) (COSS).
-
 
 ## Language
 
@@ -37,89 +36,141 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Ensure that clients can access metadata for any asset in the Ocean ecosystem
-
-
-## Meta storage Server API
+* Ensure that clients can access metadata for any asset or off-chain data structure in the Ocean ecosystem
+* Ensure that the data can be verifiable and persistent within the storage system.
 
 
 #### Base URL
 
 /api/v1/meta
 
-| Name          | Method | URI                         |
-|---------------|--------|-----------------------------|
-| addAssetMeta  | PUT    | /assets/{asset_id}          |
-| getAssetMeta  | GET    | /assets/{asset_id}          |
-| getAssets     | GET    | /assets                     |
+| Name             | Method | URI                          |
+|------------------|--------|------------------------------|
+| addMetadata      | PUT    | /data/{metadata_id}          |
+| getMetadata      | GET    | /data/{metadata_id}          |
+| queryMetadata    | GET    | /query                       |
 
 
 -------------------------------------------------------------------------------
-### addAssetMeta
+### addMetaData
 
-Add meta data to the server storage. The message body will be hashed using keccak256 and compared to the asset ID to
+Add meta data to the server storage. The message body will be hashed using keccak256 and compared to the {metadata_id} to
 ensure integrity.
 
-If the metadata hash is correct, the Meta Agent should persist the metadata in its own stoarge, associating the asset ID 
-with this metadata.
+If the metadata hash is correct, the Meta Storage Server should persist the metadata in its own storage, associating the {metadata_id} with this metadata.
 
 Meta agents are recommended to limit usage of this service to authorised clients to avoid issues with spam.
 
 
 
 #### Inputs
-The asset ID is provided in the URL.
+The Meta data Id is provided in the URL.
 
 The metadata JSON is provided in the message body with a content type of `application/json`
 
 #### Fields
 
 ```json
-{
-     < Metadata as per OEP8 >
-}
+
+  < Metadata as per OEP8 >
+
 ```
 #### Outputs
 
 Should return HTTP 201 Created if the asset was successfully stored as new metadata
-Should return HTTP 200 OK if the asset was already stored
+Should return HTTP 200 OK if the meta data was already stored
 
 
 -------------------------------------------------------------------------------
-### getAssetMeta
-Get an asset meta data stored by the server.
+### getMetaData
+Get a meta data stored by the server.
 
 #### Inputs
 
-The asset ID (i.e. the keccak256 hash of the metadata) is provided in the URL.
+The metadata ID (i.e. the keccak256 hash of the metadata) is provided in the URL.
 
 #### Outputs
 
-The API should return the metadata of the requested asset if available, or HTTP 404 if not found.
+The API should return the metadata of the requested metadata ID if available, or HTTP 404 if not found.
+
+```json
+
+  < Metadata as per OEP8 >
+
+```
+
+Clients can verify the integrity of the metadata by computing the keccak256 hash of the metadata JSON and comparing to
+the requested metadata ID.
+
+-------------------------------------------------------------------------------
+### queryMetadata
+Query a list of meta data records stored on the Server
+
+#### Inputs
+
+Query JSON record with the following schema:
+
+```
+schema:
+  type: object
+  properties:
+    query:
+      type: string
+      description: Query to realise
+      example: {"value":1}
+    text:
+      type: string
+      description: Word to search in the document
+      example: Office
+    sort:
+      type: object
+      description: key or list of keys to sort the result
+      example: {"value":1}
+    offset:
+      type: int
+      description: Start record count
+      example: 100
+    count:
+      type: int
+      description: number of rows to return, from offset
+      example: 0
+```
+
+#### Outputs
+The API should return a JSON list of metadata records. The list can be limited to a maximum length to reduce bandwidth/data charges and performance issues.
+
+```
+schema:
+  type: object
+  properties:
+    info:
+      type: object
+      properties:
+        count:
+          type:integer
+          description: number of records returned
+        offset:
+          type: integer
+          description: offset of the first record
+        maxCount:
+          type: integer
+          description: total number of records in the query
+    rows:
+      type: list
+      description: list of metadata
+```
 
 ```json
 {
+  "info": {
+    "count": 500,
+    "offset": 100,
+    "maxCount": 15345002,
+  },
+  "rows":  [
     < Metadata as per OEP8 >
+    < Metadata as per OEP8 >
+    ...
+  ]
 }
-```
-
-Clients can verify the integrity of the metadata by computing the keccak256 hash of the metadata JSON and comparing to 
-the asset ID.
-
--------------------------------------------------------------------------------
-### getAssets
-Get a list of assets stored on the Server
-
-#### Inputs
-
-TODO: consider search limits and offset to facilitate searching and control query size
-
-#### Outputs
-The API should return a JSON list of Asset IDs
-
-```json
-[
-    "ca7c8bf73e97c26e2dca88cfcfe972e4c09a9c0e0351e77125011c78454dcc65",
-    "ff62253a75f63edd24e84e56d98063140a53aba027082f4011d2bc0002495f7a"
-]
 ```
