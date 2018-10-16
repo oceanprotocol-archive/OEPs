@@ -93,7 +93,9 @@ An array of Links can be provided to give supplementary information about an Ass
 ]
 ```
 
-Links may be to either a URL or another Asset.
+Links may be to either a URL or another Asset. We expect tribes and/or marketplaces to converge
+on agreements of typical formats for linked data: The Ocean protocol itself does not mandate any
+specific formats as requirements are likely to be domain-specific.
 
 ## Dataset attributes
 
