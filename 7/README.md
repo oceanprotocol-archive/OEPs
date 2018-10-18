@@ -12,7 +12,6 @@ contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
 Table of Contents
 =================
 
-   * [Table of Contents](#table-of-contents)
    * [Decentralized Identifiers](#decentralized-identifiers)
       * [Change Process](#change-process)
       * [Language](#language)
@@ -20,13 +19,15 @@ Table of Contents
       * [Specification](#specification)
       * [Proposed Solution](#proposed-solution)
          * [Decentralized ID's (DID)](#decentralized-ids-did)
+         * [DID Documents (DDO)](#did-documents-ddo)
+         * [Integrity](#integrity)
+            * [How to compute a DID for a DDO](#how-to-compute-a-did-for-a-ddo)
+            * [Length of a DID](#length-of-a-did)
          * [Registry](#registry)
          * [Resolver](#resolver)
       * [Changes Required](#changes-required)
-      * [Metadata Integrity](#metadata-integrity)
-         * [Proposed solution](#proposed-solution-1)
       * [Changes Required](#changes-required-1)
-
+      * [References](#references)
 
 <!--te-->
 
