@@ -75,7 +75,7 @@ Requirements are:
 * An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER and metadata stored in OCEANDB
 * ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
 * ASSETS can be resolved using a Decentralized ID (DID) included on-chain and off-chain
-* A Decentralized Distributed Object (**DDO**) should includes the ASSET metadata
+* A Decentralized Distributed Object (**DDO**) should include the ASSET metadata
 * Any kind of object registered in Ocean SHOULD have a DID allowing to uniquely identify that object in the system
 * ASSET DDO (and the metadata included as part of the DDO) is associated to the ASSET information stored on-chain using a common **DID**
 * A **DID** can be resolved to get access to a **DDO**
@@ -149,6 +149,16 @@ Example:
 
 You can find a complete reference of the asset metadata in the scope of the [OEP-8](8).
 Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the w3c did spec.
+
+
+
+### Integrity
+
+The Integrity policy for identity and metadata is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
+
+An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DDO) stored in OCEANDB.
+Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
+The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
 
 
 #### How to compute a DID for a DDO
@@ -306,36 +316,11 @@ The list of changes to apply in the proposed solution are:
 * Implement the resolving function of a DDO given a DID - CLIENT LIBRARIES
 
 
-## Metadata Integrity
-
-The Metadata Integrity policy is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
-
-An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DDO) stored in OCEANDB.
-Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
-The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
-
-### Proposed solution
-
-![Sequence Diagram](images/ddo-integrity-sequence.png)
-
-The solution included in the above diagram includes the following steps:
-
-1. The PUBLISHER, before publish any ASSET information, calculate the **HASH** using the **DDO** as input.
-   To do that, the PUBLISHER will use from the client side a common Ocean library using the same algorithm.
-1. The PUBLISHER, in the process of registering an ASSET on-chain specifies the **HASH** in addition of the existing parameters.
-1. The KEEPER register the ASSET and associate the HASH calculated using the DDO associated to the ASSET.
-1. After a CONSUMER get access to an ASSET, could store internally the HASH referencing to the DDO he purchased
-1. In a posterior consumption, after resolving the DDO, the CONSUMER using the client library can calculate the HASH of the DDO just obtained
-1. If the HASH obtained is not the same than the HASH associated in the original purchase, means the DDO was modified afterwards
-1. This, depending of the agreed conditions, could means an exit clause of some contracts
-
-The HASH could be an optional parameter in the registering of the ASSET. If it's not specified, means the DDO can be updated without any limitation.
-
 ## Changes Required
 
 The list of changes to apply in the proposed solution are:
 
-* Define a one-way algorithm to use to calculate the HASH function (SHA-3 is suggested)
+* Define a one-way algorithm to use to calculate the HASH function (keccak is suggested)
 * Create a new method to calculate the HASH - CLIENT LIBRARIES
 * Modify OceanMarketplace allowing to specify the HASH during the ASSET registry - KEEPER
 * Integrate the HASH function with the ASSET registry process - CLIENT LIBRARIES
