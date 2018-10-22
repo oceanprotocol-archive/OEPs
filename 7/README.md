@@ -111,7 +111,7 @@ idchar             = ALPHA / DIGIT / "." / "-"
 In Ocean, the DID looks:
 
 ```text
-did:ocn:21tDAKCERh95uGgKbJNHYp
+did:op:21tDAKCERh95uGgKbJNHYp
 ```
 
 The complete specs can be found in the [W3C Decentralized Identifiers (DIDs) document](https://w3c-ccg.github.io/did-spec/)
@@ -166,9 +166,9 @@ The motivation of this is to facilitate a mechanism allowing to the CONSUMER of 
 The length of a DID must be compliant with the underlying storage layer and function calls.
 Given that decentralized virtual machines make use of contract languages such as Solidity and WASM, it is advised to fit the DID in structures such as `bytes32`.
 
-It would be nice to store the "did:ocn:" prefix in those 32 bytes, but that means fewer than 32 bytes would be left for storing the rest (24 bytes since "did:ocn:" takes 8 bytes if using UTF-8). If the rest is a secure hash, then we need a 24-byte secure hash, but secure hashes typically have 28, 32 or more bytes, so that won't work.
+It would be nice to store the "did:op:" prefix in those 32 bytes, but that means fewer than 32 bytes would be left for storing the rest (25 bytes since "did:op:" takes 7 bytes if using UTF-8). If the rest is a secure hash, then we need a 24-byte secure hash, but secure hashes typically have 28, 32 or more bytes, so that won't work.
 
-Only the hash value _needs_ to be stored, not the "did:ocn:" prefix, because it should be clear from context that the value is an Ocean DID.
+Only the hash value _needs_ to be stored, not the "did:op:" prefix, because it should be clear from context that the value is an Ocean DID.
 
 #### How to compute a DID for a DDO
 
@@ -185,7 +185,7 @@ At a high level, one computes the DID as follows:
 1. Construct an [associative array](https://en.wikipedia.org/wiki/Comparison_of_programming_languages_(associative_array)) containing all the DDO fields _except for_ Proof ("proof") and DID Subject ("id").
 1. Append the Proof field, following the DID Spec, with the thing-being-signed being based on the associative array constructed in the first step. (This step is explained in more detail below.)
 1. Compute the hash, with the thing-being-hashed based on the associative array constructed so far (including the Proof). (This step is explained in more detail below.)
-1. The DID is then "did:ocn:{string-from-the-last-step}". Add that to the DDO as the DID Subject field ("id").
+1. The DID is then "did:op:{string-from-the-last-step}". Add that to the DDO as the DID Subject field ("id").
 
 Note: The 32-byte hash (a sequence of bytes) could be what gets stored in smart contracts, not the final DID string.
 
@@ -273,7 +273,7 @@ contract DidRegistry {
 
 To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"service-ddo"** with the public hostname of that provider:
 ```
-registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "did:ocn:328aabb94534935864312", "service-ddo", "https://myprovider.example.com/ddo")
+registerAttribute("did:op:21tDAKCERh95uGgKbJNHYp", "did:op:328aabb94534935864312", "service-ddo", "https://myprovider.example.com/ddo")
 ```
 
 
@@ -300,13 +300,13 @@ A DDO pointing to a DID could be resolved hierarchically using the same mechanis
 This is an example in Javascript using web3.js:
 
 ```javascript
-var event = contractInstance.DidAttributeRegistered( {did: "did:ocn:21tDAKCERh95uGgKbJNHYp", "key": "service-ddo"}, {fromBlock: 0, toBlock: 'latest'});
+var event = contractInstance.DidAttributeRegistered( {did: "did:op:21tDAKCERh95uGgKbJNHYp", "key": "service-ddo"}, {fromBlock: 0, toBlock: 'latest'});
 ```
 
 Here in Python using web3.py:
 
 ```python
-event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'service-ddo'})
+event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:op:21tDAKCERh95uGgKbJNHYp', 'key': 'service-ddo'})
 ```
 
 This logic could be encapsulated in the client libraries (**Squid**) in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
