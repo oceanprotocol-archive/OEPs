@@ -4,7 +4,7 @@ name: Decentralized Identifiers
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>
+contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@oceanprotocol.com>
 ```
 
 <!--ts-->
@@ -161,6 +161,14 @@ An ASSET in the system is composed by on-chain information maintained by the KEE
 Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
 The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
 
+#### Length of a DID
+
+The length of a DID must be compliant with the underlying storage layer and function calls.
+Given that decentralized virtual machines make use of contract languages such as Solidity and WASM, it is advised to fit the DID in structures such as `bytes32`.
+
+It would be nice to store the "did:ocn:" prefix in those 32 bytes, but that means fewer than 32 bytes would be left for storing the rest (24 bytes since "did:ocn:" takes 8 bytes if using UTF-8). If the rest is a secure hash, then we need a 24-byte secure hash, but secure hashes typically have 28, 32 or more bytes, so that won't work.
+
+Only the hash value _needs_ to be stored, not the "did:ocn:" prefix, because it should be clear from context that the value is an Ocean DID.
 
 #### How to compute a DID for a DDO
 
@@ -170,26 +178,36 @@ This way we can ensure that:
 - the DID is an integrity check for the DDO
 - the DDO is signed and the DID cannot be issued by non-holders of the private key(s) in the DDO document
 - the DDO and DID are independent of the underlying decentralized VM
-- each DID is content addressed
+- each DDO is content-addressed
 
-Following approach computes the DID after signing and hashing a DDO:
+At a high level, one computes the DID as follows:
 
-1. Fill in the DDO fields related to the identity. The `signature` and `did` fields are left empty
-2. Compute the `signature` field: ie. sign the DDO after step (1) and fill in the `signature` field
-3. Compute the `did` field: marshall and hash the DDO after step (2) and fill in the `did` field
-4. Publish the DDO and DID
+1. Construct an [associative array](https://en.wikipedia.org/wiki/Comparison_of_programming_languages_(associative_array)) containing all the DDO fields _except for_ Proof ("proof") and DID Subject ("id").
+1. Append the Proof field, following the DID Spec, with the thing-being-signed being based on the associative array constructed in the first step. (This step is explained in more detail below.)
+1. Compute the hash, with the thing-being-hashed based on the associative array constructed so far (including the Proof). (This step is explained in more detail below.)
+1. The DID is then "did:ocn:{string-from-the-last-step}". Add that to the DDO as the DID Subject field ("id").
 
-A related example for such an approach can be found in [the BigchainDB specs](https://github.com/bigchaindb/BEPs/tree/master/13#how-to-construct-a-transaction)
+Note: The 32-byte hash (a sequence of bytes) could be what gets stored in smart contracts, not the final DID string.
 
-#### Length of a DID
+##### Computing the Proof
 
-The length of a DID requires to be compliant with the underlying storage layer and function calls.
+1. Serialize the [associative array](https://en.wikipedia.org/wiki/Comparison_of_programming_languages_(associative_array)) constructed so far into a Unicode JSON string using the [algorithm described in the BigchainDB Transactions Spec v2](https://github.com/bigchaindb/BEPs/tree/master/13#json-serialization-and-deserialization).
+1. Convert that Unicode string object to a sequence of bytes according to the UTF-8 encoding. There is [example code in the BigchainDB Transactions Spec v2](https://github.com/bigchaindb/BEPs/tree/master/13#converting-strings-to-bytes).
+1. Sign those bytes using one of the private keys associated with one of the public keys listed in the DDO. The signature algorithm is determined by the public key type.
+1. The resulting signature (bytes) must be converted to a string representation so it can be included in the Proof section of the DDO. Use [multibase](https://github.com/multiformats/multibase). The base58btc encoding (i.e. the Bitcoin version of Base58) must be supported, but other bases can also be supported.
+1. Construct [the Proof section of the DDO according to the DDI spec](https://w3c-ccg.github.io/did-spec/#proof-optional).
 
-Given that decentralized virtual machines make use of contract languages such as Solidity and WASM, it is advised to fit the DID in structures such as `bytes32`.
+See the [Linked Data Cryptographic Suite Registry](https://w3c-ccg.github.io/ld-cryptosuite-registry/) for a list of supported cryptographic suites (including signature algorithms).
 
-Since each `byte` can hold `2^7 (128)` UTF-8 or ASCII encoded variables, the number of potential `bytes32` words is `2^224 (=(2^7)^32)`.
-Potentially `8 bytes` are reserved by an (unoptimized) prefix like `did:ocn:`, this leaves `2^168 (=(2^7)^(32-8))` words (with a [birthday bound](https://en.wikipedia.org/wiki/Birthday_attack) of `2^84`).
+##### Computing the SHA-3 Hash
 
+1. The first two steps (serialization and encoding-to-bytes) are the same as when computing a signature. The only difference is that this time, the initial associative array also contains the Proof ("proof") key and value.
+1. Compute the SHA-3 hash of those bytes.
+1. The resulting 32-byte hash (bytes) must be converted to a string representation so it can be included in the DID Subject ("id") section of the DDO. Use [multibase](https://github.com/multiformats/multibase). The base16 encoding (i.e. hexadecimal) must be supported, but other bases can also be supported.
+
+Note 1: We don't use [multihash](https://multiformats.io/multihash/) because we've standardized on 32-byte SHA-3 hashes for now.
+
+Note 2: The 32-byte hash (a sequence of bytes) could be what gets stored in blockchains, not the final DID Subject string.
 
 ### Registry
 
