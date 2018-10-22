@@ -7,10 +7,9 @@ editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@oceanprotocol.com>
 ```
 
-<!--ts-->
+**Table of Contents**
 
-Table of Contents
-=================
+<!--ts-->
 
    * [Decentralized Identifiers](#decentralized-identifiers)
       * [Change Process](#change-process)
@@ -21,8 +20,10 @@ Table of Contents
          * [Decentralized ID's (DID)](#decentralized-ids-did)
          * [DID Documents (DDO)](#did-documents-ddo)
          * [Integrity](#integrity)
-            * [How to compute a DID for a DDO](#how-to-compute-a-did-for-a-ddo)
             * [Length of a DID](#length-of-a-did)
+            * [How to compute a DID for a DDO](#how-to-compute-a-did-for-a-ddo)
+               * [Computing the Proof](#computing-the-proof)
+               * [Computing the SHA-3 Hash](#computing-the-sha-3-hash)
          * [Registry](#registry)
          * [Resolver](#resolver)
       * [Changes Required](#changes-required)
@@ -30,7 +31,6 @@ Table of Contents
       * [References](#references)
 
 <!--te-->
-
 
 # Decentralized Identifiers
 
