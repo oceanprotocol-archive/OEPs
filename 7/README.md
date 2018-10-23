@@ -4,7 +4,7 @@ name: Decentralized Identifiers
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: 
+contributors:
 ```
 
 <!--ts-->
@@ -117,63 +117,74 @@ The complete specs can be found in the [W3C Decentralized Identifiers (DIDs) doc
 
 ### Registry
 
-To register the different kind of objects can be stored in a **simple** register contract named **IdRegistry**.
+To register the different kind of objects can be stored in a **simple** register contract named **DIdRegistry**.
 The key of the Identity entity in Ocean is the **DID**. Associated to this DID we have a Mapping of key-value attributes,
 allowing to associate publicly information to DID's. This could be used to add public information allowing for example
 to discover/resolve a DID.
-There are two main options to implement this:
 
-* Associate to the DID a mapping of key-value attributes to be stored as new entries of a smart contract variable
+There main options to implement this:
 
 * Emit events associated to the DID. Events works pretty well as a kind of cost effective storage. This is the recommended approach.
 
-Here a draft **IdRegistry** implementation:
+The Block number of the event is saved in the DID contract global structure. This can then be used by the DID resolver to obtain the latest event at that given block number.
+
+Here is a **DIDRegistry** implementation:
 
 ```solidity
 
-// This piece of code is for reference only!
-// Doesn't include any validation, types could be reviewed, enums, etc
-
-contract IdRegistry {
-
-    struct Identity {
-        address owner; // owner of the Identity
-        string did;
-        unint256 type; // type of Identity object (Asset, Actor, Workflow, ..)
+contract DIDRegistry is Ownable {
+    enum ValueType {
+        DID,                // DID string e.g. 'did:op:xxx'
+        DIDRef,             // hash of DID same as in parameter (bytes32 _did) in text 0x0123abc.. or 0123abc..
+        URL,                // URL string e.g. 'http(s)://xx'
+        DDO                 // DDO string in JSON e.g. '{ "id": "did:op:xxx"...
     }
 
-    mapping (string => Identity) identities; // list of identities
+    struct DIDRegister {
+        address owner;
+        uint updateAt;
+    }
 
-    // Option 1. Attributes as K,V stored as part of internal object attributes
-    mapping (string => mapping (bytes32 => string) ) identities; // list identities attributes
-
-    // Option 2. Attributes as events (recommended)
-    event DidAttributeRegistered(
-        string indexed did,
+    event DIDAttributeRegistered(
+        bytes32 indexed did,
         address indexed owner,
-        uint256 indexed type,
+        ValueType _type,
         bytes32 indexed key,
         string value,
-        uint updateAt
+        uint updatedAt
     );
 
-    constructor(bytes32 _did, uint256 _type) public {
+    mapping(bytes32 => DIDRegister) public didRegister;
+
+    constructor() Ownable() public {
     }
 
-    function registerAttribute(string _did, bytes32 _key, string _value) public returns (bool) {
-        // Option 1.
-        identities[_did][_key] = _value;
+    function registerAttribute(bytes32 _did, ValueType _type, bytes32 _key, string _value) public {
+        address currentOwner;
+        currentOwner = didRegister[_did].owner;
+        require(currentOwner == address(0x0) || currentOwner == msg.sender, 'Attributes must be registered by the DID owners.');
 
-        // Option 2. (recommended)
-        DidAttributeRegistered(_did, msg.sender, identities[_did].type, _key, _value, now);
+        didRegister[_did] = DIDRegister(msg.sender, block.number);
+        emit DIDAttributeRegistered(_did, msg.sender, _type, _key, _value, block.number);
     }
+
+    function getUpdateAt(bytes32 _did) public view returns(uint) {
+        return didRegister[_did].updateAt;
+    }
+
+    function getOwner(bytes32 _did) public view returns(address) {
+        return didRegister[_did].owner;
+    }
+
 }
+
 
 ```
 
 To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"provider"** with the public hostname of that provider:
 ```
-registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "provider", "https://myprovider.example.com")
+// type = 2, URL
+registerAttribute(0x21tDAKCERh95uGgKbJNHYp, 2, "provider", "https://myprovider.example.com")
 ```
 
 
@@ -192,21 +203,23 @@ function DDO resolve(String did)  {
 ```
 
 To resolve a DID to the associated DDO, some information is stored on-chain associated to the DID. In the approach recommended in the scope of this OEP, this is stored
-as an attribute associated to the ```DidAttributeRegistered``` event. Because the did and key are indexed parameters of the event, a consumer in any supported web3 language,
-could filter the ```DidAttributeRegistered``` events filtering by the DID and the key named **"provider"**.
+as an attribute associated to the ```DIDAttributeRegistered``` event. Because the did and key are indexed parameters of the event, a consumer in any supported web3 language,
+could filter the ```DIDAttributeRegistered``` events filtering by the DID and the key named **"provider"**.
 
 A DDO pointing to a DID could be resolved hierarchically using the same mechanism.
 
 This is an example in Javascript using web3.js:
 
 ```javascript
-var event = contractInstance.DidAttributeRegistered( {did: "did:ocn:21tDAKCERh95uGgKbJNHYp", "key": "provider"}, {fromBlock: 0, toBlock: 'latest'});
+var blockNumber = contractInstance.getUpdateAt(did)
+var event = contractInstance.DidAttributeRegistered( {did: "did:ocn:21tDAKCERh95uGgKbJNHYp", "key": "provider"}, {fromBlock: blockNumber, toBlock: blockNumber});
 ```
 
 Here in Python using web3.py:
 
 ```python
-event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'provider'})
+
+event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock=blockNumber, argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'provider'})
 ```
 
 This logic could be encapsulated in the client libraries in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
