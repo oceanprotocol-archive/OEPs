@@ -4,15 +4,13 @@ name: Decentralized Identifiers
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Mike Anderson <mike.anderson@dex.sg>
+contributors: Mike Anderson <mike.anderson@dex.sg>, Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@oceanprotocol.com>
 ```
+
+**Table of Contents**
 
 <!--ts-->
 
-Table of Contents
-=================
-
-   * [Table of Contents](#table-of-contents)
    * [Decentralized Identifiers](#decentralized-identifiers)
       * [Change Process](#change-process)
       * [Language](#language)
@@ -20,17 +18,20 @@ Table of Contents
       * [Specification](#specification)
       * [Proposed Solution](#proposed-solution)
          * [Decentralized ID's (DID)](#decentralized-ids-did)
+         * [DID Documents (DDO)](#did-documents-ddo)
+         * [Integrity](#integrity)
+            * [Length of a DID](#length-of-a-did)
+            * [How to compute a DID for a DDO](#how-to-compute-a-did-for-a-ddo)
+               * [Computing the Proof](#computing-the-proof)
+               * [Computing the SHA-3 Hash](#computing-the-sha-3-hash)
          * [Registry](#registry)
          * [Resolver](#resolver)
          * [Ocean standard endpoints](#ocean-standard-endpoints)
       * [Changes Required](#changes-required)
-      * [Metadata Integrity](#metadata-integrity)
-         * [Proposed solution](#proposed-solution-1)
       * [Changes Required](#changes-required-1)
-
+      * [References](#references)
 
 <!--te-->
-
 
 # Decentralized Identifiers
 
@@ -105,8 +106,9 @@ Requirements are:
 * KEEPER doesn't store any ASSET metadata
 * An ASSET is modelled in OCEAN as ASSET Metadata stored by a Meta Agent exposing a standard Meta API and asset data stored by a storage provider exposing a standard Meta API
 * ASSETS have no on-chain information (unless they are referenced in Service Agreements)
-* Any kind of object Ocean SHOULD have a DID allowing users to uniquely identify that object in the system
-* An IDENTITY's **DID** can be resolved to get access to a **DDO** using an on-chain resolver
+* An Identity in Ocean MUST have a DID allowing users to uniquely identify that object in the system
+* A **DID** can be resolved to get access to a **DDO** using an on-chain resolver
+* An Actor controlling an Identity MUST be able to update the DDO for a given DID
 * An Asset ID is the HASH of the Asset Metadata
 * An Asset can be identified using a DID of an IDENTITY providing the metadata of the asset, by extending the DID with the Asset ID as part of the DID path
 * The function to calculate the HASH MUST BE an Ocean standard (keccak256 proposed)
@@ -134,7 +136,7 @@ idchar             = ALPHA / DIGIT / "." / "-"
 In Ocean, the DID looks:
 
 ```text
-did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826
+did:op:cd2a3d9f938e13cd947ec05abc7fe734df8dd826
 ```
 
 As per section 3.3 of the DID spec (https://w3c-ccg.github.io/did-spec/#paths): "A DID path SHOULD be used to address resources available via a DID service endpoint" therefore we use DID paths to address Assets managed by the relevant Actor.
@@ -143,6 +145,99 @@ As per section 9.1 of the DID spec there is no upper limit on DID length, but in
 DIDs (including DID paths) to 2000 characters to ensure maximum interoperability with clients / URLs.
 
 The complete specs can be found in the [W3C Decentralized Identifiers (DIDs) document](https://w3c-ccg.github.io/did-spec/)
+
+### DID Documents (DDO)
+
+If a DID is the index key in a key-value pair, then the DID Document is the value to which the index key points.
+The combination of a DID and its associated DID Document forms the root record for a decentralized identifier.
+
+![DDO Content](images/ddo-content.png)
+
+A DDO document is composed by the standard DDO attributes like:
+
+* context
+* id:
+* services
+
+In addition to this, the asset metadata can be included as part of the DDO inside the service entry, using the type **AssetsMetadataService**.
+Example:
+
+```json
+{
+  "@context": "https://example.org/example-method/v1",
+  "id": "did:example:123456789abcdefghi",
+  "authentication": [{ ... }],
+  "service": [{
+    "type": "AssetsMetadataService",
+    "serviceEndpoint": "https://myservice.org/assets/",
+    "metadata": {
+        "title": "my asset",
+        "description": "blabla"
+    }
+  }]
+}
+```
+
+You can find a complete reference of the asset metadata in the scope of the [OEP-8](8).
+Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the w3c did spec.
+
+
+
+### Integrity
+
+The Integrity policy for identity and metadata is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
+
+An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DDO) stored in OCEANDB.
+Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
+The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
+
+#### Length of a DID
+
+The length of a DID must be compliant with the underlying storage layer and function calls.
+Given that decentralized virtual machines make use of contract languages such as Solidity and WASM, it is advised to fit the DID in structures such as `bytes32`.
+
+It would be nice to store the "did:op:" prefix in those 32 bytes, but that means fewer than 32 bytes would be left for storing the rest (25 bytes since "did:op:" takes 7 bytes if using UTF-8). If the rest is a secure hash, then we need a 25-byte secure hash, but secure hashes typically have 28, 32 or more bytes, so that won't work.
+
+Only the hash value _needs_ to be stored, not the "did:op:" prefix, because it should be clear from context that the value is an Ocean DID.
+
+#### How to compute a DID for a DDO
+
+It is possible to compute the DID for a DDO using a deterministic approach.
+This way we can ensure that:
+
+- the DID is an integrity check for the DDO
+- the DDO is signed and the DID cannot be issued by non-holders of the private key(s) in the DDO document
+- the DDO and DID are independent of the underlying decentralized VM
+- each DDO is content-addressed
+
+At a high level, one computes the DID as follows:
+
+1. Construct an [associative array](https://en.wikipedia.org/wiki/Comparison_of_programming_languages_(associative_array)) containing all the DDO fields _except for_ Proof ("proof") and DID Subject ("id").
+1. Append the Proof field, following the DID Spec, with the thing-being-signed being based on the associative array constructed in the first step. (This step is explained in more detail below.)
+1. Compute the hash, with the thing-being-hashed based on the associative array constructed so far (including the Proof). (This step is explained in more detail below.)
+1. The DID is then "did:op:{string-from-the-last-step}". Add that to the DDO as the DID Subject field ("id").
+
+Note: The 32-byte hash (a sequence of bytes) could be what gets stored in smart contracts, not the final DID string.
+
+##### Computing the Proof
+
+1. Serialize the [associative array](https://en.wikipedia.org/wiki/Comparison_of_programming_languages_(associative_array)) constructed so far into a Unicode JSON string using the [algorithm described in the BigchainDB Transactions Spec v2](https://github.com/bigchaindb/BEPs/tree/master/13#json-serialization-and-deserialization).
+1. Convert that Unicode string object to a sequence of bytes according to the UTF-8 encoding. There is [example code in the BigchainDB Transactions Spec v2](https://github.com/bigchaindb/BEPs/tree/master/13#converting-strings-to-bytes).
+1. Sign those bytes using one of the private keys associated with one of the public keys listed in the DDO. The signature algorithm is determined by the public key type.
+1. The resulting signature (bytes) must be converted to a string representation so it can be included in the Proof section of the DDO. Use [multibase](https://github.com/multiformats/multibase). The base58btc encoding (i.e. the Bitcoin version of Base58) must be supported, but other bases can also be supported.
+1. Construct [the Proof section of the DDO according to the DDI spec](https://w3c-ccg.github.io/did-spec/#proof-optional).
+
+See the [Linked Data Cryptographic Suite Registry](https://w3c-ccg.github.io/ld-cryptosuite-registry/) for a list of supported cryptographic suites (including signature algorithms).
+
+##### Computing the SHA-3 Hash
+
+1. The first two steps (serialization and encoding-to-bytes) are the same as when computing a signature. The only difference is that this time, the initial associative array also contains the Proof ("proof") key and value.
+1. Compute the SHA-3 hash of those bytes.
+1. The resulting 32-byte hash (bytes) must be converted to a string representation so it can be included in the DID Subject ("id") section of the DDO. Use [multibase](https://github.com/multiformats/multibase). The base16 encoding (i.e. hexadecimal) must be supported, but other bases can also be supported.
+
+Note 1: We don't use [multihash](https://multiformats.io/multihash/) because we've standardized on 32-byte SHA-3 hashes for now.
+
+Note 2: The 32-byte hash (a sequence of bytes) could be what gets stored in blockchains, not the final DID Subject string.
 
 ### Registry
 
@@ -158,31 +253,32 @@ There are two main options to implement this:
 
 As a result of considering these two option, Ocean implements the Registry events keyed to the DID
 
-Here a draft **IdRegistry** implementation:
+Here a draft **DidRegistry** implementation:
 
 ```solidity
 
 // This piece of code is for reference only!
 // Doesn't include any validation, types could be reviewed, enums, etc
 
-contract IdRegistry {
+contract DidRegistry {
 
     struct Identity {
         address owner; // owner of the Identity
-        string did;
-        unint256 type; // type of Identity object (Asset, Actor, Workflow, ..)
+        string providerDid;
     }
 
-    mapping (string => Identity) identities; // list of identities
+    struct Provider {
+        mapping (bytes32 => string) attributes;
+    }
 
-    // Option 1. Attributes as K,V stored as part of internal object attributes
-    mapping (string => mapping (bytes32 => string) ) identities; // list identities attributes
+    mapping (string => Identity) identities; // list of identities, mapping: identities[did] = Identity
+    mapping (bytes32 => Provider) providers; // list of providers, mapping: providers[did] = Provider
 
-    // Option 2. Attributes as events (recommended)
+    // Attributes as events (recommended)
     event DidAttributeRegistered(
         string indexed did,
         address indexed owner,
-        uint256 indexed type,
+        string indexed providerDid,
         bytes32 indexed key,
         string value,
         uint updateAt
@@ -191,20 +287,24 @@ contract IdRegistry {
     constructor(bytes32 _did, uint256 _type) public {
     }
 
-    function registerAttribute(string _did, bytes32 _key, string _value) public returns (bool) {
-        // Option 1.
-        identities[_did][_key] = _value;
+    function register(string _resourceDID, string _providerDID, bytes32 _key, string _value) public returns (bool) {
+        // It's necessary to check if the provider was already there
+        // In that case is not necessary to add a new Provider (cheaper, only first time we write info about a provider)
+        providers[_providerDID][_key]= _value;
 
-        // Option 2. (recommended)
-        DidAttributeRegistered(_did, msg.sender, identities[_did].type, _key, _value, now);
+        // Associating the resourceDID to the providerDID resolving the resource DID to the DDO
+        identities[_resourceDID].owner= msg.sender;
+        identities[_resourceDID].owner= _providerDID;
+
+        DidAttributeRegistered(_did, msg.sender, _providerDID, _key, _value, now);
     }
 }
 
 ```
 
-To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"provider"** with the public hostname of that provider:
+To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"service-ddo"** with the public hostname of that provider:
 ```
-registerAttribute("did:ocn:21tDAKCERh95uGgKbJNHYp", "provider", "https://myprovider.example.com")
+registerAttribute("did:op:21tDAKCERh95uGgKbJNHYp", "did:op:328aabb94534935864312", "service-ddo", "https://myprovider.example.com/ddo")
 ```
 
 
@@ -224,23 +324,23 @@ function DDO resolve(String did)  {
 
 To resolve a DID to the associated DDO, some information is stored on-chain associated to the DID. In the approach recommended in the scope of this OEP, this is stored
 as an attribute associated to the ```DidAttributeRegistered``` event. Because the did and key are indexed parameters of the event, a consumer in any supported web3 language,
-could filter the ```DidAttributeRegistered``` events filtering by the DID and the key named **"provider"**.
+could filter the ```DidAttributeRegistered``` events filtering by the DID and the key named **"service-ddo"**.
 
 A DDO pointing to a DID could be resolved hierarchically using the same mechanism.
 
 This is an example in Javascript using web3.js:
 
 ```javascript
-var event = contractInstance.DidAttributeRegistered( {did: "did:ocn:21tDAKCERh95uGgKbJNHYp", "key": "provider"}, {fromBlock: 0, toBlock: 'latest'});
+var event = contractInstance.DidAttributeRegistered( {did: "did:op:21tDAKCERh95uGgKbJNHYp", "key": "service-ddo"}, {fromBlock: 0, toBlock: 'latest'});
 ```
 
 Here in Python using web3.py:
 
 ```python
-event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:ocn:21tDAKCERh95uGgKbJNHYp', 'key': 'provider'})
+event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:op:21tDAKCERh95uGgKbJNHYp', 'key': 'service-ddo'})
 ```
 
-This logic could be encapsulated in the client libraries in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
+This logic could be encapsulated in the client libraries (**Squid**) in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
 Using this information a consumer can query directly to the provider able to return the DDO.
 
 Here you have the complete flow using as example a new ASSET:
@@ -249,10 +349,10 @@ Here you have the complete flow using as example a new ASSET:
 
 Steps:
 
-1. A PUBLISHER, using the KEEPER, register the new ASSET providing the DID and the attribute to resolve the provider
-1. The KEEPER register the ASSET using the OceanMarket Smart Contract and after of that register the identity using the IdRegistry Smart Contract. In this point, the attribute is raised as a new event
+1. A PUBLISHER, using the KEEPER, register the new Resource (ie. ASSET) providing the DID and the DID of the Provider acting as Public service returning the DDO of the Resource (ASSET)
+1. The KEEPER register the Resource using the Service Agreement Smart Contract and after of that register the identity using the DidRegistry Smart Contract. In this point, the attribute is raised as a new event
 1. The PUBLISHER publish the DDO in the metadata-store/OCEANDB provided by PROVIDER
-1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **provider** attribute associated to the DID directly from the KEEPER
+1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **service-ddo** attribute associated to the DID directly from the KEEPER
 1. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
 
 ### Ocean standard endpoints
@@ -287,8 +387,8 @@ Ocean.Invoke.v1        | Endpoint for an invokable service API
 The list of changes to apply in the proposed solution are:
 
 * Modify the function creating the id to return a DID compliant id - KEEPER
-* Create the new IdRegistry Smart Contract - KEEPER
-* Integrate the call to the IdRegistry contract in the OceanMarketplace contract - KEEPER
+* Create the new DidRegistry Smart Contract - KEEPER
+* Integrate the call to the DidRegistry contract in the OceanMarketplace or Service Agreement contract (depending of the moment of integration of this) - KEEPER
 * Implement the resolving function of a DDO given a DID - CLIENT LIBRARIES
 
 
@@ -312,7 +412,7 @@ The solution included in the above diagram includes the following steps:
 
 1. The PUBLISHER, before publishing any ASSET information, calculate the **HASH** using the **Asset Metadata** as input.
    To do that, the PUBLISHER will use from the client side a common Ocean library using the same algorithm.
-1. The PUBLISHER transmits the Hash and the Asset Metadata to appropriate Meta Agent
+1. The PUBLISHER transmits the Hash and the Asset Metadata to an appropriate Meta Agent
 1. Clients may now obtain the Asset Metadata using the DID of the Meta Agent extended with the Hash of the Asset Metadata
 
 
