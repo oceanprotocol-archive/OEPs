@@ -50,40 +50,77 @@ The main motivations of this OEP are:
 
 ### Publishing
 
-Using only one SQUID call (registerServiceAgreement method), the PUBLISHER should be able to register a Service Agreement.
+Using only one SQUID call (registerAsset method), the PUBLISHER should be able to register a Service Agreement.
 
-This method executes internally:
+This method executes internally (everything happens off-chain):
 
 1. We create a DDO including the following information:
    - Metadata
+     * name, like 'Ocean Dataset of Fish'
+     * examples, like a CSV sample
+     * etc
    - public key of the Publisher
    - DID (is generated automatically using UUID initially, after trilobite hashing the DDO)
-   - Services associated to this Asset (consumption, compute, etc.). URL's to Brizo.
-  `ddo= DID.createDDO(metadata, services)`
-  This function internally, create the DID.
+   - A list of services
 
-2. We modify the DDO to add the slaReference to the Services provided associated to the Asset.
-  `ddo.setServiceAttribute("Consume", "slaReference", "templateId1)`
-  `ddo.setServiceAttribute("Compute", "slaReference", "templateId2)`
+   Each service in the list contains the following information:
+   - Service Agreement Template ID; has to be whitelisted, can be hardcoded in Trilobite
+   - A list of conditions keys; condition key consists of:
+     * controller contract address (included in the SLA template, repeated here for information purposes)
+     * controller contract function fingerprint
 
-3. We update the DDO adding the conditions:
-   - Price
-   - etc
-   `ddo.addServiceCondition("Consume", "Pricing", 100)`
+     Condition keys come together with the SLA template ID, can be hardcoded in Trilobite.
+   - For each condition, a list of its parameter values.
+   - A mapping of events to event handlers. Each event is identified by name. Each event handler is a functions from a whitelisted module.
 
+An example:
 
-4. If the Service is not about a commons Asset, we encrypt the Asset url using the secret store. We give as parameter the serviceId and the url. We get an encrypted url.
-   `encryptedUrl= SecretStore.encryptDocument(secretStoreKeyId, url)
+```
+did = 'ocn:...'
+metadata = {
+  'name': 'O',
+  'description': '...'
+},
+public_key = '...'
+services = [{
+  'template_id': '...',
+  'conditions': [{
+      'condition_key': {
+         'contract_address': '0x...',
+         'fingerprint': '0x...',
+         'function_name': 'lockPayment' # optional
+      },
+      'timeouts': [..],
+      'parameters': [{
+          'asset_id': 'my-shiny-dataset',
+          'price': 10
+      },
+      ...
+      ],
+  ...
+  ],
+  # A generic event listener would take the event payload and pass it to the corresponding function.
+  # A generic event listener only listens for events with the particular service identifier.
+  'events': {
+    'PaymentLocked': {
+      'actor_type': ['publisher'], # or 'consumer'
+      'handlers': [{
+        'module_name': 'secret_store',
+        'function_name': 'grant_acess'
+      },
+      ...]
+    }
+  }
+},
+...
+]
+registerAsset(did, metadata, public_key, services)
+```
 
-5. We add the encrypted url to the DDO and the secretStoreKeyId
-   `ddo.addUrl(encryptedUrl)`
-   `ddo.setServiceAttribute("Consume", "secretStoreKeyId", secretStoreKeyId)`
-   `ddo.addServiceCondition("Consume", "Access", secretStoreKeyId)`
-
-
-6. We publish the DDO in the MetadataStore (OceanDB) using Aquarius.
-   `result= Metadata.publishDDO(ddo)`
-
+2. We publish the DDO in the MetadataStore (OceanDB) using Aquarius.
+   ```
+   result = Metadata.publishDDO(ddo)
+   ```
 
 
 ### Consuming
@@ -113,16 +150,18 @@ Squid Steps:
 
 8. The Publisher is going to listen the LockPayment event
 
-9. The Publisher is going to grantAccess to the Publisher
-   `grantAccess(serviceId, DDO.secretStoreKeyId, consumerPublicKey)`
-   emit GrantAccess
+9. The Publisher encrypts the contents and puts the decryption keys into Secret Store, `encryptedUrl = encryptDocument(serviceId, url)`
 
-8. The Consumer is listening to the GrantAccess event filreting by serviceId
+10. The Publisher is going to grantAccess to the Publisher
+   `grantAccess(serviceId, consumerPublicKey, encryptedUrl)`
+   emit GrantAccess containing `encryptedUrl`
 
-9. The Consumer Decrypt the url using the secretStore
+11. The Consumer is listening to the GrantAccess event filreting by serviceId
+
+12. The Consumer Decrypt the url using the secretStore
    `url= SecretStore.decryptDocument(DDO.secretStoreKeyId, DDO.url)`
 
-10. Consumer call Brizo (Publisher agent) to download the content related with the url:
+13. Consumer call Brizo (Publisher agent) to download the content related with the url:
    `HTTP GET http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}`
 
 
@@ -143,7 +182,17 @@ Using those parameters, Brizo do the following things:
 * If user can consume the serviceId, Brizo get the URL given as parameter and allows the download of the Asset
 
 
+### Modules to be implemented
 
+
+#### Secret Store
+
+1. If the Service is not about a commons Asset, we encrypt the Asset url using the secret store. We give as parameter the serviceId and the url. We get an encrypted url.
+   ```
+   encrypte_url = SecretStore.encrypt_document(service_id, url)
+   public_key = get_public_key_by_service_id(service_id)
+   grant_access(public_key, encrypted_url) // calls on-chain function, like AccessConditions.grantAccess
+   ```
 
 ---
 OLD
