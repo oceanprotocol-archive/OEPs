@@ -64,7 +64,9 @@ This method executes internally (everything happens off-chain):
    - A list of services
 
    Each service in the list contains the following information:
-   - Service Agreement Template ID; has to be whitelisted, can be hardcoded in Trilobite
+   - Service Definition ID; uniquely identifies this particular service within this DID
+   - Service Agreement Template ID; has to be whitelisted, can be hardcoded in Trilobite; points to a deployed service agreement on-chaincontract
+   - Service endpoint; consumers signing this service send their signatures to this endpoint
    - A list of conditions keys; condition key consists of:
      * controller contract address (included in the SLA template, repeated here for information purposes)
      * controller contract function fingerprint
@@ -73,55 +75,62 @@ This method executes internally (everything happens off-chain):
    - For each condition, a list of its parameter values.
    - A mapping of events to event handlers. Each event is identified by name. Each event handler is a functions from a whitelisted module.
 
-An example:
+    An example:
 
-```
-did = 'ocn:...'
-metadata = {
-  'name': 'O',
-  'description': '...'
-},
-public_key = '...'
-services = [{
-  'template_id': '...',
-  'conditions': [{
-      'condition_key': {
-         'contract_address': '0x...',
-         'fingerprint': '0x...',
-         'function_name': 'lockPayment' # optional
-      },
-      'timeouts': [..],
-      'parameters': [{
-          'asset_id': 'my-shiny-dataset',
-          'price': 10
-      },
+    ```
+    did = 'ocn:...'
+    metadata = {
+      'name': 'O',
+      'description': '...'
+    },
+    public_key = '...'
+    services = [{
+      'service_definition_id': '...',
+      'template_id': '...',
+      'service_enddpoint': '...',
+      'conditions': [{
+          'condition_key': {
+             'contract_address': '0x...',
+             'fingerprint': '0x...',
+             'function_name': 'lockPayment' # optional
+          },
+          'timeouts': [..],
+          'parameters': [{
+              'price': 10
+          },
+          ...
+          ],
       ...
       ],
-  ...
-  ],
-  # A generic event listener would take the event payload and pass it to the corresponding function.
-  # A generic event listener only listens for events with the particular service identifier.
-  'events': {
-    'PaymentLocked': {
-      'actor_type': ['publisher'], # or 'consumer'
-      'handlers': [{
-        'module_name': 'secret_store',
-        'function_name': 'grant_acess'
-      },
-      ...]
-    }
-  }
-},
-...
-]
-registerAsset(did, metadata, public_key, services)
-```
+      # A generic event listener would take the event payload and pass it to the corresponding function.
+      # A generic event listener only listens for events with the particular service identifier.
+      'events': {
+        'PaymentLocked': {
+          'actor_type': ['publisher'], # or 'consumer'
+          'handlers': [{
+            'module_name': 'secret_store',
+            'function_name': 'grant_acess'
+          },
+          ...]
+        }
+      }
+    },
+    ...
+    ]
+
+    ```
 
 2. We publish the DDO in the MetadataStore (OceanDB) using Aquarius.
+
    ```
-   result = Metadata.publishDDO(ddo)
+   registerAsset(did, metadata, public_key, services)
    ```
 
+3. Publisher exposes service endpoints.
+
+    A service endpoint looks like `http://example.com/service?did=..&public_key=..&signature=..`.
+
+4. Publisher encrypts the URL and publishes it in Secret Store identifier by DID.
 
 ### Consuming
 
@@ -130,31 +139,73 @@ Using Squid calls the CONSUMER can discover Assets, purchase and access
 Squid Steps:
 
 1. The user uses the search method to find relevant Assets related with his query. It returs a list of DDO's.
-   `array[DDO] list= search("weather Germany 2017")`
+   `array[DDO] list = search("weather Germany 2017")`
 
-2. The consumer sends to the Publisher the Signature (templateId, conditions, timeouts, listValueHashs [prices, etc]), publicKey
+2. Consumer chooses a service inside a DDO.
 
-3. Verify the signature, verify the price checking, recreate the value hash
+3. The consumer signs the service details. There is a particular way of building the signature documented elsewhere. The signature contains `(template ID, condition keys, timeouts, condition parameters)`.
 
-4. The Publisher execute the Agreement calling the Service Agreement Smart Contract
-   ServiceAgreement.executeAgreement(templateId, signature, consumerPublicKey, listValueHash[includes the secretStoreKeyId], listTimeouts)
-   emit ExecuteCondition for each condition on the Agreement
-   emit ExecuteAgreement(serviceId, templateId, stateAgreement, publisher, consumer (indexed))
+4. Consumer sends `(did, service_definition_id, the signature, consumer public key`) to the service endpoint.
 
-5. Consumer should listen the ExecuteAgreement event
+5. Consumer starts listening for `ExecuteAgreement` event, filtering by its public key, service definition ID, and DID.
 
-6. Consumer should listen after to multiple ExecuteCondition filtered by serviceId
+6. Consumer extracts service ID from `ExecuteAgreement` event payload and starts listening for `consumer` events specified in the corresponding service definition.
 
-7. For each condition event, the consumer need to execute one action (TemplateID specific)
-   In the Access Use case, the action is going to lockPayment
+7. In the meantime, Publisher receives signature from the service endpoint and verifies the signature.
 
-8. The Publisher is going to listen the LockPayment event
+8. Publisher executes the SLA by calling `ServiceAgreement.executeAgreement`. It generates service ID.
 
-9. The Publisher encrypts the contents and puts the decryption keys into Secret Store, `encryptedUrl = encryptDocument(serviceId, url)`
+9. Publisher starts listening for the `publisher` events from the events section of the service definition.
 
-10. The Publisher is going to grantAccess to the Publisher
-   `grantAccess(serviceId, consumerPublicKey, encryptedUrl)`
-   emit GrantAccess containing `encryptedUrl`
+#### Execution of SLA
+
+Consider an asset purchase example. Consumer locks the payment. Only then Publisher grants access to the document. Only then payment is released. Consumer may decrypt the document.
+
+##### Lock payment condition
+
+Consider a sample of the service definition:
+
+```
+'ExecuteCondition': {
+   'actor_type': ['consumer'],
+   'handlers': [{
+     'module_name': 'payment',
+     'function_name': 'lock_payment'
+   },
+```
+
+According to it, Squid listens for `ExecuteCondition` event, filters it by service ID. The corresponding module with the event handler needs to be implemented in Squid.
+
+`payment.py`
+```
+def lock_payment(service_id, condition_key, price):
+    web3.call(condition_key, price)
+```
+
+It emits `PaymentLocked` and thus triggers the next condition. 
+
+##### Grant access condition
+
+```
+'PaymentLocked': {
+   'actor_type': ['publisher'],
+   'handlers': [{
+     'module_name': 'secret_store',
+     'function_name': 'grant_acccess'
+   },
+```
+
+Brizo listens for `PaymentLocked` event, filters it by service ID. The corresponding module with the event handler needs to be implemented in Brizo.
+
+`secret_store.py`
+```
+def grant_access(service_id, condition_key, consumer_public_key):
+    public_key = get_public_key_by_service_id(service_id)
+    did = get_did(service_id)
+    web3.call(condition_key, public_key, did)
+```
+
+#### Consuming the data
 
 11. The Consumer is listening to the GrantAccess event filreting by serviceId
 
