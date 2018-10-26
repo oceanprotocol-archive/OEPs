@@ -135,20 +135,19 @@ Here is a representation of an example Asset using the schema described:
         "contentUrls": ["https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"],
         "links": [
             {
-                "name" : "Sample of Asset Data",
-                "type" : "sample",
+                "name": "Sample of Asset Data",
+                "type": "sample",
                 "url": "https://foo.com/sample.csv"
             },
             {
-                "name" : "Data Format Definition",
-                "type" : "format",
+                "name": "Data Format Definition",
+                "type": "format",
                 "AssetID": "4d517500da0acb0d65a716f61330969334630363ce4a6a9d39691026ac7908ea"
             }
         ],
         "inLanguage": "en",
         "tags": "weather, uk, 2011, temperature, humidity",
         "price": 10
-
     },
     "curation": {
         "rating": 0.93,
@@ -157,8 +156,16 @@ Here is a representation of an example Asset using the schema described:
     },
     "additionalInformation" : {
         "updateFrecuency": "yearly",
-        "structuredMarkup" : [ { "uri" : "http://skos.um.es/unescothes/C01194/jsonld", "mediaType" : "application/ld+json"},
-                               { "uri" : "http://skos.um.es/unescothes/C01194/turtle", "mediaType" : "text/turtle"}]
+        "structuredMarkup": [
+            {
+                "uri": "http://skos.um.es/unescothes/C01194/jsonld",
+                "mediaType": "application/ld+json"
+            },
+            {
+                "uri": "http://skos.um.es/unescothes/C01194/turtle",
+                "mediaType": "text/turtle"
+            }
+        ]
     }
 }
 ```
