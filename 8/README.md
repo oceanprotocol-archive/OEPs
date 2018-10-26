@@ -153,7 +153,7 @@ Here is a representation of an example Asset using the schema described:
     "curation": {
         "rating": 0.93,
         "numVotes": 123,
-        "schema": "Binary Votting"
+        "schema": "Binary Voting"
     },
     "additionalInformation" : {
         "updateFrecuency": "yearly",
