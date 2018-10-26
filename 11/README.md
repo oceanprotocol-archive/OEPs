@@ -50,30 +50,31 @@ The main motivations of this OEP are:
 
 ### Publishing
 
-Using only one SQUID call (registerAsset method), the PUBLISHER should be able to register a Service Agreement.
+Using only one SQUID call `registerAsset(asset_metadata)`, the PUBLISHER should be able to register an Asset.
 
-This method executes internally (everything happens off-chain):
+This method executes internally - everything happens off-chain.
 
-1. We create a DDO including the following information:
+1. Publisher generates a DID. DID is a UUID in Trilobite. Might be computed as a DDO hash later.
+1. Publisher encrypts the URL and publishes it in Secret Store identified by DID.
+1. Publisher creates a DDO including the following information:
+   - DID
    - Metadata
-     * name, like 'Ocean Dataset of Fish'
-     * examples, like a CSV sample
-     * etc
-   - public key of the Publisher
-   - DID (is generated automatically using UUID initially, after trilobite hashing the DDO)
+     Contains asset name, description, etc. For details see [OEP-8](../8/README.md).
+   - Public key of the Publisher
    - A list of services
 
    Each service in the list contains the following information:
+
    - Service Definition ID; uniquely identifies this particular service within this DID
-   - Service Agreement Template ID; has to be whitelisted, can be hardcoded in Trilobite; points to a deployed service agreement on-chaincontract
+   - Service Agreement Template ID; has to be whitelisted, can be hardcoded in Trilobite; points to a deployed service agreement on-chain contract
    - Service endpoint; consumers signing this service send their signatures to this endpoint
    - A list of conditions keys; condition key consists of:
      * controller contract address (included in the SLA template, repeated here for information purposes)
      * controller contract function fingerprint
 
      Condition keys come together with the SLA template ID, can be hardcoded in Trilobite.
-   - For each condition, a list of its parameter values.
-   - A mapping of events to event handlers. Each event is identified by name. Each event handler is a functions from a whitelisted module.
+   - For each condition, a list of its parameter values and a timeout.
+   - A mapping of on-chain events to off-chain event handlers. Each event is identified by name. Each event handler is a functions from a whitelisted module.
 
     An example:
 
@@ -92,9 +93,9 @@ This method executes internally (everything happens off-chain):
           'condition_key': {
              'contract_address': '0x...',
              'fingerprint': '0x...',
-             'function_name': 'lockPayment' # optional
+             'function_name': 'lockPayment' # optional, can be needed for event handlers
           },
-          'timeouts': [..],
+          'timeout': 10,
           'parameters': [{
               'price': 10
           },
@@ -102,8 +103,10 @@ This method executes internally (everything happens off-chain):
           ],
       ...
       ],
-      # A generic event listener would take the event payload and pass it to the corresponding function.
-      # A generic event listener only listens for events with the particular service identifier.
+      # A generic event listener:
+      # - listens for events with the particular service identifier
+      # - takes the event payload and pass it to the corresponding function
+      # - passes a service definition into every event handler
       'events': {
         'PaymentLocked': {
           'actor_type': ['publisher'], # or 'consumer'
@@ -119,18 +122,9 @@ This method executes internally (everything happens off-chain):
     ]
 
     ```
+1. Publisher publishes the DDO in the Metadata Store (OceanDB) using Aquarius.
 
-2. We publish the DDO in the MetadataStore (OceanDB) using Aquarius.
-
-   ```
-   registerAsset(did, metadata, public_key, services)
-   ```
-
-3. Publisher exposes service endpoints.
-
-    A service endpoint looks like `http://example.com/service?did=..&public_key=..&signature=..`.
-
-4. Publisher encrypts the URL and publishes it in Secret Store identifier by DID.
+1. Publisher exposes service endpoints.
 
 ### Consuming
 
@@ -177,9 +171,11 @@ Consider a sample of the service definition:
 According to it, Squid listens for `ExecuteCondition` event, filters it by service ID. The corresponding module with the event handler needs to be implemented in Squid.
 
 `payment.py`
+
 ```
-def lock_payment(service_id, condition_key, price):
-    web3.call(condition_key, price)
+def lock_payment(service_id, service_definition, price):
+    condition = get_condition(service_definition, 'lockPayment')
+    web3.call(condition['condition_key'], condition['fingerprint'], price)
 ```
 
 It emits `PaymentLocked` and thus triggers the next condition. 
@@ -198,24 +194,64 @@ It emits `PaymentLocked` and thus triggers the next condition.
 Brizo listens for `PaymentLocked` event, filters it by service ID. The corresponding module with the event handler needs to be implemented in Brizo.
 
 `secret_store.py`
+
 ```
-def grant_access(service_id, condition_key, consumer_public_key):
+def grant_access(service_id, service_definition, consumer_public_key):
     public_key = get_public_key_by_service_id(service_id)
     did = get_did(service_id)
-    web3.call(condition_key, public_key, did)
+    condition = get_condition(service_definition, 'grantAccess')
+    web3.call(condition['condition_key'], condition['fingerpint'], public_key, did)
 ```
 
-#### Consuming the data
+##### Release payment condition
 
-11. The Consumer is listening to the GrantAccess event filreting by serviceId
+```
+'AccessGranted': {
+   'actor_type': ['publisher'],
+   'handlers': [{
+     'module_name': 'secret_store',
+     'function_name': 'grant_acccess'
+   },
+```
 
-12. The Consumer Decrypt the url using the secretStore
-   `url= SecretStore.decryptDocument(DDO.secretStoreKeyId, DDO.url)`
+`payment.py`
 
-13. Consumer call Brizo (Publisher agent) to download the content related with the url:
-   `HTTP GET http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}`
+```
+def release_payment(service_id, service_definition, price):
+    condition = get_condition(service_definition, 'releasePayment')
+    web3.call(condition['condition_key'], condition['fingerprint'], price)
+```
 
+`Release payment`, being the last condition of the agreement, finalises it and emits `AgreementFulfilled`.
 
+### Consuming the data
+
+```
+'AccessGranted': {
+   'actor_type': ['consumer'],
+   'handlers': [{
+     'module_name': 'secret_store',
+     'function_name': 'decrypt_document'
+   },
+```
+
+1. The Consumer is listening to the `AccessGranted` event.
+
+1. The Consumer decrypts the URL using the Secret Store.
+
+   ```
+   def decrypt_document(service_id):
+       did = get_did(service_id)
+       encrypted_url = get_encrypted_url(did)
+       url = decrypt_document(did, encrypted_url)
+       store_url(url)
+   ```
+
+1. Consumer calls Brizo (Publisher agent) to download the content related with the URL.
+
+   ```
+   HTTP GET http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}`
+   ```
 
 ### Brizo (Publisher Agent)
 
@@ -238,12 +274,26 @@ Using those parameters, Brizo do the following things:
 
 #### Secret Store
 
-1. If the Service is not about a commons Asset, we encrypt the Asset url using the secret store. We give as parameter the serviceId and the url. We get an encrypted url.
-   ```
-   encrypte_url = SecretStore.encrypt_document(service_id, url)
-   public_key = get_public_key_by_service_id(service_id)
-   grant_access(public_key, encrypted_url) // calls on-chain function, like AccessConditions.grantAccess
-   ```
+- An utility to compute consumer signatures.
+
+    ```
+    signature = sign(service)
+    ```
+
+- A generic event handler which:
+   * listens for the given web3 events
+   * filters them by the given service ID
+   * calls provided event handlers, passing them event payload and given service definition
+
+- Event handlers:
+   * payments : lock payment
+   * payment : release payment
+   * secret store : grant access
+   * secret store : decrypt document
+
+- A function for publishing an asset
+
+- A function for purchasing an asset
 
 ---
 OLD
