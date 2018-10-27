@@ -21,9 +21,7 @@ contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@o
          * [DID Documents (DDO)](#did-documents-ddo)
          * [Integrity](#integrity)
             * [Length of a DID](#length-of-a-did)
-            * [How to compute a DID for a DDO](#how-to-compute-a-did-for-a-ddo)
-               * [Computing the Proof](#computing-the-proof)
-               * [Computing the SHA-3 Hash](#computing-the-sha-3-hash)
+            * [How to Compute a DID](#how-to-compute-a-did)
          * [Registry](#registry)
          * [Resolver](#resolver)
       * [Changes Required](#changes-required)
@@ -164,18 +162,31 @@ It would be nice to store the "did:op:" prefix in those 32 bytes, but that means
 
 Only the hash value _needs_ to be stored, not the "did:op:" prefix, because it should be clear from context that the value is an Ocean DID.
 
-#### How to compute a DID
+#### How to Compute a DID
 
-The DID ("id") string begins with "did:op:" and is followed by a string representation of a bytes32.
+An Ocean Protocol DID ("id") string must begin with "did:op:" and be followed by a string representation of a bytes32.
 
-In the first version of this spec (to be implemented in the Trilobite release), the bytes32 part is _random_ and is represented by a 64-character hex string (using the characters 0-9 and a-f).
-One way to compute such a DID is by concatenating two random UUIDs. (Each UUID is 128 bits = 16 bytes, which can be represented by a 32-character hex string with all hyphens "-" removed.)
-
-One way NOT to compute such a DID is `sha3_256_hash(UUID).to_hex_string()`, because the space of UUIDs (16 bytes) is smaller than the space of bytes32 (32 bytes).
+In the first version of this spec (to be implemented in the Trilobite release), the bytes32 part must be _random_ and must be represented by a hex string (using the characters 0-9 and a-f) with leading zeroes optionally removed.
 
 In the future, this spec might allow for other ways to compute a DID (e.g. the SHA3-256 hash of the DDO-without-DID).
 
-Note: The bytes32 (a sequence of bytes) is what gets stored in a blockchain, not the final DID ("id") value. That is, the "did:op:" part doesn't have to be stored in a blockchain because it should be clear from context that the stored bytes32 is part of an Ocean DID.
+One way to compute the hex string part is by concatenating two random UUIDs and removing all hyphens (`-`). (Each UUID is 128 bits = 16 bytes, which can be represented by a 32-character hex string with all hyphens removed.)
+
+One way NOT to compute the hex string part is `sha3_256_hash(UUID).to_hex_string()`, because the space of UUIDs (16 bytes) is smaller than the space of bytes32 (32 bytes).
+
+The following are examples of valid Ocean Protocol DIDs:
+
+```text
+did:op:9050a77f4acffd30a2e97bfa5abfcb9256f6f9cde60091bf9d573c534052d9fd
+did:op:000000000000000000000bfa5abfcb9256f6f9cde60091bf9d573c534052d9fd
+did:op:bfa5abfcb9256f6f9cde60091bf9d573c534052d9fd
+```
+
+An Ocean Protocol DID string should match the regular expression:
+
+`^did:op:[0-9a-f]{1,64}$`
+
+Note: The bytes32 part (a sequence of bytes) is what gets stored in a blockchain, not the final DID ("id") value. That is, the "did:op:" part doesn't have to be stored in a blockchain because it should be clear from context that the stored bytes32 is part of an Ocean Protocol DID.
 
 ### Registry
 
