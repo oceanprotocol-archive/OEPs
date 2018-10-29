@@ -4,7 +4,7 @@ name: Assets Metadata Ontology
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors:
+contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>
 ```
 
 
@@ -75,7 +75,7 @@ Attribute       |   Type        |   Required    | Description
 **contentType** | Text          | Yes           | File format if applicable
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
 **contentUrls** | Text          | Yes           | List of content urls resolving the ASSET files
-**links**       | Text       | No               | Mapping of links for data samples, or links to find out more information. The key represents the topic of the link, the value is the proper link
+**links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. Links may be to either a URL or another Asset. We expect tribes and/or marketplaces to converge on agreements of typical formats for linked data: The Ocean protocol itself does not mandate any specific formats as requirements are likely to be domain-specific.
 **inLanguage**  | Text          | No            | The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47)
 **tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
 **price**       | Number        | Yes           | Price of the asset. If not specified would be 0.
@@ -90,7 +90,6 @@ Attribute       |   Type        |   Required    | Description
 **rating**     | Number (decimal)       | Yes              | Decimal values between 0 and 1. 0 is the default value
 **numVotes**    | Integer       | Yes              | Number of votes. 0 is the default value
 **schema**      | Text          | No              | Schema applied to calculate the rating
-
 
 
 ## Additional Information
@@ -115,7 +114,7 @@ Additional attributes are totally free to add and can be defined by the publishe
 
 ## Example
 
-Here a representation of an example Asset using the schema described:
+Here is a representation of an example Asset using the schema described:
 
 ```json
 {
@@ -135,29 +134,41 @@ Here a representation of an example Asset using the schema described:
                         423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
         "contentUrls": ["https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"],
         "links": [
-            {"sample1": "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"},
-            {"sample2": "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-averages-25km/"},
-            {"fieldsDescription": "http://data.ceda.ac.uk/badc/ukcp09/"}
-         ],
+            {
+                "name": "Sample of Asset Data",
+                "type": "sample",
+                "url": "https://foo.com/sample.csv"
+            },
+            {
+                "name": "Data Format Definition",
+                "type": "format",
+                "AssetID": "4d517500da0acb0d65a716f61330969334630363ce4a6a9d39691026ac7908ea"
+            }
+        ],
         "inLanguage": "en",
         "tags": "weather, uk, 2011, temperature, humidity",
         "price": 10
-
     },
     "curation": {
-        "rating": 0.93
+        "rating": 0.93,
         "numVotes": 123,
-        "schema": "Binary Votting"
+        "schema": "Binary Voting"
     },
     "additionalInformation" : {
         "updateFrecuency": "yearly",
-        "structuredMarkup" : [ { "uri" : "http://skos.um.es/unescothes/C01194/jsonld", "mediaType" : "application/ld+json"},
-                               { "uri" : "http://skos.um.es/unescothes/C01194/turtle", "mediaType" : "text/turtle"}]
+        "structuredMarkup": [
+            {
+                "uri": "http://skos.um.es/unescothes/C01194/jsonld",
+                "mediaType": "application/ld+json"
+            },
+            {
+                "uri": "http://skos.um.es/unescothes/C01194/turtle",
+                "mediaType": "text/turtle"
+            }
+        ]
     }
 }
 ```
-
-
 
 
 ## References
@@ -170,9 +181,4 @@ Schemas:
 * DataSet - https://schema.org/Dataset
 * FileSize - https://schema.org/fileSize
 * Common license types for datasets - https://help.data.world/hc/en-us/articles/115006114287-Common-license-types-for-datasets
-
-
-
-
-
 

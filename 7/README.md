@@ -57,15 +57,17 @@ A DID for an Identity in Ocean takes the following format:
 
 `did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826`
 
-Where the hexadecimal ID is the the ethereum account address of the Identity
+Where the hexadecimal ID is a unique ID for the Identity
 
-TODO: consider alternative way to allocate IDs to Identities
+TODO: consider alternative way to allocate IDs to Identities, could include:
+- Psuedo-random generation
+- Use of Ethereum account
 
 An Asset with Metadata provider by an Identity can the be addressed in the following format:
 
 `did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826/c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470`
 
-Where the two hexadecimal IDs are the ethereum account address of the Actor managing the Asset and ID of the Asset. The ID 
+Where the two hexadecimal IDs are the ID of the Provider managing the Asset and ID of the Asset respectively. The ID 
 of the asset in turn is defined as the Hash (Keccak256) of the Asset Metadata.
 
 This scheme presents the following useful properties:
@@ -93,7 +95,6 @@ The main motivations of this OEP are:
 * Defining the common mechanisms, interfaces and API's to implemented the designed solution
 * Enable Ocean assets, agents and tribes to be modelled with a DID/DDO data model
 
-
 ## Specification
 
 Requirements are:
@@ -116,28 +117,19 @@ Requirements are:
 
 ## Proposed Solution
 
-### Decentralized ID's (DID)
+### Decentralized IDs (DIDs)
 
 A DID is a unique identifier that can be resolved or de-referenced to a standard resource describing the entity (a DID Document or DDO).
 If we apply this to Ocean, the DID would be the unique identifier of Identity represented in Ocean.
 
-DID schema:
+In Ocean, a DID is a string that looks like:
 
 ```text
-did-reference      = did [ "/" did-path ] [ "#" did-fragment ]
-did                = "did:" method ":" specific-idstring
-method             = 1*methodchar
-methodchar         = %x61-7A / DIGIT
-specific-idstring  = idstring *( ":" idstring )
-idstring           = 1*idchar
-idchar             = ALPHA / DIGIT / "." / "-"
+did:op:9050a77f4acffd30a2e97bfa5abfcb9256f6f9cde60091bf9d573c534052d9fd
 ```
 
-In Ocean, the DID looks:
-
-```text
-did:op:cd2a3d9f938e13cd947ec05abc7fe734df8dd826
-```
+which follows [the generic DID scheme](https://w3c-ccg.github.io/did-spec/#the-generic-did-scheme).
+Details about how to compute the DID are given below.
 
 As per section 3.3 of the DID spec (https://w3c-ccg.github.io/did-spec/#paths): "A DID path SHOULD be used to address resources available via a DID service endpoint" therefore we use DID paths to address Assets managed by the relevant Actor.
 
@@ -153,19 +145,19 @@ The combination of a DID and its associated DID Document forms the root record f
 
 ![DDO Content](images/ddo-content.png)
 
-A DDO document is composed by the standard DDO attributes like:
+A DDO document is composed of standard DDO attributes like:
 
-* context
-* id:
-* services
+* "@context"
+* "id"
+* "service"
 
-In addition to this, the asset metadata can be included as part of the DDO inside the service entry, using the type **AssetsMetadataService**.
+In addition to these, the asset metadata can be included as part of the DDO inside the "service" entry, using the type **AssetsMetadataService**.
 Example:
 
 ```json
 {
   "@context": "https://example.org/example-method/v1",
-  "id": "did:example:123456789abcdefghi",
+  "id": "did:op:9050a77f4acffd30a2e97bfa5abfcb9256f6f9cde60091bf9d573c534052d9fd",
   "authentication": [{ ... }],
   "service": [{
     "type": "AssetsMetadataService",
@@ -179,8 +171,7 @@ Example:
 ```
 
 You can find a complete reference of the asset metadata in the scope of the [OEP-8](8).
-Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the w3c did spec.
-
+Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the W3C DID spec.
 
 
 ### Integrity
@@ -191,6 +182,8 @@ An ASSET in the system is composed by on-chain information maintained by the KEE
 Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
 The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
 
+Note: The first version of this spec DOES NOT include an integrity-checking mechanism. That is deferred to future versions.
+
 #### Length of a DID
 
 The length of a DID must be compliant with the underlying storage layer and function calls.
@@ -200,44 +193,18 @@ It would be nice to store the "did:op:" prefix in those 32 bytes, but that means
 
 Only the hash value _needs_ to be stored, not the "did:op:" prefix, because it should be clear from context that the value is an Ocean DID.
 
-#### How to compute a DID for a DDO
+#### How to compute a DID
 
-It is possible to compute the DID for a DDO using a deterministic approach.
-This way we can ensure that:
+The DID ("id") string begins with "did:op:" and is followed by a string representation of a bytes32.
 
-- the DID is an integrity check for the DDO
-- the DDO is signed and the DID cannot be issued by non-holders of the private key(s) in the DDO document
-- the DDO and DID are independent of the underlying decentralized VM
-- each DDO is content-addressed
+In the first version of this spec (to be implemented in the Trilobite release), the bytes32 part is _random_ and is represented by a 64-character hex string (using the characters 0-9 and a-f).
+One way to compute such a DID is by concatenating two random UUIDs. (Each UUID is 128 bits = 16 bytes, which can be represented by a 32-character hex string with all hyphens "-" removed.)
 
-At a high level, one computes the DID as follows:
+One way NOT to compute such a DID is `sha3_256_hash(UUID).to_hex_string()`, because the space of UUIDs (16 bytes) is smaller than the space of bytes32 (32 bytes).
 
-1. Construct an [associative array](https://en.wikipedia.org/wiki/Comparison_of_programming_languages_(associative_array)) containing all the DDO fields _except for_ Proof ("proof") and DID Subject ("id").
-1. Append the Proof field, following the DID Spec, with the thing-being-signed being based on the associative array constructed in the first step. (This step is explained in more detail below.)
-1. Compute the hash, with the thing-being-hashed based on the associative array constructed so far (including the Proof). (This step is explained in more detail below.)
-1. The DID is then "did:op:{string-from-the-last-step}". Add that to the DDO as the DID Subject field ("id").
+In the future, this spec might allow for other ways to compute a DID (e.g. the SHA3-256 hash of the DDO-without-DID).
 
-Note: The 32-byte hash (a sequence of bytes) could be what gets stored in smart contracts, not the final DID string.
-
-##### Computing the Proof
-
-1. Serialize the [associative array](https://en.wikipedia.org/wiki/Comparison_of_programming_languages_(associative_array)) constructed so far into a Unicode JSON string using the [algorithm described in the BigchainDB Transactions Spec v2](https://github.com/bigchaindb/BEPs/tree/master/13#json-serialization-and-deserialization).
-1. Convert that Unicode string object to a sequence of bytes according to the UTF-8 encoding. There is [example code in the BigchainDB Transactions Spec v2](https://github.com/bigchaindb/BEPs/tree/master/13#converting-strings-to-bytes).
-1. Sign those bytes using one of the private keys associated with one of the public keys listed in the DDO. The signature algorithm is determined by the public key type.
-1. The resulting signature (bytes) must be converted to a string representation so it can be included in the Proof section of the DDO. Use [multibase](https://github.com/multiformats/multibase). The base58btc encoding (i.e. the Bitcoin version of Base58) must be supported, but other bases can also be supported.
-1. Construct [the Proof section of the DDO according to the DDI spec](https://w3c-ccg.github.io/did-spec/#proof-optional).
-
-See the [Linked Data Cryptographic Suite Registry](https://w3c-ccg.github.io/ld-cryptosuite-registry/) for a list of supported cryptographic suites (including signature algorithms).
-
-##### Computing the SHA-3 Hash
-
-1. The first two steps (serialization and encoding-to-bytes) are the same as when computing a signature. The only difference is that this time, the initial associative array also contains the Proof ("proof") key and value.
-1. Compute the SHA-3 hash of those bytes.
-1. The resulting 32-byte hash (bytes) must be converted to a string representation so it can be included in the DID Subject ("id") section of the DDO. Use [multibase](https://github.com/multiformats/multibase). The base16 encoding (i.e. hexadecimal) must be supported, but other bases can also be supported.
-
-Note 1: We don't use [multihash](https://multiformats.io/multihash/) because we've standardized on 32-byte SHA-3 hashes for now.
-
-Note 2: The 32-byte hash (a sequence of bytes) could be what gets stored in blockchains, not the final DID Subject string.
+Note: The bytes32 (a sequence of bytes) is what gets stored in a blockchain, not the final DID ("id") value. That is, the "did:op:" part doesn't have to be stored in a blockchain because it should be clear from context that the stored bytes32 is part of an Ocean DID.
 
 ### Registry
 
