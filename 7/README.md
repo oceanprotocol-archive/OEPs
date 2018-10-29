@@ -55,7 +55,7 @@ service that provides the necessary APIs on their behalf.
 
 A DID for an Identity in Ocean takes the following format:
 
-`did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826`
+`did:op:cd2a3d9f938e13cd947ec05abc7fe734df8dd826`
 
 Where the hexadecimal ID is a unique ID for the Identity
 
@@ -65,7 +65,7 @@ TODO: consider alternative way to allocate IDs to Identities, could include:
 
 An Asset with Metadata provider by an Identity can the be addressed in the following format:
 
-`did:ocn:cd2a3d9f938e13cd947ec05abc7fe734df8dd826/c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470`
+`did:op:cd2a3d9f938e13cd947ec05abc7fe734df8dd826/c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470`
 
 Where the two hexadecimal IDs are the ID of the Provider managing the Asset and ID of the Asset respectively. The ID 
 of the asset in turn is defined as the Hash (Keccak256) of the Asset Metadata.
@@ -151,7 +151,6 @@ A DDO document is composed of standard DDO attributes like:
 * "id"
 * "service"
 
-In addition to these, the asset metadata can be included as part of the DDO inside the "service" entry, using the type **AssetsMetadataService**.
 Example:
 
 ```json
@@ -161,22 +160,17 @@ Example:
   "authentication": [{ ... }],
   "service": [{
     "type": "AssetsMetadataService",
-    "serviceEndpoint": "https://myservice.org/assets/",
-    "metadata": {
-        "title": "my asset",
-        "description": "blabla"
-    }
+    "serviceEndpoint": "https://myservice.org/assets/"
   }]
 }
 ```
 
-You can find a complete reference of the asset metadata in the scope of the [OEP-8](8).
 Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the W3C DID spec.
 
 
 ### Integrity
 
-The Integrity policy for identity and metadata is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
+The Integrity policy for identity and metadata is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ACTOR).
 
 An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DDO) stored in OCEANDB.
 Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
