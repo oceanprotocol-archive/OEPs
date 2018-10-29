@@ -281,7 +281,7 @@ The consume URL may look like:
 HTTP GET http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}`
 ```
 
-### Brizo (Publisher Agent)
+#### Brizo (Publisher Agent)
 
 When Consumer requests purchased data, Brizo gets 3 parameters:
 
@@ -294,6 +294,18 @@ Using those parameters, Brizo does the following things:
 * Verify the given service is allowed to be consumed by the given public key
 
 * If Consumer has permissions to consumer, download and provide data
+
+#### Cancel payment condition
+
+Every condition can be forced to be fulfilled by one of the parties after a configured timeout, even when its dependencies are not fulfilled. It allows Consumer to cancel the payment after locking it but not receiving access to the Asset for a long period of time. Mechanics implemented in the service agreement contract ensure there are no race conditions.
+
+Squid has to contain a function like the following and offer a convenient way to call it (CLI, UI).
+
+```
+def cancel_payment(service_id, service_definition):
+    condition = get_condition(service_definition, 'cancelPayment')
+    web3.call(condition['condition_key'], condition['fingerprint'])
+```
 
 ### Modules to be implemented
 
@@ -316,6 +328,8 @@ Using those parameters, Brizo does the following things:
    * Brizo: payment : release payment
    * Brizo: secret store : grant access
    * Squid: consumer: retrieve data
+
+- Squid: A function for cancelling payments
 
 - Squid: A function for publishing an Asset
 
