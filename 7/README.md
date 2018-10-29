@@ -172,10 +172,6 @@ Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.gi
 
 The Integrity policy for identity and metadata is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ACTOR).
 
-An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DDO) stored in OCEANDB.
-Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
-The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
-
 Note: The first version of this spec DOES NOT include an integrity-checking mechanism. That is deferred to future versions.
 
 #### Length of a DID
