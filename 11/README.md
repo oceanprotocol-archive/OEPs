@@ -137,7 +137,7 @@ Squid Steps:
 
 2. Consumer chooses a service inside a DDO.
 
-3. The consumer signs the service details. There is a particular way of building the signature documented elsewhere. The signature contains `(template ID, condition keys, timeouts, condition parameters)`.
+3. The consumer signs the service details. There is a particular way of building the signature documented elsewhere. The signature contains `(did, service_definition_id, nonce, template ID, condition keys, timeouts, condition parameters)`. `nonce` is provided by consumer and has to be unique across all consumer's signatures of the same data. It prevents Publisher from instantiating multiple service agreements from a single request.
 
 4. Consumer sends `(did, service_definition_id, the signature, consumer public key`) to the service endpoint.
 
