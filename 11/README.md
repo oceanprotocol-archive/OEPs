@@ -76,8 +76,8 @@ This method executes internally - everything happens off-chain.
      * controller contract function fingerprint
 
      Condition keys come together with the SLA template ID, can be hardcoded in Trilobite
-   - For each condition, a list of its parameter values and a timeout
-   - A mapping of on-chain events to off-chain event handlers. Each event is identified by name. Each event handler is a functions from a whitelisted module
+   - For each condition, a list of its parameter values, a timeout, and a mapping of events emitted by it to the off-chain handlers of these events
+   - Each event is identified by name. Each event handler is a function from a whitelisted module
 
    A service of type "consume" contains:
    - A URL to fetch decryption keys from
@@ -109,23 +109,23 @@ This method executes internally - everything happens off-chain.
           "parameters": [{
             "price": 10
           },
+          // A generic event listener:
+          // - listens for events with the particular service identifier
+          // - takes the event payload and passes it to the corresponding function
+          // - passes the service definition into every event handler
+          "events": {
+            "PaymentLocked": {
+              "actor_type": ["publisher"], // or "consumer"
+              "handlers": [{
+                "module_name": "secret_store"
+                "function_name": "grant_acess"
+              }
+            },
+            ... // other event handlers
+          }
         },
         ... // other conditions
         ],
-        // A generic event listener:
-        // - listens for events with the particular service identifier
-        // - takes the event payload and passes it to the corresponding function
-        // - passes the service definition into every event handler
-        "events": {
-          "PaymentLocked": {
-            "actor_type": ["publisher"], // or "consumer"
-            "handlers": [{
-              "module_name": "secret_store"
-              "function_name": "grant_acess"
-            }
-          },
-          ... // other event handlers
-        }
       }, {
         "type": "consume",
         "decryption_keys_url": "...",
