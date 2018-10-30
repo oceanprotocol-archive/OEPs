@@ -68,7 +68,7 @@ This method executes internally - everything happens off-chain.
    Each service in the list contains certain information depending on its type. Here we document two types of services required for purchasing and consuming an Asset. 
 
    A service of type "purchase" contains:
-   - Service Definition ID; uniquely identifies this particular service within this DID
+   - Service Definition ID; helps Publisher find the service definition of a DDO signed by Consumer
    - Service Agreement Template ID; has to be whitelisted, can be hardcoded in Trilobite; points to a deployed service agreement on-chain contract
    - Service endpoint; Consumer's signing this service send their signatures to this endpoint
    - A list of conditions keys; condition key consists of:
@@ -150,21 +150,20 @@ Squid Steps:
 1. The Consumer uses the search method to find relevant Assets related with his query. It returns a list of DDO's.
    `assets = search("weather Germany 2017")`
 
-2. Consumer chooses a service inside a DDO.
+1. Consumer chooses a service inside a DDO.
 
-3. The Consumer signs the service details. There is a particular way of building the signature documented elsewhere. The signature contains `(did, service_definition_id, nonce, template ID, condition keys, timeouts, condition parameters)`. `nonce` is provided by Consumer and has to be unique across all Consumer's signatures of the same data. It prevents Publisher from instantiating multiple service agreements from a single request.
+1. The Consumer signs the service details. There is a particular way of building the signature documented elsewhere. The signature contains `(service ID, template ID, condition keys, timeouts, condition parameters)`. `service ID` is provided by Consumer and has to be globally unique. It is used to correlate events and to prevent Publisher from instantiating multiple service agreements from a single request.
 
-4. Consumer sends `(did, service_definition_id, the signature, Consumer public key`) to the service endpoint.
+1. Consumer sends `(did, service_id, service_definition_id, the signature, Consumer public key`) to the service endpoint. `service_definition_id` tells publisher where to find the preimage to verify the signature. DID tells Publisher which Asset to serve under these terms.
+1. Consumer starts listening for `consumer` events specified in the corresponding service definition, filtering them by `service_id`.
 
-5. Consumer starts listening for `ExecuteAgreement` event, filtering by its public key, service definition ID, and DID.
+1. In the meantime, Publisher receives signature from the service endpoint and verifies the signature.
 
-6. Consumer extracts service ID from `ExecuteAgreement` event payload and starts listening for `consumer` events specified in the corresponding service definition.
+1. Publisher records `service_id` as corresponding to the given `DID`.
 
-7. In the meantime, Publisher receives signature from the service endpoint and verifies the signature.
+1. Publisher executes the SLA by calling `ServiceAgreement.executeAgreement`, providing it with `service_id`, `condition keys`, `condition parameters`, and `timeouts`.
 
-8. Publisher executes the SLA by calling `ServiceAgreement.executeAgreement`. It generates service ID.
-
-9. Publisher starts listening for the `publisher` events from the events section of the service definition.
+1. Publisher starts listening for the `publisher` events from the events section of the service definition.
 
 #### Execution of SLA
 
@@ -172,23 +171,9 @@ Consider an Asset purchase example. Consumer locks the payment. Then Publisher g
 
 In general, there is a broad range of conditions which can be implemented an integrated into the described workflow.
 
-##### Discovering service ID
-
-Consider a sample of the service definition:
-
-```
-'ExecuteAgreement': {
-   'actor_type': ['consumer'],
-   'handlers': [{
-     'module_name': 'service_agreement',
-     'function_name': 'register_service_id',
-     'version': '0.1'
-   }
-```
-
-Squid listens for `ExecuteAgreement` event, filters it by service definition ID. It registers the service ID and subscribes to the rest of the events.
-
 ##### Lock payment condition
+
+Consider a sample of a service definition.
 
 ```
 'ExecuteCondition': {
@@ -300,7 +285,9 @@ Using those parameters, Brizo does the following things:
 
 * Verify the given service is allowed to be consumed by the given public key
 
-* If Consumer has permissions to consumer, download and provide data
+* Find the DID by the given service ID
+
+* If Consumer has permissions to consume, download and provide data for the given DID
 
 #### Cancel payment condition
 
@@ -330,16 +317,18 @@ def cancel_payment(service_id, service_definition):
    * calls provided event handlers, passing them event payload and given service definition
 
 - Event handlers:
-   * Squid: service_agreement : register service ID
    * Squid: payments : lock payment
    * Brizo: payment : release payment
    * Brizo: secret store : grant access
    * Squid: consumer: retrieve data
 
 - Squid: A function for cancelling payments
-
 - Squid: A function for publishing an Asset
+- Squid: A function for purchasing an Asset, which consists of:
+   * signing the given service
+   * registering service ID locally
+   * calling the purchase endpoint
+   * subscribing to events
 
-- Squid: A function for purchasing an Asset
 - Brizo: An endpoint for accepting purchases and instantiating service agreements
 - Brizo: Consume endpoints for providing decrypted keys and purchased data
