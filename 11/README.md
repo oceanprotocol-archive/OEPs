@@ -113,12 +113,14 @@ This method executes internally - everything happens off-chain.
           // - listens for events with the particular service identifier
           // - takes the event payload and passes it to the corresponding function
           // - passes the service definition into every event handler
+          // - resolves the handler specification into a callback function
           "events": {
             "PaymentLocked": {
               "actor_type": ["publisher"], // or "consumer"
               "handlers": [{
-                "module_name": "secret_store"
-                "function_name": "grant_acess"
+                "module_name": "secret_store",
+                "function_name": "grant_acess",
+                "version": "0.1"
               }
             },
             ... // other event handlers
@@ -179,7 +181,8 @@ Consider a sample of the service definition:
    'actor_type': ['consumer'],
    'handlers': [{
      'module_name': 'service_agreement',
-     'function_name': 'register_service_id'
+     'function_name': 'register_service_id',
+     'version': '0.1'
    }
 ```
 
@@ -192,7 +195,8 @@ Squid listens for `ExecuteAgreement` event, filters it by service definition ID.
    'actor_type': ['consumer'],
    'handlers': [{
      'module_name': 'payment',
-     'function_name': 'lock_payment'
+     'function_name': 'lock_payment',
+     'version': '0.1'
    },
 ```
 
@@ -215,7 +219,8 @@ It emits `PaymentLocked` and thus triggers the next condition.
    'actor_type': ['publisher'],
    'handlers': [{
      'module_name': 'secret_store',
-     'function_name': 'grant_acccess'
+     'function_name': 'grant_acccess',
+     'version': '0.1'
    },
 ```
 
@@ -238,7 +243,8 @@ def grant_access(service_id, service_definition, consumer_public_key):
    'actor_type': ['publisher'],
    'handlers': [{
      'module_name': 'secret_store',
-     'function_name': 'grant_acccess'
+     'function_name': 'grant_acccess',
+     'version': '0.1'
    },
 ```
 
@@ -261,7 +267,8 @@ def release_payment(service_id, service_definition, price):
    'actor_type': ['consumer'],
    'handlers': [{
      'module_name': 'consumer',
-     'function_name': 'retrieve_data'
+     'function_name': 'retrieve_data',
+     'version': '0.1'
    },
 ```
 
