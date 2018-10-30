@@ -4,7 +4,7 @@ name: Assets Metadata Ontology
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors:
+contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>
 ```
 
 
@@ -142,7 +142,7 @@ Additional attributes are totally free to add and can be defined by the publishe
 
 ## Example
 
-Here a representation of an example Asset using the schema described:
+Here is a representation of an example Asset using the schema described:
 
 ```json
 {
@@ -170,13 +170,19 @@ Here a representation of an example Asset using the schema described:
 
     "additionalInformation" : {
         "updateFrecuency": "yearly",
-        "structuredMarkup" : [ { "uri" : "http://skos.um.es/unescothes/C01194/jsonld", "mediaType" : "application/ld+json"},
-                               { "uri" : "http://skos.um.es/unescothes/C01194/turtle", "mediaType" : "text/turtle"}]
+        "structuredMarkup": [
+            {
+                "uri": "http://skos.um.es/unescothes/C01194/jsonld",
+                "mediaType": "application/ld+json"
+            },
+            {
+                "uri": "http://skos.um.es/unescothes/C01194/turtle",
+                "mediaType": "text/turtle"
+            }
+        ]
     }
 }
 ```
-
-
 
 
 ## References
@@ -191,9 +197,4 @@ Schemas:
 * DataSet - https://schema.org/Dataset
 * FileSize - https://schema.org/fileSize
 * Common license types for datasets - https://help.data.world/hc/en-us/articles/115006114287-Common-license-types-for-datasets
-
-
-
-
-
 
