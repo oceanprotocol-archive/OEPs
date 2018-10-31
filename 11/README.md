@@ -155,37 +155,38 @@ This method executes internally - everything happens off-chain.
         "purchaseEndpoint": "http://mybrizo.org/api/v1/brizo/services/access/purchase?",
         "templateId": "044852b2a670ade5407e78fb2863c51000000000000000000000000000000000",
         "conditions": [{
-                  "conditionKey': {
-                    "contractAddress": "0x...",
-                    "fingerprint": "0x...",
-                    "functionName": "lockPayment" # needed for event handlers
-                  },
-                  "timeout": 10,
-                  "parameters": [{
-                    "price": 10
-                  },
-                  // A generic event listener:
-                  // - listens for events with the particular service identifier
-                  // - takes the event payload and passes it to the corresponding function
-                  // - passes the service definition into every event handler
-                  // - resolves the handler specification into a callback function
-                  "events": {
-                    "PaymentLocked": {
-                      "actorType": ["publisher"], // or "consumer"
-                      "handlers": [{
-                        "moduleName": "secret_store",
-                        "functionName": "grant_acess",
-                        "version": "0.1"
-                      }
-                    },
-                    ... // other event handlers
-                  }
-                },
-                ... // other conditions
-                ],
-              },
-              ... // other services
-              ]
+          "conditionKey': {
+            "contractAddress": "0x...",
+            "fingerprint": "0x...",
+            "functionName": "lockPayment" # needed for event handlers
+          },
+          "timeout": 10,
+          "parameters": [{
+            "price": 10
+          },
+          // A generic event listener:
+          // - listens for events with the particular service identifier
+          // - takes the event payload and passes it to the corresponding function
+          // - passes the service definition into every event handler
+          // - resolves the handler specification into a callback function
+          "events": [{
+            "name": "PaymentLocked",
+            "metadata": {
+              "actorType": ["publisher"], // or "consumer"
+              "handler": {
+                "moduleName": "secretStore",
+                "functionName": "grantAcess",
+                "version": "0.1"
+              }
+            },
+            ... // other event handlers
+          ]
+        },
+        ... // other conditions
+        ],
+      },
+      ... // other services
+      ]
 
       }, {
         "type": "CloudCompute",
@@ -272,32 +273,26 @@ In general, there is a broad range of conditions which can be implemented an int
 Consider a sample of a service definition.
 
 ```
-'ExecuteCondition': {
-   'actorType': ['consumer'],
-   'handlers': [{
-     'module_name': 'payment',
-     'function_name': 'lock_payment',
-     'version': '0.1'
-   },
-
-"PaymentLocked": {
-    "actorType": ["publisher"],
-    "handlers": [{
-        "moduleName": "accessControl",
-        "functionName": "grantAccess",
+{
+  "name": "ExecuteCondition",
+  "metadata": {
+    "actorType": ["consumer"],
+    "handler": {
+        "moduleName": "payment",
+        "functionName": "lockPayment",
         "version": "0.1"
-        }]
     }
+  }
 }
 ```
 
 According to it, the CONSUMER listens for `ExecuteCondition` event, filters it by `serviceAgreementId`. The corresponding module with the event handler needs to be implemented in Squid.
 At the same time, the PUBLISHER listens for `PaymentLocked` event filtered by `serviceAgreementId` to confirm the payment was made.
 
-`payment.py`
+`modules/v0_1/payment.py`
 
 ```
-def lock_payment(service_agreement_id, service_definition_id, price):
+def lockPayment(service_agreement_id, service_definition_id, price):
     condition = get_condition(service_definition_id, 'lockPayment')
     web3.call(condition['condition_key'], condition['fingerprint'], price)
 ```
@@ -307,21 +302,25 @@ It emits `PaymentLocked` and thus triggers the next condition.
 ##### Grant access condition
 
 ```
-'PaymentLocked': {
-   'actor_type': ['publisher'],
-   'handlers': [{
-     'moduleName': 'secret_store',
-     'functionName': 'grant_acccess',
-     'version': '0.1'
-   },
+{
+  "name": "PaymentLocked",
+  "metadata": {
+    "actorType": ["publisher"],
+    "handler": {
+        "moduleName": "secretStore",
+        "functionName": "grantAccess",
+        "version": "0.1"
+    }
+  }
+}
 ```
 
 PUBLISHER (BRIZO) listens for `PaymentLocked` event, filters it by `serviceAgreementId`. The corresponding module with the event handler needs to be implemented in Brizo.
 
-`secret_store.py`
+`modules/v0_1/secretStore.py`
 
 ```
-def grant_access(service__agreement_id, service_definition_id, consumer_public_key):
+def grantAccess(service__agreement_id, service_definition_id, consumer_public_key):
     public_key = get_public_key_by_service_id(service__agreement_id)
     did = get_did(service__agreement_id)
     condition = get_condition(service_definition_id, 'grantAccess')
@@ -331,21 +330,25 @@ def grant_access(service__agreement_id, service_definition_id, consumer_public_k
 ##### Release payment condition
 
 ```
-'AccessGranted': {
-   'actor_type': ['publisher'],
-   'handlers': [{
-     'moduleName': 'secret_store',
-     'functionName': 'grant_acccess',
-     'version': '0.1'
-   },
+{
+  "name": "AccessGranted",
+  "metadata": {
+    "actorType": ["publisher"],
+    "handler": {
+        "moduleName": "payment",
+        "functionName": "releasePayment",
+        "version": "0.1"
+    }
+  }
+}
 ```
 
 PUBLISHER (BRIZO) listens for `AccessGranted` event to transfer tokens to Publisher's account.
 
-`payment.py`
+`modules/v0_1/payment.py`
 
 ```
-def release_payment(service_agreement_id, service_definition_id, price):
+def releasePayment(service_agreement_id, service_definition_id, price):
     condition = get_condition(service_definition_id, 'releasePayment')
     web3.call(condition['condition_key'], condition['fingerprint'], price)
 ```
@@ -355,13 +358,17 @@ def release_payment(service_agreement_id, service_definition_id, price):
 ### Consuming the data
 
 ```
-'AccessGranted': {
-   'actor_type': ['consumer'],
-   'handlers': [{
-     'moduleName': 'consumer',
-     'functionName': 'retrieve_data',
-     'version': '0.1'
-   },
+{
+  "name": "AccessGranted",
+  "metadata": {
+    "actorType": ["consumer"],
+    "handler": {
+        "moduleName": "consumer",
+        "functionName": "retrieveData",
+        "version": "0.1"
+    }
+  }
+}
 ```
 
 CONSUMER (Squid) listens for `AccessGranted` event to access the document.
