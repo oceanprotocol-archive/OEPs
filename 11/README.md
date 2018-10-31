@@ -45,6 +45,30 @@ The main motivations of this OEP are:
 * Identify the API methods to expose in the different libraries
 * Have a more secure/stable approach
 
+
+## Actors
+
+The different actors interacting in this flow are:
+
+* PUBLISHERS - Provide access to Assets and/or Services
+* CONSUMERS - Want to get access to Assets or Services
+* MARKETPLACES or TRIBES - Store the DDO/Metadata related with the Assets
+
+### Technical components
+
+The following technical pieces are involved in the end to end publishing and consumption flow:
+
+* [MARKETPLACE](https://github.com/oceanprotocol/pleuston) - Exposes a web interface allowing the users to publish and purchase assets. Facilitates also the discovering capabilities of assets.
+* SQUID - Library encapsulating the Ocean Protocol business logic. Interacts with all the different components/api's of the system. It's provided in the main following languages:
+  - [Squid Javascript](https://github.com/oceanprotocol/squid-js) - Javascript version of Squid to be integrated in the Frontend applications.
+  - [Squid Python](https://github.com/oceanprotocol/squid-py) - Python version of Squid to be integrated in the Backend applications. Main users are data scientists.
+* [KEEPER CONTRACTS](https://github.com/oceanprotocol/keeper-contracts) - Provide the Service Agreement (SA) business logic
+* [SECRET STORE](https://github.com/oceanprotocol/parity-ethereum) - Included as part of the Parity Ethereum client. Allows the PUBLISHER to encrypt the Asset url. Integrate the SA to authorize on-chain the decryption of the Asset url by the CONSUMER
+* [BRIZO](https://github.com/oceanprotocol/brizo) - Microservice to be executed by the PUBLISHER's. It exposes the HTTP REST API allowing to access to PUBLISHER Assets or additional services like computation.
+* [AQUARIUS](https://github.com/oceanprotocol/aquarius) - Microservice to be executed by the MARKETPLACES's. Allows to create, update, delete and search the Asset's metadata registered by the PUBLISHERS. This Metadata, is included as part of a [DDO](../7/README.md) including also the Services associated to the Asset (Consumption, Computation, etc.).
+
+![Actors running Components](images/software-run-by-actors.png)
+
 ## Flow
 
 This section describes the Asset purchase flow in detail. It should be straightforward to implement the flow by reading this description although the actual implementation may deviate from it. The detailed description is an attempt to account for important edge cases and to create a good reference for the authors of particular implementations.
@@ -140,6 +164,9 @@ This method executes internally - everything happens off-chain.
 1. Publisher publishes the DDO in the Metadata Store (OceanDB) using Aquarius.
 
 1. Publisher exposes service endpoints.
+
+![Publishing Flow](images/publishing-flow.png)
+
 
 ### Consuming
 
