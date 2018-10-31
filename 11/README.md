@@ -10,6 +10,25 @@ contributors: Lev Berman <ldmberman@gmail.com>
 Table of Contents
 =================
 
+   * [Table of Contents](#table-of-contents)
+   * [On-Chain Access Control using Service Agreements](#on-chain-access-control-using-service-agreements)
+      * [Change Process](#change-process)
+      * [Language](#language)
+      * [Motivation](#motivation)
+      * [Actors](#actors)
+         * [Technical components](#technical-components)
+      * [Flow](#flow)
+         * [Publishing](#publishing)
+         * [Consuming](#consuming)
+            * [Execution of SLA](#execution-of-sla)
+               * [Lock payment condition](#lock-payment-condition)
+               * [Grant access condition](#grant-access-condition)
+               * [Release payment condition](#release-payment-condition)
+         * [Consuming the data](#consuming-the-data)
+            * [Cancel payment condition](#cancel-payment-condition)
+         * [Modules to be implemented](#modules-to-be-implemented)
+            * [Secret Store](#secret-store)
+
 
 
 
