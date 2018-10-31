@@ -255,7 +255,7 @@ The execution of this endpoint should return a `HTTP 201` if everything goes oka
 
    - BRIZO records `serviceAgreementId` as corresponding to the given `did`.
 
-   - BRIZO executes the SLA by calling `ServiceAgreement.executeAgreement`, providing it with `serviceId`, `conditionKeys`, `conditionParameters`, and `timeouts`.
+   - BRIZO executes the SLA by calling `ServiceAgreement.executeAgreement`, providing it with `serviceAgreementId`, `conditionKeys`, `conditionParameters`, and `timeouts`.
 
    - BRIZO starts listening for the `publisher` events from the events section of the service definition.
 
@@ -401,6 +401,9 @@ Using those parameters, BRIZO does the following things:
 * Verify the given service is allowed to be consumed by the given `pubKey` and `did` using the `checkPermissions` method of the `SLA` Smart Contract.
 
 * If CONSUMER has permissions to consume, download and provide data for the given DID
+
+![Consuming Flow](images/consuming-flow.png)
+
 
 #### Cancel payment condition
 
