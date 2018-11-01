@@ -26,7 +26,6 @@ contributors: Mike Anderson <mike.anderson@dex.sg>, Dimitri De Jonghe <dimi@ocea
                * [Computing the SHA-3 Hash](#computing-the-sha-3-hash)
          * [Registry](#registry)
          * [Resolver](#resolver)
-         * [Ocean standard endpoints](#ocean-standard-endpoints)
       * [Changes Required](#changes-required)
       * [Changes Required](#changes-required-1)
       * [References](#references)
@@ -311,32 +310,6 @@ Steps:
 1. The PUBLISHER publish the DDO in the metadata-store/OCEANDB provided by PROVIDER
 1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **service-ddo** attribute associated to the DID directly from the KEEPER
 1. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
-
-### Ocean standard endpoints
-
-In order to enable clients to locate specfic APIs, we must define standard endpoints.
-These endpoints are optional, but required if an Identity wishes their endpoints to be consumed
-by standard Ocean client tools.
-
-Endpoints are specified in the following form:
-
-```json
-{
-  "service": [{
-    "type": "Ocean.Meta.v1",
-    "serviceEndpoint": "https://mobi.com/meta"
-  }]
-}
-```
-
-Currently these endpoints are defined to be:
-
-Type                   |   Description
------------------------|----------------------
-Ocean.Meta.v1          | Endpoint for the Meta Agent API v1 (OEP15 - TBC)
-Ocean.Market.v1        | Endpoint for the Market Agent API
-Ocean.Storage.v1       | Endpoint for a generalised storage API
-Ocean.Invoke.v1        | Endpoint for an invokable service API
 
 
 ## Changes Required
