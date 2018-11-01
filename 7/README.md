@@ -61,6 +61,7 @@ Where the hexadecimal ID is a unique ID for the Identity
 TODO: consider alternative way to allocate IDs to Identities, could include:
 - Psuedo-random generation
 - Use of Ethereum account
+- Some form of hash of the initial DDO value
 
 An Asset with Metadata provider by an Identity can the be addressed in the following format:
 
@@ -89,6 +90,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 The main motivations of this OEP are:
 
 * Define a standard to identify Identities in Ocean using **Decentralized Identifiers (DID)** 
+* Provide a *stable* identifier for such Identity that can be communicated and stored as a reference to that identity.
 * Present a solution to resolve service endpoints for Identities who are service providers via **DID description objects (DDO)**
 * Provide a standard to identify Assets as resources addressed via the DID of the relevant service provider
 * Defining the common mechanisms, interfaces and API's to implemented the designed solution
