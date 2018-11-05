@@ -171,13 +171,11 @@ This method executes internally - everything happens off-chain.
           // - resolves the handler specification into a callback function
           "events": [{
             "name": "PaymentLocked",
-            "metadata": {
-              "actorType": ["publisher"], // or "consumer"
-              "handler": {
-                "moduleName": "secretStore",
-                "functionName": "grantAcess",
-                "version": "0.1"
-              }
+            "actorType": ["publisher"], // or "consumer"
+            "handler": {
+              "moduleName": "secretStore",
+              "functionName": "grantAcess",
+              "version": "0.1"
             },
             ... // other event handlers
           ]
@@ -275,13 +273,11 @@ Consider a sample of a service definition.
 ```
 {
   "name": "ExecuteCondition",
-  "metadata": {
-    "actorType": ["consumer"],
-    "handler": {
-        "moduleName": "payment",
-        "functionName": "lockPayment",
-        "version": "0.1"
-    }
+  "actorType": ["consumer"],
+  "handler": {
+      "moduleName": "payment",
+      "functionName": "lockPayment",
+      "version": "0.1"
   }
 }
 ```
@@ -304,13 +300,11 @@ It emits `PaymentLocked` and thus triggers the next condition.
 ```
 {
   "name": "PaymentLocked",
-  "metadata": {
-    "actorType": ["publisher"],
-    "handler": {
-        "moduleName": "secretStore",
-        "functionName": "grantAccess",
-        "version": "0.1"
-    }
+  "actorType": ["publisher"],
+  "handler": {
+      "moduleName": "secretStore",
+      "functionName": "grantAccess",
+      "version": "0.1"
   }
 }
 ```
@@ -332,13 +326,11 @@ def grantAccess(service__agreement_id, service_definition_id, consumer_public_ke
 ```
 {
   "name": "AccessGranted",
-  "metadata": {
-    "actorType": ["publisher"],
-    "handler": {
-        "moduleName": "payment",
-        "functionName": "releasePayment",
-        "version": "0.1"
-    }
+  "actorType": ["publisher"],
+  "handler": {
+      "moduleName": "payment",
+      "functionName": "releasePayment",
+      "version": "0.1"
   }
 }
 ```
@@ -360,13 +352,11 @@ def releasePayment(service_agreement_id, service_definition_id, price):
 ```
 {
   "name": "AccessGranted",
-  "metadata": {
-    "actorType": ["consumer"],
-    "handler": {
-        "moduleName": "consumer",
-        "functionName": "retrieveData",
-        "version": "0.1"
-    }
+  "actorType": ["consumer"],
+  "handler": {
+      "moduleName": "consumer",
+      "functionName": "retrieveData",
+      "version": "0.1"
   }
 }
 ```
