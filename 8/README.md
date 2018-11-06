@@ -67,7 +67,7 @@ Attribute       |   Type        |   Required    | Description
 **description** | Text          | No            | Details of what the resource is. For a data set explain what the data represents and what it can be used for
 **dateCreated** | DateTime      | Yes           | The date on which  was created or was added
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.)
-**license**     | Text          | Yes           | Short name referencing to the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specifiedified"
+**license**     | Text          | Yes           | Short name referencing to the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified"
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
 **links**       | Array of Link | No               | Mapping of links for data samples, or links to find out more information. 
@@ -108,6 +108,7 @@ Attribute       |   Type        |   Required    | Description
 **compression** | Text          | No            | File compression (e.g. no, gzip, bzip2, etc)
 **contentType** | Text          | Yes           | File format if applicable
 **contentUrls** | Text          | No           | List of content urls resolving the ASSET files
+**contentHash** | Text          | No           | keccak256 hash of asset data. Required if publisher wishes to offer integrity checks
 
 ## Invokable service attributes
 
@@ -118,6 +119,17 @@ Invokable services are defined in greater detail in OEP6.
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **params**        | Text          | Yes           | A list of parameters accepted by the invokable service
+
+## Bundle attributes
+
+In addition to the base attributes, the following Attributes are defined for invokable services only (with type: "invoke")
+
+Invokable services are defined in greater detail in OEP6.
+
+Attribute       |   Type        |   Required    | Description
+----------------|---------------|---------------|----------------------
+**params**        | Text          | Yes           | A list of parameters accepted by the invokable service
+
 
 
 ## Additional Information
