@@ -99,9 +99,9 @@ There are some parameters used in this flow:
 * **serviceAgreementId** - Is the unique id refering to a Service Agreement establish between a PUBLISHER and a CONSUMER. The CONSUMER (Squid) is the one creating this random unique serviceId.
 * **serviceDefinitionId** - Identify one service in the array of services included in the DDO. Are created by the PUBLISHER (internally in Squid) when the DDO is created and different services are associated.
 * **templateId** - Identify a unique Service Agreement template. The service agreement is the instance of one existing template. Initially the following templates are supported:
-  - **Access** template, where the templateId is `044852b2a670ade5407e78fb2863c51000000000000000000000000000000000`
-  - **FitchainCompute** template, where the templateId is `044852b2a670ade5407e78fb2863c51000000000000000000000000000000001`
-  - **CloudCompute** template, where the templateId is `044852b2a670ade5407e78fb2863c51000000000000000000000000000000002`
+  - **Access** template, where the templateId is `hash(0):044852b2a670ade5407e78fb2863c51de9fcb96542a07186fe3aeda6bb8a116d`
+  - **FitchainCompute** template, where the templateId is `hash(1):c89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6`
+  - **CloudCompute** template, where the templateId is `hash(2):ad7c5bef027816a800da1736444fb58a807ef4c9603b7848673f7e3a68eb14a5`
 
 
 ### Publishing
