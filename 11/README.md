@@ -204,7 +204,18 @@ This method executes internally - everything happens off-chain.
     ```
 1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS.
 
-1. PUBLISHER exposes service endpoints using BRIZO.
+1. PUBLISHER register the DID, associating the Asset DID to the Aquarius Metadata URL that resolves the DID to a DDO.
+To do that, SQUID need to integrate the `DIDRegistry` contract using the `registerAttribute` method.
+
+```
+function registerAttribute(bytes32 _did, ValueType _type, bytes32 _key, string _value) public {}
+```
+
+The parameters to pass are:
+  - **bytes32 _did** - The hash part of the DID, the part just after `did:op:`
+  - **ValueType _type** - uint 0
+  - **bytes32 _key** - "Metadata" token in bytes32 format
+  - **string** _value - The Metadata service endpoint. In the above DDO is: http://myaquarius.org/api/v1/provider/assets/metadata/{did}
 
 ![Publishing Flow](images/publishing-flow.png)
 
