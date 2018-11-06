@@ -63,7 +63,7 @@ Base attributes are always part of the Asset Metadata schema. Those attributes c
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name of the Asset
-**type**        | Text          | Yes           | Type of the Asset. Helps to filter by kind of asset, initially ("dataset", "invoke", "algorithm", "container", "workflow", "other")
+**type**        | Text          | Yes           | Type of the Asset. Helps to filter by kind of asset, initially ("data", "invoke", "bundle", "algorithm", "container", "workflow", "other")
 **description** | Text          | No            | Details of what the resource is. For a data set explain what the data represents and what it can be used for
 **dateCreated** | DateTime      | Yes           | The date on which  was created or was added
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.)
@@ -97,7 +97,7 @@ Links may be to either a URL or another Asset. We expect tribes and/or marketpla
 on agreements of typical formats for linked data: The Ocean protocol itself does not mandate any
 specific formats as requirements are likely to be domain-specific.
 
-## Dataset attributes
+## Data asset attributes
 
 In addition to the base attributes, the following Attributes are defined for data assets only (with type: "dataset")
 
@@ -122,15 +122,32 @@ Attribute       |   Type        |   Required    | Description
 
 ## Bundle attributes
 
-In addition to the base attributes, the following Attributes are defined for invokable services only (with type: "invoke")
-
-Invokable services are defined in greater detail in OEP6.
+In addition to the base attributes, the following Attributes are defined for bundles of assets only (with type: "bundle")
 
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
-**params**        | Text          | Yes           | A list of parameters accepted by the invokable service
+**contents**    | Map of String -> Content          | Yes           | A list of contents of this bundle
+
+Content records are specified as a JSON map with the following attributes
+
+Attribute      |   Type        |   Required    | Description
+---------------|---------------|---------------|----------------------
+**assetID**    | String (64)   | Yes           | A hex string containing the Asset ID of the content
 
 
+Example:
+
+```json
+{ 
+  "name": "Pyrotech firework safety data",
+  "type": "bundle",
+  "contents": {
+  	"test":   {"assetID": "26cb1a92e8a6b52e47e6e13d04221e9b005f70019e21c4586dad3810d46220135"}
+  	"train":  {"assetID": "503a7b959f91ac691a0881ee724635427ea5f3862aa105040e30a0fee50cc1a00"}
+  	"verify": {"assetID": "e2f910c3f44126323ace27daf9a6e18ab0cbcc3ab9fa74a7c9462d7e8247f8811"}
+  }
+}
+```  
 
 ## Additional Information
 
