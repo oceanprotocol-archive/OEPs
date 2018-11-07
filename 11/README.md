@@ -10,6 +10,7 @@ contributors: Lev Berman <ldmberman@gmail.com>
 Table of Contents
 =================
 
+
    * [Table of Contents](#table-of-contents)
    * [On-Chain Access Control using Service Agreements](#on-chain-access-control-using-service-agreements)
       * [Change Process](#change-process)
@@ -28,6 +29,7 @@ Table of Contents
             * [Cancel payment condition](#cancel-payment-condition)
          * [Modules to be implemented](#modules-to-be-implemented)
             * [Secret Store](#secret-store)
+
 
 
 
@@ -95,7 +97,7 @@ The detailed description is an attempt to account for important edge cases and t
 
 There are some parameters used in this flow:
 
-* **did** -
+* **did** - See [OEP-7](../7/README.md).
 * **serviceAgreementId** - Is the unique id refering to a Service Agreement establish between a PUBLISHER and a CONSUMER. The CONSUMER (Squid) is the one creating this random unique serviceId.
 * **serviceDefinitionId** - Identify one service in the array of services included in the DDO. Are created by the PUBLISHER (internally in Squid) when the DDO is created and different services are associated.
 * **templateId** - Identify a unique Service Agreement template. The service agreement is the instance of one existing template. Initially the following templates are supported:
@@ -106,7 +108,7 @@ There are some parameters used in this flow:
 
 ### Publishing
 
-Using only one Squid call `registerAsset(asset_metadata)`, the Publisher should be able to register an Asset.
+Using only one Squid call `registerAsset(asset_metadata, publisher_public_key)`, the Publisher should be able to register an Asset.
 
 This method executes internally - everything happens off-chain.
 
