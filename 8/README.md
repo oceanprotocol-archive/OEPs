@@ -84,7 +84,6 @@ These are examples of attributes that can enhance the discoverability of a resou
 
 | Attribute         | Description                                                                                                                  |
 | -                 | -                                                                                                                            |
-| checksum          | Checksum of attributes to be able to compare if there are changes in the asset that you are purchasing.                      |
 | sla               | Service Level Agreement                                                                                                      |
 | industry          |                                                                                                                              |
 | category          | can be assigned to a category in addition to having tags                                                                     |
@@ -92,10 +91,9 @@ These are examples of attributes that can enhance the discoverability of a resou
 | termsOfService    |                                                                                                                              |
 | privacy           |                                                                                                                              |
 | keyword           | A list of keywords/tags describing a dataset                                                                                 |
-| structured-markup | A link to machine readable structured markup (such as ttl/json-ld/rdf) describing the dataset                                |
-|                   |                                                                                                                              |
+| structured-markup | A link to machine readable structured markup (such as ttl/json-ld/rdf) describing the dataset                                |                                                                                                                  |
 
-Additional attributes are totally free to add and can be defined by the publisher of the DDO, in addition to the base attributes
+Additional attributes are totally free to add and can be defined by the publisher, in addition to the base attributes
 
 
 ### Links
