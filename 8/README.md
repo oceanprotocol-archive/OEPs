@@ -88,7 +88,7 @@ An array of Links can be provided to give supplementary information about an Ass
 	{
 		"name" : "Data Format Definition",
 		"type" : "format",
-		"AssetID: "4d517500da0acb0d65a716f61330969334630363ce4a6a9d39691026ac7908ea"
+		"assetID: "4d517500da0acb0d65a716f61330969334630363ce4a6a9d39691026ac7908ea"
 	}	
 ]
 ```
@@ -190,9 +190,16 @@ Here is a representation of an example Asset using the schema described:
                         423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
     "contentUrls": ["https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"],
     "links": [
-        {"sample1": "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"},
-        {"sample2": "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-averages-25km/"},
-        {"fieldsDescription": "http://data.ceda.ac.uk/badc/ukcp09/"}
+	    {
+		    "name" : "Sample of Asset Data",
+		    "type" : "sample",
+		    "url": "https://foo.com/sample.csv"
+	    }
+	    {
+		    "name" : "Data Format Definition",
+		    "type" : "format",
+		    "assetID: "4d517500da0acb0d65a716f61330969334630363ce4a6a9d39691026ac7908ea"
+	    }	
     ],
     "inLanguage": "en",
     "tags": ["weather", "uk", "2011", "temperature", "humidity"],
