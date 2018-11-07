@@ -73,6 +73,27 @@ Attribute       |   Type        |   Required    | Description
 **links**       | Array of Link | No               | Mapping of links for data samples, or links to find out more information. 
 **inLanguage**  | Text          | No            | The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47)
 **tags**        | Array of Text | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
+**additionalInformation** | Map | No            | Additional JSON content at discretion of publisher
+
+### Additional Information
+
+These are examples of attributes that can enhance the discoverability of a resource:
+
+| Attribute         | Description                                                                                                                  |
+| -                 | -                                                                                                                            |
+| checksum          | Checksum of attributes to be able to compare if there are changes in the asset that you are purchasing.                      |
+| sla               | Service Level Agreement                                                                                                      |
+| industry          |                                                                                                                              |
+| category          | can be assigned to a category in addition to having tags                                                                     |
+| updateFrequency   | how often are updates expected (seldome, annual, quarterly, etc.), or is the resource static (never expected to get updated) |
+| termsOfService    |                                                                                                                              |
+| privacy           |                                                                                                                              |
+| keyword           | A list of keywords/tags describing a dataset                                                                                 |
+| structured-markup | A link to machine readable structured markup (such as ttl/json-ld/rdf) describing the dataset                                |
+|                   |                                                                                                                              |
+
+Additional attributes are totally free to add and can be defined by the publisher of the DDO, in addition to the base attributes
+
 
 ### Links
 
@@ -149,24 +170,6 @@ Example:
 }
 ```  
 
-## Additional Information
-
-These are examples of attributes that can enhance the discoverability of a resource:
-
-| Attribute         | Description                                                                                                                  |
-| -                 | -                                                                                                                            |
-| checksum          | Checksum of attributes to be able to compare if there are changes in the asset that you are purchasing.                      |
-| sla               | Service Level Agreement                                                                                                      |
-| industry          |                                                                                                                              |
-| category          | can be assigned to a category in addition to having tags                                                                     |
-| updateFrequency   | how often are updates expected (seldome, annual, quarterly, etc.), or is the resource static (never expected to get updated) |
-| termsOfService    |                                                                                                                              |
-| privacy           |                                                                                                                              |
-| keyword           | A list of keywords/tags describing a dataset                                                                                 |
-| structured-markup | A link to machine readable structured markup (such as ttl/json-ld/rdf) describing the dataset                                |
-|                   |                                                                                                                              |
-
-Additional attributes are totally free to add and can be defined by the publisher of the DDO, in addition to the base attributes
 
 
 ## Example
