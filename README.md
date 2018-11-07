@@ -37,6 +37,7 @@ Short Name    | Title                                                        | T
 [7/DID](7)    | Decentralized Identifiers									 | Standard     | Raw      | Aitor Argomaniz
 [8/ASSET-DDO](8)| Assets Metadata Ontology                                   | Standard     | Raw      | Aitor Argomaniz
 [10/OAA](10)  | On-Chain Access Control                       				 | Standard     | Draft      | Ahmed Ali
+[11/ACL](11)    | On-Chain Access Control using Service Agreements           | Standard     | Raw      | Aitor Argomaniz
 
 
 # Current Participants
