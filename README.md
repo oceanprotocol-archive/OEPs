@@ -56,6 +56,7 @@ Some people have specializations:
 
 - Tribes: @diminator
 - Research: @diminator, @trentmc
+- Marketplaces: @mikera
 - Ocean Core [Tethys](https://github.com/oceanprotocol/ocean/projects/2): @aaitor
 
 ## Administrators (Founders and Others)
