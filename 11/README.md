@@ -135,6 +135,7 @@ This method executes internally - everything happens off-chain.
      Condition keys come together with the SLA template ID, can be hardcoded in Trilobite
    - For each condition, a list of its parameter values, a timeout, and a mapping of events emitted by it to the off-chain handlers of these events
    - Each event is identified by name. Each event handler is a function from a whitelisted module
+   - Service agreement contract address and the event mapping in the same format as the condition events, for off-chain listeners
 
    A service of type "Access" contains 2 different endpoints:
    - **serviceEndpoint** - A URL to fetch data decryption keys from
@@ -156,6 +157,10 @@ This method executes internally - everything happens off-chain.
         "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/access/initialize?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
         "purchaseEndpoint": "http://mybrizo.org/api/v1/brizo/services/access/purchase?",
         "templateId": "044852b2a670ade5407e78fb2863c51000000000000000000000000000000000",
+        "serviceAgreementContract": {
+            "address": "0x..",
+            "events": [..] // The same format as in "conditions", see below
+        },
         "conditions": [{
           "conditionKey': {
             "contractAddress": "0x...",
