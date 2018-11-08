@@ -135,6 +135,7 @@ This method executes internally - everything happens off-chain.
      Condition keys come together with the SLA template ID, can be hardcoded in Trilobite
    - For each condition, a list of its parameter values, a timeout, and a mapping of events emitted by it to the off-chain handlers of these events
    - Each event is identified by name. Each event handler is a function from a whitelisted module
+   - Service agreement contract address and the event mapping in the same format as the condition events, for off-chain listeners
 
    A service of type "Access" contains 2 different endpoints:
    - **serviceEndpoint** - A URL to fetch data decryption keys from
@@ -156,6 +157,10 @@ This method executes internally - everything happens off-chain.
         "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/access/initialize?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
         "purchaseEndpoint": "http://mybrizo.org/api/v1/brizo/services/access/purchase?",
         "templateId": "044852b2a670ade5407e78fb2863c51000000000000000000000000000000000",
+        "serviceAgreementContract": {
+            "address": "0x..",
+            "events": [..] // The same format as in "conditions", see below
+        },
         "conditions": [{
           "conditionKey': {
             "contractAddress": "0x...",
@@ -284,52 +289,61 @@ In general, there is a broad range of conditions which can be implemented an int
 Consider a sample of a service definition.
 
 ```
-{
-  "name": "ExecuteCondition",
-  "actorType": ["consumer"],
-  "handler": {
+"serviceAgreementContract": {
+  "events": [{
+    "name": "ExecuteAgreement",
+    "actorType": ["consumer"],
+    "handler": {
       "moduleName": "payment",
       "functionName": "lockPayment",
       "version": "0.1"
-  }
+    }
+  }]
 }
 ```
 
-According to it, the CONSUMER listens for `ExecuteCondition` event, filters it by `serviceAgreementId`. The corresponding module with the event handler needs to be implemented in Squid.
-At the same time, the PUBLISHER listens for `PaymentLocked` event filtered by `serviceAgreementId` to confirm the payment was made.
+According to it, the CONSUMER listens for `ExecuteAgreement` event emitted in the very beginning of service agreement execution, filtering it by `serviceAgreementId`.
+
+Note that the structure of `serviceAgreementContract.events` is identical to `conditions.events`. Squid needs to offer an utility that subscribes the specified callbacks to the events from both lists.
+
+The `payment` module defining the `lockPayment` event handler needs to be implemented in Squid. An example of how it may look like:
 
 `modules/v0_1/payment.py`
 
 ```
-def lockPayment(service_agreement_id, service_definition_id, price):
+def lockPayment(service_agreement_id, service_definition_id, did, price):
     condition = get_condition(service_definition_id, 'lockPayment')
-    web3.call(condition['condition_key'], condition['fingerprint'], price)
+    web3.call(condition['condition_key'], condition['fingerprint'], did, price)
 ```
 
 It emits `PaymentLocked` and thus triggers the next condition. 
 
 ##### Grant access condition
 
+PUBLISHER (BRIZO) listens for `PaymentLocked` event filtered by `serviceAgreementId` to confirm the payment was made.
+
 ```
-{
-  "name": "PaymentLocked",
-  "actorType": ["publisher"],
-  "handler": {
+"conditions": [{
+  "events": [{
+    "name": "PaymentLocked",
+    "actorType": ["publisher"],
+    "handler": {
       "moduleName": "secretStore",
       "functionName": "grantAccess",
       "version": "0.1"
-  }
-}
+    }
+  }]
+}]
 ```
 
-PUBLISHER (BRIZO) listens for `PaymentLocked` event, filters it by `serviceAgreementId`. The corresponding module with the event handler needs to be implemented in Brizo.
+The corresponding module with the event handler needs to be implemented in Squid and used by Brizo. An example of how it may look like:
 
 `modules/v0_1/secretStore.py`
 
 ```
-def grantAccess(service__agreement_id, service_definition_id, consumer_public_key):
-    public_key = get_public_key_by_service_id(service__agreement_id)
-    did = get_did(service__agreement_id)
+def grantAccess(service_agreement_id, service_definition_id, consumer_public_key):
+    public_key = get_public_key_by_service_id(service_agreement_id)
+    did = get_did(service_agreement_id)
     condition = get_condition(service_definition_id, 'grantAccess')
     web3.call(condition['condition_key'], condition['fingerpint'], public_key, did)
 ```
@@ -337,15 +351,17 @@ def grantAccess(service__agreement_id, service_definition_id, consumer_public_ke
 ##### Release payment condition
 
 ```
-{
-  "name": "AccessGranted",
-  "actorType": ["publisher"],
-  "handler": {
+"conditions": [{
+  "events": [{
+    "name": "AccessGranted",
+    "actorType": ["publisher"],
+    "handler": {
       "moduleName": "payment",
       "functionName": "releasePayment",
       "version": "0.1"
-  }
-}
+    }
+  }]
+}]
 ```
 
 PUBLISHER (BRIZO) listens for `AccessGranted` event to transfer tokens to Publisher's account.
@@ -353,9 +369,9 @@ PUBLISHER (BRIZO) listens for `AccessGranted` event to transfer tokens to Publis
 `modules/v0_1/payment.py`
 
 ```
-def releasePayment(service_agreement_id, service_definition_id, price):
+def releasePayment(service_agreement_id, service_definition_id, did, price):
     condition = get_condition(service_definition_id, 'releasePayment')
-    web3.call(condition['condition_key'], condition['fingerprint'], price)
+    web3.call(condition['condition_key'], condition['fingerprint'], did, price)
 ```
 
 `Release payment`, being the last condition of the agreement, finalises it and emits `AgreementFulfilled`.
