@@ -42,6 +42,7 @@
     "templateId": "044852b2a670ade5407e78fb2863c51000000000000000000000000000000000",
     "serviceAgreementContract": {
       "address": "0x...",
+      "fulfillmentOperator": 0,
       "events": [{
         "name": "ExecuteAgreement",
         "actorType": "consumer",
@@ -56,13 +57,16 @@
       {
         "name": "lockPayment",
         "timeout": 0,
+        "dependencies": [],
+        "isTerminalCondition": false,
+        "canBeFulfilledBeforeTimeout": true,
         "conditionKey": {
           "contractAddress": "0x...",
           "fingerprint": "0x..."
         },
         "parameters": {
-          "assetId": "bytes32",
-          "price": "integer"
+          "assetId": "...",
+          "price": 10
         },
         "events": [{
           "name": "PaymentLocked",
@@ -70,19 +74,22 @@
           "handler": {
             "moduleName": "accessControl",
             "functionName": "grantAccess",
-              "version": "0.1"
-            }
+            "version": "0.1"
+          }
         }]
       }, {
         "name": "releasePayment",
         "timeout": 0,
+        "dependencies": ["grantAccess"],
+        "isTerminalCondition": true,
+        "canBeFulfilledBeforeTimeout": true,
         "conditionKey": {
           "contractAddress": "0x...",
           "fingerprint": "0xXXXXXXXX"
         },
         "parameters": {
-          "assetId": "bytes32",
-          "price": "integer"
+          "assetId": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
+          "price": 10
         },
         "events": [{
           "name": "PaymentReleased",
@@ -96,13 +103,16 @@
       }, {
         "name": "grantAccess",
         "timeout": 0,
+        "dependencies": ["lockPayment"],
+        "isTerminalCondition": false,
+        "canBeFulfilledBeforeTimeout": true,
         "conditionKey": {
           "contractAddress": "0x",
           "fingerprint": "0xXXXXXXXX"
         },
         "parameters": {
-          "assetId": "bytes32",
-          "documentKeyId": "bytes32"
+          "assetId": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
+          "documentKeyId": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
         },
         "events": [{
           "name": "AccessGranted",
@@ -125,13 +135,16 @@
       }, {
         "name": "refundPayment",
         "timeout": 1,
+        "dependencies": ["grantAccess"],
+        "canBeFulfilledBeforeTimeout": false,
+        "isTerminalCondition": true,
         "conditionKey": {
           "contractAddress": "0x...",
           "fingerprint": "0xXXXXXXXX"
         },
         "parameters": {
-          "assetId": "bytes32",
-          "price": "int"
+          "assetId": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
+          "price": 10
         },
         "events": [{
           "name": "PaymentRefund",
