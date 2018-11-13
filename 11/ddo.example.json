@@ -56,7 +56,7 @@
     "conditions": [
       {
         "name": "lockPayment",
-        "timeout": 0,
+        "timeout": 86400,
         "dependencies": [],
         "isTerminalCondition": false,
         "canBeFulfilledBeforeTimeout": true,
@@ -79,7 +79,7 @@
         }]
       }, {
         "name": "releasePayment",
-        "timeout": 0,
+        "timeout": 86400,
         "dependencies": ["grantAccess"],
         "isTerminalCondition": true,
         "canBeFulfilledBeforeTimeout": true,
@@ -102,7 +102,7 @@
         }]
       }, {
         "name": "grantAccess",
-        "timeout": 0,
+        "timeout": 86400,
         "dependencies": ["lockPayment"],
         "isTerminalCondition": false,
         "canBeFulfilledBeforeTimeout": true,
@@ -134,7 +134,7 @@
 
       }, {
         "name": "refundPayment",
-        "timeout": 1,
+        "timeout": 86400,
         "dependencies": ["grantAccess"],
         "canBeFulfilledBeforeTimeout": false,
         "isTerminalCondition": true,
