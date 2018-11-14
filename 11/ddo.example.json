@@ -86,8 +86,11 @@
         }]
       }, {
         "name": "releasePayment",
-        "timeout": 86400,
-        "dependencies": ["grantAccess"],
+        "dependencies": [{
+            "name": "grantAccess",
+            "timeout": 86400
+          }
+        ],
         "isTerminalCondition": true,
         "canBeFulfilledBeforeTimeout": true,
         "conditionKey": {
@@ -116,8 +119,11 @@
         }]
       }, {
         "name": "grantAccess",
-        "timeout": 86400,
-        "dependencies": ["lockPayment"],
+        "dependencies": [{
+            "name": "lockPayment",
+            "timeout": 86400
+          }
+        ],        
         "isTerminalCondition": false,
         "canBeFulfilledBeforeTimeout": true,
         "conditionKey": {
@@ -155,8 +161,11 @@
 
       }, {
         "name": "refundPayment",
-        "timeout": 86400,
-        "dependencies": ["grantAccess"],
+        "dependencies": [{
+            "name": "grantAccess",
+            "timeout": 86400
+          }
+        ],                
         "canBeFulfilledBeforeTimeout": false,
         "isTerminalCondition": true,
         "conditionKey": {
