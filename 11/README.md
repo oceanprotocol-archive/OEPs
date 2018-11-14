@@ -133,15 +133,17 @@ This method executes internally - everything happens off-chain.
      * controller contract function fingerprint
 
      Condition keys come together with the SLA template ID, can be hardcoded in Trilobite
-   - For each condition, a list of its parameter values, a timeout, and a mapping of events emitted by it to the off-chain handlers of these events
+   - For each condition, a list of its parameter values, a timeout, a set of fields determining how the condition depends on other conditions, and a mapping of events emitted by it to the off-chain handlers of these events
    - Each event is identified by name. Each event handler is a function from a whitelisted module
    - Service agreement contract address and the event mapping in the same format as the condition events, for off-chain listeners
+   - An integer defining when the agreement is fulfilled in case there are multiple terminal conditions, according to the ServiceAgreement smart contract
 
    A service of type "Access" contains 2 different endpoints:
    - **serviceEndpoint** - A URL to fetch data decryption keys from
    - **purchaseEndpoint** - A URL to initialize the service agreement
 
-    An example of a complete DDO can be found [here](ddo.example.json).
+    An example of a complete DDO can be found [here](./ddo.example.json). Please do note that the conditions order in the DID document should reflect the same 
+    order in on-chain service agreement.
 
 1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS.
 
