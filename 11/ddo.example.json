@@ -56,7 +56,6 @@
     "conditions": [
       {
         "name": "lockPayment",
-        "timeout": 86400,
         "dependencies": [],
         "isTerminalCondition": false,
         "canBeFulfilledBeforeTimeout": true,
@@ -85,45 +84,12 @@
           }
         }]
       }, {
-        "name": "releasePayment",
-        "dependencies": [{
-            "name": "grantAccess",
-            "timeout": 86400
-          }
-        ],
-        "isTerminalCondition": true,
-        "canBeFulfilledBeforeTimeout": true,
-        "conditionKey": {
-          "contractAddress": "0x...",
-          "fingerprint": "0xXXXXXXXX"
-        },
-		"parameters": [
-			{
-			 "name": "assetId",
-			 "type": "bytes32",
-			 "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
-			}, {
-			 "name": "price",
-			 "type": "uint",
-			 "value": 10
-			}
-		],
-        "events": [{
-          "name": "PaymentReleased",
-          "actorType": "publisher",
-          "handler": {
-            "moduleName": "serviceAgreement",
-            "functionName": "fulfillAgreement",
-            "version": "0.1"
-          }
-        }]
-      }, {
         "name": "grantAccess",
         "dependencies": [{
             "name": "lockPayment",
-            "timeout": 86400
+            "timeout": 0
           }
-        ],        
+        ],
         "isTerminalCondition": false,
         "canBeFulfilledBeforeTimeout": true,
         "conditionKey": {
@@ -159,10 +125,43 @@
           }
         }]
 
+      },{
+        "name": "releasePayment",
+        "dependencies": [{
+            "name": "grantAccess",
+            "timeout": 0
+          }
+        ],
+        "isTerminalCondition": true,
+        "canBeFulfilledBeforeTimeout": true,
+        "conditionKey": {
+          "contractAddress": "0x...",
+          "fingerprint": "0xXXXXXXXX"
+        },
+		"parameters": [
+			{
+			 "name": "assetId",
+			 "type": "bytes32",
+			 "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+			}, {
+			 "name": "price",
+			 "type": "uint",
+			 "value": 10
+			}
+		],
+        "events": [{
+          "name": "PaymentReleased",
+          "actorType": "publisher",
+          "handler": {
+            "moduleName": "serviceAgreement",
+            "functionName": "fulfillAgreement",
+            "version": "0.1"
+          }
+        }]
       }, {
         "name": "refundPayment",
         "dependencies": [{
-            "name": "grantAccess",
+            "name": "lockPayment",
             "timeout": 86400
           }
         ],                
