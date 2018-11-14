@@ -142,7 +142,8 @@ This method executes internally - everything happens off-chain.
    - **serviceEndpoint** - A URL to fetch data decryption keys from
    - **purchaseEndpoint** - A URL to initialize the service agreement
 
-    An example of a complete DDO can be found [here](ddo.example.json).
+    An example of a complete DDO can be found [here](./ddo.example.json). Please do note that the conditions order in the DID document should reflect the same 
+    order in on-chain service agreement.
 
 1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS.
 
