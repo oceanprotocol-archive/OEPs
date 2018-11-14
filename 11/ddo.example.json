@@ -64,10 +64,17 @@
           "contractAddress": "0x...",
           "fingerprint": "0x..."
         },
-        "parameters": {
-          "assetId": "...",
-          "price": 10
-        },
+		"parameters": [
+			{
+			 "name": "assetId",
+			 "type": "bytes32",
+			 "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+			}, {
+			 "name": "price",
+			 "type": "uint",
+			 "value": 10
+			}
+		],
         "events": [{
           "name": "PaymentLocked",
           "actorType": "publisher",
@@ -87,10 +94,17 @@
           "contractAddress": "0x...",
           "fingerprint": "0xXXXXXXXX"
         },
-        "parameters": {
-          "assetId": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
-          "price": 10
-        },
+		"parameters": [
+			{
+			 "name": "assetId",
+			 "type": "bytes32",
+			 "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+			}, {
+			 "name": "price",
+			 "type": "uint",
+			 "value": 10
+			}
+		],
         "events": [{
           "name": "PaymentReleased",
           "actorType": "publisher",
@@ -110,10 +124,17 @@
           "contractAddress": "0x",
           "fingerprint": "0xXXXXXXXX"
         },
-        "parameters": {
-          "assetId": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
-          "documentKeyId": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
-        },
+		"parameters": [
+			{
+			 "name": "assetId",
+			 "type": "bytes32",
+			 "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+			}, {
+			 "name": "documentKeyId",
+			 "type": "bytes32",
+			 "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+			}
+		],
         "events": [{
           "name": "AccessGranted",
           "actorType": "consumer",
@@ -142,10 +163,17 @@
           "contractAddress": "0x...",
           "fingerprint": "0xXXXXXXXX"
         },
-        "parameters": {
-          "assetId": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
-          "price": 10
-        },
+		"parameters": [
+			{
+			 "name": "assetId",
+			 "type": "bytes32",
+			 "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+			}, {
+			 "name": "price",
+			 "type": "uint",
+			 "value": 10
+			}
+		],
         "events": [{
           "name": "PaymentRefund",
           "actorType": "consumer",
@@ -162,7 +190,7 @@
   }, {
     "type": "CloudCompute",
     "serviceDefinitionId": "1",
-    "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/compute?pubKey=${pubKey}&serviceId={serviceId}&algo={algo}&container={container}"
+    "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/compute?pubKey=${pubKey}&serviceId={serviceId}&algo={algo}&container={container}",
     "templateId": "044852b2a670ade5407e78fb2863c51000000000000000000000000000000002"
 
   }, {
