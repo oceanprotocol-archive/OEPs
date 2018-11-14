@@ -4,7 +4,11 @@ name: On-Chain Access Control using Service Agreements
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Lev Berman <ldmberman@gmail.com>
+contributors: Lev Berman <ldmberman@gmail.com>,
+			  Ahmed Ali <ahmed@oceanprotocol.com>, 
+              Samer Sallam <samer@oceanprotocol.com>,
+              Dimitri De Jonghe <dimi@oceanprotocol.com>
+
 ```
 
 Table of Contents
