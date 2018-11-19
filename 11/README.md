@@ -132,11 +132,21 @@ This method executes internally - everything happens off-chain.
    - Service Definition ID (`serviceDefinitionId`); helps PUBLISHER find the service definition of a DDO signed by CONSUMER
    - Service Agreement Template ID (`templateId`); has to be whitelisted, can be hardcoded in Trilobite; points to a deployed service agreement on-chain contract
    - Service endpoint (`serviceEndpoint`); Consumer's signing this service send their signatures to this endpoint
-   - A list of conditions keys; condition key consists of:
-     * controller contract address (included in the SLA template, repeated here for information purposes)
-     * controller contract function fingerprint
+   - A list of conditions keys; condition key is the `keccak256` hash of the following:
+     * SLA template ID
+     * controller contract address (obtained from the solidity contract json file matching the contract name in the SLA condition)
+     * controller contract function fingerprint (referred to as function signature or selector)
 
-     Condition keys come together with the SLA template ID, can be hardcoded in Trilobite
+```
+def generate_condition_key(sla_template_id, contract_address, function_fingerprint):
+    key = web3.Web3.soliditySha3(
+        ['bytes32', 'address', 'bytes4'],
+        [sla_template_id.encode(), contract_address, function_fingerprint]
+    )
+    return key.hex()
+    
+```
+
    - For each condition, a list of its parameter values, a timeout, a set of fields determining how the condition depends on other conditions, and a mapping of events emitted by it to the off-chain handlers of these events
    - Each event is identified by name. Each event handler is a function from a whitelisted module
    - Service agreement contract address and the event mapping in the same format as the condition events, for off-chain listeners
@@ -182,12 +192,32 @@ Squid Steps:
 1. The Service Agreement needs to have associated an unique `serviceAgreementId` that can be generated/provided by the CONSUMER.
 In the Smart Contracts, this `serviceAgreementId` will be stored as a `bytes32`. This `serviceAgreementId` is random and is represented by a 64-character hex string (using the characters 0-9 and a-f).
 The CONSUMER can generates the `serviceAgreementId` using any kind of implementation providing enough randomness to generate this id (64-characters hex string).
-
 1. The CONSUMER signs the service details. There is a particular way of building the signature documented elsewhere.
-The signature contains `(serviceAgreementId, templateId, conditionKeys, timeouts, conditionParameters)`. `serviceAgreementId` is provided by CONSUMER and has to be globally unique.
+The signature contains `(templateId, conditionKeys, valuesHashList, timeoutValues, serviceAgreementId)`. `serviceAgreementId` is provided by CONSUMER and has to be globally unique.
+  * Each ith item in `values_hash_list` and `timeoutValues` lists corresponds to the ith condition in conditionKeys
+  * `values_hash_list`: a hash of the parameters types and values of each condition
+```
+def create_condition_params_hash(parameters_types, parameters_values):
+    return web3.Web3.soliditySha3(parameters_types, parameters_values).hex()
+    
+create_condition_params_hash(['bytes32', 'uint256'], ['0x...', '25'])
+```
+ 
+  * `timeoutValues`: list of numbers to specify a timeout value for each condition.
+
+```
+def generate_service_agreement_hash(web3, sla_template_id, condition_keys, values_hash_list, timeouts, service_agreement_id):
+    return web3.soliditySha3(
+        ['bytes32', 'bytes32[]', 'bytes32[]', 'uint256[]', 'bytes32'],
+        [sa_template_id, condition_keys, values_hash_list, timeouts, service_agreement_id]
+    )
+# Sign the agreement hash
+web3_instance.eth.sign(address, generate_service_agreement_hash(...))
+```
+
 It is used to correlate events and to prevent Publisher from instantiating multiple service agreements from a single request.
 
-1. Consumer sends `(did, serviceAgreementId, serviceDefinitionId, signature, consumerPublicKey`) to the service endpoint (BRIZO).
+1. Consumer sends `(did, serviceAgreementId, serviceDefinitionId, signature, consumerAddress`) to the service endpoint (BRIZO).
 `serviceDefinitionId` tells PUBLISHER where to find the preimage to verify the signature. DID tells PUBLISHER which Asset to serve under these terms.
 
 ```
@@ -198,7 +228,7 @@ HTTP POST /api/v1/brizo/services/access/initialize
  "serviceAgreementId": "bb23s87856d59867503f80a690357406857698570b964ac8dcc9d86da4ada010",
  "serviceDefinitionId": "0",
  "signature": "cade376598342cdae231321a0097876aeda656a567a67c6767fd8710129a9dc1",
- "consumerPublicKey": "0x00a329c0648769A73afAc7F9381E08FB43dBEA72"
+ "consumerAddress": "0x00a329c0648769A73afAc7F9381E08FB43dBEA72"
 }
 
 ```
@@ -211,7 +241,7 @@ The execution of this endpoint should return a `HTTP 201` if everything goes oka
 
    - BRIZO records `serviceAgreementId` as corresponding to the given `did`.
 
-   - BRIZO executes the SLA by calling `ServiceAgreement.executeAgreement`, providing it with `serviceAgreementId`, `conditionKeys`, `conditionParameters`, and `timeouts`.
+   - BRIZO executes the SLA by calling `ServiceAgreement.executeAgreement`, providing it with `serviceAgreementId`, `conditionKeys`, `valuesHashList`, and `timeouts`.
 
    - BRIZO starts listening for the `publisher` events from the events section of the service definition.
 
@@ -230,9 +260,11 @@ Consider a sample of a service definition.
 
 ```
 "serviceAgreementContract": {
+  "contractName": 'ServiceAgreement',
+  "fulfillmentOperator": 1,
   "events": [{
     "name": "ExecuteAgreement",
-    "actorType": ["consumer"],
+    "actorType": "consumer",
     "handler": {
       "moduleName": "payment",
       "functionName": "lockPayment",
