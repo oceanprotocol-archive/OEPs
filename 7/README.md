@@ -2,7 +2,7 @@
 shortname: 7/DID
 name: Decentralized Identifiers
 type: Standard
-status: Raw
+status: Draft
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@oceanprotocol.com>
 ```
@@ -103,7 +103,7 @@ The DDO is stored off-chain in Ocean.
 In Ocean, a DID is a string that looks like:
 
 ```text
-did:op:9050a77f4acffd30a2e97bfa5abfcb9256f6f9cde60091bf9d573c534052d9fd
+did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea
 ```
 
 which follows [the generic DID scheme](https://w3c-ccg.github.io/did-spec/#the-generic-did-scheme).
@@ -128,7 +128,7 @@ Example:
 ```json
 {
   "@context": "https://example.org/example-method/v1",
-  "id": "did:op:9050a77f4acffd30a2e97bfa5abfcb9256f6f9cde60091bf9d573c534052d9fd",
+  "id": "did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
   "authentication": [{ ... }],
   "service": [{
     "type": "AssetsMetadataService",
