@@ -34,7 +34,7 @@ Short Name    | Title                                                        | T
 [2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
 [3/ARCH](3)   | Ocean Core Architecture                                      | Standard     | Draft      | Dimitri De Jonghe
 [4/AGENT](4)  | Ocean Agent Protocol Stack                                   | Standard     | Draft      | Aitor Argomaniz
-[7/DID](7)    | Decentralized Identifiers									 | Standard     | Raw      | Aitor Argomaniz
+[7/DID](7)    | Decentralized Identifiers									 | Standard     | Draft      | Aitor Argomaniz
 [8/ASSET-DDO](8)| Assets Metadata Ontology                                   | Standard     | Raw      | Aitor Argomaniz
 [9/BOUNTY](9)  | Bounties in Ocean Protocol                       				 | Standard     | Raw      | Chalid Mannaa, Manan Patel
 [10/OAA](10)  | On-Chain Access Control                       				 | Standard     | Draft      | Ahmed Ali
