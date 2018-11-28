@@ -4,7 +4,7 @@ name: Off-chain Asset Metadata
 type: Standard
 status: Raw
 editor: Mike Anderson <mike.anderson@dex.sg>
-contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>
+contributors: Aitor Argomaniz <aitor@oceanprotocol.com>, Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>
 ```
 
 Table of Contents
