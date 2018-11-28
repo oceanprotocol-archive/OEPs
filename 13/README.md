@@ -38,11 +38,9 @@ Asset Metadata should normally be stored off-chain for the following reasons:
 - Mininise risk of harmful content being published on-chain
 - Keeping metadata private in some trusted data scenarios (e.g. sharing within a consortium) 
 
-Assets without proper descriptive metadata can have poor visibility and discoverability, so it is generally in the publisher's interest to ensure good metadata is made available.
+Declaration of asset metadata is the responsibility of the asset publisher (i.e. the actor who registers the asset with Ocean). Assets without proper descriptive metadata can have poor visibility and discoverability, so it is generally in the publisher's interest to ensure good metadata is made available.
 
-This OEP doesn't detail the exact method of registering or publishing metadata in a metadata store. This is covered in OEP15 (Meta API)
-
-
+This OEP doesn't detail the method of registering assets or publishing metadata in a metadata store. This is covered in OEP15 (Meta API)
 
 
 ## Change Process
@@ -73,11 +71,11 @@ Base attributes are always part of the Asset Metadata schema. Those attributes c
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name of the Asset
-**type**        | Text          | Yes           | Type of the Asset. Helps to filter by kind of asset, initially ("data", "invoke", "bundle", "algorithm", "container", "workflow", "other")
-**description** | Text          | No            | Details of what the resource is. For a data set explain what the data represents and what it can be used for
-**dateCreated** | DateTime      | Yes           | The date on which  was created or was added
-**author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.)
-**license**     | Text          | Yes           | Short name referencing to the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified"
+**type**        | Text          | Yes           | Type of the Asset. Helps to filter by kind of asset, initially ("dataset", "invoke", "bundle", "algorithm", "container", "workflow", "other")
+**description** | Text          | No            | Decription of what the asset represents. e.g. for a data set the publisher should typically explain what the data represents and what it can be used for
+**dateCreated** | DateTime      | Yes           | The ISO-8601 date on which  was created or was added
+**author**      | Text          | No           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.)
+**license**     | Text          | No           | Short name referencing to the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified"
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
 **links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. 
