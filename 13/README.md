@@ -32,9 +32,17 @@ Ocean has a core mission of making data assets visible and discoverable, with a 
 
 As such, each Ocean Asset (dataset, algorithm, etc.) has Asset Metadata associated with it. Asset Metadata is created by the asset publisher, and hashed to ensure integrity and ensure that the asset can be subsequently referenced as part of the provenance of other assets.
 
+Asset Metadata should normally be stored off-chain for the following reasons:
+
+- Eliminate gas cost of requiring on-chain registration of assets
+- Mininise risk of harmful content being published on-chain
+- Keeping metadata private in some trusted data scenarios (e.g. sharing within a consortium) 
+
 Assets without proper descriptive metadata can have poor visibility and discoverability, so it is generally in the publisher's interest to ensure good metadata is made available.
 
-This OEP doesn't detail the exact method of registering or publishing metadata in a metadata store.
+This OEP doesn't detail the exact method of registering or publishing metadata in a metadata store. This is covered in OEP15 (Meta API)
+
+
 
 
 ## Change Process
