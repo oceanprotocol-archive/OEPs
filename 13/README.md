@@ -195,8 +195,6 @@ Here is a representation of an example Asset using the schema described:
     "encoding": "UTF-8",
     "compression": "zip",
     "contentType": "text/csv",
-    "workExample": "stationId,latitude,longitude,datetime,temperature,humidity\n
-                        423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
     "contentUrls": ["https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"],
     "links": [
 	    {
@@ -215,6 +213,8 @@ Here is a representation of an example Asset using the schema described:
 
     "additionalInformation" : {
         "updateFrecuency": "yearly",
+        "workExample": "stationId,latitude,longitude,datetime,temperature,humidity\n
+                        423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
         "structuredMarkup": [
             {
                 "uri": "http://skos.um.es/unescothes/C01194/jsonld",
