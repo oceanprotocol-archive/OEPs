@@ -55,9 +55,10 @@ The main motivations of this OEP are:
 Requirements are:
 
 * Each Ocean API must be allocated a unique endpoint type
-* Each DDO may specify one or more services as per the W3C DID spec
+* Each Ocean Agent wishing to expose Ocean APIs must register a DDO
+* Each Agent DDO may specify one or more services as per the W3C DID spec
 * If the service represents an Ocean API, the "type" of the service must be the endpoint type
-* The endpoint type should include a version number 
+* The endpoint type should include a version number, to allow for protocol evolution
 
 
 ## Proposed Solution
@@ -70,7 +71,7 @@ Endpoints are specified in the following form in the DDO:
 {
   "service": [{
     "type": "Ocean.Meta.v1",
-    "serviceEndpoint": "https://mobi.com/meta"
+    "serviceEndpoint": "https://mobi.com/api/v1/meta"
   }]
 }
 ```
@@ -80,9 +81,9 @@ Endpoints are specified in the following form in the DDO:
 Endpoint type          |   Description
 -----------------------|----------------------
 Ocean.Meta.v1          | Endpoint for the Meta Agent API v1 (OEP15 - TBC)
-Ocean.Market.v1        | Endpoint for the Market Agent API
-Ocean.Storage.v1       | Endpoint for a generalised storage API
-Ocean.Invoke.v1        | Endpoint for an invokable service API
+Ocean.Market.v1        | Endpoint for the Market Agent API (OEP16 - TBC)
+Ocean.Storage.v1       | Endpoint for a generalised storage API (OEP17 - TBC)
+Ocean.Invoke.v1        | Endpoint for an invokable service API (OEP6 - TBC)
 
 
 ## Changes Required
