@@ -64,7 +64,7 @@ In the future, we can add more people to this list.
 
 Some people have specializations:
 
-- Tribes: @diminator
+- Domains: @diminator
 - Research: @diminator, @trentmc
 - Ocean Core [Tethys](https://github.com/oceanprotocol/ocean/projects/2): @aaitor
 
