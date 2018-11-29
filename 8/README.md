@@ -60,7 +60,7 @@ Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name of the Asset.
 **type**        | Text          | Yes           | Type of the Asset. Helps to filter by the type of asset, initially ("dataset", "algorithm", "container", "workflow", "other").
-**description** | Text          | No            | Details of what the resource is. For a data set, this attribute explains what the data represents and what it can be used for.
+**description** | Text          | No            | Details of what the resource is. For a dataset, this attribute explains what the data represents and what it can be used for.
 **dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added.
 **size**        | Text          | Yes           | Size of the asset (e.g. 18MB). In the absence of a unit (MB, kB etc.), kB will be assumed.
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
