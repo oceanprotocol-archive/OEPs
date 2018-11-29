@@ -59,7 +59,7 @@ The main motivations of this OEP are:
 * Design a solution facilitating alignment of on-chain and off-chain information
 * Establishing the mechanism to know if the DDO associated with a DID was modified
 * Defining the common mechanisms, interfaces and APIs to implemented the designed solution
-* Define how Ocean assets, agents and tribes can be modeled with a DID/DDO data model
+* Define how Ocean assets, agents and domains can be modeled with a DID/DDO data model
 * Understand how DID hubs are formed, and how they integrate a business and storage layer
 
 ## Specification
