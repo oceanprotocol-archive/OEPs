@@ -25,8 +25,7 @@ contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanp
 
 # Assets Metadata Ontology
 
-Every Asset (dataset, algorithm, etc.) in the Ocean Network has an associated Decentralized Identifier (DID) and DID document / DID Descriptor Object (DDO).
-Why? Assets without proper descriptive metadata can have poor visibility and discoverability.
+Every Asset (dataset, algorithm, etc.) in the Ocean Network has an associated Decentralized Identifier (DID) and DID document / DID Descriptor Object (DDO). Why? Because Assets without proper descriptive metadata have poor visibility and discoverability.
 
 See [OEP 7/DID](../7/README.md) for information about the overall structure of Ocean DDOs and DIDs.
 
@@ -59,33 +58,33 @@ All base attributes MUST be included in the Asset Metadata. The stored _values_ 
 
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
-**name**        | Text          | Yes           | Descriptive name of the Asset
-**type**        | Text          | Yes           | Type of the Asset. Helps to filter by kind of asset, initially ("dataset", "algorithm", "container", "workflow", "other")
-**description** | Text          | No            | Details of what the resource is. For a data set explain what the data represents and what it can be used for
-**dateCreated** | DateTime      | Yes           | The date on which  was created or was added
-**size**        | Text          | Yes           | Size of the asset (e.g. 18MB). In the absence of a unit (MB, kB etc.), kB will be assumed
-**author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.)
-**license**     | Text          | Yes           | Short name referencing to the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified"
-**copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default
-**encoding**    | Text          | No            | File encoding (e.g. UTF-8)
-**compression** | Text          | No            | File compression (e.g. no, gzip, bzip2, etc)
-**contentType** | Text          | Yes           | File format if applicable
+**name**        | Text          | Yes           | Descriptive name of the Asset.
+**type**        | Text          | Yes           | Type of the Asset. Helps to filter by the type of asset, initially ("dataset", "algorithm", "container", "workflow", "other").
+**description** | Text          | No            | Details of what the resource is. For a data set, this attribute explains what the data represents and what it can be used for.
+**dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added.
+**size**        | Text          | Yes           | Size of the asset (e.g. 18MB). In the absence of a unit (MB, kB etc.), kB will be assumed.
+**author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
+**license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
+**copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default.
+**encoding**    | Text          | No            | File encoding (e.g. UTF-8).
+**compression** | Text          | No            | File compression (e.g. no, gzip, bzip2, etc).
+**contentType** | Text          | Yes           | File format, if applicable.
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
-**contentUrls** | Text          | Yes           | List of content URLs resolving the Asset files
-**links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. Links may be to either an URL or another Asset. We expect marketplaces to converge on agreements of typical formats for linked data: The Ocean Protocol itself does not mandate any specific formats as requirements are likely to be domain-specific.
-**inLanguage**  | Text          | No            | The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47)
-**tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas. Empty by default
-**price**       | Number        | Yes           | Price of the asset. If not specified would be 0.
+**contentUrls** | Text          | Yes           | List of content URLs resolving the Asset files.
+**links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. Links may be to either a URL or another Asset. We expect marketplaces to converge on agreements of typical formats for linked data: The Ocean Protocol itself does not mandate any specific formats as these requirements are likely to be domain-specific.
+**inLanguage**  | Text          | No            | The language of the content. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47).
+**tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
+**price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
 
 ## Curation Attributes
 
-To normalize the different possible rating attributes after a process of curation, this is the normalized list of curation attributes:
+To normalize the different possible rating attributes after a curation process, this is the normalized list of curation attributes:
 
 Attribute       |   Type           |   Required    | Description
 ----------------|------------------|---------------|----------------------
-**rating**      | Number (decimal) | Yes           | Decimal value between 0 and 1. 0 is the default value
-**numVotes**    | Integer          | Yes           | Number of votes. 0 is the default value
-**schema**      | Text             | No            | Schema applied to calculate the rating
+**rating**      | Number (decimal) | Yes           | Decimal value between 0 and 1. 0 is the default value.
+**numVotes**    | Integer          | Yes           | Number of votes. 0 is the default value.
+**schema**      | Text             | No            | Schema applied to calculate the rating.
 
 ## Additional Information
 
@@ -94,14 +93,14 @@ These are examples of attributes that can enhance the discoverability of a resou
 | Attribute             | Description                                                                                                                  |
 | -                     | -                                                                                                                            |
 | **checksum**          | Checksum of attributes to be able to compare if there are changes in the asset that you are purchasing.                      |
-| **sla**               | Service Level Agreement                                                                                                      |
+| **sla**               | Service Level Agreement.                                                                                                      |
 | **industry**          |                                                                                                                              |
-| **category**          | can be assigned to a category in addition to having tags                                                                     |
-| **updateFrequency**   | how often are updates expected (seldom, annually, quarterly, etc.), or is the resource static (never expected to get updated) |
+| **category**          | Can be assigned to a category in addition to having tags.                                                                     |
+| **updateFrequency**   | An indication of update latency - i.e. How often are updates expected (seldom, annually, quarterly, etc.), or is the resource static that is never expected to get updated. |
 | **termsOfService**    |                                                                                                                              |
 | **privacy**           |                                                                                                                              |
-| **keyword**           | A list of keywords/tags describing a dataset                                                                                 |
-| **structured-markup** | A link to machine-readable structured markup (such as ttl/json-ld/rdf) describing the dataset                                |
+| **keyword**           | A list of keywords/tags describing a dataset.                                                                                 |
+| **structured-markup** | A link to machine-readable structured markup (such as ttl/json-ld/rdf) describing the dataset.                                |
 
 The publisher of a DDO MAY add additional attributes (i.e. in addition to those listed above).
 
