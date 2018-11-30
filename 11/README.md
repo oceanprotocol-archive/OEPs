@@ -77,7 +77,7 @@ The different actors interacting in this flow are:
 
 * PUBLISHERS - Provide access to Assets and/or Services
 * CONSUMERS - Want to get access to Assets or Services
-* MARKETPLACES or TRIBES - Store the DDO/Metadata related with the Assets
+* MARKETPLACES or DOMAINS - Store the DDO/Metadata related with the Assets
 
 ### Technical components
 
