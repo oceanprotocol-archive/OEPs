@@ -126,6 +126,13 @@ Ocean adds the following additional *types* for entities, activities and agents.
   - ocn:import : The act of importing a data asset
   - ocn:invoke_service : The act of invoking an Ocean service.
   
+* Attributes
+  - ocn:id_resolver: Similar to a DID resolver, an endpoint which returns information about the entity id.
+  - ocn:did : DID of an Ocean Agent, if available.
+  
+* Attribute values
+  - ocn:this: a special attribute value that refers to the entity being published or generated. 
+  
 ## Use case 1 : Publishing
 
 When a user publishes an asset for the first time on Ocean, they must include the following provenance metadata.
@@ -158,7 +165,7 @@ Example section:
  - an optional "ocn:did" to indicate the DID
 ```
 "agent": {
-    "ocn_prov:ocn_abvfwi89sjek": {
+    "ocn:ocn_abvfwi89sjek": {
       "prov:label": "Hospital data administrator",
       "prov:type": {
                 "$": "prov:Person",
@@ -175,7 +182,7 @@ Example section:
  
 ```
   "activity": {
-    "ocn_prov:ocn_asf29fj291lkd": {
+    "ocn:ocn_asf29fj291lkd": {
       "prov:label": "Compile the dataset",
       "prov:endTime": "2018-02-02T14:07:13", 
       "prov:startTime": "2018-02-02T11:03:23", 
@@ -190,13 +197,13 @@ Example section:
 Example:
 ```
 "entity": {
-    "ocn_prov:this": {
+    "ocn:this": {
       "prov:value": {
         "$": "A dataset of parkinsons sensor readings",
         "type": "xsd:string"
       }
       "prov:type":"ocn:dataset",
-      "ocn_prov:id_resolver" : "did:ocn:marketplaceid"
+      "ocn:id_resolver" : "did:ocn:marketplaceid"
     }
   }
 ```
@@ -207,8 +214,8 @@ Example:
 {
   "wasGeneratedBy": {
     "_:wGB4": {
-      "prov:entity": "ocn_prov:this",
-      "prov:activity": "ocn_prov:ocn_asf29fj291lkd"
+      "prov:entity": "ocn:this",
+      "prov:activity": "ocn:ocn_asf29fj291lkd"
     }
   }
 ```
@@ -219,8 +226,8 @@ Example:
 ```
 "wasAssociatedWith": {
     "_:wAW4": {
-      "prov:agent": "ocn_prov:ocn_abvfwi89sjek",
-      "prov:activity": "ocn_prov:ocn_asf29fj291lkd"
+      "prov:agent": "ocn:ocn_abvfwi89sjek",
+      "prov:activity": "ocn:ocn_asf29fj291lkd"
     }
   }
 ```
@@ -271,7 +278,7 @@ Example:
 * The agent involved. In this case, the hospital administrator and the data cleaning service
 ```
 "agent": {
-    "ocn_prov:ocn_abvfwi89sjek": {
+    "ocn:ocn_abvfwi89sjek": {
       "prov:label": "Hospital data administrator",
       "prov:type": {
            "$": "prov:Person",
@@ -279,7 +286,7 @@ Example:
       },
       "ocn:did": "did:ocn:llongameabcd2938"
     },
-    "ocn_prov:ocn_abv2837282isk": {
+    "ocn:ocn_abv2837282isk": {
       "prov:label": "data cleaning service",
       "prov:type": {
            "$": "prov:SoftwareAgent",
@@ -294,7 +301,7 @@ Example:
 
 ```
   "activity": {
-    "ocn_prov:ocn_asf29fj291lkd": {
+    "ocn:ocn_asf29fj291lkd": {
       "prov:label": "Cleaning the dataset",
       "prov:endTime": "2018-02-02T14:07:13", 
       "prov:startTime": "2018-02-02T11:03:23", 
@@ -308,13 +315,13 @@ Example:
 Example:
 ```
 "entity": {
-    "ocn_prov:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfd2": {
+    "ocn:this": {
       "prov:value": {
         "$": "A dataset of cleaned parkinsons sensor readings",
         "type": "xsd:string"
       }
       "prov:type":"ocn:dataset",
-      "ocn_prov:id_resolver" : "did:ocn:marketplaceid"
+      "ocn:id_resolver" : "did:ocn:marketplaceid"
     }
   }
 ```
@@ -324,8 +331,8 @@ Example:
 {
   "wasGeneratedBy": {
     "_:wGB4": {
-      "prov:entity": "ocn_prov:ocn_ui38gsxh27dkeiq",
-      "prov:activity": "ocn_prov:ocn_asf29fj291lkd"
+      "prov:entity": "ocn:this",
+      "prov:activity": "ocn:ocn_asf29fj291lkd"
     }
   }
 ```
@@ -334,12 +341,12 @@ Example:
 ```
 "wasAssociatedWith": {
     "_:wAW4": {
-      "prov:agent": "ocn_prov:ocn_abvfwi89sjek",
-      "prov:activity": "ocn_prov:ocn_asf29fj291lkd"
+      "prov:agent": "ocn:ocn_abvfwi89sjek",
+      "prov:activity": "ocn:ocn_asf29fj291lkd"
     },
     "_:wAW5": {
-      "prov:agent": "ocn_prov:ocn_abv2837282isk",
-      "prov:activity": "ocn_prov:ocn_asf29fj291lkd"
+      "prov:agent": "ocn:ocn_abv2837282isk",
+      "prov:activity": "ocn:ocn_asf29fj291lkd"
     }
   }
 ```
@@ -350,8 +357,8 @@ Example:
 ```
 "used" : {
       "_:u1" : {
-        "prov:entity" : "ocn:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfd2",
-        "prov:activity" : "ocn_prov:ocn_asf29fj291lkd"
+        "prov:entity" : "ocn:this",
+        "prov:activity" : "ocn:ocn_asf29fj291lkd"
       }
     }
 
@@ -362,8 +369,8 @@ Example:
 ```
 "wasDerivedFrom": {
     "_:wDF2": {
-      "prov:generatedEntity": "ocn_prov:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfd2",
-      "prov:usedEntity": "ocn_prov:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfde"
+      "prov:generatedEntity": "ocn:this",
+      "prov:usedEntity": "ocn:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfde"
     }
 ```
 
