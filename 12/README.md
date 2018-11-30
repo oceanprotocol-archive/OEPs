@@ -15,9 +15,11 @@ This document describes
 > a piece of data or thing, which can be used to form assessments 
 > about its quality, reliability or trustworthiness. [source](https://www.w3.org/TR/prov-overview/#Abstract)
 
-Keen readers may wish to refer to a longer introduction [here](https://www.w3.org/TR/2013/NOTE-prov-primer-20130430/#intuitive-overview-of-prov). We will first explain the key concepts of Prov and their equivalents in Ocean.
+Readers may wish to refer to a longer introduction [here](https://www.w3.org/TR/2013/NOTE-prov-primer-20130430/#intuitive-overview-of-prov).
 
-Provenance can be modeled as a graph consisting of the following nodes, and connections between the nodes. The nodes in the graph are:
+### W3C Provenance overview 
+
+Provenance can be modeled as a graph consisting nodes and connections between the nodes. The nodes in the graph are:
 
 ### Entities 
 
