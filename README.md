@@ -26,7 +26,6 @@ The process to add or change a OEP is the following:
 
 # Current OEPs
 
-
 Short Name       | Title                                                        | Type         | Status     | Editor
 -----------------|--------------------------------------------------------------|--------------|------------|-------
 [1/C4](1)        | Collective Code Construction Contract                        | Meta         | Draft      | Dimitri De Jonghe
@@ -36,7 +35,10 @@ Short Name       | Title                                                        
 [6/CSAPI](6)     | API to register & invoke computer services                   | Standard     | Raw        | Mike Anderson
 [7/DID](7)       | Decentralized Identifiers									| Standard     | Raw        | Aitor Argomaniz
 [8/ASSET-DDO](8) | Assets Metadata Ontology                                     | Standard     | Raw        | Aitor Argomaniz
+[9/BOUNTY](9)  | Bounties in Ocean Protocol                       	 		 | Standard | Raw      | Chalid Mannaa, Manan Patel
 [10/OAA](10)     | On-Chain Access Control                       				| Standard     | Draft      | Ahmed Ali
+[11/ACL](11)    | On-Chain Access Control using Service Agreements           | Standard | Raw      | Aitor Argomaniz
+
 
 
 # Current Participants
@@ -54,7 +56,7 @@ In the future, we can add more people to this list.
 
 Some people have specializations:
 
-- Tribes: @diminator
+- Domains: @diminator
 - Research: @diminator, @trentmc
 - Ocean Core [Tethys](https://github.com/oceanprotocol/ocean/projects/2): @aaitor
 
