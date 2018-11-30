@@ -123,6 +123,7 @@ Ocean adds the following additional *types* for entities, activities and agents.
 * Activities:
 
   - ocn:publish : The act of publishing a data asset
+  - ocn:import : The act of importing a data asset
   - ocn:invoke_service : The act of invoking an Ocean service.
   
 ## Use case 1 : Publishing
@@ -189,7 +190,7 @@ Example section:
 Example:
 ```
 "entity": {
-    "ocn_prov:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfd2": {
+    "ocn_prov:this": {
       "prov:value": {
         "$": "A dataset of parkinsons sensor readings",
         "type": "xsd:string"
@@ -206,7 +207,7 @@ Example:
 {
   "wasGeneratedBy": {
     "_:wGB4": {
-      "prov:entity": "ocn_prov:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfd2",
+      "prov:entity": "ocn_prov:this",
       "prov:activity": "ocn_prov:ocn_asf29fj291lkd"
     }
   }
@@ -226,9 +227,11 @@ Example:
 
 ## Usecase 2 : Importing
 
-When a user imports a dataset, suggested provenance <TODO>
+When a user imports a dataset, the suggested provenance is similar to the publishing use case, with the exception of:
 
-## Usecase 3: Generating a new asset
+- the _type_ of the activity should be "ocn:import" instead of "ocn:publish".
+
+## Usecase 3: A service generating a new asset from existing assets
 
 Ocean services such as data cleaning, model training and others, generate a new data asset. This process could have the following characteristics
 
