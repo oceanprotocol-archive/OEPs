@@ -40,100 +40,166 @@
     "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
     "purchaseEndpoint": "http://mybrizo.org/api/v1/brizo/services/access/purchase?",
     "templateId": "044852b2a670ade5407e78fb2863c51000000000000000000000000000000000",
+    "serviceAgreementContract": {
+      "contractName": "ServiceAgreement",
+      "fulfillmentOperator": 1,
+      "events": [{
+        "name": "ExecuteAgreement",
+        "actorType": "consumer",
+        "handler": {
+          "moduleName": "payment",
+          "functionName": "lockPayment",
+          "version": "0.1"
+        }
+      }]
+    },
     "conditions": [
       {
         "name": "lockPayment",
+        "dependencies": [],
         "timeout": 0,
-        "conditionKey": {
-          "contractAddress": "0x...",
-          "fingerprint": "0x..."
-        },
-        "parameters": {
-          "assetId": "bytes32",
-          "price": "integer"
-        },
-        "events": {
-          "PaymentLocked": {
-            "actorType": ["publisher"],
-            "handlers": [{
-              "moduleName": "accessControl",
-              "functionName": "grantAccess",
-              "version": "0.1"
-            }]
+        "isTerminalCondition": 0,
+        "conditionKey": "0x313d20f9cda19e1f5702af79e5ebfa7cb434918722f9b334000ea71cdaac1614",
+        "contractName": "PaymentConditions",
+        "functionName": "lockPayment",
+        "index": 0,
+        "parameters": [
+          {
+            "name": "assetId",
+            "type": "bytes32",
+            "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+          },{
+            "name": "price",
+            "type": "uint256",
+            "value": 10
           }
-        }
-      }, {
-        "name": "releasePayment",
-        "timeout": 0,
-        "conditionKey": {
-          "contractAddress": "0x...",
-          "fingerprint": "0xXXXXXXXX"
-        },
-        "parameters": {
-          "assetId": "bytes32",
-          "price": "integer"
-        },
-        "events": {
-          "PaymentReleased": {
-            "actorType": ["publisher"],
-            "handlers": [{
-              "moduleName": "serviceAgreement",
-              "functionName": "fulfillAgreement",
-              "version": "0.1"
-            }]
+        ],
+        "events": [{
+          "name": "PaymentLocked",
+          "actorType": "publisher",
+          "handler": {
+            "moduleName": "accessControl",
+            "functionName": "grantAccess",
+            "version": "0.1"
           }
-        }
+        }]
       }, {
         "name": "grantAccess",
-        "timeout": 0,
-        "conditionKey": {
-          "contractAddress": "0x",
-          "fingerprint": "0xXXXXXXXX"
-        },
-        "parameters": {
-          "assetId": "bytes32",
-          "documentKeyId": "bytes32"
-        },
-        "events": {
-          "AccessGranted": {
-            "actorType": ["consumer"],
-            "handlers": [{
-              "moduleName": "asset",
-              "functionName": "consumeService",
-              "version": "0.1"
-            }]
+        "dependencies": [{
+            "name": "lockPayment",
+            "timeout": 0
           }
-        }
-
+        ],
+        "timeout": 0,
+        "isTerminalCondition": 0,
+        "conditionKey": "0x38163b4835d3b0c780fcdf6a872e3e86f84393a0bda8e8b642df39a8d05c4c1a",
+        "contractName": "AccessConditions",
+        "functionName": "grantAccess",
+        "index": 1,
+        "parameters": [
+            {
+             "name": "assetId",
+             "type": "bytes32",
+             "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+            }, {
+             "name": "documentKeyId",
+             "type": "bytes32",
+             "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+            }
+        ],
+        "events": [{
+          "name": "AccessGranted",
+          "actorType": "consumer",
+          "handler": {
+            "moduleName": "asset",
+            "functionName": "consumeService",
+            "version": "0.1"
+          }
+        }, {
+          "name": "AccessGranted",
+          "actorType": "publisher",
+          "handler": {
+            "moduleName": "payment",
+            "functionName": "releasePayment",
+            "version": "0.1"
+          }
+        }]
+      },{
+        "name": "releasePayment",
+        "dependencies": [{
+            "name": "grantAccess",
+            "timeout": 0
+          }
+        ],
+        "timeout": 0,
+        "isTerminalCondition": 1,
+        "conditionKey": "0x477f516713f4b0de54d0e0f4429f593c63f2dd2ca4789633e02a446c7978f3cb",
+        "contractName": "PaymentConditions",
+        "functionName": "releasePayment",
+        "index": 2,
+        "parameters": [
+            {
+             "name": "assetId",
+             "type": "bytes32",
+             "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+            }, {
+             "name": "price",
+             "type": "uint",
+             "value": 10
+            }
+        ],
+        "events": [{
+          "name": "PaymentReleased",
+          "actorType": "publisher",
+          "handler": {
+            "moduleName": "serviceAgreement",
+            "functionName": "fulfillAgreement",
+            "version": "0.1"
+          }
+        }]
       }, {
         "name": "refundPayment",
-        "timeout": 1,
-        "condition_key": {
-          "contractAddress": "0x...",
-          "fingerprint": "0xXXXXXXXX"
-        },
-        "parameters": {
-          "assetId": "bytes32",
-          "price": "int"
-        },
-        "events": {
-          "PaymentRefund": {
-            "actorType": ["consumer"],
-            "handlers": [{
-              "moduleName": "serviceAgreement",
-              "functionName": "fulfillAgreement",
-              "version": "0.1"
-            }]
+        "dependencies": [{
+            "name": "lockPayment",
+            "timeout": 0
+          },{
+            "name": "grantAccess",
+            "timeout": 86400
           }
-        }
-
+        ],
+        "timeout": 1,
+        "isTerminalCondition": 1,
+        "conditionKey": "0x385d3af26f7c057688a4988fb784c392a97ce472a4feb4435968fed04809e8dc",
+        "contractName": "PaymentConditions",
+        "functionName": "refundPayment",
+        "index": 3,
+		"parameters": [
+			{
+			 "name": "assetId",
+			 "type": "bytes32",
+			 "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+			}, {
+			 "name": "price",
+			 "type": "uint",
+			 "value": 10
+			}
+		],
+        "events": [{
+          "name": "PaymentRefund",
+          "actorType": "consumer",
+          "handler": {
+            "moduleName": "serviceAgreement",
+            "functionName": "fulfillAgreement",
+            "version": "0.1"
+          }
+        }]
       }
     ]
 
   }, {
     "type": "CloudCompute",
     "serviceDefinitionId": "1",
-    "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/compute?pubKey=${pubKey}&serviceId={serviceId}&algo={algo}&container={container}"
+    "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/compute?pubKey=${pubKey}&serviceId={serviceId}&algo={algo}&container={container}",
     "templateId": "044852b2a670ade5407e78fb2863c51000000000000000000000000000000002"
 
   }, {

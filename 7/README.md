@@ -2,7 +2,7 @@
 shortname: 7/DID
 name: Decentralized Identifiers
 type: Standard
-status: Raw
+status: Draft
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@oceanprotocol.com>
 ```
@@ -10,25 +10,25 @@ contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@o
 **Table of Contents**
 
 <!--ts-->
-
    * [Decentralized Identifiers](#decentralized-identifiers)
       * [Change Process](#change-process)
       * [Language](#language)
       * [Motivation](#motivation)
       * [Specification](#specification)
       * [Proposed Solution](#proposed-solution)
-         * [Decentralized ID's (DID)](#decentralized-ids-did)
-         * [DID Documents (DDO)](#did-documents-ddo)
+         * [Decentralized IDs (DIDs)](#decentralized-ids-dids)
+         * [DID Documents (DDOs)](#did-documents-ddos)
          * [Integrity](#integrity)
             * [Length of a DID](#length-of-a-did)
-            * [How to compute a DID for a DDO](#how-to-compute-a-did-for-a-ddo)
-               * [Computing the Proof](#computing-the-proof)
-               * [Computing the SHA-3 Hash](#computing-the-sha-3-hash)
+            * [How to compute a DID](#how-to-compute-a-did)
          * [Registry](#registry)
          * [Resolver](#resolver)
       * [Changes Required](#changes-required)
-      * [Changes Required](#changes-required-1)
+         * [List 1](#list-1)
+         * [List 2](#list-2)
       * [References](#references)
+
+<!-- Added by: troy, at: 2018-11-23T15:48+01:00 -->
 
 <!--te-->
 
@@ -41,16 +41,13 @@ This specification is based on:
 * [3/ARCH](../3/README.md), and
 * [4/AGENT](../4/README.md).
 
-
 ## Change Process
 
-This document is governed by the [2/COSS](../2/README.md) (COSS).
-
+This document is governed by [OEP 2/COSS](../2/README.md).
 
 ## Language
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
-
 
 ## Motivation
 
@@ -64,7 +61,6 @@ The main motivations of this OEP are:
 * Defining the common mechanisms, interfaces and APIs to implemented the designed solution
 * Define how Ocean assets, agents and tribes can be modeled with a DID/DDO data model
 * Understand how DID hubs are formed, and how they integrate a business and storage layer
-
 
 ## Specification
 
@@ -90,7 +86,6 @@ Requirements are:
 * A HASH not matching with the checksum on-chain means the DDO was modified without the on-chain update
 * The function to calculate the HASH MUST BE standard
 
-
 ## Proposed Solution
 
 ### Decentralized IDs (DIDs)
@@ -103,7 +98,7 @@ The DDO is stored off-chain in Ocean.
 In Ocean, a DID is a string that looks like:
 
 ```text
-did:op:9050a77f4acffd30a2e97bfa5abfcb9256f6f9cde60091bf9d573c534052d9fd
+did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea
 ```
 
 which follows [the generic DID scheme](https://w3c-ccg.github.io/did-spec/#the-generic-did-scheme).
@@ -128,7 +123,7 @@ Example:
 ```json
 {
   "@context": "https://example.org/example-method/v1",
-  "id": "did:op:9050a77f4acffd30a2e97bfa5abfcb9256f6f9cde60091bf9d573c534052d9fd",
+  "id": "did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
   "authentication": [{ ... }],
   "service": [{
     "type": "AssetsMetadataService",
@@ -143,7 +138,6 @@ Example:
 
 You can find a complete reference of the asset metadata in the scope of the [OEP-8](8).
 Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the W3C DID spec.
-
 
 ### Integrity
 
@@ -236,14 +230,13 @@ contract DidRegistry {
         DidAttributeRegistered(_did, msg.sender, _providerDID, _key, _value, now);
     }
 }
-
 ```
 
 To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"service-ddo"** with the public hostname of that provider:
+
 ```
 registerAttribute("did:op:21tDAKCERh95uGgKbJNHYp", "did:op:328aabb94534935864312", "service-ddo", "https://myprovider.example.com/ddo")
 ```
-
 
 ### Resolver
 
@@ -292,20 +285,18 @@ Steps:
 1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **service-ddo** attribute associated to the DID directly from the KEEPER
 1. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
 
-
 ## Changes Required
 
-The list of changes to apply in the proposed solution are:
+The changes to apply in the proposed solution are:
+
+### List 1
 
 * Modify the function creating the id to return a DID compliant id - KEEPER
 * Create the new DidRegistry Smart Contract - KEEPER
 * Integrate the call to the DidRegistry contract in the OceanMarketplace or Service Agreement contract (depending of the moment of integration of this) - KEEPER
 * Implement the resolving function of a DDO given a DID - CLIENT LIBRARIES
 
-
-## Changes Required
-
-The list of changes to apply in the proposed solution are:
+### List 2
 
 * Define a one-way algorithm to use to calculate the HASH function (keccak is suggested)
 * Create a new method to calculate the HASH - CLIENT LIBRARIES
@@ -315,5 +306,5 @@ The list of changes to apply in the proposed solution are:
 
 ## References
 
-* https://w3c-ccg.github.io/did-spec/
-* https://github.com/WebOfTrustInfo/rebooting-the-web-of-trust-fall2016/blob/master/topics-and-advance-readings/did-spec-working-draft-03.md
+* [DID Spec from the W3C Credentials Community Group](https://w3c-ccg.github.io/did-spec/)
+* [DID Spec from _Rebooting the Web of Trust_](https://github.com/WebOfTrustInfo/rebooting-the-web-of-trust-fall2016/blob/master/topics-and-advance-readings/did-spec-working-draft-03.md)
