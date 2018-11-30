@@ -1,28 +1,31 @@
 # Introduction
 
-Provenance for Ocean
+This document describes 
 
-# Motivation
+- what is Provenance
+- What is Provenance in the context of Ocean
+- Definitions of formats for annotating provenance
+- Examples of provenance metadata
+- FAQ
 
-## What is provenance?
+# What is provenance?
 
 
 > Provenance is information about entities, activities, and people involved in producing
 > a piece of data or thing, which can be used to form assessments 
-> about its quality, reliability or trustworthiness
-
-[link](https://www.w3.org/TR/prov-overview/#Abstract)
+> about its quality, reliability or trustworthiness [source](https://www.w3.org/TR/prov-overview/#Abstract)
 
 Keen readers may wish to refer to a longer introduction [here](https://www.w3.org/TR/2013/NOTE-prov-primer-20130430/#intuitive-overview-of-prov). We will first explain the key concepts of Prov and their equivalents in Ocean.
 
 Provenance can be modeled as a graph consisting of the following nodes, and connections between the nodes. The nodes in the graph are:
-* Entities 
+
+### Entities 
 
 > In PROV, physical, digital, conceptual, or other kinds of thing are called entities. 
 > Examples of such entities are a web page, a chart, and a spellchecker
 
 
-* Agents
+### Agents
 
 > An agent takes a role in an activity such that the agent can be assigned 
 > some degree of responsibility for the activity taking place. An agent can be a person, 
@@ -31,7 +34,7 @@ Provenance can be modeled as a graph consisting of the following nodes, and conn
 > for an activity, PROV says the agent was associated with the activity, 
 > where several agents may be associated with an activity and vice-versa. 
 
-* Activities
+### Activities
 
 > Activities are how entities come into existence and how their attributes change to 
 > become new entities, often making use of previously existing entities to achieve this. 
@@ -42,7 +45,7 @@ Provenance can be modeled as a graph consisting of the following nodes, and conn
 
 ![relationships between nodes](https://www.w3.org/TR/2013/NOTE-prov-primer-20130430/images/key-concepts.png)
 
-Some of the connections between the nodes are:
+Some of the connections/relationships between the nodes are:
 
 * Entity-Activity interactions 
   - Activities generate new Entities  (wasGeneratedBy)
@@ -59,7 +62,7 @@ Some of the connections between the nodes are:
 
 The rest of this document describes the format to be used for Provenance metadata in Ocean protocol.
 
-## Provenance basics: Entities and Interactions 
+## Provenance for Ocean Entities and Interactions 
 
 In the Ocean context
 
@@ -67,16 +70,18 @@ In the Ocean context
 * Publishers, Consumers and Service Providers are agents.
 * Publishing and invoking services are activities. 
 
-In simple language, we could state that 
+Comparing a colloquial statement with a prov version of it:
 
-* "User Bob uploaded a dataset to Ocean", the prov version of it would be: "(Agent) Bob was associated with a publishing activity, which generated a (entity) data asset".
-* "Bob ran a Consent service to filter a dataset", the prov version: "(Agent) Bob was associated with a filtering activity, which *used* an (entity) data asset and  generated a new (entity) data asset. The consent service (entity) was associate with (involved in) generating the asset".
+* "User Bob uploaded a dataset to Ocean", 
+  - the prov version: "(Agent) Bob was associated with a publishing activity, which generated a (entity) data asset".
+* "Bob ran a Consent service to filter a dataset"
+  - the prov version: "(Agent) Bob was associated with a filtering activity, which *used* an (entity) data asset and  generated a new (entity) data asset. The consent service (entity) was associate with (involved in) generating the asset".
 
-# Use cases
+# Motivation and Use cases
 
 Provenance information can be read from 3 perspectives:
 
-* Agent centered : `what people or organizations were involved in generating or manipulating the data assets`
+* Agent centered : what people or organizations were involved in generating or manipulating the data assets
 * Object centered : The origins of (portions of) a dataset from other datasets
 * Process centered: Capturing the actions and steps taken to generate the data asset.
 
@@ -92,11 +97,25 @@ An Ocean provenance metadata should be compatible with W3C Prov, however, it may
 
 ## Ocean IDs
 
-IDs for ocean entities must be compliant with W3C [decentralized](https://w3c-ccg.github.io/did-spec/#simple-examples) IDs (DIDs), in the form "did:ocn:abcdefg123456789"
+IDs defined in Ocean prov are multi-part.
 
-## Ocean entities
+#### Asset IDs
+* The Asset ID is a 256 bit string (the output of the Keccak256 hash function) . Ocean Prov entities are identified by asset IDs.
+* The Asset ID can be retrieved from a marketplace or service provider, which itself is identified using a DID. IDs for ocean service providers must be compliant with W3C [decentralized](https://w3c-ccg.github.io/did-spec/#simple-examples) IDs (DIDs), in the form "did:ocn:abcdefg123456789". 
 
-Ocean adds the following additional types for entities, activities and agents. Details such as attribute names and values would be included as a separate (repo?)
+#### Agent IDs
+
+* Ocean Prov agents could be identified by 
+  - a DID.
+  - plaintext string
+
+#### Activity IDs
+
+Activities will benefit by having an ID. If an asset/service provider chooses to expose a log of activities, users can verify the activity details. However, it is not mandatory for activities to have an ID.
+ 
+## Ocean Prov entities
+
+Ocean adds the following additional *types* for entities, activities and agents. Details such as attribute names and values would be included as a separate (repo?)
 
 * Entities:
   - ocn:dataset : An Ocean dataset asset 
@@ -121,6 +140,7 @@ Each section has an example that follows.
 
 Example section:
 * Prefixes used
+
 ```
 "prefix": {
     "xsd": "http://www.w3.org/2001/XMLSchema#",
@@ -129,8 +149,10 @@ Example section:
   }
 
 ```
-* The agent involved, could be a prov:Person, prov:Organisation or prov:SoftwareAgent
 
+* The agent involved, could be a prov:Person, prov:Organisation or prov:SoftwareAgent
+ - The label is a free-form string
+ - an optional "ocn:did" to indicate the DID
 ```
 "agent": {
     "ocn_prov:ocn_abvfwi89sjek": {
@@ -145,7 +167,9 @@ Example section:
 ```
 
 * The activity (publish) 
-
+ - _type_ indicates the type of activity. Ocean provides "ocn:publish" and "ocn:invoke_service" as 2 types of activities.
+ - Optional start,end times and labels for the activity
+ 
 ```
   "activity": {
     "ocn_prov:ocn_asf29fj291lkd": {
@@ -156,33 +180,39 @@ Example section:
     }
   }
 ```
-* The entity (dataset) that was published
 
+* The entity (dataset) that was published
+  - An "prov:type" attribute that could take values "ocn:dataset" or "ocn:algorithm".
+  
 Example:
 ```
 "entity": {
-    "ocn_prov:ocn_ui38ghoqidkwl": {
+    "ocn_prov:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfd2": {
       "prov:value": {
         "$": "A dataset of parkinsons sensor readings",
         "type": "xsd:string"
       }
-      "prov:type":"ocn:dataset"
+      "prov:type":"ocn:dataset",
+      "ocn_prov:id_resolver" : "did:ocn:marketplaceid"
     }
   }
 ```
 
 * generation attribute (entity<>activity)
+  - IDs for the entity generated by the activity 
 ```
 {
   "wasGeneratedBy": {
     "_:wGB4": {
-      "prov:entity": "ocn_prov:ocn_ui38ghoqidkwl",
+      "prov:entity": "ocn_prov:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfd2",
       "prov:activity": "ocn_prov:ocn_asf29fj291lkd"
     }
   }
 ```
 
 * association attribute (agent<>activity)
+  - IDs for the agent associated with the activity.
+  
 ```
 "wasAssociatedWith": {
     "_:wAW4": {
@@ -256,17 +286,19 @@ Example:
     }
   }
 ```
+
 * The entity (dataset) that was generated
 
 Example:
 ```
 "entity": {
-    "ocn_prov:ocn_ui38gsxh27dkeiq": {
+    "ocn_prov:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfd2": {
       "prov:value": {
         "$": "A dataset of cleaned parkinsons sensor readings",
         "type": "xsd:string"
       }
-      "prov:type":"ocn:dataset"
+      "prov:type":"ocn:dataset",
+      "ocn_prov:id_resolver" : "did:ocn:marketplaceid"
     }
   }
 ```
@@ -297,16 +329,25 @@ Example:
 ```
 
 * usedby attribute()
+  - indicates that the entity was used by the activity.
+  
 ```
+"used" : {
+      "_:u1" : {
+        "prov:entity" : "ocn:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfd2",
+        "prov:activity" : "ocn_prov:ocn_asf29fj291lkd"
+      }
+    }
 
 ```
 
 * derivedby attribute
+  - 
 ```
 "wasDerivedFrom": {
     "_:wDF2": {
-      "prov:generatedEntity": "ocn_prov:ocn_ui38gsxh27dkeiq",
-      "prov:usedEntity": "ocn_prov:ocn_ui38ghoqidkwl"
+      "prov:generatedEntity": "ocn_prov:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfd2",
+      "prov:usedEntity": "ocn_prov:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfde"
     }
 ```
 
