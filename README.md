@@ -26,19 +26,19 @@ The process to add or change a OEP is the following:
 
 # Current OEPs
 
-
-
-Short Name    | Title                                                        | Type     | Status     | Editor
---------------|--------------------------------------------------------------|----------|------------|-------
-[1/C4](1)     | Collective Code Construction Contract                        | Meta     | Draft      | Dimitri De Jonghe
-[2/COSS](2)   | Consensus-Oriented Specification System                      | Meta     | Draft      | Dimitri De Jonghe
-[3/ARCH](3)   | Ocean Core Architecture                                      | Standard | Draft      | Dimitri De Jonghe
-[4/AGENT](4)  | Ocean Agent Protocol Stack                                   | Standard | Draft      | Aitor Argomaniz
-[7/DID](7)    | Decentralized Identifiers									 | Standard | Draft      | Aitor Argomaniz
-[8/ASSET-DDO](8)| Assets Metadata Ontology                                   | Standard | Raw      | Aitor Argomaniz
+Short Name       | Title                                                        | Type         | Status     | Editor
+-----------------|--------------------------------------------------------------|--------------|------------|-------
+[1/C4](1)        | Collective Code Construction Contract                        | Meta         | Draft      | Dimitri De Jonghe
+[2/COSS](2)      | Consensus-Oriented Specification System                      | Meta         | Draft      | Dimitri De Jonghe
+[3/ARCH](3)      | Ocean Core Architecture                                      | Standard     | Draft      | Dimitri De Jonghe
+[4/AGENT](4)     | Ocean Agent Protocol Stack                                   | Standard     | Draft      | Aitor Argomaniz
+[6/CSAPI](6)     | API to register & invoke computer services                   | Standard     | Raw        | Mike Anderson
+[7/DID](7)       | Decentralized Identifiers									| Standard     | Raw        | Aitor Argomaniz
+[8/ASSET-DDO](8) | Assets Metadata Ontology                                     | Standard     | Raw        | Aitor Argomaniz
 [9/BOUNTY](9)  | Bounties in Ocean Protocol                       	 		 | Standard | Raw      | Chalid Mannaa, Manan Patel
-[10/OAA](10)  | On-Chain Access Control                       				 | Standard | Draft      | Ahmed Ali
+[10/OAA](10)     | On-Chain Access Control                       				| Standard     | Draft      | Ahmed Ali
 [11/ACL](11)    | On-Chain Access Control using Service Agreements           | Standard | Raw      | Aitor Argomaniz
+
 
 
 # Current Participants
