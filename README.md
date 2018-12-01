@@ -33,12 +33,12 @@ Short Name          | Title                                                     
 [3/ARCH](3)         | Ocean Core Architecture                                      | Standard | Draft        | Dimitri De Jonghe
 [4/AGENT](4)        | Ocean Agent Protocol Stack                                   | Standard | Draft        | Aitor Argomaniz
 [6/INVOKE](4)       | Invokable Compute Services                                   | Standard | Raw          | Kiran Karkera
-[7/DID](7)          | Decentralized Identifiers								       | Standard | Draft        | Aitor Argomaniz
+[7/DID](7)          | Decentralized Identifiers                                    | Standard | Draft        | Aitor Argomaniz
 [8/ASSET-DDO](8)    | Assets Metadata Ontology                                     | Standard | Raw          | Aitor Argomaniz
-[9/BOUNTY](9)       | Bounties in Ocean Protocol                       	 		   | Standard | Raw          | Chalid Mannaa, Manan Patel
-[10/OAA](10)        | On-Chain Access Control                       			   | Standard | Draft        | Ahmed Ali
+[9/BOUNTY](9)       | Bounties in Ocean Protocol                                   | Standard | Raw          | Chalid Mannaa, Manan Patel
+[10/OAA](10)        | On-Chain Access Control                                      | Standard | Draft        | Ahmed Ali
 [11/ACL](11)        | On-Chain Access Control using Service Agreements             | Standard | Raw          | Aitor Argomaniz
-[12/PROV](12)       | Provenance                              				       | Standard | To be merged | Kiran Karkera
+[12/PROV](12)       | Provenance                                                   | Standard | To be merged | Kiran Karkera
 [13/META](13)       | Off-chain Asset Metadata                                     | Standard | To be merged | Mike Anderson
 [15/META-API](15)   | API for metadata access                                      | Standard | Raw          | Mike Anderson
 [16/MARKET-API](16) | API for Ocean Marketplaces                                   | Standard | To be merged | Mike Anderson
