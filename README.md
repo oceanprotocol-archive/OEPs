@@ -26,20 +26,25 @@ The process to add or change a OEP is the following:
 
 # Current OEPs
 
-Short Name       | Title                                                        | Type         | Status     | Editor
------------------|--------------------------------------------------------------|--------------|------------|-------
-[1/C4](1)        | Collective Code Construction Contract                        | Meta         | Draft      | Dimitri De Jonghe
-[2/COSS](2)      | Consensus-Oriented Specification System                      | Meta         | Draft      | Dimitri De Jonghe
-[3/ARCH](3)      | Ocean Core Architecture                                      | Standard     | Draft      | Dimitri De Jonghe
-[4/AGENT](4)     | Ocean Agent Protocol Stack                                   | Standard     | Draft      | Aitor Argomaniz
-[6/CSAPI](6)     | API to register & invoke computer services                   | Standard     | Raw        | Mike Anderson
-[7/DID](7)       | Decentralized Identifiers									| Standard     | Raw        | Aitor Argomaniz
-[8/ASSET-DDO](8) | Assets Metadata Ontology                                     | Standard     | Raw        | Aitor Argomaniz
-[9/BOUNTY](9)  | Bounties in Ocean Protocol                       	 		 | Standard | Raw      | Chalid Mannaa, Manan Patel
-[10/OAA](10)     | On-Chain Access Control                       				| Standard     | Draft      | Ahmed Ali
-[11/ACL](11)    | On-Chain Access Control using Service Agreements           | Standard | Raw      | Aitor Argomaniz
-
-
+Short Name          | Title                                                        | Type     | Status       | Editor
+--------------------|--------------------------------------------------------------|----------|--------------|-------
+[1/C4](1)           | Collective Code Construction Contract                        | Meta     | Draft        | Dimitri De Jonghe
+[2/COSS](2)         | Consensus-Oriented Specification System                      | Meta     | Draft        | Dimitri De Jonghe
+[3/ARCH](3)         | Ocean Core Architecture                                      | Standard | Draft        | Dimitri De Jonghe
+[4/AGENT](4)        | Ocean Agent Protocol Stack                                   | Standard | Draft        | Aitor Argomaniz
+[6/INVOKE](4)       | Invokable Compute Services                                   | Standard | Raw          | Kiran Karkera
+[7/DID](7)          | Decentralized Identifiers								       | Standard | Draft        | Aitor Argomaniz
+[8/ASSET-DDO](8)    | Assets Metadata Ontology                                     | Standard | Raw          | Aitor Argomaniz
+[9/BOUNTY](9)       | Bounties in Ocean Protocol                       	 		   | Standard | Raw          | Chalid Mannaa, Manan Patel
+[10/OAA](10)        | On-Chain Access Control                       			   | Standard | Draft        | Ahmed Ali
+[11/ACL](11)        | On-Chain Access Control using Service Agreements             | Standard | Raw          | Aitor Argomaniz
+[12/PROV](12)       | Provenance                              				       | Standard | To be merged | Kiran Karkera
+[13/META](13)       | Off-chain Asset Metadata                                     | Standard | To be merged | Mike Anderson
+[15/META-API](15)   | API for metadata access                                      | Standard | Raw          | Mike Anderson
+[16/MARKET-API](16) | API for Ocean Marketplaces                                   | Standard | To be merged | Mike Anderson
+[17/STORAGE-API](17)| API for Off-chain storage                                    | Standard | To be merged | Mike Anderson
+[18/TRUST-API](18)  | API for trust verification                                   | Standard | To be merged | Mike Anderson
+[19/ENDPOINTS](19)  | Ocean Agent Endpoints                                        | Standard | To be merged | Mike Anderson
 
 # Current Participants
 
@@ -58,6 +63,7 @@ Some people have specializations:
 
 - Domains: @diminator
 - Research: @diminator, @trentmc
+- Marketplces and ecosystem: @mikera
 - Ocean Core [Tethys](https://github.com/oceanprotocol/ocean/projects/2): @aaitor
 
 ## Administrators (Founders and Others)
