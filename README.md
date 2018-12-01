@@ -63,7 +63,7 @@ Some people have specializations:
 
 - Domains: @diminator
 - Research: @diminator, @trentmc
-- Marketplces and ecosystem: @mikera
+- Marketplaces and ecosystem: @mikera
 - Ocean Core [Tethys](https://github.com/oceanprotocol/ocean/projects/2): @aaitor
 
 ## Administrators (Founders and Others)
