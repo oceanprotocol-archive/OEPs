@@ -20,12 +20,12 @@ Table of Contents
          * [Activities](#Activities)
       * [Provenance for Ocean Entities and Interactions](#provenance-for-ocean-entities-and-interactions)
       * [Motivation and Use cases](#motivation-and-use-cases)
-      * [OCN Prov w.r.t W3C Prov](#ocn-prov-w.r.t-w3c-prov)
+      * [OCN Prov w.r.t W3C Prov](#ocn-prov-wrt-w3c-prov)
       * [Ocean IDs](#ocean-ids)
       * [Ocean Prov entities](#ocean-prov-entities)
-      * [Use case 1 : Publishing](#use-case-1-:-publishing)
-      * [Use case 1 : Importing](#use-case-2-:-importing)
-      * [Usecase 3: A service generating a new asset from existing assets](#usecase-3:-a-service-generating-a-new-asset-from-existing-assets)
+      * [Use case 1 : Publishing](#use-case-1--publishing)
+      * [Use case 1 : Importing](#use-case-2--importing)
+      * [Usecase 3: A service generating a new asset from existing assets](#usecase-3-a-service-generating-a-new-asset-from-existing-assets)
       * [FAQ](#faq)
       
 # Provenance for Ocean assets and services 
