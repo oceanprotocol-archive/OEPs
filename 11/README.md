@@ -25,14 +25,17 @@ Table of Contents
       * [Flow](#flow)
          * [Publishing](#publishing)
          * [Consuming](#consuming)
-            * [Execution of SLA](#execution-of-sla)
-               * [Lock payment condition](#lock-payment-condition)
-               * [Grant access condition](#grant-access-condition)
-               * [Release payment condition](#release-payment-condition)
-         * [Consuming the data](#consuming-the-data)
-            * [Cancel payment condition](#cancel-payment-condition)
-         * [Modules to be implemented](#modules-to-be-implemented)
+            * [Execution of the SA](#execution-of-the-sa)
+               * [Lock Payment Condition](#lock-payment-condition)
+               * [Grant Access Condition](#grant-access-condition)
+               * [Release Payment Condition](#release-payment-condition)
+         * [Consuming the Data](#consuming-the-data)
+            * [Cancel Payment Condition](#cancel-payment-condition)
+         * [Encryption and Decryption](#encryption-and-decryption)
+            * [No Encryption](#no-encryption)
             * [Secret Store](#secret-store)
+            * [Ethereum Signature](#ethereum-signature)
+         * [Implementation details](#implementation-details)
 
 
 
@@ -117,6 +120,7 @@ Using only one Squid call `registerAsset(asset_metadata, publisher_public_key)`,
 This method executes internally - everything happens off-chain.
 
 1. PUBLISHER generates a DID. See [How to generate a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#length-of-a-did). DID is a UUID in Trilobite. Later on, this might be computed as a DDO hash.
+1. PUBLISHER optionally can encrypt the URL's using different encryption plugins. If that's the case, in the DDO will be added an **encryption** attribute describing the procedure used.
 1. PUBLISHER encrypts the URL using the Secret Store identified by a DID.
 1. PUBLISHER creates a DDO including the following information:
    - DID
@@ -290,7 +294,7 @@ It emits `PaymentLocked` and thus triggers the next condition.
 
 ##### Grant Access Condition
 
-PUBLISHER (via BRIZO) listens for `PaymentLocked` event filtered by `serviceAgreementId` to confirm the payment was made.
+CONSUMER listens for `PaymentLocked` event filtered by `serviceAgreementId` to confirm the payment was made.
 
 ```
 "conditions": [{
@@ -405,9 +409,57 @@ def cancel_payment(service_agreement_id, service_definition_id):
     web3.call(condition['condition_key'], condition['fingerprint'])
 ```
 
-### Modules to be Implemented
+### Encryption and Decryption
+
+The PUBLISHER can define if he/she wants to encrypt or not the URL's before adding to the DDO. This information added to the DDO allows to the CONSUMER's (via SQUID) to understand how to deal with the URL's.
+To support this, in the Services section of the DDO can be specified this configuration under the **"encryption"** attribute.
+This attribute encapsulate one object with the following attributes:
+
+* type - The type of encryption applied to the URL's. It could be SecretStore, EthSign, None.
+* url (optional) - Url used during the encryption and decryption process.
+
+The different encryption procedures supported are:
+
+#### No Encryption
+
+This is the case when PUBLISHER doesn't want to encrypt the URL's. This is represented in DDO when:
+
+* The encryption attribute is not defined as part of the service
+* The encryption type is **"None"**
+
+Example:
+```json
+    "encryption": {
+      "type": "None"
+    },
+```
 
 #### Secret Store
+
+This is the case when PUBLISHER wants to encrypt the URL's using a Secret Store cluster. The cluster to use during the encryption and decryption is specfied in the **url** attribute.
+
+Example:
+```json
+    "encryption": {
+      "type": "SecretStore",
+      "url": "http://secretstore.org:12001"
+    },
+```
+
+More information about the integration of the Secret Store can be found [in the Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/secret-store.md).
+
+#### Ethereum Signature
+
+This is the case when PUBLISHER wants to encrypt the URL's the Ethereum [EthSign](https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign) function. In this case the CONSUMER doesn't need to decrypt the URL's, is the PUBLISHER who decrypt the URL's during the consumption flow.
+Example:
+```json
+    "encryption": {
+      "type": "EthSign"
+    },
+```
+
+
+### Implementation details
 
 - SQUID: An utility to compute CONSUMER signatures.
 
