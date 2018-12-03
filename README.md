@@ -38,6 +38,7 @@ Short Name       | Title                                                        
 [9/BOUNTY](9)  | Bounties in Ocean Protocol                       	 		 | Standard | Raw      | Chalid Mannaa, Manan Patel
 [10/OAA](10)     | On-Chain Access Control                       				| Standard     | Draft      | Ahmed Ali
 [11/ACL](11)    | On-Chain Access Control using Service Agreements           | Standard | Raw      | Aitor Argomaniz
+[12/PROV](12)    | Provenance metadata | Standard | Raw      | Kiran Karkera 
 
 
 

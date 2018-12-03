@@ -1,3 +1,33 @@
+```
+shortname: 12/Prov
+name: Provenance metadata
+type: Standard
+status: Raw
+editor: Kiran Karkera <kiran.karkera@dex.sg>
+```
+
+Table of Contents
+=================
+
+   * [Table of Contents](#table-of-contents)
+   * [Provenance for Ocean assets and services](#provenance-for-ocean-assets-and-services)
+      * [Change Process](#change-process)
+      * [Language](#language)
+      * [What is provenance?](#what-is-provenance?)
+         * [W3C Provenance overview](#w3c-provenance-overview)
+         * [Entities](#Entities)
+         * [Agents](#Agents)
+         * [Activities](#Activities)
+      * [Provenance for Ocean Entities and Interactions](#provenance-for-ocean-entities-and-interactions)
+      * [Motivation and Use cases](#motivation-and-use-cases)
+      * [OCN Prov w.r.t W3C Prov](#ocn-prov-w.r.t-w3c-prov)
+      * [Ocean IDs](#ocean-ids)
+      * [Ocean Prov entities](#ocean-prov-entities)
+      * [Use case 1 : Publishing](#use-case-1-:-publishing)
+      * [Use case 1 : Importing](#use-case-2-:-importing)
+      * [Usecase 3: A service generating a new asset from existing assets](#usecase-3:-a-service-generating-a-new-asset-from-existing-assets)
+      * [FAQ](#faq)
+      
 # Provenance for Ocean assets and services 
 
 This document describes 
@@ -6,7 +36,15 @@ This document describes
 - What is Provenance in the context of Ocean
 - Definitions of formats for annotating provenance
 - Examples of provenance metadata
-- FAQ
+
+This specification is called **PROV** henceforth.
+
+## Change Process
+This document is governed by the [2/COSS](../2/README.md) (COSS).
+
+## Language
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
+
 
 ## What is provenance?
 
