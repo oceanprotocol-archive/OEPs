@@ -1,0 +1,55 @@
+{ "base":
+  {
+      "name" : "raw parkinsons dataset"
+  },
+  "provenance": {
+      "prefix": {
+          "xsd": "http://www.w3.org/2001/XMLSchema#",
+          "prov": "http://www.w3.org/ns/prov#",
+          "ocn": "http://www.oceanprotocol.com/prov"
+      },
+      "agent": {
+          "ocn:ocn_abvfwi89sjek": {
+              "prov:label": "Hospital data administrator",
+              "prov:type": {
+                  "$": "prov:Person",
+                  "type": "prov:QUALIFIED_NAME"
+              },
+              "ocn:did": "did:ocn:longdidnameabcd1234"
+          }
+      },
+      "activity": {
+          "ocn:ocn_asf29fj291lkd": {
+              "prov:label": "Compile the dataset",
+              "prov:endTime": "2018-02-02T14:07:13",
+              "prov:startTime": "2018-02-02T11:03:23",
+              "prov:type": "ocn:publish"
+          }
+      },
+      "entity": {
+          "ocn:this": {
+              "prov:value": {
+                  "$": "A dataset of parkinsons sensor readings",
+                  "type": "xsd:string"
+              },
+              "prov:type":"ocn:dataset",
+              "ocn:id_resolver" : "did:ocn:marketplaceid"
+          }
+      },
+      "wasGeneratedBy": {
+          "_:wGB4": {
+              "prov:entity": "ocn:this",
+              "prov:activity": "ocn:ocn_asf29fj291lkd"
+          }
+      },
+      "wasAssociatedWith": {
+          "_:wAW4": {
+              "prov:agent": "ocn:ocn_abvfwi89sjek",
+              "prov:activity": "ocn:ocn_asf29fj291lkd"
+          }
+      }
+  }
+}
+
+
+
