@@ -39,7 +39,7 @@
               "prov:value": {
                   "$": "A dataset of cleaned parkinsons sensor readings",
                   "type": "xsd:string"
-              }
+              },
               "prov:type":"ocn:dataset",
               "ocn:id_resolver" : "did:ocn:marketplaceid"
           }
