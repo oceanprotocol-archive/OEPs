@@ -24,7 +24,7 @@ Table of Contents
       * [Ocean IDs](#ocean-ids)
       * [Ocean Prov entities](#ocean-prov-entities)
       * [Use case 1 : Publishing](#use-case-1--publishing)
-      * [Use case 1 : Importing](#use-case-2--importing)
+      * [Use case 2 : Importing](#use-case-2--importing)
       * [Usecase 3: A service generating a new asset from existing assets](#usecase-3-a-service-generating-a-new-asset-from-existing-assets)
       * [FAQ](#faq)
       
@@ -290,6 +290,8 @@ Example:
   }
 ```
 
+The complete example is at [this link](./examples/publish_dataset_metadata.json)
+
 ## Usecase 2 : Importing
 
 When a user imports a dataset, the suggested provenance is similar to the publishing use case, with the exception of:
@@ -432,7 +434,7 @@ Example:
     }
     }
 ```
-
+The complete example is at [this link](./examples/cleaned_dataset_metadata.json)
 
 ## FAQ
 
