@@ -296,9 +296,9 @@ PUBLISHER (via BRIZO) listens for `PaymentLocked` event filtered by `serviceAgre
 "conditions": [{
   "events": [{
     "name": "PaymentLocked",
-    "actorType": ["publisher"],
+    "actorType": "publisher",
     "handler": {
-      "moduleName": "secretStore",
+      "moduleName": "accessControl",
       "functionName": "grantAccess",
       "version": "0.1"
     }
@@ -326,7 +326,7 @@ PUBLISHER (via BRIZO) listens for `AccessGranted` event to transfer tokens to PU
 "conditions": [{
   "events": [{
     "name": "AccessGranted",
-    "actorType": ["publisher"],
+    "actorType": "publisher",
     "handler": {
       "moduleName": "payment",
       "functionName": "releasePayment",
@@ -364,21 +364,24 @@ CONSUMER (via Squid) listens for `AccessGranted` event to access the document.
 
 The following are steps that have to be performed by the CONSUMER to receive the data.
 
-1. CONSUMER decrypts the URL using Squid. This only requires the encryptedUrl existing in the DDO and the DID. A remote Parity EVM client and Secret Store cluster can be used for that.
 
-1. CONSUMER retrieves data by calling the dedicated BRIZO endpoint providing it with CONSUMER public key, service ID, and decrypted URL.
+1. CONSUMER decrypts the URL using Squid. This only requires the encryptedUrl existing in the DDO and the DID. 
+A remote Parity EVM client and Secret Store cluster can be used for that.
+
+1. CONSUMER retrieves data by calling the dedicated Brizo endpoint (`serviceEndpoint` in the service definition) 
+providing it with Consumer ethereum address, service agreement ID, and decrypted URL.
 
 The consume URL may look like:
 
 ```
-HTTP GET /api/v1/brizo/services/access/consume?pubKey=${pubKey}&serviceAgreementId={serviceAgreementId}&url={url}`
+HTTP GET /api/v1/brizo/services/access/consume?consumerAddress=${consumerAddress}&serviceAgreementId={serviceAgreementId}&url={url}`
 ```
 
-This method will return an HTTP 200 status code if everything was okay, plus the URL required to get access to the data.
+This method will return a HTTP 200 status code if everything was okay and the data file.
 
 When CONSUMER requests purchased data, BRIZO gets 3 parameters:
 
-* Consumer public key: `pubKey`
+* Consumer ethereum address: `consumerAddress`
 * Service Agreement ID: `serviceAgreementId`
 * Decrypted URL: `url`. This URL is only valid if BRIZO acts as a proxy. CONSUMER cannot download using the URL if it's not done through BRIZO.
 
@@ -386,7 +389,7 @@ Using those parameters, BRIZO does the following things:
 
 * Find the `did` by the given `serviceAgreementId`
 
-* Verify the given service is allowed to be consumed by the given `pubKey` and `did` using the `checkPermissions` method of the `SLA` Smart Contract.
+* Verify the given service is allowed to be consumed by the given `consumerAddress` and `did` using the `checkPermissions` method of the `SLA` Smart Contract.
 
 * If CONSUMER has permissions to consume, download and provide data for the given DID
 
@@ -395,13 +398,38 @@ Using those parameters, BRIZO does the following things:
 
 #### Cancel Payment Condition
 
-Every condition can be forced to be fulfilled by one of the parties after a configured timeout, even when its dependencies are not fulfilled. It allows CONSUME to cancel the payment after locking it but not receiving access to the Asset for a long period of time. Mechanisms implemented in the Service Agreement contract ensure there are no race conditions.
+Every condition can be forced to be fulfilled by one of the parties after a configured timeout, even when its 
+dependencies are not fulfilled. It allows Consumer to cancel the payment after locking it but not receiving 
+access to the Asset for a long period of time. Mechanics implemented in the service agreement contract ensure 
+there are no race conditions.
+
+The `grantAccess` condition must define a timeout event to allow the consumer to refund their locked payment 
+in the case access is not granted within the predefined `timeout`. 
+
+The timeout event looks like this: 
+
+```
+{
+  "name": "AccessTimeout",
+  "actorType": "consumer",
+  "handler": {
+      "moduleName": "payment",
+      "functionName": "refundPayment",
+      "version": "0.1"
+  }
+}
+```
+
+The timeout event is an off-chain event and must be processed by the consumer client via `squid`. Squid implementations 
+(pythong and javascript) must handle this automatically. For timeout and refund to be successful on-chain, the `refundPayment` 
+condition must have a timeout dependency on `grantAccess` condition. `refundPayment` also requires that `lockPayment` condition
+is already fulfilled.
 
 Squid has to contain a function like the following and offer a convenient way to call it (via CLI, UI, etc.).
 
 ```
-def cancel_payment(service_agreement_id, service_definition_id):
-    condition = get_condition(service_definition_id, 'cancelPayment')
+def refundPayment(service_agreement_id, service_definition_id):
+    condition = get_condition(service_definition_id, 'refundPayment')
     web3.call(condition['condition_key'], condition['fingerprint'])
 ```
 
