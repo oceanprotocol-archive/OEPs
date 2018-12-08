@@ -15,6 +15,7 @@ Table of Contents
 =================
 
 
+
    * [Table of Contents](#table-of-contents)
    * [On-Chain Access Control using Service Agreements](#on-chain-access-control-using-service-agreements)
       * [Change Process](#change-process)
@@ -37,6 +38,81 @@ Table of Contents
             * [Ethereum Signature](#ethereum-signature)
          * [Implementation details](#implementation-details)
 
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+aitor@tijuana:~/Projects/Ocean/OEPs (feature/oep11-encryption-drivers)$ git status
+On branch feature/oep11-encryption-drivers
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   11/README.md
+        modified:   11/ddo.example.json
+
+no changes added to commit (use "git add" and/or "git commit -a")
+aitor@tijuana:~/Projects/Ocean/OEPs (feature/oep11-encryption-drivers)$ git commit -a
+[feature/oep11-encryption-drivers 738ae92] defined the encryption implementation as option
+ 2 files changed, 65 insertions(+), 9 deletions(-)
+aitor@tijuana:~/Projects/Ocean/OEPs (feature/oep11-encryption-drivers)$ git push
+fatal: The current branch feature/oep11-encryption-drivers has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream origin feature/oep11-encryption-drivers
+
+aitor@tijuana:~/Projects/Ocean/OEPs (feature/oep11-encryption-drivers)$ ^C
+aitor@tijuana:~/Projects/Ocean/OEPs (feature/oep11-encryption-drivers)$ https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign^C
+aitor@tijuana:~/Projects/Ocean/OEPs (feature/oep11-encryption-drivers)$     git push --set-upstream origin feature/oep11-encryption-drivers
+Counting objects: 5, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (5/5), 1.55 KiB | 1.55 MiB/s, done.
+Total 5 (delta 3), reused 0 (delta 0)
+remote: Resolving deltas: 100% (3/3), completed with 3 local objects.
+remote:
+remote: Create a pull request for 'feature/oep11-encryption-drivers' on GitHub by visiting:
+remote:      https://github.com/oceanprotocol/OEPs/pull/new/feature/oep11-encryption-drivers
+remote:
+To github.com:oceanprotocol/OEPs.git
+ * [new branch]      feature/oep11-encryption-drivers -> feature/oep11-encryption-drivers
+Branch 'feature/oep11-encryption-drivers' set up to track remote branch 'feature/oep11-encryption-drivers' from 'origin'.
+aitor@tijuana:~/Projects/Ocean/OEPs (feature/oep11-encryption-drivers)$ git status
+On branch feature/oep11-encryption-drivers
+Your branch is up to date with 'origin/feature/oep11-encryption-drivers'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   11/README.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+aitor@tijuana:~/Projects/Ocean/OEPs (feature/oep11-encryption-drivers)$ git commit -a
+Aborting commit due to empty commit message.
+aitor@tijuana:~/Projects/Ocean/OEPs (feature/oep11-encryption-drivers)$ gh-md-toc 11/README.md
+
+Table of Contents
+=================
+
+   * [Table of Contents](#table-of-contents)
+   * [On-Chain Access Control using Service Agreements](#on-chain-access-control-using-service-agreements)
+      * [Change Process](#change-process)
+      * [Language](#language)
+      * [Motivation](#motivation)
+      * [Actors](#actors)
+         * [Technical components](#technical-components)
+      * [Flow](#flow)
+         * [Publishing](#publishing)
+         * [Consuming](#consuming)
+            * [Execution of the SA](#execution-of-the-sa)
+               * [Lock Payment Condition](#lock-payment-condition)
+               * [Grant Access Condition](#grant-access-condition)
+               * [Release Payment Condition](#release-payment-condition)
+         * [Consuming the Data](#consuming-the-data)
+            * [Cancel Payment Condition](#cancel-payment-condition)
+         * [Encryption and Decryption](#encryption-and-decryption)
+            * [No Encryption](#no-encryption)
+            * [Secret Store](#secret-store)
+            * [Rsa Public and Private Keys](#rsa-public-and-private-keys)
+         * [Implementation details](#implementation-details)
 
 
 
@@ -415,7 +491,7 @@ The PUBLISHER can define if he/she wants to encrypt or not the URL's before addi
 To support this, in the Services section of the DDO can be specified this configuration under the **"encryption"** attribute.
 This attribute encapsulate one object with the following attributes:
 
-* type - The type of encryption applied to the URL's. It could be SecretStore, EthSign, None.
+* type - The type of encryption applied to the URL's. It could be SecretStore, RSAES-OAEP, None.
 * url (optional) - Url used during the encryption and decryption process.
 
 The different encryption procedures supported are:
@@ -436,7 +512,8 @@ Example:
 
 #### Secret Store
 
-This is the case when PUBLISHER wants to encrypt the URL's using a Secret Store cluster. The cluster to use during the encryption and decryption is specfied in the **url** attribute.
+This is the case when PUBLISHER wants to encrypt the URL's using a Secret Store cluster.
+The cluster to use during the encryption and decryption is specfied in the **url** attribute.
 
 Example:
 ```json
@@ -446,15 +523,39 @@ Example:
     },
 ```
 
+All the urls in this scenario are encrypted at once. It means if a DDO has multiple URL's, an array in JSON format will be created with all the URL's.
+This array will be encrypted and the HASH returned will be added as one entry of the contentsUrl attribute. Example:
+
+A DDO with 2 urls as input:
+```json
+ "contentUrls": ["https://example.com/file1.csv", "https://example.com/file2.csv"]
+```
+
+In this case, the following text will be encrypted:
+```
+["https://example.com/file1.csv","https://example.com/file2.csv"]
+```
+
+After the encryption, the previous URL's will be removed and the encrypted HASH added to the DDO.
+```json
+ "contentUrls": ["ihfuewufhwieuhcciweuhiweucnksdcnksdncksdvndksjn3u34n3unnfrunf4u3"]
+```
+
 More information about the integration of the Secret Store can be found [in the Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/secret-store.md).
 
-#### Ethereum Signature
+#### Rsa Public and Private Keys
 
-This is the case when PUBLISHER wants to encrypt the URL's the Ethereum [EthSign](https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign) function. In this case the CONSUMER doesn't need to decrypt the URL's, is the PUBLISHER who decrypt the URL's during the consumption flow.
+This is the case when PUBLISHER wants to encrypt the URL's related with the contents. The PUBLISHER encrypts individually each URL using the
+RSA encryption protocol according to PKCS#1 OAEP. In Python can be used the [PyCrypto library](https://pythonhosted.org/pycrypto/Crypto.Cipher.PKCS1_OAEP-module.html) to implement this.
+
+Because each URL is encrypted individually, given an input of N URL's, an output of N URL's encrypted will be created in the DDO.
+
+In this case the CONSUMER doesn't need to decrypt the URL's, is the PUBLISHER who decrypt the URL's during the consumption flow.
+
 Example:
 ```json
     "encryption": {
-      "type": "EthSign"
+      "type": "RSAES-OAEP"
     },
 ```
 
