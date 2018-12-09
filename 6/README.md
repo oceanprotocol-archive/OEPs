@@ -69,8 +69,6 @@ There is a need for a standardised **interface** for the invocation of compute s
 
 Requirements are:
 
-* ASSETS are DATA objects describing RESOURCES under control of a PUBLISHE
-* 
 * CONSUMER can invoke services via an OCEAN AGENT (subject to contract and access requirements) 
 
 *
@@ -120,13 +118,13 @@ The execution environment must support the following abstractions:
 
 * The service may be offered free or for a price
 * The service may offer proof of completion
-* the service can be identified with its asset ID on the Ocean Network
+* the service must be identified with its asset ID on the Ocean Network
 * the service must register its metadata with the OCEAN agent
 * the service container can be installed locally (inthe pubilsher machine or cloud)
 * may accept configuration options to tune the algorithm/job to be run.
-* may register  ocean assets generated as a result of the job. the registered assets must be in the name of the service coinsumer
-* may erturn a payload
-* may accpet a list of ocean assets as inputs to the job  (along wiith access tokens to consume the asset)
+* may register ocean assets generated as a result of the job. the registered assets must be in the name of the service coinsumer
+* may return a payload
+* may accept a list of ocean assets as inputs to the job  (along with access tokens to consume the asset)
 * may accept a data payload as an input
 
 
@@ -136,7 +134,7 @@ The execution environment must support the following abstractions:
 |---------------|-----------------|---------------------------------|-------------------------|---------------------------|----------------------|
 | JVM           | jar             | no                              | no                      | yes                       | (only JVM supported) |
 | Python        | pip             | yes (partial-needs more inputs) | no                      | yes                       | no                   |
-| Docker        | docker          | yes                             | no                      | yes                       | yes                  |
+| Docker        | docker image    | yes                             | no                      | yes                       | yes                  |
 | Kubernetes    | Helm chart      | yes                             | yes                     | yes                       | yes                  |
 | Spark         | jar             | yes                             | yes                     | yes                       | partial              |
 |               |                 |                                 |                         |                           |                      |
@@ -151,6 +149,26 @@ The suggested choice for the initial host platform is Kubernetes, for the follow
 * Unlike Docker, multi-node orchestration is possible.
 * Excellent tooling support, both CLI and REST APIs available.
 * Package distribution (Helm charts) has an active ecosystem
+* It can use Docker images for containerization
+
+### Example of a Kubernetes invokable service
+
+Prerequisites:
+* The K8S tools need to be installed, either locally (using Minikube), or in the cloud, using cloud provider specific tools (e.g. [Amazon EKS](https://aws.amazon.com/eks/) for AWS)
+* Assumes that the CLI tool `kubectl` will be installed and available.
+
+- Invoke the job with default arguments 
+
+The job configuration is specified in a .yaml file 
+`kubectl create -f https://k8s.io/examples/controllers/job.yaml`
+
+- Describe the status of the job
+`kubectl describe my-job`
+
+- Delete a job
+`kubectl delete my-job`
+
+
 
 
 ## Specification 
@@ -165,7 +183,7 @@ example metadata
  name
  description
  sea excluded
-map of iinput arguments 
+map of input arguments 
 may mention type of input assets
 
 * Retrieve metadata information of an Service
@@ -178,5 +196,4 @@ The following restrictions apply during the design/implementation of this OEP:
 * Basic information about the SERVICES (ids, pricing, reference to service endpoints) MUST be stored in the Decentralised VM  
 * AGENT MUST NOT store or rely on any other information about the Services during this process
 
-### Proposed Solution
 
