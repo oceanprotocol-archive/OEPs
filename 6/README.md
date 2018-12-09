@@ -69,15 +69,11 @@ There is a need for a standardised **interface** for the invocation of compute s
 
 Requirements are:
 
-* ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER
-* SERVICES are compute services according to the protocol defined in this OEP
-* PROVIDERS register and offer SERVICES 
-* PROVIDERS may publish SERVICE METADATA relating to the service offered
-* CONSUMER can identify services with a unique ID on the Ocean Network 
+* ASSETS are DATA objects describing RESOURCES under control of a PUBLISHE
+* 
 * CONSUMER can invoke services via an OCEAN AGENT (subject to contract and access requirements) 
-* SERICES may require INPUTS 
-* SERICES may produce OUTPUTS
-* INPUT ASSETS must be available for the service provider to consume
+
+*
 * SERVICE CONTRACT must be settled and any tokens transfered after receipt of valid PROOF
   
 <a name="specification"></a>
@@ -124,8 +120,15 @@ The execution environment must support the following abstractions:
 
 * The service may be offered free or for a price
 * The service may offer proof of completion
+* the service can be identified with its asset ID on the Ocean Network
+* the service must register its metadata with the OCEAN agent
+* the service container can be installed locally (inthe pubilsher machine or cloud)
+* may accept configuration options to tune the algorithm/job to be run.
+* may register  ocean assets generated as a result of the job. the registered assets must be in the name of the service coinsumer
+* may erturn a payload
+* may accpet a list of ocean assets as inputs to the job  (along wiith access tokens to consume the asset)
+* may accept a data payload as an input
 
-* 
 
 ## Options for a host platform
 
@@ -153,11 +156,18 @@ The suggested choice for the initial host platform is Kubernetes, for the follow
 ## Specification 
 
 The **Service Metadata** information should be managed using an API on the Ocean Agent. 
-As general rule, only the INDISPENSABLE information to run the Smart Contracts MUST be stored in the Decentralised VM
 
 This API should exposes the following capabilities in the Ocean Agent:
 
 * Registering a new Service
+
+example metadata
+ name
+ description
+ sea excluded
+map of iinput arguments 
+may mention type of input assets
+
 * Retrieve metadata information of an Service
 * Update the metadata of an existing Service 
 * Retire a Service
