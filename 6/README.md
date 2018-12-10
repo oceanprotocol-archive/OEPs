@@ -243,7 +243,9 @@ The values.xml file define the number of inputs required. These values can be ov
 ### Get the result of a job
 
 `kubectl logs job-id`
+
 This is less than ideal for getting the result. 
+
 Options: 
 
 * Define the format for an output file which the job generates
