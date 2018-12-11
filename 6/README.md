@@ -162,22 +162,10 @@ The suggested choice for the initial host platform is Kubernetes, for the follow
 * Package distribution (Helm charts) has an active ecosystem
 * It can use Docker images for containerization
 
-### Example of a Kubernetes invokable service
-
-Prerequisites:
-* The K8S tools need to be installed, either locally (using Minikube), or in the cloud, using cloud provider specific tools (e.g. [Amazon EKS](https://aws.amazon.com/eks/) for AWS)
-* Assumes that the CLI tool `kubectl` will be installed and available.
-
-- Invoke the job with default arguments 
-
-The job configuration is specified in a .yaml file 
-
-`kubectl create -f https://k8s.io/examples/controllers/job.yaml`
-
 ## Specification 
 
 The **Service Metadata** information should be managed using an API on the Ocean Agent. 
-This API should exposes the following capabilities in the Ocean Agent via HTTP REST
+This API should expose the following capabilities in the Ocean Agent via HTTP REST.
 
 ### Registering a new Service
 
@@ -194,7 +182,15 @@ Registering a service
 }
 ```
 
-The metadata in the url specifies the inputs and other configuration required to fire an invoke job.
+The metadata in the url specifies configuration required to fire an invoke job.
+Example configuration
+
+```json
+{ "oceaninputs" : ["inputasset1"]}
+```
+
+- Each input asset to be consumed must be named. On invoke, each named inputasset needs a map containing the asset id, asset url and other arguments (described in the invoke section)
+- Non-Ocean inputs such as URL-accessed payloads and configuration options can also be specified
 
 ### Retire a Service
 
@@ -202,7 +198,9 @@ Retiring a service uses the same method as retiring an asset
 
 ### Invoke a job
 
-- send a POST request to the https://service-endpoint/invoke , along with the following JSON formatted payload
+#### Request
+
+- a POST request to the https://service-endpoint/jobs , along with the following JSON formatted payload
 
 ```json 
 {
@@ -221,6 +219,8 @@ Retiring a service uses the same method as retiring an asset
 }
 ```
 
+#### Arguments
+
 The value against the *oceaninputs* key is a  map, where each key is the input argument name, and the value is a map.
 
 | param              | description                                 | Mandatory? |
@@ -230,6 +230,8 @@ The value against the *oceaninputs* key is a  map, where each key is the input a
 | serviceagreementid | ID of the service agreement                 | no         |
 | assetmetadataurl   | URL where the asset metadata is hosted      | no         |
 
+- Each Ocean input asset must have the mandatory arguments. It can also have optional arguments.
+- Each invocation can have any number of input assets. The payload needs to contain a map where the keys are parameter names (as defined in the service metadata).
 
 Non-data asset inputs:
 
@@ -238,8 +240,6 @@ Non-data asset inputs:
 | consumerid             | user id of the consumer                             | no         |
 | invokeserviceagreementid | service agreement of the (purchased) invoke service | no         |
 
-- Each Ocean input asset must have the mandatory arguments. It can also have optional arguments.
-- Each invocation can have any number of input assets. The payload needs to contain a map where the keys are parameter names (as defined in the service metadata).
 
 #### Response
 
@@ -250,7 +250,9 @@ Non-data asset inputs:
 
 ### Describe the status of the job
 
-- send a HTTP GET request to https://service-endpoint/jobs/status/jobid
+#### Request
+
+- an HTTP GET request to https://service-endpoint/jobs/status/jobid
 
 #### Arguments
 
@@ -270,7 +272,9 @@ The arguments are to be passed as HTTP request parameters
 
 ### Get the result of a job
 
-- send a HTTP GET request to https://service-endpoint/jobs/result/jobid
+#### Request
+
+- an HTTP GET request to https://service-endpoint/jobs/result/jobid
 
 #### Arguments
 
