@@ -109,6 +109,8 @@ From a temporal perspective, the invoke API has the following types of requireme
 
 ![User flow ](./imgs/InvokeService.png)
 
+The rest of the OEP is focused on the API for invocation. Deployment and other tasks are left unspecified.
+
 ## Constraints
 
 The execution environment must support the following abstractions:
@@ -174,13 +176,8 @@ The job configuration is specified in a .yaml file
 
 ## Specification 
 
-The **Service Metadata** information should be managed using an API on the Ocean Agent. The rest of this document defines a specification designed for the Kubernetes environment. 
-This API should exposes the following capabilities in the Ocean Agent:
-
-Kubernetes specific note:
-
-* Helm is one of K8s package manager(here's a [list of competitors](https://blog.hasura.io/draft-vs-gitkube-vs-helm-vs-ksonnet-vs-metaparticle-vs-skaffold-f5aa9561f948)), which uses a file named values.yaml to set properties.
-* As the name suggests, the configuration is yaml formatted, which is syntactically similar to JSON.
+The **Service Metadata** information should be managed using an API on the Ocean Agent. 
+This API should exposes the following capabilities in the Ocean Agent via HTTP REST
 
 ### Registering a new Service
 
@@ -193,67 +190,120 @@ Registering a service
 { "other" : "metadata",
   "type"  : "algorithm",
   "links" : [ {"name" : "My algorithm",
-               "type" : "Helm chart",
-               "url" : "https://github.com/helm/charts/tree/master/stable/my-algorithm"}]
+               "url" : "https://github.com/my-algorithm/metadata"}]
 }
-
 ```
 
-In the URL of the service, a values.yaml file should be present, with the following fields set:
-
-  - input arguments , either Ocean assets or data payloads
-  ```yaml
-  inputs:
-  # A map of input assets. In the example below, "oceaninputasset" is the name for one of the Ocean assets,
-  # any number of Ocean input assets can be provided
-    oceaninputasset:
-      assetid: "testassetid"
-      asseturl: "path/to/asset"
-      type: "oceanasset"
-      consumptiontoken: "token"
-    #A second input which is a data payload, not from Ocean
-    payloadinput: 
-      asseturl: "path/to/url"
-      type: "payload"
-  ```
-  
-  - location of output assets
-  ```yaml
-  outputs:
-    asset1:
-      # This file contains the asset ID generated, and registered by the job
-      assetdetails: "/path/to/assetdetails"
-  ```
+The metadata in the url specifies the inputs and other configuration required to fire an invoke job.
 
 ### Retire a Service
 
 Retiring a service uses the same method as retiring an asset
 
-### Invoking the service or job
+### Invoke a job
 
-The values.xml file define the number of inputs required. These values can be overridden in the following ways:
+- send a POST request to the https://service-endpoint/invoke , along with the following JSON formatted payload
 
-- Use `--set` to set each value for an input. See [example](https://github.com/helm/helm/blob/master/docs/charts.md#using-the-cli-with-tags-and-conditions)
-- Provide a values file which contains all the inputs. See [example](https://github.com/helm/helm/blob/master/docs/charts.md#values-files)
+```json 
+{
+  "oceaninputs" : {
+            "inputasset1" : {
+               "assetid" : "ocnassetid",
+               "asseturl" : "url to consume the asset ",
+               "serviceagreementid" : "sa_id",
+             }
+             "consumerid" : "consumerid",
+             "invokeserviceagreementid" : "in_said" 
+  }
+  "configuration" : {
+      "job" : "options"
+  }
+}
+```
+
+The value against the *oceaninputs* key is a  map, where each key is the input argument name, and the value is a map.
+
+| param              | description                                 | Mandatory? |
+|--------------------|---------------------------------------------|------------|
+| assetid            | is the id of the asset on the Ocean network | yes        |
+| asseturl           | the URL where the asset is consumed from    | yes        |
+| serviceagreementid | ID of the service agreement                 | no         |
+| assetmetadataurl   | URL where the asset metadata is hosted      | no         |
+
+
+Non-data asset inputs:
+
+| param                  | description                                         | Mandatory? |
+|------------------------|-----------------------------------------------------|------------|
+| consumerid             | user id of the consumer                             | no         |
+| invokeserviceagreementid | service agreement of the (purchased) invoke service | no         |
+
+Each Ocean input asset must have the mandatory arguments. It can also have optional arguments
+Each invocation can have any number of input assets. The payload needs to contain a map where the keys are parameter names (as defined in the service metadata).
+
+#### Response
+
+| response code | description          | payload |
+|---------------|----------------------|---------|
+|           201 | job creation success | jobid   |
+|           500 | error                |         |
 
 ### Describe the status of the job
 
-`kubectl describe my-job`
+- send a HTTP GET request to https://service-endpoint/jobs/status/jobid
+
+#### Arguments
+
+The arguments are to be passed as HTTP request parameters
+
+| argument   | description                       |
+| --|--      |                                   |
+| consumerid | The consumer who invoked this job |
+|            |                                   |
+
+#### Response
+
+| response code | description                                                | payload                   |
+|---------------|------------------------------------------------------------|---------------------------|
+|            200 | job status, one of: started, in progress, completed, error | {"status" : "inprogress"} |
+|           500 | error                                                      |                           |
 
 ### Get the result of a job
 
-`kubectl logs job-id`
+- send a HTTP GET request to https://service-endpoint/jobs/result/jobid
 
-This is less than ideal for getting the result. 
+#### Arguments
 
-Options: 
+The arguments are to be passed as HTTP request parameters
 
-* Define the format for an output file which the job generates
+| argument   | description                       |
+| --|--      |                                   |
+| consumerid | The consumer who invoked this job |
+|            |                                   |
 
-### Delete a job
+#### Response
 
-`kubectl delete my-job`
+| response code | description                                                | 
+|---------------|------------------------------------------------------------|
+|            200 | job result, a json formatted string| 
+|           500 | error                                                      |
 
+The json response is of the form
+
+```json
+{ "oceanoutputs" : [ "generatedassetid1", "generatedassetid2"] 
+}
+
+```
+
+It can contain other keys such as non-Ocean payloads.
+
+### FAQ
+
+- Can the API accept configuration options:
+  - Yes the payload can contain any other inputs in the json object, other than ocean inputs
+  
+  
 ## License
 
 This OEP is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -261,4 +311,36 @@ This OEP is free software; you can redistribute it and/or modify it under the te
 This OEP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with this program; if not, see http://www.gnu.org/licenses.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
