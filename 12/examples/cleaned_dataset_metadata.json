@@ -15,7 +15,7 @@
                   "$": "prov:Person",
                   "type": "prov:QUALIFIED_NAME"
               },
-              "ocn:did": "did:ocn:llongameabcd2938"
+              "ocn:id_resolver": "did:ocn:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfdf"
           },
           "ocn:ocn_abv2837282isk": {
               "prov:label": "data cleaning service",
@@ -23,7 +23,7 @@
                   "$": "prov:SoftwareAgent",
                   "type": "prov:QUALIFIED_NAME"
               },
-              "ocn:did": "did:ocn:anotherbigname3572"
+              "ocn:id_resolver": "did:ocn:c98edc33b01c32b2d655fe0c5689fe6e5c0f71193796d3d0be035c58b1c6dfda",
           }
       },
       "activity": {
@@ -31,7 +31,8 @@
               "prov:label": "Cleaning the dataset",
               "prov:endTime": "2018-02-02T14:07:13",
               "prov:startTime": "2018-02-02T11:03:23",
-              "prov:type": "ocn:service"
+              "prov:type": "ocn:service",
+              "ocn:sea_template" :"sea_template_placeholder"
           }
       },
       "entity": {
