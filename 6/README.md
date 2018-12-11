@@ -211,10 +211,10 @@ Retiring a service uses the same method as retiring an asset
                "assetid" : "ocnassetid",
                "asseturl" : "url to consume the asset ",
                "serviceagreementid" : "sa_id",
-             }
+             },
              "consumerid" : "consumerid",
              "invokeserviceagreementid" : "in_said" 
-  }
+  },
   "configuration" : {
       "job" : "options"
   }
@@ -238,8 +238,8 @@ Non-data asset inputs:
 | consumerid             | user id of the consumer                             | no         |
 | invokeserviceagreementid | service agreement of the (purchased) invoke service | no         |
 
-Each Ocean input asset must have the mandatory arguments. It can also have optional arguments
-Each invocation can have any number of input assets. The payload needs to contain a map where the keys are parameter names (as defined in the service metadata).
+- Each Ocean input asset must have the mandatory arguments. It can also have optional arguments.
+- Each invocation can have any number of input assets. The payload needs to contain a map where the keys are parameter names (as defined in the service metadata).
 
 #### Response
 
@@ -257,7 +257,7 @@ Each invocation can have any number of input assets. The payload needs to contai
 The arguments are to be passed as HTTP request parameters
 
 | argument   | description                       |
-| --|--      |                                   |
+| --      |  --                               |
 | consumerid | The consumer who invoked this job |
 |            |                                   |
 
@@ -277,7 +277,7 @@ The arguments are to be passed as HTTP request parameters
 The arguments are to be passed as HTTP request parameters
 
 | argument   | description                       |
-| --|--      |                                   |
+| --|--                                         |
 | consumerid | The consumer who invoked this job |
 |            |                                   |
 
@@ -291,12 +291,15 @@ The arguments are to be passed as HTTP request parameters
 The json response is of the form
 
 ```json
-{ "oceanoutputs" : [ "generatedassetid1", "generatedassetid2"] 
-}
+{ "oceanoutputs" : [ "generatedassetid1", "generatedassetid2"]}
 
 ```
 
 It can contain other keys such as non-Ocean payloads.
+Note: this response section is underspecified. It needs to handle
+
+- registering the generated asset on behalf of the service consumer
+- specifying the service agreement, purchase price, additional metadata. 
 
 ### FAQ
 
