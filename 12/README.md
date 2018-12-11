@@ -298,6 +298,9 @@ When a user imports a dataset, the suggested provenance is similar to the publis
 
 - the _type_ of the activity should be "ocn:import" instead of "ocn:publish".
 
+The complete example is at [this link](./examples/import_dataset_metadata.json)
+
+
 ## Usecase 3: A service generating a new asset from existing assets
 
 Ocean services such as data cleaning, model training and others, generate a new data asset. This process could have the following characteristics
