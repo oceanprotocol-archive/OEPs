@@ -291,7 +291,7 @@ It emits `PaymentLocked` and thus triggers the next condition.
 
 ##### Grant Access Condition
 
-CONSUMER listens for `PaymentLocked` event filtered by `serviceAgreementId` to confirm the payment was made.
+PUBLISHER (via BRIZO) listens for `PaymentLocked` event filtered by `serviceAgreementId` to confirm the payment was made.
 
 ```
 "conditions": [{
