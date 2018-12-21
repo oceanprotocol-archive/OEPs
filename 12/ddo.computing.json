@@ -1,0 +1,241 @@
+{
+  "@context": "https://w3id.org/future-method/v1",
+  "id": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
+
+  "publicKey": [{
+    "id": "did:op:123456789abcdefghi#keys-1",
+    "type": "RsaVerificationKey2018",
+    "owner": "did:op:123456789abcdefghi",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\n"
+  }, {
+    "id": "did:op:123456789abcdefghi#keys-2",
+    "type": "Ed25519VerificationKey2018",
+    "owner": "did:op:123456789abcdefghi",
+    "publicKeyBase58": "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV"
+  }, {
+    "id": "did:op:123456789abcdefghi#keys-3",
+    "type": "RsaPublicKeyExchangeKey2018",
+    "owner": "did:op:123456789abcdefghi",
+    "publicKeyPem": "-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\n"
+  }],
+
+  "authentication": [{
+    "type": "RsaSignatureAuthentication2018",
+    "publicKey": "did:op:123456789abcdefghi#keys-1"
+  }, {
+    "type": "ieee2410Authentication2018",
+    "publicKey": "did:op:123456789abcdefghi#keys-2"
+  }],
+
+  "proof": {
+    "type": "UUIDSignature",
+    "created": "2016-02-08T16:02:20Z",
+    "creator": "did:example:8uQhQMGzWxR8vw5P3UWH1ja",
+    "signatureValue": "QNB13Y7Q9...1tzjn4w=="
+  },
+
+  "service": [{
+    "type": "Computing",
+    "serviceDefinitionId": "0",
+    "initializeEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/initialize",
+    "uploadEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/upload",
+    "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/exec?pubKey=${pubKey}&serviceId={serviceId}&container={container}",
+    "templateId": "044852b2a670ade5407e78fb2863c51000000000000000000000000000000002",
+    "provider": {
+      "type": "Azure",
+      "description": "",
+      "environment": {
+        "flavour": "tensorflow/tensorflow:latest",
+        "typeContainer": "xlsize",
+        "cpu": "16",
+        "gpu": "0",
+        "memory": "128gb",
+        "disk": "160gb"
+      }
+    },
+    "serviceAgreementContract": {
+      "contractName": "ServiceAgreement",
+      "fulfillmentOperator": 1,
+      "events": [{
+        "name": "ExecuteAgreement",
+        "actorType": "consumer",
+        "handler": {
+          "moduleName": "compute",
+          "functionName": "submitAlgorithm",
+          "version": "0.1"
+        }
+      }]
+    },
+    "conditions": [
+      {
+        "name": "submitAlgorithm",
+        "dependencies": [],
+        "timeout": 0,
+        "isTerminalCondition": 0,
+        "conditionKey": "0x313d20f9cda19e1f5702af79e5ebfa7cb434918722f9b334000ea71cdaac1614",
+        "contractName": "ComputeConditions",
+        "functionName": "submitAlgorithm",
+        "index": 0,
+        "parameters": [
+          {
+            "name": "assetId",
+            "type": "bytes32",
+            "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+          }
+        ],
+        "events": [{
+          "name": "FulfillUpload",
+          "actorType": "consumer",
+          "handler": {
+            "moduleName": "payment",
+            "functionName": "lockPayment",
+            "version": "0.1"
+          }
+        }]
+      }, {
+        "name": "lockPayment",
+        "dependencies": [],
+        "timeout": 0,
+        "isTerminalCondition": 0,
+        "conditionKey": "0x313d20f9cda19e1f5702af79e5ebfa7cb434918722f9b334000ea71cdaac1614",
+        "contractName": "PaymentConditions",
+        "functionName": "lockPayment",
+        "index": 0,
+        "parameters": [
+          {
+            "name": "assetId",
+            "type": "bytes32",
+            "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+          },{
+            "name": "price",
+            "type": "uint256",
+            "value": 10
+          }
+        ],
+        "events": [{
+          "name": "PaymentLocked",
+          "actorType": "publisher",
+          "handler": {
+            "moduleName": "accessControl",
+            "functionName": "authorizeComputation",
+            "version": "0.1"
+          }
+        }]
+      }, {
+        "name": "authorizeComputation",
+        "dependencies": [{
+          "name": "lockPayment",
+          "timeout": 0
+        }
+        ],
+        "timeout": 0,
+        "isTerminalCondition": 0,
+        "conditionKey": "0x38163b4835d3b0c780fcdf6a872e3e86f84393a0bda8e8b642df39a8d05c4c1a",
+        "contractName": "AccessConditions",
+        "functionName": "authorizeComputation",
+        "index": 1,
+        "parameters": [
+          {
+            "name": "assetId",
+            "type": "bytes32",
+            "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+          }
+        ],
+        "events": [{
+          "name": "ComputeGranted",
+          "actorType": "consumer",
+          "handler": {
+            "moduleName": "asset",
+            "functionName": "consumeService",
+            "version": "0.1"
+          }
+        }, {
+          "name": "ComputeGranted",
+          "actorType": "publisher",
+          "handler": {
+            "moduleName": "payment",
+            "functionName": "releasePayment",
+            "version": "0.1"
+          }
+        }]
+      },{
+        "name": "releasePayment",
+        "dependencies": [{
+          "name": "grantAccess",
+          "timeout": 0
+        }
+        ],
+        "timeout": 0,
+        "isTerminalCondition": 1,
+        "conditionKey": "0x477f516713f4b0de54d0e0f4429f593c63f2dd2ca4789633e02a446c7978f3cb",
+        "contractName": "PaymentConditions",
+        "functionName": "releasePayment",
+        "index": 2,
+        "parameters": [
+          {
+            "name": "assetId",
+            "type": "bytes32",
+            "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+          }, {
+            "name": "price",
+            "type": "uint",
+            "value": 10
+          }
+        ],
+        "events": [{
+          "name": "PaymentReleased",
+          "actorType": "publisher",
+          "handler": {
+            "moduleName": "serviceAgreement",
+            "functionName": "fulfillAgreement",
+            "version": "0.1"
+          }
+        }]
+      }, {
+        "name": "refundPayment",
+        "dependencies": [{
+          "name": "lockPayment",
+          "timeout": 0
+        },{
+          "name": "grantAccess",
+          "timeout": 86400
+        }
+        ],
+        "timeout": 1,
+        "isTerminalCondition": 1,
+        "conditionKey": "0x385d3af26f7c057688a4988fb784c392a97ce472a4feb4435968fed04809e8dc",
+        "contractName": "PaymentConditions",
+        "functionName": "refundPayment",
+        "index": 3,
+        "parameters": [
+          {
+            "name": "assetId",
+            "type": "bytes32",
+            "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+          }, {
+            "name": "price",
+            "type": "uint",
+            "value": 10
+          }
+        ],
+        "events": [{
+          "name": "PaymentRefund",
+          "actorType": "consumer",
+          "handler": {
+            "moduleName": "serviceAgreement",
+            "functionName": "fulfillAgreement",
+            "version": "0.1"
+          }
+        }]
+      }
+    ]
+
+  }, {
+    "type": "Metadata",
+    "serviceDefinitionId": "2",
+    "serviceEndpoint": "http://myaquarius.org/api/v1/provider/assets/metadata/{did}",
+    "metadata": {
+
+    }
+  }]
+}
