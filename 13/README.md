@@ -24,7 +24,7 @@ Table of Contents
          * [Consuming](#consuming)
          * [Rating](#rating)
          * [Commenting](#commenting)
-
+      * [Network Reward](#network-reward)
 
 -----
 
