@@ -90,18 +90,19 @@ The Publishing flow describe the procedure to put in place allowing to an Ocean 
    - The PROVIDER signature is added to the DDO in the **publicKey** section. Type `ProviderAddress`
    - The DDO should include include the conditions for the access service including:
      - The price condition set to zero
-     - The network reward condition value related with the OWNER (nrOwner) set to X
-     - The network reward condition value related with the PROVIDER (nrProvider) set to Y
+     - The network reward condition value related with the OWNER (ownerReward) set to X
+     - The network reward condition value related with the PROVIDER (providerReward) set to Y
    - Persist the DDO in the Provider AQUARIUS instance
 
 1. The MKT, using SQUID-JS register the DID on-chain associating the public URL where the DDO just published is available
 
-Here you can find an example of the subset of the DDO to be used:
+[Here](./ddo-commons.example.json) you can find an example of the subset of the DDO to be used. The main characteristics are:
+
+- The `publicKey` section includes the Owner and Provider addresses:
 
 ```
 {
-  "@context": "https://w3id.org/future-method/v1",
-  "id": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
+  ...
 
   "publicKey": [{
     "id": "did:op:123456789abcdefghi",
@@ -112,102 +113,20 @@ Here you can find an example of the subset of the DDO to be used:
     "type": "ProviderAddress",
     "owner": "did:op:0987654321abcdefghi"
   }
+
   ...
-  
-    "service": [{
-    "type": "Access",
-    "serviceDefinitionId": "0",
-    "serviceEndpoint": "http://brizo.commons.oceanprotocol.com/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
-    "purchaseEndpoint": "http://brizo.commons.oceanprotocol.com/api/v1/brizo/services/access/purchase?",
-    "templateId": "044852b2a670ade5407e78fb2863c51000000000000000000000000000000000",
-    "encryption": {
-      "type": "RSAES-OAEP"
-    },
-    },
-    "serviceAgreementContract": {
-      "contractName": "ServiceAgreement",
-      "fulfillmentOperator": 1,
-      "events": [{
-        "name": "ExecuteAgreement",
-        "actorType": "consumer",
-        "handler": {
-          "moduleName": "payment",
-          "functionName": "lockPayment",
-          "version": "0.1"
-        }
-      }]
-    },
-    "conditions": [
-      {
-        "name": "lockPayment",
-        "dependencies": [],
-        "timeout": 0,
-        "isTerminalCondition": 0,
-        "conditionKey": "0x313d20f9cda19e1f5702af79e5ebfa7cb434918722f9b334000ea71cdaac1614",
-        "contractName": "PaymentConditions",
-        "functionName": "lockPayment",
-        "index": 0,
-        "parameters": [
-          {
-            "name": "assetId",
-            "type": "bytes32",
-            "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
-          },{
-            "name": "price",
-            "type": "uint256",
-            "value": 0
-          }
-        ],
-        "events": [{
-          "name": "PaymentLocked",
-          "actorType": "publisher",
-          "handler": {
-            "moduleName": "accessControl",
-            "functionName": "grantAccess",
-            "version": "0.1"
-          }
-        }]
-      }, {
-        "name": "grantAccess",
-        "dependencies": [{
-            "name": "lockPayment",
-            "timeout": 0
-          }
-        ],
-        "timeout": 0,
-        "isTerminalCondition": 0,
-        "conditionKey": "0x38163b4835d3b0c780fcdf6a872e3e86f84393a0bda8e8b642df39a8d05c4c1a",
-        "contractName": "AccessConditions",
-        "functionName": "grantAccess",
-        "index": 1,
-        "parameters": [
-            {
-             "name": "assetId",
-             "type": "bytes32",
-             "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
-            }, {
-             "name": "documentKeyId",
-             "type": "bytes32",
-             "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
-            }
-        ],
-        "events": [{
-          "name": "AccessGranted",
-          "actorType": "consumer",
-          "handler": {
-            "moduleName": "asset",
-            "functionName": "consumeService",
-            "version": "0.1"
-          }
-        }, {
-          "name": "AccessGranted",
-          "actorType": "publisher",
-          "handler": {
-            "moduleName": "payment",
-            "functionName": "releasePayment",
-            "version": "0.1"
-          }
-        }]
+}
+```
+
+- The price in the Access conditions is zero
+
+- The releasePayment condition includes the ownerReward and providerReward attributes
+
+```
+    "conditions": [{
+
+        ...
+
       },{
         "name": "releasePayment",
         "dependencies": [{
@@ -231,11 +150,11 @@ Here you can find an example of the subset of the DDO to be used:
              "type": "uint",
              "value": 0
             }, {
-             "name": "nrOwner",
+             "name": "ownerReward",
              "type": "uint",
              "value": 1
             }, {
-             "name": "nrProvider",
+             "name": "providerReward",
              "type": "uint",
              "value": 1
             }
@@ -250,96 +169,11 @@ Here you can find an example of the subset of the DDO to be used:
           }
         }]
       }, {
-        "name": "refundPayment",
-        "dependencies": [{
-            "name": "lockPayment",
-            "timeout": 0
-          },{
-            "name": "grantAccess",
-            "timeout": 86400
-          }
-        ],
-        "timeout": 1,
-        "isTerminalCondition": 1,
-        "conditionKey": "0x385d3af26f7c057688a4988fb784c392a97ce472a4feb4435968fed04809e8dc",
-        "contractName": "PaymentConditions",
-        "functionName": "refundPayment",
-        "index": 3,
-		"parameters": [
-			{
-			 "name": "assetId",
-			 "type": "bytes32",
-			 "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
-			}, {
-			 "name": "price",
-			 "type": "uint",
-			 "value": 0
-			}
-		],
-        "events": [{
-          "name": "PaymentRefund",
-          "actorType": "consumer",
-          "handler": {
-            "moduleName": "serviceAgreement",
-            "functionName": "fulfillAgreement",
-            "version": "0.1"
-          }
-        }]
+
+        ...
+
       }
     ]
-
-  }, {
-    "type": "Metadata",
-    "serviceDefinitionId": "2",
-    "serviceEndpoint": "http://aquarius.oceanprotocol.com/api/v1/provider/assets/metadata/{did}",
-    "metadata": {
-      "base": {
-        "name": "UK Weather information 2011",
-        "type": "dataset",
-        "description": "Weather information of UK including temperature and humidity",
-        "size": "3.1gb",
-        "dateCreated": "2012-10-10T17:00:000Z",
-        "author": "Met Office",
-        "license": "CC-BY",
-        "copyrightHolder": "Met Office",
-        "encoding": "UTF-8",
-        "compression": "zip",
-        "contentType": "text/csv",
-        "workExample": "423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
-        "contentUrls": [
-            "fndsklgnsw42543lnflsdmnfldsmfldsmfldsmfldskmfdlskmf",
-            "mdklsamdlasklasmvfkds 3243nfkdsfkasdm232342asmdkasdmkas"
-        ],
-        "links": [{
-          "name": "Sample of Asset Data",
-          "type": "sample",
-          "url": "https://foo.com/sample.csv"
-        }, {
-          "name": "Data Format Definition",
-          "type": "format",
-          "AssetID": "4d517500da0acb0d65a716f61330969334630363ce4a6a9d39691026ac7908ea"
-        }
-        ],
-        "inLanguage": "en",
-        "tags": "weather, uk, 2011, temperature, humidity",
-        "price": 10
-
-      },
-      "curation": {
-        "rating": 0,
-        "numVotes": 0,
-        "schema": "Binary Votting"
-      },
-      "additionalInformation" : {
-        "updateFrecuency": "yearly",
-        "structuredMarkup" : [
-          { "uri" : "http://skos.um.es/unescothes/C01194/jsonld", "mediaType" : "application/ld+json"},
-          { "uri" : "http://skos.um.es/unescothes/C01194/turtle", "mediaType" : "text/turtle"}]
-      }
-    }
-  }]  
-    
-}
 ```
 
 ### Importing from Google Dataset
