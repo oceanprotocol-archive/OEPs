@@ -22,9 +22,10 @@ Table of Contents
          * [Publishing](#publishing)
          * [Importing from Google Dataset](#importing-from-google-dataset)
          * [Consuming](#consuming)
+         * [Network Reward](#network-reward)
+      * [Nice to Have](#nice-to-have)
          * [Rating](#rating)
          * [Commenting](#commenting)
-      * [Network Reward](#network-reward)
 
 -----
 
@@ -246,6 +247,72 @@ The complete PUBLISH and CONSUME flows can be shown in the below image:
 
 ![Publish and Consume flow](images/board.jpg)
 
+### Network Reward
+
+After the [Consume flow](#consuming) has been completed. The PROVIDER or AMBASSADOR users can request the
+Network Reward using the KEEPER using the `PaymentConditions.releasePayment` method. It will accept the following parameters:
+
+* assetId - DID of the asset with the fixed prefix
+* price - in the free/commons scenario the price is zero
+* ownerReward - the fixed number of tokens to be received by the OWNER (the AMBASSADOR in this scenario)
+* providerReward - the fixed number of tokens to be received by the PROVIDER (OCEAN PROTOCOL in this scenario)
+
+Example of `releasePayment` method parameters using the DDO format:
+
+```
+        "parameters": [
+            {
+             "name": "assetId",
+             "type": "bytes32",
+             "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+            }, {
+             "name": "price",
+             "type": "uint",
+             "value": 0
+          }, {
+            "name": "ownerReward",
+            "type": "uint",
+            "value": 1
+          }, {
+            "name": "providerReward",
+            "type": "uint",
+            "value": 1
+          }
+        ]
+ ```
+
+Because the DDO agreed between OWNERS and PROVIDERS could include a higher number of tokens, to get all the existing Ocean Tokens from the chest,
+the KEEPER must include a **hard cap** of the maximum number of tokens able to be rewarded in free and paid scenarios.
+Also, it would be optimal to allow the OWNER of the Smart Contract to modify the hard caps
+
+Example:
+
+```solidity
+uint public capOwnerRewardFreeAsset = 5; // Network Reward for Owners in Free/Commons scenario can't be higher than 5
+uint public capProviderRewardFreeAsset = 3; // Network Reward for Providers in Free/Commons scenario can't be higher than 3
+uint public capPercentOwnerRewardPaidAsset = 95; // Network Reward for Owners in Paid scenario can't be higher than 95% of the price
+
+event NetworkRewardCapModified(address owner, uint capOwnerRewardFreeAsset, uint capProviderRewardFreeAsset, uint capPercentOwnerRewardPaidAsset);
+
+// The owner of the Smart Contract can modify
+function setRewardCaps(uint _capOwnerRewardFreeAsset, uint _capProviderRewardFreeAsset, uint _capPercentOwnerRewardPaidAsset) public onlyOwner returns (bool) {
+    require(_capOwnerRewardFreeAsset>=0, 'Invalid capOwnerRewardFreeAsset param');
+    require(_capProviderRewardFreeAsset>=0, 'Invalid _capProviderRewardFreeAsset param')
+    require(_capPercentOwnerRewardPaidAsset>=0 && _capPercentOwnerRewardPaidAsset<=100, 'Invalid _capPercentOwnerRewardPaidAsset param')
+
+    capOwnerRewardFreeAsset= _capOwnerRewardFreeAsset;
+    capProviderRewardFreeAsset= _capProviderRewardFreeAsset;
+    capPercentOwnerRewardPaidAsset= _capPercentOwnerRewardPaidAsset;
+
+    emit NetworkRewardCapModified(msg.sender, capOwnerRewardFreeAsset, capProviderRewardFreeAsset, capPercentOwnerRewardPaidAsset);
+}
+
+```
+
+In the `releasePayment` method, it's necessary to validate that parameters are not having a higher value than the caps defined by the system.
+
+
+## Nice to Have
 
 ### Rating
 
@@ -256,9 +323,7 @@ To be defined
 To be defined
 
 
-## Network Reward
 
-To be defined
 
 
 
