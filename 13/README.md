@@ -50,20 +50,25 @@ The motivations of this use case are:
 
 The different actors interacting in this flow are:
 
-* **AMBASSADORS** - The discover public available datasets on internet, and to the Commons Marketplace with the intention of getting a reward.
-* **PROVIDER** - Ocean Protocol Foundation will be the entity running all the provider capabilities. It includes the following components:
+* **PUBLISHER** - The user discovering a public available Asset on the internet.
+  The publisher could be an Ocean Ambassador or other user publishing the
+  Metadata and links to the assets using the Ocean Commons Marketplace.
+  The main incentive of the Publisher is to get rewards.
+* **PROVIDER** - Is the entity running the Marketplace software allowing to publish and consume assets.
+  Ocean Protocol Foundation will be the entity running all the provider capabilities. It includes the following components:
   - **COMMONS MARKETPLACE** (aka **MKT**) - Frontend application where users can publish and discover commons/free datasets
   - **AQUARIUS** - Metadata API storing the commons datasets metadata
   - **BRIZO** - Proxy in charge of validate the Service Execution Agreements (SEA)
-* **KEEPER** - Running the Solidity Smart Contracts on Ethereum VM. It includes the Ocean Token, Network Reward function and SEA logic.
-* **CONSUMER** - A user, typically a data scientist or data engineer, looking for data to use in their data pipelines
+* **KEEPER** - Distributed ledger running the Solidity Smart Contracts on Ethereum VM.
+  It includes the Ocean Token, Network Reward function and SEA logic.
+* **CONSUMER** - A user, typically a data scientist or data engineer, looking for new data to use in their data pipelines.
 
 
 ## Flow
 
 ### Publishing
 
-The Publishing flow describe the procedure to put in place allowing to an Ocean Protocol AMBASSADOR to register new commons assets in the OCEAN COMMONS MARKETPLACE and get a reward for it. The complete flow is the following:
+The Publishing flow describe the procedure to put in place allowing to an Ocean Protocol PUBLISHER to register new commons assets in the OCEAN COMMONS MARKETPLACE and get a reward for it. The complete flow is the following:
 
 1. The AMBASSADOR, search on the internet and discover a relevant free/commons asset, get the publicly available information of the asset, metadata and license information.
 
@@ -183,11 +188,11 @@ This flow is similar to the previous one. The main intention of this flow is to 
 
 The main differences of this flow are:
 
-1. The AMBASSADOR, search on [Google Datasets](https://toolbox.google.com/datasetsearch/) website  and discover a relevant free/commons asset
+1. The PUBLISHER, search on [Google Datasets](https://toolbox.google.com/datasetsearch/) website  and discover a relevant free/commons asset
 
-1. The AMBASSADOR goes to the Ocean Commons Marketplace frontend application, and open the form of "Import a Commons/Free Asset from Google Datasets"
+1. The PUBLISHER goes to the Ocean Commons Marketplace frontend application, and open the form of "Import a Commons/Free Asset from Google Datasets"
 
-1. The AMBASSADOR fill the following information:
+1. The PUBLISHER fill the following information:
    - URL of the Google Dataset to import (i.e: https://toolbox.google.com/datasetsearch/search?query=Weather%20in%20Australia&docid=gEf986q6CT26lj9yAAAAAA%3D%3D)
    - List of URL's of the contents associated (can't be imported directly)
 
@@ -249,12 +254,12 @@ The complete PUBLISH and CONSUME flows can be shown in the below image:
 
 ### Network Reward
 
-After the [Consume flow](#consuming) has been completed. The PROVIDER or AMBASSADOR users can request the
+After the [Consume flow](#consuming) has been completed. The PROVIDER or PUBLISHER users can request the
 Network Reward using the KEEPER using the `PaymentConditions.releasePayment` method. It will accept the following parameters:
 
 * assetId - DID of the asset with the fixed prefix
 * price - in the free/commons scenario the price is zero
-* ownerReward - the fixed number of tokens to be received by the OWNER (the AMBASSADOR in this scenario)
+* ownerReward - the fixed number of tokens to be received by the OWNER (the PUBLISHER in this scenario)
 * providerReward - the fixed number of tokens to be received by the PROVIDER (OCEAN PROTOCOL in this scenario)
 
 Example of `releasePayment` method parameters using the DDO format:
