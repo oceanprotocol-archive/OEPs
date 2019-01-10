@@ -13,7 +13,6 @@ release: Tethis (v1.0)
 
 Table of Contents
 =================
-
    * [Table of Contents](#table-of-contents)
    * [Ocean Commons Marketplace use case](#ocean-commons-marketplace-use-case)
       * [Motivation](#motivation)
@@ -23,8 +22,9 @@ Table of Contents
          * [Importing from Google Dataset](#importing-from-google-dataset)
          * [Consuming](#consuming)
          * [Network Reward](#network-reward)
-      * [Nice to Have](#nice-to-have)
-         * [Rating](#rating)
+      * [Nice to Have (MVP-2)](#nice-to-have-mvp-2)
+         * [Curation](#curation)
+         * [Staking](#staking)
          * [Commenting](#commenting)
 
 -----
@@ -70,11 +70,11 @@ The different actors interacting in this flow are:
 
 The Publishing flow describe the procedure to put in place allowing to an Ocean Protocol PUBLISHER to register new commons assets in the OCEAN COMMONS MARKETPLACE and get a reward for it. The complete flow is the following:
 
-1. The AMBASSADOR, search on the internet and discover a relevant free/commons asset, get the publicly available information of the asset, metadata and license information.
+1. The PUBLISHER, search on the internet and discover a relevant free/commons asset, get the publicly available information of the asset, metadata and license information.
 
-1. The AMBASSADOR goes to the Ocean Commons Marketplace frontend application, and open the form of "Register a new Commons/Free Asset"
+1. The PUBLISHER goes to the Ocean Commons Marketplace frontend application, and open the form of "Register a new Commons/Free Asset"
 
-1. The AMBASSADOR fill the following information:
+1. The PUBLISHER fill the following information:
    - List of public URL's where the Asset is located
    - Title
    - Description
@@ -92,12 +92,9 @@ The Publishing flow describe the procedure to put in place allowing to an Ocean 
    - Create a new DDO for the Asset
    - Encrypt the URL's using the PROVIDER Keys
    - Add the encrypted URL's and Metadata to the DDO
-   - The AMBASSADOR signature is added to the DDO in the **publicKey** section. Type `OwnerAddress`
+   - The PUBLISHER signature is added to the DDO in the **publicKey** section. Type `OwnerAddress`
    - The PROVIDER signature is added to the DDO in the **publicKey** section. Type `ProviderAddress`
-   - The DDO should include include the conditions for the access service including:
-     - The price condition set to zero
-     - The network reward condition value related with the OWNER (ownerReward) set to X
-     - The network reward condition value related with the PROVIDER (providerReward) set to Y
+   - The DDO should include the prize equals to zero in the conditions for the access service.
    - Persist the DDO in the Provider AQUARIUS instance
 
 1. The MKT, using SQUID-JS register the DID on-chain associating the public URL where the DDO just published is available
@@ -126,61 +123,6 @@ The Publishing flow describe the procedure to put in place allowing to an Ocean 
 
 - The price in the Access conditions is zero
 
-- The releasePayment condition includes the ownerReward and providerReward attributes
-
-```
-    "conditions": [{
-
-        ...
-
-      },{
-        "name": "releasePayment",
-        "dependencies": [{
-            "name": "grantAccess",
-            "timeout": 0
-          }
-        ],
-        "timeout": 0,
-        "isTerminalCondition": 1,
-        "conditionKey": "0x477f516713f4b0de54d0e0f4429f593c63f2dd2ca4789633e02a446c7978f3cb",
-        "contractName": "PaymentConditions",
-        "functionName": "releasePayment",
-        "index": 2,
-        "parameters": [
-            {
-             "name": "assetId",
-             "type": "bytes32",
-             "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
-            }, {
-             "name": "price",
-             "type": "uint",
-             "value": 0
-            }, {
-             "name": "ownerReward",
-             "type": "uint",
-             "value": 1
-            }, {
-             "name": "providerReward",
-             "type": "uint",
-             "value": 1
-            }
-        ],
-        "events": [{
-          "name": "PaymentReleased",
-          "actorType": "publisher",
-          "handler": {
-            "moduleName": "serviceAgreement",
-            "functionName": "fulfillAgreement",
-            "version": "0.1"
-          }
-        }]
-      }, {
-
-        ...
-
-      }
-    ]
-```
 
 ### Importing from Google Dataset
 
@@ -205,7 +147,7 @@ The rest of the flow is the same to the one described previosly.
 
 ### Consuming
 
-The Consuming flow describe the procedure to put in place allowing to an Ocean Protocol CONSUMER (typically a data engineer or data scientings) to discover and get access to free/commons assets using the OCEAN COMMONS MARKETPLACE. 
+The Consuming flow describe the procedure to put in place allowing to an Ocean Protocol CONSUMER (typically a data engineer or data scientist) to discover and get access to free/commons assets using the OCEAN COMMONS MARKETPLACE.
 
 The complete flow is the following:
 
@@ -259,8 +201,7 @@ Network Reward using the KEEPER using the `PaymentConditions.releasePayment` met
 
 * assetId - DID of the asset with the fixed prefix
 * price - in the free/commons scenario the price is zero
-* ownerReward - the fixed number of tokens to be received by the OWNER (the PUBLISHER in this scenario)
-* providerReward - the fixed number of tokens to be received by the PROVIDER (OCEAN PROTOCOL in this scenario)
+
 
 Example of `releasePayment` method parameters using the DDO format:
 
@@ -274,18 +215,12 @@ Example of `releasePayment` method parameters using the DDO format:
              "name": "price",
              "type": "uint",
              "value": 0
-          }, {
-            "name": "ownerReward",
-            "type": "uint",
-            "value": 1
-          }, {
-            "name": "providerReward",
-            "type": "uint",
-            "value": 1
           }
         ]
  ```
 
+For the network rewards, the Smart Contracts need to have the internal logic to calculate the rewards in free and paid scenarios.
+In the free scenarios, the Smart Contracts will check if prize is zero, in that case the
 Because the DDO agreed between OWNERS and PROVIDERS could include a higher number of tokens, to get all the existing Ocean Tokens from the chest,
 the KEEPER must include a **hard cap** of the maximum number of tokens able to be rewarded in free and paid scenarios.
 Also, it would be optimal to allow the OWNER of the Smart Contract to modify the hard caps
@@ -293,23 +228,24 @@ Also, it would be optimal to allow the OWNER of the Smart Contract to modify the
 Example:
 
 ```solidity
-uint public capOwnerRewardFreeAsset = 5; // Network Reward for Owners in Free/Commons scenario can't be higher than 5
-uint public capProviderRewardFreeAsset = 3; // Network Reward for Providers in Free/Commons scenario can't be higher than 3
-uint public capPercentOwnerRewardPaidAsset = 95; // Network Reward for Owners in Paid scenario can't be higher than 95% of the price
+uint public publisherRewardFreeAsset = 5; // Network Reward for Publisher in Free/Commons scenario can't be higher than 5
+uint public providerRewardFreeAsset = 3; // Network Reward for Providers in Free/Commons scenario can't be higher than 3
+uint public totalAmountRewardTokens = 100000000; // Total amount of tokens to use for the reward
 
-event NetworkRewardCapModified(address owner, uint capOwnerRewardFreeAsset, uint capProviderRewardFreeAsset, uint capPercentOwnerRewardPaidAsset);
+event NetworkRewardConfigurationModification(address owner, uint publisherRewardFreeAsset, uint providerRewardFreeAsset, uint totalAmountRewardTokens);
 
-// The owner of the Smart Contract can modify
-function setRewardCaps(uint _capOwnerRewardFreeAsset, uint _capProviderRewardFreeAsset, uint _capPercentOwnerRewardPaidAsset) public onlyOwner returns (bool) {
-    require(_capOwnerRewardFreeAsset>=0, 'Invalid capOwnerRewardFreeAsset param');
-    require(_capProviderRewardFreeAsset>=0, 'Invalid _capProviderRewardFreeAsset param')
-    require(_capPercentOwnerRewardPaidAsset>=0 && _capPercentOwnerRewardPaidAsset<=100, 'Invalid _capPercentOwnerRewardPaidAsset param')
 
-    capOwnerRewardFreeAsset= _capOwnerRewardFreeAsset;
-    capProviderRewardFreeAsset= _capProviderRewardFreeAsset;
-    capPercentOwnerRewardPaidAsset= _capPercentOwnerRewardPaidAsset;
+// Only the owner of the Smart Contract can modify
+function setNetworkRewardConfiguration(uint _publisherRewardFreeAsset, uint _providerRewardFreeAsset, uint _totalAmountRewardTokens) public onlyOwner returns (bool) {
+    require(_publisherRewardFreeAsset>=0, 'Invalid publisherRewardFreeAsset param');
+    require(_providerRewardFreeAsset>=0, 'Invalid _providerRewardFreeAsset param')
+    require(_totalAmountRewardTokens>=0, 'Invalid _totalAmountRewardTokens param')
 
-    emit NetworkRewardCapModified(msg.sender, capOwnerRewardFreeAsset, capProviderRewardFreeAsset, capPercentOwnerRewardPaidAsset);
+    publisherRewardFreeAsset= _publisherRewardFreeAsset;
+    providerRewardFreeAsset= _providerRewardFreeAsset;
+    totalAmountRewardTokens= _totalAmountRewardTokens;
+
+    emit NetworkRewardConfigurationModification(msg.sender, publisherRewardFreeAsset, providerRewardFreeAsset, totalAmountRewardTokens);
 }
 
 ```
@@ -317,9 +253,13 @@ function setRewardCaps(uint _capOwnerRewardFreeAsset, uint _capProviderRewardFre
 In the `releasePayment` method, it's necessary to validate that parameters are not having a higher value than the caps defined by the system.
 
 
-## Nice to Have
+## Nice to Have (MVP-2)
 
-### Rating
+### Curation
+
+To be defined
+
+### Staking
 
 To be defined
 
