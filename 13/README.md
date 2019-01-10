@@ -13,6 +13,7 @@ release: Tethis (v1.0)
 
 Table of Contents
 =================
+
    * [Table of Contents](#table-of-contents)
    * [Ocean Commons Marketplace use case](#ocean-commons-marketplace-use-case)
       * [Motivation](#motivation)
@@ -22,6 +23,7 @@ Table of Contents
          * [Importing from Google Dataset](#importing-from-google-dataset)
          * [Consuming](#consuming)
          * [Network Reward](#network-reward)
+         * [User Interface Screens](#user-interface-screens)
       * [Nice to Have (MVP-2)](#nice-to-have-mvp-2)
          * [Curation](#curation)
          * [Staking](#staking)
@@ -251,6 +253,20 @@ function setNetworkRewardConfiguration(uint _publisherRewardFreeAsset, uint _pro
 ```
 
 In the `releasePayment` method, it's necessary to validate that parameters are not having a higher value than the caps defined by the system.
+
+### User Interface Screens
+
+In a high-level the Commons Marketplace interface is composed by the following screens:
+
+- The HOME page. The main component here is the search box. It allows to run search queries on top of the AQUARIUS database.
+  The HOME page also could include some additional information about what is the common marketplace, pre-defined queries, most relevant assets, etc.
+
+- The LIST of results. When the user search for an asset, this page will show the list of results.
+  Should include brief information about the asset, like title, tags, etc. If the user click in the Asset in the LIST will be redirected to the DETAILS PAGE.
+
+- The DETAILS page. It includes the complete information about the Asset and the DOWNLOAD button.
+
+- The PUBLISH page. It includes the form to add the Metadata and the content urls.
 
 
 ## Nice to Have (MVP-2)
