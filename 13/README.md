@@ -24,10 +24,8 @@ Table of Contents
          * [Consuming](#consuming)
          * [Network Reward](#network-reward)
          * [User Interface Screens](#user-interface-screens)
-      * [Nice to Have (MVP-2)](#nice-to-have-mvp-2)
-         * [Curation](#curation)
-         * [Staking](#staking)
-         * [Commenting](#commenting)
+      * [Next steps](#next-steps)
+
 
 -----
 
@@ -269,19 +267,18 @@ In a high-level the Commons Marketplace interface is composed by the following s
 - The PUBLISH page. It includes the form to add the Metadata and the content urls.
 
 
-## Nice to Have (MVP-2)
+## Next steps
 
-### Curation
+Further releases of this could be:
 
-To be defined
+* Curation - Assets can be rated (stars, thumb up/down, etc). This rating would be used to rank the search results in the List page.
 
-### Staking
+* Staking - Publishers have the possibility to stake in the Assets they publish. Depending of the stake and the reputation/curation/validation of the Asset, the Publishers could have a higher reward because the stake or lose it if they publish invalid contents.
 
-To be defined
+* Orders - Users publishing assets could access to a page with the list of assets published and some usage stats (e.g number of downloads). Consumers could have a similar page with the Assets the purchased/downloaded.
 
-### Commenting
+* Reviews - In the Detailed view, the users could add their reviews about the asset. Those reviews would be shown in the same page.
 
-To be defined
 
 
 
