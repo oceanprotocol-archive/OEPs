@@ -15,7 +15,6 @@ Table of Contents
 =================
 
 
-
    * [Table of Contents](#table-of-contents)
    * [On-Chain Access Control using Service Agreements](#on-chain-access-control-using-service-agreements)
       * [Change Process](#change-process)
@@ -35,8 +34,9 @@ Table of Contents
          * [Encryption and Decryption](#encryption-and-decryption)
             * [No Encryption](#no-encryption)
             * [Secret Store](#secret-store)
-            * [Ethereum Signature](#ethereum-signature)
+            * [Rsa Public and Private Keys](#rsa-public-and-private-keys)
          * [Implementation details](#implementation-details)
+
 
 ---
 
@@ -469,16 +469,27 @@ More information about the integration of the Secret Store can be found [in the 
 This is the case when PUBLISHER wants to encrypt the URL's related with the contents. The PUBLISHER encrypts individually each URL using the
 RSA encryption protocol according to PKCS#1 OAEP. In Python can be used the [PyCrypto library](https://pythonhosted.org/pycrypto/Crypto.Cipher.PKCS1_OAEP-module.html) to implement this.
 
-Because each URL is encrypted individually, given an input of N URL's, an output of N URL's encrypted will be created in the DDO.
-
-In this case the CONSUMER doesn't need to decrypt the URL's, is the PUBLISHER who decrypt the URL's during the consumption flow.
-
-Example:
+DDO Example:
 ```json
     "encryption": {
       "type": "RSAES-OAEP"
     },
 ```
+
+This encryption must be implemented in the different squid libraries in the publishing flow.
+Because each URL is encrypted individually, given an input of N URL's, an output of N URL's encrypted will be created in the DDO.
+
+A DDO with 2 urls as input:
+```json
+ "contentUrls": ["https://example.com/file1.csv", "https://example.com/file2.csv"]
+```
+
+```json
+ "contentUrls": ["ihfuewufhwieuhcciweuhiweucnksdcnksdncksdvndksjn3u34n3unnfrunf4u3", "ihfuewufhwieuhcciweuhiweucnksdcnksdncksdvndksjn3u34n3unnfrunf4u3"]
+```
+
+In the consumption flow, the CONSUMER doesn't need to decrypt the URL's, is the PUBLISHER who decrypt the URL's during the consumption flow using BRIZO.
+To allow the decryption in the consuming flow by BRIZO, it would require to having the same keys in squid-* and brizo.
 
 
 ### Implementation details
