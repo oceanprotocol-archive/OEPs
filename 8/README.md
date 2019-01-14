@@ -74,7 +74,7 @@ Attribute       |   Type        |   Required    | Description
 **inLanguage**  | Text          | No            | The language of the content. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47).
 **tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
 **price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
-**files**       | Array of Files| Yes           | Array of File objects including the encrypted file urls, checksum (optional), content lenght in bytes (optional) and remote resourceId (optional)
+**files**       | Array of Files| Yes           | Array of File objects including the encrypted file urls, checksum (optional), content length in bytes (optional) and remote resourceId (optional)
 
 ## Curation Attributes
 
@@ -106,15 +106,15 @@ The publisher of a DDO MAY add additional attributes (i.e. in addition to those 
 
 ## Files
 
-The `files` attribute includes the details necessary to consume and validate de data.
+The `files` attribute includes the details necessary to consume and validate the data.
 This attribute include an array of objects of type `file`. The type file has the following attributes:
 
 | Attribute             | Description                                                                                                                  |
 | -                     | -                                                                                                                            |
 | **url**               | Content Url (mandatory). The URL is encrypted.                                                                               |
 | **checksum**          | Checksum of the file using MD5 (optional). If it's not provided can't be validated if the file was not modified after registering. |
-| **contentLenght**     | Size of the file in bytes (optional).                                                                                        |
-| **resourceId**        | Remote identifier of the file in the external provider (optional). It is tipically the remote id in the cloud provider. |
+| **contentLength**     | Size of the file in bytes (optional).                                                                                        |
+| **resourceId**        | Remote identifier of the file in the external provider (optional). It is typically the remote id in the cloud provider. |
 
 Only the **url** attribute is mandatory.
 
@@ -142,13 +142,13 @@ Here is an example of an Asset Metadata object following the above-described sch
             {
                 "url": "234ab87234acbd09543085340abffh21983ddhiiee982143827423421",
                 "checksum": "efb2c764274b745f5fc37f97c6b0e761",
-                "contentLenght": "4535431",
+                "contentLength": "4535431",
                 "resourceId": "access-log2018-02-13-15-17-29-18386C502CAEA932"
             },
             {
                 "url": "234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421",
                 "checksum": "085340abffh21495345af97c6b0e761",
-                "contentLenght": "12324"
+                "contentLength": "12324"
             },
             {
                 "url": "80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2",
