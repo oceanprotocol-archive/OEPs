@@ -221,34 +221,6 @@ Example of `releasePayment` method parameters using the DDO format:
 
 For the network rewards, the Smart Contracts need to have the internal logic to calculate the rewards in free and paid scenarios.
 In the free scenarios, the Smart Contracts will check if prize is zero, in that case the
-Because the DDO agreed between OWNERS and PROVIDERS could include a higher number of tokens, to get all the existing Ocean Tokens from the chest,
-the KEEPER must include a **hard cap** of the maximum number of tokens able to be rewarded in free and paid scenarios.
-Also, it would be optimal to allow the OWNER of the Smart Contract to modify the hard caps
-
-Example:
-
-```solidity
-uint public publisherRewardFreeAsset = 5; // Network Reward for Publisher in Free/Commons scenario can't be higher than 5
-uint public providerRewardFreeAsset = 3; // Network Reward for Providers in Free/Commons scenario can't be higher than 3
-uint public totalAmountRewardTokens = 100000000; // Total amount of tokens to use for the reward
-
-event NetworkRewardConfigurationModification(address owner, uint publisherRewardFreeAsset, uint providerRewardFreeAsset, uint totalAmountRewardTokens);
-
-
-// Only the owner of the Smart Contract can modify
-function setNetworkRewardConfiguration(uint _publisherRewardFreeAsset, uint _providerRewardFreeAsset, uint _totalAmountRewardTokens) public onlyOwner returns (bool) {
-    require(_publisherRewardFreeAsset>=0, 'Invalid publisherRewardFreeAsset param');
-    require(_providerRewardFreeAsset>=0, 'Invalid _providerRewardFreeAsset param')
-    require(_totalAmountRewardTokens>=0, 'Invalid _totalAmountRewardTokens param')
-
-    publisherRewardFreeAsset= _publisherRewardFreeAsset;
-    providerRewardFreeAsset= _providerRewardFreeAsset;
-    totalAmountRewardTokens= _totalAmountRewardTokens;
-
-    emit NetworkRewardConfigurationModification(msg.sender, publisherRewardFreeAsset, providerRewardFreeAsset, totalAmountRewardTokens);
-}
-
-```
 
 In the `releasePayment` method, it's necessary to validate that parameters are not having a higher value than the caps defined by the system.
 
