@@ -117,7 +117,7 @@ Using only one Squid call `registerAsset(asset_metadata, publisher_public_key)`,
 This method executes internally - everything happens off-chain.
 
 1. PUBLISHER generates a DID. See [How to generate a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#length-of-a-did). DID is a UUID in Trilobite. Later on, this might be computed as a DDO hash.
-1. PUBLISHER optionally can encrypt the URL's using different encryption plugins. If that's the case, in the DDO will be added an **encryption** attribute describing the procedure used.
+1. PUBLISHER optionally can encrypt the URLs using different encryption plugins. If that's the case, in the DDO will be added an **encryption** attribute describing the procedure used.
 1. PUBLISHER encrypts the URL using the Secret Store identified by a DID.
 1. PUBLISHER creates a DDO including the following information:
    - DID
@@ -408,18 +408,18 @@ def cancel_payment(service_agreement_id, service_definition_id):
 
 ### Encryption and Decryption
 
-The PUBLISHER can define if he/she wants to encrypt or not the URL's before adding to the DDO. This information added to the DDO allows to the CONSUMER's (via SQUID) to understand how to deal with the URL's.
+The PUBLISHER can define if he/she wants to encrypt or not the URLs before adding to the DDO. This information added to the DDO allows to the CONSUMER's (via SQUID) to understand how to deal with the URLs.
 To support this, in the Services section of the DDO can be specified this configuration under the **"encryption"** attribute.
 This attribute encapsulate one object with the following attributes:
 
-* type - The type of encryption applied to the URL's. It could be SecretStore, RSAES-OAEP, None.
+* type - The type of encryption applied to the URLs. It could be SecretStore, RSAES-OAEP, None.
 * url (optional) - Url used during the encryption and decryption process.
 
 The different encryption procedures supported are:
 
 #### No Encryption
 
-This is the case when PUBLISHER doesn't want to encrypt the URL's. This is represented in DDO when:
+This is the case when PUBLISHER doesn't want to encrypt the URLs. This is represented in DDO when:
 
 * The encryption attribute is not defined as part of the service
 * The encryption type is **"None"**
@@ -433,7 +433,7 @@ Example:
 
 #### Secret Store
 
-This is the case when PUBLISHER wants to encrypt the URL's using a Secret Store cluster.
+This is the case when PUBLISHER wants to encrypt the URLs using a Secret Store cluster.
 The cluster to use during the encryption and decryption is specfied in the **url** attribute.
 
 Example:
@@ -444,7 +444,7 @@ Example:
     },
 ```
 
-All the urls in this scenario are encrypted at once. It means if a DDO has multiple URL's, an array in JSON format will be created with all the URL's.
+All the urls in this scenario are encrypted at once. It means if a DDO has multiple URLs, an array in JSON format will be created with all the URLs.
 This array will be encrypted and the HASH returned will be added as one entry of the contentsUrl attribute. Example:
 
 A DDO with 3 urls as input:
@@ -472,7 +472,7 @@ In this case, the following text will be encrypted:
 [{"url":"234ab87234acbd09543085340abffh21983ddhiiee982143827423421","checksum":"efb2c764274b745f5fc37f97c6b0e761","contentLength":"4535431","resourceId":"access-log2018-02-13-15-17-29-18386C502CAEA932" }, { "url":"234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421","checksum":"085340abffh21495345af97c6b0e761","contentLength":"12324"},{"url":"80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"}]
 ```
 
-After the encryption, the previous URL's will be removed and the encrypted HASH added to the DDO.
+After the encryption, the previous URLs will be removed and the encrypted HASH added to the DDO.
 ```json
  "files": [{"url": "ihfuewufhwieuhcciweuhiweucnksdcnksdncksdvndksjn3u34n3unnfrunf4u3"}]
 ```
@@ -481,12 +481,12 @@ More information about the integration of the Secret Store can be found [in the 
 
 #### Rsa Public and Private Keys
 
-This is the case when PUBLISHER wants to encrypt the URL's related with the contents. The PUBLISHER encrypts individually each URL using the
+This is the case when PUBLISHER wants to encrypt the URLs related with the contents. The PUBLISHER encrypts individually each URL using the
 RSA encryption protocol according to PKCS#1 OAEP. In Python can be used the [PyCrypto library](https://pythonhosted.org/pycrypto/Crypto.Cipher.PKCS1_OAEP-module.html) to implement this.
 
-Because each URL is encrypted individually, given an input of N URL's, an output of N URL's encrypted will be created in the DDO.
+Because each URL is encrypted individually, given an input of N URLs, an output of N URLs encrypted will be created in the DDO.
 
-In this case the CONSUMER doesn't need to decrypt the URL's, is the PUBLISHER who decrypt the URL's during the consumption flow.
+In this case the CONSUMER doesn't need to decrypt the URLs, is the PUBLISHER who decrypt the URLs during the consumption flow.
 
 Example:
 ```json
