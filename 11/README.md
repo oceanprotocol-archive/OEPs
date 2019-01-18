@@ -447,19 +447,34 @@ Example:
 All the urls in this scenario are encrypted at once. It means if a DDO has multiple URL's, an array in JSON format will be created with all the URL's.
 This array will be encrypted and the HASH returned will be added as one entry of the contentsUrl attribute. Example:
 
-A DDO with 2 urls as input:
+A DDO with 3 urls as input:
 ```json
- "contentUrls": ["https://example.com/file1.csv", "https://example.com/file2.csv"]
+   "files": [
+          {
+            "url": "234ab87234acbd09543085340abffh21983ddhiiee982143827423421",
+            "checksum": "efb2c764274b745f5fc37f97c6b0e761",
+            "contentLength": "4535431",
+            "resourceId": "access-log2018-02-13-15-17-29-18386C502CAEA932"
+          },
+          {
+            "url": "234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421",
+            "checksum": "085340abffh21495345af97c6b0e761",
+            "contentLength": "12324"
+          },
+          {
+            "url": "80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"
+          }
+   ]
 ```
 
 In this case, the following text will be encrypted:
 ```
-["https://example.com/file1.csv","https://example.com/file2.csv"]
+[{"url":"234ab87234acbd09543085340abffh21983ddhiiee982143827423421","checksum":"efb2c764274b745f5fc37f97c6b0e761","contentLength":"4535431","resourceId":"access-log2018-02-13-15-17-29-18386C502CAEA932" }, { "url":"234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421","checksum":"085340abffh21495345af97c6b0e761","contentLength":"12324"},{"url":"80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"}]
 ```
 
 After the encryption, the previous URL's will be removed and the encrypted HASH added to the DDO.
 ```json
- "contentUrls": ["ihfuewufhwieuhcciweuhiweucnksdcnksdncksdvndksjn3u34n3unnfrunf4u3"]
+ "files": [{"url": "ihfuewufhwieuhcciweuhiweucnksdcnksdncksdvndksjn3u34n3unnfrunf4u3"}]
 ```
 
 More information about the integration of the Secret Store can be found [in the Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/secret-store.md).
