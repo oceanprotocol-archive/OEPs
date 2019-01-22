@@ -147,7 +147,17 @@ An ASSET in the system is composed by on-chain information maintained by the KEE
 Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
 The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
 
-Note: The first version of this spec DOES NOT include an integrity-checking mechanism. That is deferred to future versions.
+In the `registerAttribute` will be possible to specify a `bytes32 checksum` parameter representing the hash calculated. This hash will calculated in the following way:
+
+- Concatenation of all the `DDO.services['AccessService'].metadata.files.checksum[*]` attributes. Every file included in the asset can have a file checksum associated
+- Concatenating to the previous string the metadata attributes `name`, `author` and `license`
+- Concatenating to the previous string the `did` (i.e `did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea`)
+- Hashing the complete string generated using SHA3-256
+
+`var checksum= Hash.sha3( checksum1 + checksum2 + checksum3 + name + author + license + did)`
+
+Any modification of the files referenced in the DDO or the attributes included in the checksum would generate a different string.
+Because this checksum will be stored on-chain and emitted as an event, a validator could use this information to check if something changed regarding the intial registration.
 
 #### Length of a DID
 
@@ -193,49 +203,28 @@ Here a draft **DidRegistry** implementation:
 
 contract DidRegistry {
 
-    struct Identity {
-        address owner; // owner of the Identity
-        string providerDid;
-    }
-
-    struct Provider {
-        mapping (bytes32 => string) attributes;
-    }
-
-    mapping (string => Identity) identities; // list of identities, mapping: identities[did] = Identity
-    mapping (bytes32 => Provider) providers; // list of providers, mapping: providers[did] = Provider
-
-    // Attributes as events (recommended)
-    event DidAttributeRegistered(
-        string indexed did,
+    event DIDAttributeRegistered(
+        bytes32 indexed did,
         address indexed owner,
-        string indexed providerDid,
-        bytes32 indexed key,
+        bytes32 indexed checksum,
         string value,
-        uint updateAt
+        uint updatedAt
     );
 
-    constructor(bytes32 _did, uint256 _type) public {
+    mapping(bytes32 => DIDRegister) private didRegister;
+    function registerAttribute(bytes32 _did, bytes32 _checksum, string _value) public {
+        // ....
+
+        emit DIDAttributeRegistered(_did, msg.sender, _checksum, _value, block.number);
     }
 
-    function register(string _resourceDID, string _providerDID, bytes32 _key, string _value) public returns (bool) {
-        // It's necessary to check if the provider was already there
-        // In that case is not necessary to add a new Provider (cheaper, only first time we write info about a provider)
-        providers[_providerDID][_key]= _value;
-
-        // Associating the resourceDID to the providerDID resolving the resource DID to the DDO
-        identities[_resourceDID].owner= msg.sender;
-        identities[_resourceDID].owner= _providerDID;
-
-        DidAttributeRegistered(_did, msg.sender, _providerDID, _key, _value, now);
-    }
 }
 ```
 
-To register the provider publicly resolving the DDO associated to a DID, we will register an attribute **"service-ddo"** with the public hostname of that provider:
+To register the provider publicly resolving the DDO associated to a DID, we will register an attribute with the public hostname of that provider:
 
 ```
-registerAttribute("did:op:21tDAKCERh95uGgKbJNHYp", "did:op:328aabb94534935864312", "service-ddo", "https://myprovider.example.com/ddo")
+registerAttribute("21tDAKCERh95uGgKbJNHYp", "328aabb94534935864312", "https://myprovider.example.com/ddo")
 ```
 
 ### Resolver
@@ -261,13 +250,13 @@ A DDO pointing to a DID could be resolved hierarchically using the same mechanis
 This is an example in Javascript using web3.js:
 
 ```javascript
-var event = contractInstance.DidAttributeRegistered( {did: "did:op:21tDAKCERh95uGgKbJNHYp", "key": "service-ddo"}, {fromBlock: 0, toBlock: 'latest'});
+var event = contractInstance.DidAttributeRegistered( {did: "21tDAKCERh95uGgKbJNHYp"}, {fromBlock: 0, toBlock: 'latest'});
 ```
 
 Here in Python using web3.py:
 
 ```python
-event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': 'did:op:21tDAKCERh95uGgKbJNHYp', 'key': 'service-ddo'})
+event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest', argument_filters={'did': '21tDAKCERh95uGgKbJNHYp'})
 ```
 
 This logic could be encapsulated in the client libraries (**Squid**) in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.

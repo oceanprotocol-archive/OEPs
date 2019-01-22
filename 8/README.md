@@ -54,27 +54,31 @@ The main motivations of this OEP are to:
 
 ## Base Attributes
 
-All base attributes MUST be included in the Asset Metadata. The stored _values_ can be empty. The following are the base attributes:
+The base attributes are recommended to be included in the Asset Metadata.
+A part of the most basic, Ocean Protocol doesn't require attributes, it's up to the PROVIDERS to use the optional attributes.
+The stored _values_ can be empty. The following are the base attributes:
 
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
-**name**        | Text          | Yes           | Descriptive name of the Asset.
-**type**        | Text          | Yes           | Type of the Asset. Helps to filter by the type of asset, initially ("dataset", "algorithm", "container", "workflow", "other").
-**description** | Text          | No            | Details of what the resource is. For a dataset, this attribute explains what the data represents and what it can be used for.
+**name**        | Text          | Yes           | Descriptive name or title of the Asset.
 **dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added.
-**size**        | Text          | Yes           | Size of the asset (e.g. 18MB). In the absence of a unit (MB, kB etc.), kB will be assumed.
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
+**contentType** | Text          | Yes           | File format, if applicable.
+**price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
+**files**       | Array of Files| Yes           | Array of File objects including the encrypted file urls, checksum (optional), content length in bytes (optional) and remote resourceId (optional)
+**categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
+**tags**        | Array of Text | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
+**type**        | Text          | No            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "other"). It's up to the PROVIDER or MARKETPLACE to use a different list of types or not use it.
+**description** | Text          | No            | Details of what the resource is. For a dataset, this attribute explains what the data represents and what it can be used for.
+**size**        | Text          | No            | Size of the asset (e.g. 18MB). In the absence of a unit (MB, kB etc.), kB will be assumed.
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default.
 **encoding**    | Text          | No            | File encoding (e.g. UTF-8).
 **compression** | Text          | No            | File compression (e.g. no, gzip, bzip2, etc).
-**contentType** | Text          | Yes           | File format, if applicable.
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
-**contentUrls** | Text          | Yes           | List of content URLs resolving the Asset files.
 **links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. Links may be to either a URL or another Asset. We expect marketplaces to converge on agreements of typical formats for linked data: The Ocean Protocol itself does not mandate any specific formats as these requirements are likely to be domain-specific.
 **inLanguage**  | Text          | No            | The language of the content. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47).
-**tags**        | Text          | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
-**price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
+
 
 ## Curation Attributes
 
@@ -95,7 +99,6 @@ These are examples of attributes that can enhance the discoverability of a resou
 | **checksum**          | Checksum of attributes to be able to compare if there are changes in the asset that you are purchasing.                      |
 | **sla**               | Service Level Agreement.                                                                                                      |
 | **industry**          |                                                                                                                              |
-| **category**          | Can be assigned to a category in addition to having tags.                                                                     |
 | **updateFrequency**   | An indication of update latency - i.e. How often are updates expected (seldom, annually, quarterly, etc.), or is the resource static that is never expected to get updated. |
 | **termsOfService**    |                                                                                                                              |
 | **privacy**           |                                                                                                                              |
@@ -103,6 +106,20 @@ These are examples of attributes that can enhance the discoverability of a resou
 | **structured-markup** | A link to machine-readable structured markup (such as ttl/json-ld/rdf) describing the dataset.                                |
 
 The publisher of a DDO MAY add additional attributes (i.e. in addition to those listed above).
+
+## Files
+
+The `files` attribute includes the details necessary to consume and validate the data.
+This attribute include an array of objects of type `file`. The type file has the following attributes:
+
+| Attribute             | Description                                                                                                                  |
+| -                     | -                                                                                                                            |
+| **url**               | Content Url (mandatory). The URL is encrypted.                                                                               |
+| **checksum**          | Checksum of the file using MD5 (optional). If it's not provided can't be validated if the file was not modified after registering. |
+| **contentLength**     | Size of the file in bytes (optional).                                                                                        |
+| **resourceId**        | Remote identifier of the file in the external provider (optional). It is typically the remote id in the cloud provider. |
+
+Only the **url** attribute is mandatory.
 
 ## Example
 
@@ -122,9 +139,26 @@ Here is an example of an Asset Metadata object following the above-described sch
         "encoding": "UTF-8",
         "compression": "zip",
         "contentType": "text/csv",
+        "categories": ["weather"],
+        "tags": ["weather", "uk", "2011", "temperature", "humidity"],
         "workExample": "stationId,latitude,longitude,datetime,temperature,humidity\n
                         423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
-        "contentUrls": ["https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"],
+        "files": [
+            {
+                "url": "234ab87234acbd09543085340abffh21983ddhiiee982143827423421",
+                "checksum": "efb2c764274b745f5fc37f97c6b0e761",
+                "contentLength": "4535431",
+                "resourceId": "access-log2018-02-13-15-17-29-18386C502CAEA932"
+            },
+            {
+                "url": "234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421",
+                "checksum": "085340abffh21495345af97c6b0e761",
+                "contentLength": "12324"
+            },
+            {
+                "url": "80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2",
+            }
+        ],
         "links": [
             {
                 "name": "Sample of Asset Data",
@@ -138,7 +172,6 @@ Here is an example of an Asset Metadata object following the above-described sch
             }
         ],
         "inLanguage": "en",
-        "tags": "weather, uk, 2011, temperature, humidity",
         "price": 10
     },
     "curation": {
