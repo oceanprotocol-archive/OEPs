@@ -174,9 +174,9 @@ The complete flow is the following:
 
 1. The KEEPER after to initialize emit the `ExecuteAgreement` event
 
-1. The CONSUMER listens for the `ExecuteAgreement` event and when it's received call the `LockPayment` function on the KEEPER
+1. The CONSUMER listens for the `ExecuteAgreement` event and when it's received call the `lockPayment` function on the KEEPER
 
-1. The `LockPayment` function on the KEEPER emit the `PaymentLocked` event
+1. The `lockPayment` function on the KEEPER emit the `PaymentLocked` event
 
 1. BRIZO listens for the `PaymentLocked` event and when it's received call the `GrantAccess` function in the KEEPER
 
