@@ -186,8 +186,6 @@ The complete flow is the following:
 
 1. BRIZO valide on-chain using the `checkPermissions` function in the KEEPER Access Conditions if the user has access. If not cancel the request returning a `HTTP 401 Unathorized` answer.
 
-1. BRIZO, after validate the permissions decrypt the encrypted URL using the PROVIDER Keys
-
 1. BRIZO, working as a PROXY, return the Asset content to the CONSUMER
 
 The complete PUBLISH and CONSUME flows can be shown in the below image:
