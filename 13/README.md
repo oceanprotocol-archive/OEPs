@@ -220,7 +220,6 @@ Example of `releasePayment` method parameters using the DDO format:
  ```
 
 For the network rewards, the Smart Contracts need to have the internal logic to calculate the rewards in free and paid scenarios.
-In the free scenarios, the Smart Contracts will check if prize is zero, in that case the
 
 In the `releasePayment` method, it's necessary to validate that parameters are not having a higher value than the caps defined by the system.
 
