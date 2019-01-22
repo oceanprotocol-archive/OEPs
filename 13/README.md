@@ -34,7 +34,7 @@ Table of Contents
 
 The intention of this document is to describe the scenario of a working Ocean Commons Marketplace. There the users should be able to publish and discover free/commons assets (datasets). 
 
-It's out of the scope to detail the detailed implementation of components (can be found in the [OEP-11](https://github.com/oceanprotocol/OEPs/tree/master/11)
+It's out of the scope to detail the implementation of components (can be found in the [OEP-11](https://github.com/oceanprotocol/OEPs/tree/master/11)
 
 ## Motivation
 
