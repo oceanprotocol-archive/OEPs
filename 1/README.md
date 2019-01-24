@@ -1,9 +1,10 @@
-```
+```text
 shortname: 1/C4
 name: Collective Code Construction Contract
 type: Meta
 status: Draft
 editor: Dimitri De Jonghe <dimi@oceanprotocol.com>
+contributors: Troy McConaghy <troy@oceanprotocol.com>
 ```
 
 Apart from section 2.2, this RFC is equivalent to the [unprotocols 1/C4](https://github.com/unprotocols/rfc/blob/master/1/README.md).
@@ -45,8 +46,7 @@ C4 is meant to provide a reusable optimal collaboration model for open source so
 
 1. The project SHALL use the Apache 2 license.
 1. All contributions to the project source code ("patches") SHALL use the same license as the project.
-1. A new contributor contributing a patch MUST agree to a Contributor License Agreement (CLA) before their patch can be merged.
-1. Each Contributor SHALL be responsible for identifying themselves in the project Contributor list.
+1. Before a patch from an external contributor can be merged, the external contributor MUST do the steps listed on the page [https://docs.oceanprotocol.com/concepts/legal-reqs/](https://docs.oceanprotocol.com/concepts/legal-reqs/). That page also explains how to determine if a contributor is an external contributor.
 
 ### 2.3. Patch Requirements
 
