@@ -62,7 +62,7 @@ Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name or title of the Asset.
 **dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added.
-**author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
+**author**      | Text          | Yes           | Name of the entity that created the data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **contentType** | Text          | Yes           | File format, if applicable.
 **price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
@@ -71,6 +71,7 @@ Attribute       |   Type        |   Required    | Description
 **tags**        | Array of Text | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
 **type**        | Text          | No            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "other"). It's up to the PROVIDER or MARKETPLACE to use a different list of types or not use it.
 **description** | Text          | No            | Details of what the resource is. For a dataset, this attribute explains what the data represents and what it can be used for.
+**publisher**   | Array of Text | No            | Person(s) responsible for publishing the data to Ocean or the person(s) part of the author entity who conducted the data gathering.
 **size**        | Text          | No            | Size of the asset (e.g. 18MB). In the absence of a unit (MB, kB etc.), kB will be assumed.
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default.
 **encoding**    | Text          | No            | File encoding (e.g. UTF-8).
