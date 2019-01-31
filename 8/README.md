@@ -4,7 +4,7 @@ name: Assets Metadata Ontology
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>
+contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>, Marcus Jones <marcus@oceanprotocol.com>
 ```
 
 **Table of Contents**
@@ -15,6 +15,7 @@ contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanp
       * [Change Process](#change-process)
       * [Language](#language)
       * [Motivation](#motivation)
+      * [Life Cycle of Metadata](#life-cycle-of-metadata)      
       * [Base Attributes](#base-attributes)
       * [Curation Attributes](#curation-attributes)
       * [Additional Information](#additional-information)
@@ -52,6 +53,10 @@ The main motivations of this OEP are to:
 * Identify the recommended additional attributes that SHOULD be included in a DDO to facilitate Asset search
 * Provide an example of an Asset Metadata object and additional links for reference
 
+## Life Cycle of Metadata
+
+Metadata is first created by the publisher of the asset. The publisher has knowledge of the file URL's, and they are stored in plaintext. After publication, the metadata store (Aquarius) will return the Metadata with encrypted URL's. 
+
 ## Base Attributes
 
 The base attributes are recommended to be included in the Asset Metadata.
@@ -61,7 +66,7 @@ The stored _values_ can be empty. The following are the base attributes:
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name or title of the Asset.
-**dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added. ISO 8601 format, Coordinated Universal Time (UTC/zulu), `2019-01-31T08:38:32Z`. 
+**dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added. ISO 8601 format, Coordinated Universal Time, (`2019-01-31T08:38:32Z`).
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **contentType** | Text          | Yes           | File format, if applicable.
@@ -116,7 +121,7 @@ This attribute include an array of objects of type `file`. The type file has the
 
 | Attribute             | Description                                                                                                                  |
 | -                     | -                                                                                                                            |
-| **url**               | Content Url (mandatory). The URL is encrypted.                                                                               |
+| **url**               | Content Url (mandatory). The URL is encrypted after publication.                                                                               |
 | **checksum**          | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
 | **checksumType**          | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
 | **contentLength**     | Size of the file in bytes (optional).                                                                                        |
