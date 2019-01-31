@@ -140,7 +140,7 @@ Here is an example of an Asset Metadata object following the above-described sch
         "type": "dataset",
         "description": "Weather information of UK including temperature and humidity",
         "size": "3.1gb",
-        "dateCreated": "2012-02-01T10:55:11+00:00",
+        "dateCreated": "2012-02-01T10:55:11Z",
         "author": "Met Office",
         "license": "CC-BY",
         "copyrightHolder": "Met Office",
@@ -155,18 +155,21 @@ Here is an example of an Asset Metadata object following the above-described sch
             {
                 "url": "234ab87234acbd09543085340abffh21983ddhiiee982143827423421",
                 "checksum": "efb2c764274b745f5fc37f97c6b0e761",
+                "checksumType": "MD5",               
                 "contentLength": "4535431",
                 "resourceId": "access-log2018-02-13-15-17-29-18386C502CAEA932"
             },
             {
                 "url": "234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421",
                 "checksum": "085340abffh21495345af97c6b0e761",
+                "checksumType": "MD5",
                 "contentLength": "12324"
             },
             {
                 "url": "80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2",
             }
         ],
+        "checksum" : "a52c764274b745f5fc37f97c6b0e77a0"
         "links": [
             {
                 "name": "Sample of Asset Data",
