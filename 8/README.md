@@ -61,12 +61,13 @@ The stored _values_ can be empty. The following are the base attributes:
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name or title of the Asset.
-**dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added.
+**dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added. ISO format, with timezone
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **contentType** | Text          | Yes           | File format, if applicable.
 **price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
 **files**       | Array of Files| Yes           | Array of File objects including the encrypted file urls, checksum (optional), content length in bytes (optional) and remote resourceId (optional)
+**checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
 **tags**        | Array of Text | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
 **type**        | Text          | No            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "other"). It's up to the PROVIDER or MARKETPLACE to use a different list of types or not use it.
@@ -78,7 +79,7 @@ Attribute       |   Type        |   Required    | Description
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
 **links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. Links may be to either a URL or another Asset. We expect marketplaces to converge on agreements of typical formats for linked data: The Ocean Protocol itself does not mandate any specific formats as these requirements are likely to be domain-specific.
 **inLanguage**  | Text          | No            | The language of the content. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47).
-**checksum** | Text          | Yes            | SHA3 Hash of [list of all file checksums] + name + author + license + did
+
 
 
 ## Curation Attributes
@@ -116,7 +117,9 @@ This attribute include an array of objects of type `file`. The type file has the
 | Attribute             | Description                                                                                                                  |
 | -                     | -                                                                                                                            |
 | **url**               | Content Url (mandatory). The URL is encrypted.                                                                               |
-| **checksum**          | Checksum of the file using MD5 (optional). If it's not provided can't be validated if the file was not modified after registering. |
+| **checksum**          | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
+
+| **checksumType**          | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
 | **contentLength**     | Size of the file in bytes (optional).                                                                                        |
 | **resourceId**        | Remote identifier of the file in the external provider (optional). It is typically the remote id in the cloud provider. |
 
