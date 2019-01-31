@@ -103,7 +103,6 @@ These are examples of attributes that can enhance the discoverability of a resou
 
 | Attribute             | Description                                                                                                                  |
 | -                     | -                                                                                                                            |
-| **checksum**          | Checksum of attributes to be able to compare if there are changes in the asset that you are purchasing.                      |
 | **sla**               | Service Level Agreement.                                                                                                      |
 | **industry**          |                                                                                                                              |
 | **updateFrequency**   | An indication of update latency - i.e. How often are updates expected (seldom, annually, quarterly, etc.), or is the resource static that is never expected to get updated. |
