@@ -96,6 +96,7 @@ Attribute       |   Type           |   Required    | Description
 **rating**      | Number (decimal) | Yes           | Decimal value between 0 and 1. 0 is the default value.
 **numVotes**    | Integer          | Yes           | Number of votes. 0 is the default value.
 **schema**      | Text             | No            | Schema applied to calculate the rating.
+**flag**        | Boolean          | No            | Flag unsuitable content. 
 
 ## Additional Information
 
