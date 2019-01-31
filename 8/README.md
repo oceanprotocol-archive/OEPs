@@ -4,7 +4,7 @@ name: Assets Metadata Ontology
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>
+contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>, Marcus Jones <marcus@oceanprotocol.com>
 ```
 
 **Table of Contents**
@@ -15,6 +15,7 @@ contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanp
       * [Change Process](#change-process)
       * [Language](#language)
       * [Motivation](#motivation)
+      * [Life Cycle of Metadata](#life-cycle-of-metadata)      
       * [Base Attributes](#base-attributes)
       * [Curation Attributes](#curation-attributes)
       * [Additional Information](#additional-information)
@@ -52,6 +53,10 @@ The main motivations of this OEP are to:
 * Identify the recommended additional attributes that SHOULD be included in a DDO to facilitate Asset search
 * Provide an example of an Asset Metadata object and additional links for reference
 
+## Life Cycle of Metadata
+
+Metadata is first created by the publisher of the asset. The publisher has knowledge of the file URL's, and they are stored in plaintext. After publication, the metadata store (Aquarius) will return the Metadata with encrypted URL's. 
+
 ## Base Attributes
 
 The base attributes are recommended to be included in the Asset Metadata.
@@ -61,12 +66,13 @@ The stored _values_ can be empty. The following are the base attributes:
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name or title of the Asset.
-**dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added.
+**dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added. ISO 8601 format, Coordinated Universal Time, (`2019-01-31T08:38:32Z`).
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **contentType** | Text          | Yes           | File format, if applicable.
 **price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
 **files**       | Array of Files| Yes           | Array of File objects including the encrypted file urls, checksum (optional), content length in bytes (optional) and remote resourceId (optional)
+**checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
 **tags**        | Array of Text | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
 **type**        | Text          | No            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "other"). It's up to the PROVIDER or MARKETPLACE to use a different list of types or not use it.
@@ -78,6 +84,7 @@ Attribute       |   Type        |   Required    | Description
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
 **links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. Links may be to either a URL or another Asset. We expect marketplaces to converge on agreements of typical formats for linked data: The Ocean Protocol itself does not mandate any specific formats as these requirements are likely to be domain-specific.
 **inLanguage**  | Text          | No            | The language of the content. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47).
+
 
 
 ## Curation Attributes
@@ -96,7 +103,6 @@ These are examples of attributes that can enhance the discoverability of a resou
 
 | Attribute             | Description                                                                                                                  |
 | -                     | -                                                                                                                            |
-| **checksum**          | Checksum of attributes to be able to compare if there are changes in the asset that you are purchasing.                      |
 | **sla**               | Service Level Agreement.                                                                                                      |
 | **industry**          |                                                                                                                              |
 | **updateFrequency**   | An indication of update latency - i.e. How often are updates expected (seldom, annually, quarterly, etc.), or is the resource static that is never expected to get updated. |
@@ -114,8 +120,9 @@ This attribute include an array of objects of type `file`. The type file has the
 
 | Attribute             | Description                                                                                                                  |
 | -                     | -                                                                                                                            |
-| **url**               | Content Url (mandatory). The URL is encrypted.                                                                               |
-| **checksum**          | Checksum of the file using MD5 (optional). If it's not provided can't be validated if the file was not modified after registering. |
+| **url**               | Content Url (mandatory). The URL is encrypted after publication.                                                                               |
+| **checksum**          | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
+| **checksumType**          | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
 | **contentLength**     | Size of the file in bytes (optional).                                                                                        |
 | **resourceId**        | Remote identifier of the file in the external provider (optional). It is typically the remote id in the cloud provider. |
 
@@ -132,7 +139,7 @@ Here is an example of an Asset Metadata object following the above-described sch
         "type": "dataset",
         "description": "Weather information of UK including temperature and humidity",
         "size": "3.1gb",
-        "dateCreated": "2012-02-01T10:55:11+00:00",
+        "dateCreated": "2012-02-01T10:55:11Z",
         "author": "Met Office",
         "license": "CC-BY",
         "copyrightHolder": "Met Office",
@@ -147,18 +154,21 @@ Here is an example of an Asset Metadata object following the above-described sch
             {
                 "url": "234ab87234acbd09543085340abffh21983ddhiiee982143827423421",
                 "checksum": "efb2c764274b745f5fc37f97c6b0e761",
+                "checksumType": "MD5",               
                 "contentLength": "4535431",
                 "resourceId": "access-log2018-02-13-15-17-29-18386C502CAEA932"
             },
             {
                 "url": "234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421",
                 "checksum": "085340abffh21495345af97c6b0e761",
+                "checksumType": "MD5",
                 "contentLength": "12324"
             },
             {
                 "url": "80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2",
             }
         ],
+        "checksum" : "a52c764274b745f5fc37f97c6b0e77a0",
         "links": [
             {
                 "name": "Sample of Asset Data",
