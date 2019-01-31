@@ -169,7 +169,7 @@ Here is an example of an Asset Metadata object following the above-described sch
                 "url": "80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2",
             }
         ],
-        "checksum" : "a52c764274b745f5fc37f97c6b0e77a0"
+        "checksum" : "a52c764274b745f5fc37f97c6b0e77a0",
         "links": [
             {
                 "name": "Sample of Asset Data",
