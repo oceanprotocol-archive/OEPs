@@ -118,7 +118,6 @@ This attribute include an array of objects of type `file`. The type file has the
 | -                     | -                                                                                                                            |
 | **url**               | Content Url (mandatory). The URL is encrypted.                                                                               |
 | **checksum**          | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
-
 | **checksumType**          | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
 | **contentLength**     | Size of the file in bytes (optional).                                                                                        |
 | **resourceId**        | Remote identifier of the file in the external provider (optional). It is typically the remote id in the cloud provider. |
