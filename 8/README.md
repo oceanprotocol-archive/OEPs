@@ -61,7 +61,7 @@ The stored _values_ can be empty. The following are the base attributes:
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name or title of the Asset.
-**dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added. ISO format, with timezone
+**dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added. ISO 8601 format, Coordinated Universal Time (UTC/zulu), `2019-01-31T08:38:32Z`. 
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **contentType** | Text          | Yes           | File format, if applicable.
