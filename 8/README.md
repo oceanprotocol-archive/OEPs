@@ -157,7 +157,7 @@ Here is an example of an Asset Metadata object following the above-described sch
                 "contentLength": "12324"
             },
             {
-                "url": "80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2",
+                "url": "80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"
             }
         ],
         "checksum" : "a52c764274b745f5fc37f97c6b0e77a0",
@@ -169,8 +169,7 @@ Here is an example of an Asset Metadata object following the above-described sch
         "copyrightHolder": "Met Office",
         "encoding": "UTF-8",
         "compression": "zip",
-        "workExample": "stationId,latitude,longitude,datetime,temperature,humidity\r\n
-423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
+        "workExample": "stationId,latitude,longitude,datetime,temperature,humidity\\n423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
         "links": [
             {
                 "name": "Sample of Asset Data",
