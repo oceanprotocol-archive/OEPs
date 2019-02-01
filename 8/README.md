@@ -188,8 +188,8 @@ Here is an example of an Asset Metadata object following the above-described sch
     "curation": {
         "rating": 0.93,
         "numVotes": 123,
-        "schema": "Binary Voting"
-        "flag": false,
+        "schema": "Binary Voting",
+        "flag": false
     },
     "additionalInformation" : {
         "updateFrequency": "yearly",
