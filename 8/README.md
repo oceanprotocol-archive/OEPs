@@ -189,7 +189,7 @@ Here is an example of an Asset Metadata object following the above-described sch
         "rating": 0.93,
         "numVotes": 123,
         "schema": "Binary Voting"
-        "flag": false
+        "flag": false,
     },
     "additionalInformation" : {
         "updateFrequency": "yearly",
