@@ -141,7 +141,7 @@ Here is an example of an Asset Metadata object following the above-described sch
         "author": "Met Office",
         "license": "CC-BY",
         "contentType": "text/csv",
-        "price": 10
+        "price": 10,
         "files": [
             {
                 "url": "234ab87234acbd09543085340abffh21983ddhiiee982143827423421",
@@ -183,7 +183,7 @@ Here is an example of an Asset Metadata object following the above-described sch
                 "AssetID": "4d517500da0acb0d65a716f61330969334630363ce4a6a9d39691026ac7908ea"
             }
         ],
-        "inLanguage": "en",
+        "inLanguage": "en"
     },
     "curation": {
         "rating": 0.93,
