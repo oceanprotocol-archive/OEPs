@@ -19,6 +19,8 @@ contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@o
          * [Decentralized IDs (DIDs)](#decentralized-ids-dids)
          * [DID Documents (DDOs)](#did-documents-ddos)
          * [Integrity](#integrity)
+            * [How to compute the integrity checksum](#how-to-compute-the-integrity-checksum)
+            * [DID Document Proof](#did-document-proof)
             * [Length of a DID](#length-of-a-did)
             * [How to compute a DID](#how-to-compute-a-did)
          * [Registry](#registry)
@@ -27,6 +29,7 @@ contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@o
          * [List 1](#list-1)
          * [List 2](#list-2)
       * [References](#references)
+
 
 <!-- Added by: troy, at: 2018-11-23T15:48+01:00 -->
 
@@ -143,21 +146,58 @@ Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.gi
 
 The Integrity policy for identity and metadata is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
 
+#### How to compute the integrity checksum
+
 An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DDO) stored in OCEANDB.
 Technically a user could update the DDO accessing directly to the database, modifying attributes (ie. License information, description, etc.) relevant to a previous consumption agreement with an user.
 The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
 
-In the `registerAttribute` will be possible to specify a `bytes32 checksum` parameter representing the hash calculated. This hash will calculated in the following way:
+In the `registerAttribute` will be possible to specify a `bytes32 checksum` parameter representing the hash calculated. 
+
+This hash composing the **integrity checksum** will calculated in the following way:
 
 - Concatenation of all the `DDO.services['AccessService'].metadata.files.checksum[*]` attributes. Every file included in the asset can have a file checksum associated
 - Concatenating to the previous string the metadata attributes `name`, `author` and `license`
 - Concatenating to the previous string the `did` (i.e `did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea`)
 - Hashing the complete string generated using SHA3-256
 
+Here an example of the algorithm to apply:
+
 `var checksum= Hash.sha3( checksum1 + checksum2 + checksum3 + name + author + license + did)`
 
 Any modification of the files referenced in the DDO or the attributes included in the checksum would generate a different string.
 Because this checksum will be stored on-chain and emitted as an event, a validator could use this information to check if something changed regarding the intial registration.
+
+#### DID Document Proof
+
+A proof on a DID Document is cryptographic proof of the integrity of the DID Document. In the DID Specification the `proof` attribute is optional. 
+We enforce the usage of the `proof` attribute to demonstrate the Owner of an Asset is siging the proof of integrity of some Asset attributes. 
+The information to sign by the owner is the **integrity checksum** defined in the above section.
+
+```
+var checksum= Hash.sha3( checksum1 + checksum2 + checksum3 + name + author + license + did)
+var signature= Sign.signMessage(checksum)
+```
+
+The DID Document (DDO) SHOULD include the following `proof` information:
+
+* `type` - Type of proof, in our case **DDOIntegritySignature**
+* `created` - Date time value refering to when was created the proof
+* `creator` - Address of the user providing the proof
+* `signatureValue` - Result of the signature applied to the integrity checksum
+
+Example of the `proof` section to add in the DDO:
+
+```json
+  "proof": {
+    "type": "DDOIntegritySignature",
+    "created": "2016-02-08T16:02:20Z",
+    "creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
+    "signatureValue": "QNB13Y7Q9...1tzjn4w=="
+  }
+```
+
+Using the `proof` information, a third-party with access to the DDO could validate the `creator` signed a specific integrity checksum refering to an Asset.
 
 #### Length of a DID
 

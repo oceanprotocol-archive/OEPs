@@ -28,9 +28,9 @@
   }],
 
   "proof": {
-    "type": "UUIDSignature",
+    "type": "DDOIntegritySignature",
     "created": "2016-02-08T16:02:20Z",
-    "creator": "did:example:8uQhQMGzWxR8vw5P3UWH1ja",
+    "creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
     "signatureValue": "QNB13Y7Q9...1tzjn4w=="
   },
 
