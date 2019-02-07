@@ -409,11 +409,29 @@ def cancel_payment(service_agreement_id, service_definition_id):
 ### Encryption and Decryption
 
 The PUBLISHER can define if he/she wants to encrypt or not the URLs before adding to the DDO. This information added to the DDO allows to the CONSUMER's (via SQUID) to understand how to deal with the URLs.
-To support this, in the Services section of the DDO can be specified this configuration under the **"encryption"** attribute.
-This attribute encapsulate one object with the following attributes:
+To support this, in the Services section of the DDO can be specified this configuration as a DDO service. Example:
 
-* type - The type of encryption applied to the URLs. It could be SecretStore, RSAES-OAEP, None.
-* url (optional) - Url used during the encryption and decryption process.
+```json
+service": [{    
+    "type": "Authorization",    
+    "service": "SecretStore",
+    "serviceDefinitionId": "0",
+    "serviceEndpoint": "http://secretstore.org:12001"
+  },
+  
+  {"type": "Access"},
+  {"type": "Metadata"}
+]
+```
+
+This new Service encapsulate one object with the following attributes:
+
+* type - Diferenciate this kind of service with the word **Authorization**
+* service - The authorization service type. It could be SecretStore, RSAES-OAEP, None.
+* serviceEndpoint (optional) - Url used during the encryption and decryption process.
+* serviceDefinitionId - Existing in all the DDO services to differenciate one entry in the `services` list
+
+The authorization service is optional. If it's not provide the usual secret store cluster defined in the SQUID configuration will be used.
 
 The different encryption procedures supported are:
 
@@ -426,26 +444,30 @@ This is the case when PUBLISHER doesn't want to encrypt the URLs. This is repres
 
 Example:
 ```json
-    "encryption": {
-      "type": "None"
-    },
+service": [{    
+    "type": "Authorization",    
+    "service": "None",
+    "serviceDefinitionId": "0"
+  },
 ```
 
 #### Secret Store
 
 This is the case when PUBLISHER wants to encrypt the URLs using a Secret Store cluster.
-The cluster to use during the encryption and decryption is specfied in the **url** attribute.
+The cluster to use during the encryption and decryption is specfied in the **serviceEndpoint** attribute.
 
 Example:
 ```json
-    "encryption": {
-      "type": "SecretStore",
-      "url": "http://secretstore.org:12001"
-    },
+service": [{    
+    "type": "Authorization",    
+    "service": "SecretStore",
+    "serviceDefinitionId": "0",
+    "serviceEndpoint": "http://secretstore.org:12001"
+  }
 ```
 
 All the urls in this scenario are encrypted at once. It means if a DDO has multiple URLs, an array in JSON format will be created with all the URLs.
-This array will be encrypted and the HASH returned will be added as one entry of the contentsUrl attribute. Example:
+This array will be encrypted and the HASH returned will be added as one entry of the files attribute. Example:
 
 A DDO with 3 urls as input:
 ```json
@@ -474,7 +496,7 @@ In this case, the following text will be encrypted:
 
 After the encryption, the previous URLs will be removed and the encrypted HASH added to the DDO.
 ```json
- "files": [{"url": "ihfuewufhwieuhcciweuhiweucnksdcnksdncksdvndksjn3u34n3unnfrunf4u3"}]
+ "encryptedFiles": "ihfuewufhwieuhcciweuhiweucnksdcnksdncksdvndksjn3u34n3unnfrunf4u3"
 ```
 
 More information about the integration of the Secret Store can be found [in the Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/secret-store.md).
@@ -490,9 +512,11 @@ In this case the CONSUMER doesn't need to decrypt the URLs, is the PUBLISHER who
 
 Example:
 ```json
-    "encryption": {
-      "type": "RSAES-OAEP"
-    },
+service": [{    
+    "type": "Authorization",    
+    "service": "RSAES-OAEP",
+    "serviceDefinitionId": "0"
+  }    
 ```
 
 

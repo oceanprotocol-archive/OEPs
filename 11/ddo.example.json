@@ -207,8 +207,14 @@
     "templateId": "044852b2a670ade5407e78fb2863c51000000000000000000000000000000002"
 
   }, {
-    "type": "Metadata",
+    "type": "Authorization",    
+    "service": "SecretStore",
     "serviceDefinitionId": "2",
+    "serviceEndpoint": "http://secretstore.org:12001"
+
+  }, {
+    "type": "Metadata",
+    "serviceDefinitionId": "3",
     "serviceEndpoint": "http://myaquarius.org/api/v1/provider/assets/metadata/{did}",
     "metadata": {
       "base": {
