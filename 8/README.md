@@ -55,7 +55,7 @@ The main motivations of this OEP are to:
 
 ## Life Cycle of Metadata
 
-Metadata is first created by the publisher of the asset. The publisher has knowledge of the file URL's, and they are stored in plaintext. After publication, the metadata store (Aquarius) will return the Metadata with encrypted URL's. 
+Metadata is first created by the publisher of the asset. The publisher has knowledge of the file URL's, and they are stored in plaintext in the **files** attribute. After publication, the metadata store (Aquarius) will return the Metadata with this data encrypted. The result will be a single ciphertext of the attribute. The **dateCreated** attribute is created by the metadata store. 
 
 ## Base Attributes
 
@@ -66,7 +66,7 @@ The stored _values_ can be empty. The following are the base attributes:
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name or title of the Asset.
-**dateCreated** | DateTime      | Yes           | The date on which the asset was created or was added. ISO 8601 format, Coordinated Universal Time, (`2019-01-31T08:38:32Z`).
+**dateCreated** | DateTime      | No            | The date on which the asset was created or was added. ISO 8601 format, Coordinated Universal Time, (`2019-01-31T08:38:32Z`).
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **contentType** | Text          | Yes           | File format, if applicable.
