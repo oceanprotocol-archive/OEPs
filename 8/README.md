@@ -72,7 +72,7 @@ Attribute       |   Type        |   Required    | Description
 **contentType** | Text          | Yes           | File format, if applicable.
 **price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
 **files**       | Array of Files| No            | Array of File objects including the encrypted file urls, checksum (optional), content length in bytes (optional) and remote resourceId (optional)
-**encryptedFiles | Text         | No            | Encrypted string of the files **attribute**. 
+**encryptedFiles** | Text         | No            | Encrypted string of the **files** attribute. 
 **checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
 **tags**        | Array of Text | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
