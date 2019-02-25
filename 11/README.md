@@ -43,8 +43,8 @@ Table of Contents
 
 # On-Chain Access Control using Service Agreements
 
-This OEP introduces the integration pattern for the use **Service Agreements (SA)** as contracts between parties interacting in a transaction.
-This OEP evolves the existing OEP-10 [OEP-10](../10/README.md), using the SA as the core element to orchestrate the publish/consume transactions for multiple services.
+This OEP introduces the integration pattern for the use **Service Execution Agreements (SEA)** as contracts between parties interacting in a transaction.
+This OEP evolves the existing OEP-10 [OEP-10](../10/README.md), using the SEA as the core element to orchestrate the publish/consume transactions for multiple services.
 
 It's out of the scope to detail the Service Agreements implementation. Service Agreements are described as part of the Dev-Ocean repository.
 
@@ -87,6 +87,7 @@ The following technical components are involved in an end-to-end publishing and 
 * SQUID - Library encapsulating the Ocean Protocol business logic. Interacts with all the different components/APIs of the system. Currently it's provided in the following languages:
   - [Squid Javascript](https://github.com/oceanprotocol/squid-js) - Javascript version of Squid to be integrated with Frontend applications.
   - [Squid Python](https://github.com/oceanprotocol/squid-py) - Python version of Squid to be integrated with Backend applications. The primary users are data scientists.
+  - [Squid Java](https://github.com/oceanprotocol/squid-java) - Java version of Squid to be integrated with JVM applications. The primary users are data engineers.
 * [KEEPER CONTRACTS](https://github.com/oceanprotocol/keeper-contracts) - Provides the Service Agreement (SA) business logic.
 * [SECRET STORE](https://github.com/oceanprotocol/parity-ethereum) - Included as part of the Parity Ethereum client. Allows the PUBLISHER to encrypt the Asset url. Integrates with the SA in order to authorize on-chain the decryption of the Asset url by the CONSUMER
 * [BRIZO](https://github.com/oceanprotocol/brizo) - Microservice to be executed by a PUBLISHER. It exposes the HTTP REST API permitting access to PUBLISHER Assets or additional services like computation.
@@ -102,22 +103,23 @@ The detailed description is an attempt to account for important edge cases and t
 There are some parameters used in this flow:
 
 * **did** - See [OEP-7](../7/README.md).
-* **serviceAgreementId** - Is the unique ID referring to a Service Agreement established between a PUBLISHER and a CONSUMER. The CONSUMER (via Squid) is the one creating this random unique serviceId.
+* **agreementId** or **serviceAgreementId** - Is the unique ID referring to a Service Agreement established between a PUBLISHER and a CONSUMER. The CONSUMER (via Squid) is the one creating this random unique serviceId.
 * **serviceDefinitionId** - Identifies one service in the array of services included in the DDO. It is created by the PUBLISHER (via Squid) upon DDO creation and is associated with different services.
-* **templateId** - Identifies a unique Service Agreement template. The Service Agreement is an instance of one existing template. Initially the following templates are supported:
-  - **Access** template, where the templateId is `hash(0):044852b2a670ade5407e78fb2863c51de9fcb96542a07186fe3aeda6bb8a116d`
-  - **FitchainCompute** template, where the templateId is `hash(1):c89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6`
-  - **CloudCompute** template, where the templateId is `hash(2):ad7c5bef027816a800da1736444fb58a807ef4c9603b7848673f7e3a68eb14a5`
+* **templateId** - Identifies a unique Service Agreement template. The templates supported are deployed on-chain by Ocean Protocol and the addresses or templateId's can be found in the ABI's. Initially the following templates is supported:
+  - **EscrowAccessSecretStoreTemplate**
 
 
 ### Publishing
 
-Using only one Squid call `registerAsset(asset_metadata, publisher_public_key)`, the PUBLISHER should be able to register an Asset.
+Using only one Squid call, the PUBLISHER should be able to register an Asset:
+```
+const asset = ocean.assets.create(metadata, publisherAccount, services=[ocean.services.createAccessService(...)])
+```
 
-This method executes internally - everything happens off-chain.
+This method executes internally:
 
-1. PUBLISHER generates a DID. See [How to generate a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#length-of-a-did). DID is a UUID in Trilobite. Later on, this might be computed as a DDO hash.
-1. PUBLISHER optionally can encrypt the URLs using different encryption plugins. If that's the case, in the DDO will be added an **encryption** attribute describing the procedure used.
+1. PUBLISHER generates a DID. See [How to generate a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#length-of-a-did). Currently the DID is a UUID. Later on, this might be computed as a DDO hash.
+1. PUBLISHER optionally can encrypt the URLs using different encryption plugins. If that's the case, in the DDO will be added an **encryption** service describing the procedure used.
 1. PUBLISHER encrypts the URL using the Secret Store identified by a DID.
 1. PUBLISHER creates a DDO including the following information:
    - DID
@@ -159,23 +161,30 @@ def generate_condition_key(sla_template_id, contract_address, function_fingerpri
 
     An example of a complete DDO can be found [here](./ddo.example.json). Please do note that the condition's order in the DID document should reflect the same order in on-chain service agreement.
 
+1. PUBLISHER compute the key attributes of the DDO, generate a `checksum` and sign. The signature is added in the `proof` attribute.
+   More information about this process can be found in the [How to Compute a DID section](https://github.com/oceanprotocol/OEPs/tree/master/7#how-to-compute-a-did).
+
 1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS.
 
 1. PUBLISHER registers the DID, associating the Asset DID to the Aquarius Metadata URL that resolves the DID to a DDO.
 To do that, SQUID needs to integrate the `DIDRegistry` contract using the `registerAttribute` method.
 
 ```
-function registerAttribute(bytes32 _did, ValueType _type, bytes32 _key, string _value) public {}
+function registerAttribute (
+        bytes32 _did,
+        bytes32 _checksum,
+        string memory _value
+    )
 ```
 
 The parameters to pass are:
   - **bytes32 _did** - The hash part of the DID, the part just after `did:op:`
-  - **ValueType _type** - uint 0
-  - **bytes32 _key** - "Metadata" token in bytes32 format
+  - **bytes32 _checksum** - The checksum generated after [compute the DID](https://github.com/oceanprotocol/OEPs/tree/master/7#how-to-compute-a-did)
   - **string _value** - The Metadata service endpoint. In the above DDO its: http://myaquarius.org/api/v1/provider/assets/metadata/{did}
 
 ![Publishing Flow](images/publishing-flow.png)
 
+1. The KEEPER will emit the `DIDAttributeRegistered` including the `did`, `checksum` and `url` registered.
 
 ### Consuming
 
