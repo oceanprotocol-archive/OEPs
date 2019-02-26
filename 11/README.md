@@ -231,8 +231,8 @@ Steps for leveraging Squid:
    In the Smart Contracts, this `serviceAgreementId` will be stored as a `bytes32`. This `serviceAgreementId` is random and is represented by a 64-character hex string (using the characters 0-9 and a-f).
    The CONSUMER can generate the `serviceAgreementId` using any kind of implementation providing enough randomness to generate this ID (64-characters hex string).
 
-1. The CONSUMER signs the service details. The signature contains `(templateId, valuesHashList, timeoutValues, serviceAgreementId)`. 
-   The `serviceAgreementId` is provided by the CONSUMER and has to be globally unique.
+1. The CONSUMER signs the service details. The signature contains `(templateId, valuesHashList, timeoutValues, agreementId)`. 
+   The `agreementId` is provided by the CONSUMER and has to be globally unique.
    * Each ith item in `values_hash_list` lists corresponds to the ith condition in conditions list
    * `values_hash_list`: a hash of the parameters types and values of each condition
 ```
@@ -283,7 +283,7 @@ The execution of this endpoint should return a `HTTP 201` if everything goes oka
 
    - BRIZO starts listening for the `publisher` events from the events section of the service definition.
 
-1. After receiving the HTTP response confirmation from BRIZO, the CONSUMER starts listening for the `AgreementCreated` events specified in the corresponding service definition, filtering them by `serviceAgreementId`.
+1. After receiving the HTTP response confirmation from BRIZO, the CONSUMER starts listening for the `AgreementCreated` events specified in the corresponding service definition, filtering them by `agreementId`.
 
 
 
@@ -429,7 +429,7 @@ Using those parameters, BRIZO does the following things:
 
 #### Abort Conditions
 
-Every condition can be fulfilled or aborted configured timeout. 
+Every condition can be fulfilled or aborted using the configured timeout.
 For example it would allows to the CONSUMER to cancel the payment after locking it but not receiving access to the Asset for a long period of time. 
 Mechanisms implemented in the Service Agreement contract ensure there are no race conditions.
 
