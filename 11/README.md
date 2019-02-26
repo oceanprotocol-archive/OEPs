@@ -14,8 +14,6 @@ contributors: Lev Berman <ldmberman@gmail.com>,
 Table of Contents
 =================
 
-
-
    * [Table of Contents](#table-of-contents)
    * [On-Chain Access Control using Service Agreements](#on-chain-access-control-using-service-agreements)
       * [Change Process](#change-process)
@@ -25,18 +23,21 @@ Table of Contents
          * [Technical components](#technical-components)
       * [Flow](#flow)
          * [Publishing](#publishing)
+         * [EscrowAccessSecretStore Service Agreement Template](#escrowaccesssecretstore-service-agreement-template)
          * [Consuming](#consuming)
-            * [Execution of the SA](#execution-of-the-sa)
+            * [Execution of the SEA](#execution-of-the-sea)
                * [Lock Payment Condition](#lock-payment-condition)
                * [Grant Access Condition](#grant-access-condition)
                * [Release Payment Condition](#release-payment-condition)
          * [Consuming the Data](#consuming-the-data)
-            * [Cancel Payment Condition](#cancel-payment-condition)
+            * [Abort Conditions](#abort-conditions)
          * [Encryption and Decryption](#encryption-and-decryption)
             * [No Encryption](#no-encryption)
             * [Secret Store](#secret-store)
-            * [Ethereum Signature](#ethereum-signature)
+            * [Rsa Public and Private Keys](#rsa-public-and-private-keys)
          * [Implementation details](#implementation-details)
+
+
 
 ---
 
