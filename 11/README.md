@@ -106,7 +106,7 @@ There are some parameters used in this flow:
 * **did** - See [OEP-7](../7/README.md).
 * **agreementId** or **serviceAgreementId** - Is the unique ID referring to a Service Agreement established between a PUBLISHER and a CONSUMER. The CONSUMER (via Squid) is the one creating this random unique serviceId.
 * **serviceDefinitionId** - Identifies one service in the array of services included in the DDO. It is created by the PUBLISHER (via Squid) upon DDO creation and is associated with different services.
-* **templateId** - Identifies a unique Service Agreement template. The templates supported are deployed on-chain by Ocean Protocol and the addresses or templateId's can be found in the ABI's. Initially the following templates is supported:
+* **templateId** - Identifies a unique Service Agreement template. The templates supported are deployed on-chain by Ocean Protocol and the addresses or templateIds can be found in the ABIs. Initially the following templates are supported:
   - **EscrowAccessSecretStoreTemplate**
 
 
@@ -162,7 +162,7 @@ def generate_condition_key(sla_template_id, contract_address, function_fingerpri
 
     An example of a complete DDO can be found [here](./ddo.example.json). Please do note that the condition's order in the DID document should reflect the same order in on-chain service agreement.
 
-1. PUBLISHER compute the key attributes of the DDO, generate a `checksum` and sign. The signature is added in the `proof` attribute.
+1. PUBLISHER computes the key attributes of the DDO, generates a `checksum` and signs. The signature is added in the `proof` attribute.
    More information about this process can be found in the [How to Compute a DID section](https://github.com/oceanprotocol/OEPs/tree/master/7#how-to-compute-a-did).
 
 1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS.
@@ -206,7 +206,7 @@ const agreement = {
 }
 ```   
 
-1. For the different conditionIds, the CONSUMER need to generate those and add to the agreement to be defined on-chain.
+1. For the different conditionIds, the CONSUMER needs to generate those and add them to the agreement to be defined on-chain.
    This requires to generate the hash including the **agreementId** and all the values of the specific condition:
    
 ```   
@@ -316,14 +316,14 @@ According to this sample, the CONSUMER listens for the `AgreementCreated` event 
 
 Note that the structure of `serviceAgreementContract.events` is identical to `conditions.events`. Squid needs to offer a utility that subscribes the specified callbacks to the events from both lists.
 
-When the CONSUMER receives this event means the agreement is in place and can perform the lock reward: 
+When the CONSUMER receives this event it means the agreement is in place and can perform the lock reward: 
 
 ```
 await oceanToken.approve(lockRewardCondition.address, escrowAmount, { from: sender })
 await lockRewardCondition.fulfill(agreementId, escrowReward.address, escrowAmount)
 ```
 
-If everything goes right, it will emits `LockRewardCondition.Fulfilled` and thus triggers the next condition. 
+If everything goes right, it will emit `LockRewardCondition.Fulfilled` and thus will trigger the next condition. 
 
 ##### Grant Access Condition
 
@@ -343,13 +343,13 @@ PUBLISHER (via BRIZO) listens for `LockRewardCondition.Fulfilled` event filtered
 }]
 ```
 
-In that case the PUBLISHER can grant access to the CONSUMER for a specific `agreementId` and `documentId` using in this case the `AccessSecretStoreCondition.fulfill`:
+In this case the PUBLISHER can grant access to the CONSUMER for a specific `agreementId` and `documentId` using in this case the `AccessSecretStoreCondition.fulfill`:
 
 ```
 await accessSecretStoreCondition.fulfill(agreementId, agreement.did, receiver)
 ```
 
-If everything goes right, it will emits the `AccessSecretStoreCondition.Fulfilled` event. 
+If everything goes right, the Smart Contract will emit the `AccessSecretStoreCondition.Fulfilled` event. 
 
 
 
@@ -371,7 +371,7 @@ PUBLISHER (via BRIZO) listens for `AccessSecretStoreCondition.Fulfilled` event t
 }]
 ```
 
-So when the PUBLISHER received the `AccessSecretStoreCondition.Fulfilled` can call the `EscrowReward.fulfill` method to receive the reward:
+So when the PUBLISHER receives the `AccessSecretStoreCondition.Fulfilled` he can call the `EscrowReward.fulfill` method to receive the reward:
 
 ```
 await escrowReward.fulfill(agreementId, escrowAmount, receiver, sender, agreement.conditionIds[1], agreement.conditionIds[0])
