@@ -186,6 +186,35 @@ The parameters to pass are:
 
 1. The KEEPER will emit the `DIDAttributeRegistered` including the `did`, `checksum` and `url` registered.
 
+
+### EscrowAccessSecretStore Service Agreement Template
+
+1. The EscrowAccessSecretStore Service Agreement template has the following shape:
+
+```
+const agreement = {
+    did: did,
+    conditionIds: [
+        conditionIdAccess,
+        conditionIdLock,
+        conditionIdEscrow
+    ],
+    timeLocks: [timeLockAccess, 0, 0],
+    timeOuts: [timeOutAccess, 0, 0],
+    consumer: receiver
+}
+```   
+
+1. For the different conditionIds, the CONSUMER need to generate those and add to the agreement to be defined on-chain.
+   This requires to generate the hash including the **agreementId** and all the values of the specific condition:
+   
+```   
+const conditionIdAccess = await accessSecretStoreCondition.generateId(agreementId, await accessSecretStoreCondition.hashValues(did, receiver))
+const conditionIdLock = await lockRewardCondition.generateId(agreementId, await lockRewardCondition.hashValues(escrowReward.address, escrowAmount))
+const conditionIdEscrow = await escrowReward.generateId(agreementId, await escrowReward.hashValues(escrowAmount, receiver, sender, conditionIdLock, conditionIdAccess))
+```
+
+
 ### Consuming
 
 Using Squid calls, a CONSUMER can discover, purchase and get access to Assets.
@@ -193,18 +222,18 @@ Using Squid calls, a CONSUMER can discover, purchase and get access to Assets.
 Steps for leveraging Squid:
 
 1. The CONSUMER uses the search method to find relevant Assets related with his query. It returns a list of DDO's.
-   `assets = search("weather Germany 2017")`
+   `assets = ocean.assets.search("weather Germany 2017")`
 
 1. The CONSUMER chooses a service inside a DDO (the CONSUMER selects a `serviceDefinitionId`).
 
-1. The Service Agreement needs to have an associated unique `serviceAgreementId` that can be generated/provided by the CONSUMER.
-In the Smart Contracts, this `serviceAgreementId` will be stored as a `bytes32`. This `serviceAgreementId` is random and is represented by a 64-character hex string (using the characters 0-9 and a-f).
-The CONSUMER can generate the `serviceAgreementId` using any kind of implementation providing enough randomness to generate this ID (64-characters hex string).
+1. The Service Agreement needs to have an associated unique `serviceAgreementId` that can be generated/provided by the CONSUMER.    
+   In the Smart Contracts, this `serviceAgreementId` will be stored as a `bytes32`. This `serviceAgreementId` is random and is represented by a 64-character hex string (using the characters 0-9 and a-f).
+   The CONSUMER can generate the `serviceAgreementId` using any kind of implementation providing enough randomness to generate this ID (64-characters hex string).
 
-1. The CONSUMER signs the service details. There is a particular way of building the signature documented elsewhere.
-The signature contains `(templateId, conditionKeys, valuesHashList, timeoutValues, serviceAgreementId)`. `serviceAgreementId` is provided by the CONSUMER and has to be globally unique.
-  * Each ith item in `values_hash_list` and `timeoutValues` lists corresponds to the ith condition in conditionKeys
-  * `values_hash_list`: a hash of the parameters types and values of each condition
+1. The CONSUMER signs the service details. The signature contains `(templateId, valuesHashList, timeoutValues, serviceAgreementId)`. 
+   The `serviceAgreementId` is provided by the CONSUMER and has to be globally unique.
+   * Each ith item in `values_hash_list` lists corresponds to the ith condition in conditions list
+   * `values_hash_list`: a hash of the parameters types and values of each condition
 ```
 def create_condition_params_hash(parameters_types, parameters_values):
     return web3.Web3.soliditySha3(parameters_types, parameters_values).hex()
@@ -212,19 +241,18 @@ def create_condition_params_hash(parameters_types, parameters_values):
 create_condition_params_hash(['bytes32', 'uint256'], ['0x...', '25'])
 ```
  
-  * `timeoutValues`: list of numbers to specify a timeout value for each condition.
-
 ```
-def generate_service_agreement_hash(web3, sla_template_id, condition_keys, values_hash_list, timeouts, service_agreement_id):
+def generate_service_agreement_hash(web3, sla_template_id, values_hash_list, service_agreement_id):
     return web3.soliditySha3(
-        ['bytes32', 'bytes32[]', 'bytes32[]', 'uint256[]', 'bytes32'],
-        [sa_template_id, condition_keys, values_hash_list, timeouts, service_agreement_id]
+        ['bytes32', 'bytes32[]', 'uint256[]', 'bytes32'],
+        [sa_template_id, values_hash_list, timeouts, service_agreement_id]
     )
 # Sign the agreement hash
 web3_instance.eth.sign(address, generate_service_agreement_hash(...))
 ```
 
-It is used to correlate events and to prevent the PUBLISHER from instantiating multiple Service Agreements from a single request.
+This signature is used to correlate events and to prevent the PUBLISHER from instantiating multiple Service Agreements from a single request.
+
 
 1. The CONSUMER sends `(did, serviceAgreementId, serviceDefinitionId, signature, consumerAddress`) to the service endpoint (BRIZO).
 `serviceDefinitionId` tells the PUBLISHER where to find the preimage to verify the signature. The DID tells the PUBLISHER which Asset to serve under these terms.
@@ -250,13 +278,15 @@ The execution of this endpoint should return a `HTTP 201` if everything goes oka
 
    - BRIZO records the `serviceAgreementId` as corresponding to the given `did`.
 
-   - BRIZO executes the Service Agreement by calling `ServiceAgreement.executeAgreement`, providing it with `serviceAgreementId`, `conditionKeys`, `valuesHashList`, and `timeouts`.
+   - BRIZO executes the Service Agreement by calling `EscrowAccessSecretStoreTemplate.createAgreement`, providing it with the agreementId and all the agreement values
 
    - BRIZO starts listening for the `publisher` events from the events section of the service definition.
 
-1. After receiving the HTTP response confirmation from BRIZO, the CONSUMER starts listening for `consumer` events specified in the corresponding service definition, filtering them by `serviceAgreementId`.
+1. After receiving the HTTP response confirmation from BRIZO, the CONSUMER starts listening for the `AgreementCreated` events specified in the corresponding service definition, filtering them by `serviceAgreementId`.
 
-#### Execution of the SA
+
+
+#### Execution of the SEA
 
 Consider an Asset purchase example. CONSUMER locks the payment. Then PUBLISHER grants access to the document. Then payment is released. Now CONSUMER may decrypt the document.
 
@@ -267,114 +297,107 @@ In general, there is a broad range of conditions which can be implemented and in
 Consider a sample of a service definition.
 
 ```
-"serviceAgreementContract": {
-  "contractName": 'ServiceAgreement',
-  "fulfillmentOperator": 1,
-  "events": [{
-    "name": "ExecuteAgreement",
-    "actorType": "consumer",
-    "handler": {
-      "moduleName": "payment",
-      "functionName": "lockPayment",
-      "version": "0.1"
-    }
-  }]
-}
+"serviceAgreementTemplate": {
+		"contractName": "EscrowAccessSecretStoreTemplate",
+		"events": [{
+			"name": "AgreementCreated",
+			"actorType": "consumer",
+			"handler": {
+				"moduleName": "escrowAccessSecretStoreTemplate",
+				"functionName": "fulfillLockRewardCondition",
+				"version": "0.1"
+			}
+		}]
+  }
 ```
 
-According to this sample, the CONSUMER listens for the `ExecuteAgreement` event emitted in the very beginning of Service Agreement execution, filtering it by `serviceAgreementId`.
+According to this sample, the CONSUMER listens for the `AgreementCreated` event emitted in the very beginning of Service Agreement execution, filtering it by `agreementId`.
 
 Note that the structure of `serviceAgreementContract.events` is identical to `conditions.events`. Squid needs to offer a utility that subscribes the specified callbacks to the events from both lists.
 
-The `payment` module defining the `lockPayment` event handler needs to be implemented in Squid. An example of how it may look:
-
-`modules/v0_1/payment.py`
+When the CONSUMER receives this event means the agreement is in place and can perform the lock reward: 
 
 ```
-def lockPayment(service_agreement_id, service_definition_id, did, price):
-    condition = get_condition(service_definition_id, 'lockPayment')
-    web3.call(condition['condition_key'], condition['fingerprint'], did, price)
+await oceanToken.approve(lockRewardCondition.address, escrowAmount, { from: sender })
+await lockRewardCondition.fulfill(agreementId, escrowReward.address, escrowAmount)
 ```
 
-It emits `PaymentLocked` and thus triggers the next condition. 
+If everything goes right, it will emits `LockRewardCondition.Fulfilled` and thus triggers the next condition. 
 
 ##### Grant Access Condition
 
-PUBLISHER (via BRIZO) listens for `PaymentLocked` event filtered by `serviceAgreementId` to confirm the payment was made.
+PUBLISHER (via BRIZO) listens for `LockRewardCondition.Fulfilled` event filtered by `agreementId` to confirm the reward was locked by the CONSUMER.
 
 ```
 "conditions": [{
   "events": [{
-    "name": "PaymentLocked",
-    "actorType": ["publisher"],
-    "handler": {
-      "moduleName": "secretStore",
-      "functionName": "grantAccess",
-      "version": "0.1"
-    }
-  }]
+        "name": "Fulfilled",
+        "actorType": "publisher",
+        "handler": {
+            "moduleName": "lockRewardCondition",
+            "functionName": "fulfillAccessSecretStoreCondition",
+            "version": "0.1"
+        }
+    }]
 }]
 ```
 
-The corresponding module with the event handler needs to be implemented in Squid and used by Brizo. An example of this is:
-
-`modules/v0_1/secretStore.py`
+In that case the PUBLISHER can grant access to the CONSUMER for a specific `agreementId` and `documentId` using in this case the `AccessSecretStoreCondition.fulfill`:
 
 ```
-def grantAccess(service_agreement_id, service_definition_id, consumer_public_key):
-    public_key = get_public_key_by_service_id(service_agreement_id)
-    did = get_did(service_agreement_id)
-    condition = get_condition(service_definition_id, 'grantAccess')
-    web3.call(condition['condition_key'], condition['fingerpint'], public_key, did)
+await accessSecretStoreCondition.fulfill(agreementId, agreement.did, receiver)
 ```
+
+If everything goes right, it will emits the `AccessSecretStoreCondition.Fulfilled` event. 
+
+
 
 ##### Release Payment Condition
 
-PUBLISHER (via BRIZO) listens for `AccessGranted` event to transfer tokens to PUBLISHER's account.
+PUBLISHER (via BRIZO) listens for `AccessSecretStoreCondition.Fulfilled` event to transfer tokens to PUBLISHER's account.
 
 ```
 "conditions": [{
-  "events": [{
-    "name": "AccessGranted",
-    "actorType": ["publisher"],
-    "handler": {
-      "moduleName": "payment",
-      "functionName": "releasePayment",
-      "version": "0.1"
-    }
-  }]
+    "events": [{
+        "name": "Fulfilled",
+        "actorType": "publisher",
+        "handler": {
+            "moduleName": "accessSecretStore",
+            "functionName": "fulfillEscrowRewardCondition",
+            "version": "0.1"
+        }
+    }]
 }]
 ```
 
-`Release payment`, being the last condition of the agreement, finalises the agreement and emits `AgreementFulfilled`.
-
-`modules/v0_1/payment.py`
+So when the PUBLISHER received the `AccessSecretStoreCondition.Fulfilled` can call the `EscrowReward.fulfill` method to receive the reward:
 
 ```
-def releasePayment(service_agreement_id, service_definition_id, did, price):
-    condition = get_condition(service_definition_id, 'releasePayment')
-    web3.call(condition['condition_key'], condition['fingerprint'], did, price)
+await escrowReward.fulfill(agreementId, escrowAmount, receiver, sender, agreement.conditionIds[1], agreement.conditionIds[0])
 ```
 
 ### Consuming the Data
 
-CONSUMER (via Squid) listens for `AccessGranted` event to access the document.
+CONSUMER (via Squid) listens for `AccessSecretStoreCondition.Fulfilled` event to access the document.
 
 ```
-{
-  "name": "AccessGranted",
-  "actorType": ["consumer"],
-  "handler": {
-      "moduleName": "consumer",
-      "functionName": "retrieveData",
-      "version": "0.1"
-  }
-}
+"conditions": [{
+    "events": [{{
+        "name": "TimedOut",
+        "actorType": "consumer",
+        "handler": {
+            "moduleName": "accessSecretStore",
+            "functionName": "fulfillEscrowRewardCondition",
+            "version": "0.1"
+        }
+    }]
+}]
 ```
 
 The following are steps that have to be performed by the CONSUMER to receive the data.
 
-1. CONSUMER decrypts the URL using Squid. This only requires the encryptedUrl existing in the DDO and the DID. A remote Parity EVM client and Secret Store cluster can be used for that.
+1. CONSUMER decrypts the URL using Squid. This only requires the encryptedUrl existing in the DDO and the DID. 
+   A Parity EVM client (local or remote) and Secret Store cluster can be used for that.
 
 1. CONSUMER retrieves data by calling the dedicated BRIZO endpoint providing it with CONSUMER public key, service ID, and decrypted URL.
 
@@ -403,17 +426,13 @@ Using those parameters, BRIZO does the following things:
 ![Consuming Flow](images/consuming-flow.png)
 
 
-#### Cancel Payment Condition
+#### Abort Conditions
 
-Every condition can be forced to be fulfilled by one of the parties after a configured timeout, even when its dependencies are not fulfilled. It allows CONSUME to cancel the payment after locking it but not receiving access to the Asset for a long period of time. Mechanisms implemented in the Service Agreement contract ensure there are no race conditions.
+Every condition can be fulfilled or aborted configured timeout. 
+For example it would allows to the CONSUMER to cancel the payment after locking it but not receiving access to the Asset for a long period of time. 
+Mechanisms implemented in the Service Agreement contract ensure there are no race conditions.
 
-Squid has to contain a function like the following and offer a convenient way to call it (via CLI, UI, etc.).
 
-```
-def cancel_payment(service_agreement_id, service_definition_id):
-    condition = get_condition(service_definition_id, 'cancelPayment')
-    web3.call(condition['condition_key'], condition['fingerprint'])
-```
 
 ### Encryption and Decryption
 
