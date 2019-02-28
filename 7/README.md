@@ -241,23 +241,48 @@ Here a draft **DidRegistry** implementation:
 // This piece of code is for reference only!
 // Doesn't include any validation, types could be reviewed, enums, etc
 
-contract DidRegistry {
+contract DIDRegistry is Ownable {
 
     event DIDAttributeRegistered(
         bytes32 indexed did,
         address indexed owner,
         bytes32 indexed checksum,
         string value,
-        uint updatedAt
+        address lastUpdatedBy,
+        uint256 blockNumberUpdated
     );
 
-    mapping(bytes32 => DIDRegister) private didRegister;
-    function registerAttribute(bytes32 _did, bytes32 _checksum, string _value) public {
-        // ....
-
-        emit DIDAttributeRegistered(_did, msg.sender, _checksum, _value, block.number);
+    struct DIDRegister {
+        address owner;
+        bytes32 lastChecksum;
+        address lastUpdatedBy;
+        uint256 blockNumberUpdated;
     }
 
+    struct DIDRegisterList {
+        mapping(bytes32 => DIDRegister) didRegisters;
+        bytes32[] didRegisterIds;
+    }
+    
+    function registerAttribute(
+        bytes32 _did, 
+        bytes32 _checksum, 
+        string memory _value
+    ) 
+        public 
+        returns (uint size)
+    {
+        // ....
+
+        emit DIDAttributeRegistered(
+            _did,
+            didRegisterList.didRegisters[_did].owner,
+            _checksum,
+            _value,
+            msg.sender,
+            block.number
+        );
+    }
 }
 ```
 
