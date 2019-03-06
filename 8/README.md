@@ -55,7 +55,11 @@ The main motivations of this OEP are to:
 
 ## Life Cycle of Metadata
 
-Metadata is first created by the publisher of the asset. The publisher has knowledge of the file URL's, and they are stored in plaintext in the **files** attribute. After publication, the metadata store (Aquarius) will return the Metadata with this data encrypted. The result will be a single ciphertext of the attribute. The **dateCreated** attribute is created by the metadata store. 
+Metadata is first created by the publisher of the asset. The publisher has knowledge of the file URL's, and they are stored in plaintext in the **files** attribute. After publication, the metadata store (Aquarius) will return the Metadata with this data encrypted. The result will be a single ciphertext of the attribute. The **dateCreated** attribute is created by the metadata store. The **curation** attribute is furthermore not created by the publisher, but by the metadata store. As such, there are 2 flavors of metadata:
+
+1) Local metadata - Created by the publisher of the asset, added to the `DDO` and sent to the metadata store API. 
+
+2) Remote metadata - Created and existing internally by the metadata store, and sent as a result of querying the API for discoverability of assets. 
 
 ## Base Attributes
 
@@ -63,16 +67,18 @@ The base attributes are recommended to be included in the Asset Metadata.
 A part of the most basic, Ocean Protocol doesn't require attributes, it's up to the PROVIDERS to use the optional attributes.
 The stored _values_ can be empty. The following are the base attributes:
 
+Some attributes are required by only the metadata store *(remote)* and others are mandatory for *(local)* metadata only. If required or not by both, they are marked with *Yes/No* in the *Required* column.
+
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name or title of the Asset.
-**dateCreated** | DateTime      | No            | The date on which the asset was created or was added. ISO 8601 format, Coordinated Universal Time, (`2019-01-31T08:38:32Z`).
+**dateCreated** | DateTime      | (remote)   | The date on which the asset was created or was added. ISO 8601 format, Coordinated Universal Time, (`2019-01-31T08:38:32Z`).
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **contentType** | Text          | Yes           | File format, if applicable.
 **price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
-**files**       | Array of Files| No            | Array of File objects including the encrypted file urls, checksum (optional), content length in bytes (optional) and remote resourceId (optional)
-**encryptedFiles** | Text         | No            | Encrypted string of the **files** attribute. 
+**files**       | Array of files object | (local)     | Array of File objects including the encrypted file urls, checksum (optional), content length in bytes (optional) and remote resourceId (optional)
+**encryptedFiles** | Text         | (remote)    | Encrypted string of the **files** attribute. 
 **checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
 **tags**        | Array of Text | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
@@ -85,10 +91,25 @@ Attribute       |   Type        |   Required    | Description
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
 **links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. Links may be to either a URL or another Asset. We expect marketplaces to converge on agreements of typical formats for linked data: The Ocean Protocol itself does not mandate any specific formats as these requirements are likely to be domain-specific.
 **inLanguage**  | Text          | No            | The language of the content. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47).
+**curation** | Object | (remote) | The curation attributes such as votes or rating. 
+**additionalInformation** | Object | No | A catch-all for extra attributes and custom functionality. Defined by the metadata store / marketplace operator. 
 
+## files
 
+The `files` attribute includes the details necessary to consume and validate the data.
+This attribute include an array of objects of type `file`. The type file has the following attributes:
 
-## Curation Attributes
+| Attribute         | Description                                                  |
+| ----------------- | ------------------------------------------------------------ |
+| **url**           | Content Url (mandatory). The URL is encrypted after publication. |
+| **checksum**      | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
+| **checksumType**  | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
+| **contentLength** | Size of the file in bytes (optional).                        |
+| **resourceId**    | Remote identifier of the file in the external provider (optional). It is typically the remote id in the cloud provider. |
+
+Only the **url** attribute is mandatory.
+
+## curation 
 
 To normalize the different possible rating attributes after a curation process, this is the normalized list of curation attributes:
 
@@ -99,7 +120,7 @@ Attribute       |   Type           |   Required    | Description
 **schema**      | Text             | No            | Schema applied to calculate the rating.
 **isDeleted**   | Boolean          | No            | Flag unsuitable content. False by default. If it's true, the content must not be returned.
 
-## Additional Information
+## additionalInformation
 
 These are examples of attributes that can enhance the discoverability of a resource:
 
@@ -113,96 +134,136 @@ These are examples of attributes that can enhance the discoverability of a resou
 | **keyword**           | A list of keywords/tags describing a dataset.                                                                                 |
 | **structured-markup** | A link to machine-readable structured markup (such as ttl/json-ld/rdf) describing the dataset.                                |
 
-The publisher of a DDO MAY add additional attributes (i.e. in addition to those listed above).
+The publisher of a DDO MAY add additional attributes or change the above object definition. 
 
-## Files
+## Example - Local metadata
 
-The `files` attribute includes the details necessary to consume and validate the data.
-This attribute include an array of objects of type `file`. The type file has the following attributes:
-
-| Attribute             | Description                                                                                                                  |
-| -                     | -                                                                                                                            |
-| **url**               | Content Url (mandatory). The URL is encrypted after publication.                                                                               |
-| **checksum**          | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
-| **checksumType**          | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
-| **contentLength**     | Size of the file in bytes (optional).                                                                                        |
-| **resourceId**        | Remote identifier of the file in the external provider (optional). It is typically the remote id in the cloud provider. |
-
-Only the **url** attribute is mandatory.
-
-## Example
-
-Here is an example of an Asset Metadata object following the above-described schema:
+Here is an example of an Asset metadata object following the above-described schema for a local publisher metadata file. 
 
 ```json
 {
-    "base": {
-        "name": "UK Weather information 2011",
-        "dateCreated": "2012-02-01T10:55:11Z",        
-        "author": "Met Office",
-        "license": "CC-BY",
-        "contentType": "text/csv",
-        "price": 10,
-        "files": [
-            {
-                "url": "234ab87234acbd09543085340abffh21983ddhiiee982143827423421",
-                "checksum": "efb2c764274b745f5fc37f97c6b0e761",
-                "checksumType": "MD5",               
-                "contentLength": "4535431",
-                "resourceId": "access-log2018-02-13-15-17-29-18386C502CAEA932"
-            },
-            {
-                "url": "234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421",
-                "checksum": "085340abffh21495345af97c6b0e761",
-                "checksumType": "MD5",
-                "contentLength": "12324"
-            },
-            {
-                "url": "80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"
-            }
-        ],
-        "checksum" : "a52c764274b745f5fc37f97c6b0e77a0",
-        "categories": ["weather", "meteorology"],
-        "tags": ["weather", "uk", "2011", "temperature", "humidity"],
-        "type": "dataset",
-        "description": "Weather information of UK including temperature and humidity",
-        "size": "3.1gb",
-        "copyrightHolder": "Met Office",
-        "encoding": "UTF-8",
-        "compression": "zip",
-        "workExample": "stationId,latitude,longitude,datetime,temperature,humidity\\n423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
-        "links": [
-            {
-                "name": "Sample of Asset Data",
-                "type": "sample",
-                "url": "https://foo.com/sample.csv"
-            },
-            {
-                "name": "Data Format Definition",
-                "type": "format",
-                "AssetID": "4d517500da0acb0d65a716f61330969334630363ce4a6a9d39691026ac7908ea"
-            }
-        ],
-        "inLanguage": "en"
-    },
-    "curation": {
+  "base": {
+    "name": "10 Monkey Species Small",
+    "author": "Mario",
+    "license": "CC0: Public Domain",
+    "contentType": "jpg/txt",
+    "price": 10,
+    "files": [
+      {
+        "checksum": "2bf9d229d110d1976cdf85e9f3256c7f",
+        "checksumType": "MD5",
+        "contentLength": 12057507,
+        "url": "https://s3.amazonaws.com/assets/training.zip"
+      },
+      {
+        "checksum": "354d19c0733c47ef3a6cce5b633116b0",
+        "checksumType": "MD5",
+        "contentLength": 928,
+        "url": "https://s3.amazonaws.com/datacommons/monkey_labels.txt"
+      },
+      {
+        "url": "https://s3.amazonaws.com/datacommons/validation.zip"
+      }
+    ],
+    "checksum": "",
+    "categories": [
+      "image"
+    ],
+    "tags": [
+      "image data",
+      "classification",
+      "animals"
+    ],
+    "type": "dataset",
+    "description": "EXAMPLE ONLY ",
+    "size": "3.1gb",
+    "copyrightHolder": "Unknown",
+    "encoding": "UTF-8",
+    "compression": "zip",
+    "workExample": "image path, id, label",
+    "links": [
+      {
+        "name": "example model",
+        "url": "https://drive.google.com/open?id=1uuz50RGiAW8YxRcWeQVgQglZpyAebgSM"
+      },
+      {
+        "name": "example code",
+        "type": "example code",
+        "url": "https://github.com/slothkong/CNN_classification_10_monkey_species"
+      },
+      {
+        "url": "https://s3.amazonaws.com/datacommons/links/discovery/n5151.jpg",
+        "name": "n5151.jpg",
+        "type": "discovery"
+      },
+      {
+        "url": "https://s3.amazonaws.com/datacommons/links/sample/sample.zip",
+        "name": "sample.zip",
+        "type": "sample"
+      }
+    ],
+    "inLanguage": "en"
+  }
+}
+```
+
+## Example - Remote metadata
+
+Similarly, this is how the metadata file would look as a response to querying Aquarius (remote metadata). Note that *files* is replaced with *encryptedFiles*, and *curation* is added. 
+
+```json
+{
+  "base": {
+    "name": "10 Monkey Species Small",
+    "dateCreated": "2012-02-01T10:55:11Z",
+    "author": "Mario",
+    "license": "CC0: Public Domain",
+    "contentType": "jpg/txt",
+    "price": 10,
+    "encryptedFiles": "234ab87234acbd095430853424ab87234acbd09543085340abffh21983ddhiiee9821438274234210abffh21983ddhiiee982143827423421",
+    "checksum": "",
+    "categories": [
+      "image"
+    ],
+    "tags": [
+      "image data",
+      " animals"
+    ],
+    "type": "dataset",
+    "description": "EXAMPLE ONLY ",
+    "size": "3.1gb",
+    "copyrightHolder": "Unknown",
+    "encoding": "UTF-8",
+    "compression": "zip",
+    "workExample": "image path, id, label",
+    "links": [
+      {
+        "name": "example model",
+        "url": "https://drive.google.com/open?id=1uuz50RGiAW8YxRcWeQVgQglZpyAebgSM"
+      },
+      {
+        "name": "example code",
+        "type": "example code",
+        "url": "https://github.com/slothkong/CNN_classification_10_monkey_species"
+      },
+      {
+        "url": "https://s3.amazonaws.com/datacommons/links/discovery/n5151.jpg",
+        "name": "n5151.jpg",
+        "type": "discovery"
+      },
+      {
+        "url": "https://s3.amazonaws.com/datacommons/links/sample/sample.zip",
+        "name": "sample.zip",
+        "type": "sample"
+      }
+    ],
+    "inLanguage": "en"
+  },
+  "curation": {
         "rating": 0.93,
         "numVotes": 123,
         "schema": "Binary Voting",
         "flag": false
-    },
-    "additionalInformation" : {
-        "updateFrequency": "yearly",
-        "structuredMarkup": [
-            {
-                "uri": "http://skos.um.es/unescothes/C01194/jsonld",
-                "mediaType": "application/ld+json"
-            },
-            {
-                "uri": "http://skos.um.es/unescothes/C01194/turtle",
-                "mediaType": "text/turtle"
-            }
-        ]
     }
 }
 ```
