@@ -75,7 +75,7 @@ Some attributes are required by only the metadata store *(remote)* and others ar
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name or title of the Asset.
-**dateCreated** | DateTime      | (remote)   | The date on which the asset was created or was added. ISO 8601 format, Coordinated Universal Time, (`2019-01-31T08:38:32Z`).
+**dateCreated** | DateTime      | Yes   | The date on which the asset was created by the originator. ISO 8601 format, Coordinated Universal Time, (`2019-01-31T08:38:32Z`).
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **contentType** | Text          | Yes           | File format, if applicable.
@@ -147,6 +147,7 @@ Here is an example of an Asset metadata object following the above-described sch
 {
   "base": {
     "name": "10 Monkey Species Small",
+    "dateCreated": "2012-02-01T10:55:11Z",    
     "author": "Mario",
     "license": "CC0: Public Domain",
     "contentType": "jpg/txt",
