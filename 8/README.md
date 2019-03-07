@@ -118,7 +118,7 @@ Attribute       |   Type           |   Required    | Description
 **rating**      | Number (decimal) | Yes           | Decimal value between 0 and 1. 0 is the default value.
 **numVotes**    | Integer          | Yes           | Number of votes. 0 is the default value.
 **schema**      | Text             | No            | Schema applied to calculate the rating.
-**isDeleted**   | Boolean          | No            | Flag unsuitable content. False by default. If it's true, the content must not be returned.
+**isListed**   | Boolean          | No            | Flag unsuitable content. False by default. If it's true, the content must not be returned.
 
 ## additionalInformation
 
@@ -263,7 +263,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
         "rating": 0.93,
         "numVotes": 123,
         "schema": "Binary Voting",
-        "flag": false
+        "isListed": true
     }
 }
 ```
