@@ -142,12 +142,13 @@ This method executes internally:
      * controller contract function fingerprint (referred to as function signature or selector)
 
 ```
-def generate_condition_key(sla_template_id, contract_address, function_fingerprint):
-    key = web3.Web3.soliditySha3(
+def build_condition_key(contract_address, fingerprint, template_id):
+    assert isinstance(fingerprint, bytes), f'Expecting `fingerprint` of type bytes, ' \
+        f'got {type(fingerprint)}'
+    return generate_multi_value_hash(
         ['bytes32', 'address', 'bytes4'],
-        [sla_template_id.encode(), contract_address, function_fingerprint]
-    )
-    return key.hex()
+        [template_id, contract_address, fingerprint]
+    ).hex()
     
 ```
 
@@ -243,13 +244,34 @@ create_condition_params_hash(['bytes32', 'uint256'], ['0x...', '25'])
 ```
  
 ```
-def generate_service_agreement_hash(web3, sla_template_id, values_hash_list, service_agreement_id):
+def generate_service_agreement_hash(template_id, values_hash_list, timelocks, timeouts, agreement_id):
     return web3.soliditySha3(
-        ['bytes32', 'bytes32[]', 'uint256[]', 'bytes32'],
-        [sa_template_id, values_hash_list, timeouts, service_agreement_id]
+            ['bytes32', 'bytes32[]', 'uint256[]', 'uint256[]', 'bytes32'],
+            [template_id, values_hash_list, timelocks, timeouts, agreement_id]
     )
 # Sign the agreement hash
 web3_instance.eth.sign(address, generate_service_agreement_hash(...))
+
+#The content of value_hash_list is generated calling this method:
+    def generate_agreement_condition_ids(self, agreement_id, asset_id, consumer_address,
+                                         publisher_address, keeper):
+        lock_cond_id = keeper.lock_reward_condition.generate_id(
+            agreement_id,
+            self.condition_by_name['lockReward'].param_types,
+            [keeper.escrow_reward_condition.address, self.get_price()]).hex()
+
+        access_cond_id = keeper.access_secret_store_condition.generate_id(
+            agreement_id,
+            self.condition_by_name['accessSecretStore'].param_types,
+            [asset_id, consumer_address]).hex()
+
+        escrow_cond_id = keeper.escrow_reward_condition.generate_id(
+            agreement_id,
+            self.condition_by_name['escrowReward'].param_types,
+            [self.get_price(), publisher_address, consumer_address,
+             lock_cond_id, access_cond_id]).hex()
+
+        return access_cond_id, lock_cond_id, escrow_cond_id
 ```
 
 This signature is used to correlate events and to prevent the PUBLISHER from instantiating multiple Service Agreements from a single request.
