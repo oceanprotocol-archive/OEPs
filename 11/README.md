@@ -251,6 +251,27 @@ def generate_service_agreement_hash(web3, sla_template_id, values_hash_list, ser
     )
 # Sign the agreement hash
 web3_instance.eth.sign(address, generate_service_agreement_hash(...))
+
+#The content of value_hash_list is generated calling this method:
+    def generate_agreement_condition_ids(self, agreement_id, asset_id, consumer_address,
+                                         publisher_address, keeper):
+        lock_cond_id = keeper.lock_reward_condition.generate_id(
+            agreement_id,
+            self.condition_by_name['lockReward'].param_types,
+            [keeper.escrow_reward_condition.address, self.get_price()]).hex()
+
+        access_cond_id = keeper.access_secret_store_condition.generate_id(
+            agreement_id,
+            self.condition_by_name['accessSecretStore'].param_types,
+            [asset_id, consumer_address]).hex()
+
+        escrow_cond_id = keeper.escrow_reward_condition.generate_id(
+            agreement_id,
+            self.condition_by_name['escrowReward'].param_types,
+            [self.get_price(), publisher_address, consumer_address,
+             lock_cond_id, access_cond_id]).hex()
+
+        return access_cond_id, lock_cond_id, escrow_cond_id
 ```
 
 This signature is used to correlate events and to prevent the PUBLISHER from instantiating multiple Service Agreements from a single request.
