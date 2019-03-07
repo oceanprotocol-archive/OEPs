@@ -3,6 +3,7 @@ shortname: 8/ASSET-DDO
 name: Assets Metadata Ontology
 type: Standard
 status: Raw
+version: 0.1
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>, Marcus Jones <marcus@oceanprotocol.com>
 ```
@@ -25,6 +26,8 @@ contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanp
 <!--te-->
 
 # Assets Metadata Ontology
+
+`version 0.1`
 
 Every Asset (dataset, algorithm, etc.) in the Ocean Network has an associated Decentralized Identifier (DID) and DID document / DID Descriptor Object (DDO). Why? Because Assets without proper descriptive metadata have poor visibility and discoverability.
 
