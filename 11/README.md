@@ -142,12 +142,13 @@ This method executes internally:
      * controller contract function fingerprint (referred to as function signature or selector)
 
 ```
-def generate_condition_key(sla_template_id, contract_address, function_fingerprint):
-    key = web3.Web3.soliditySha3(
+def build_condition_key(contract_address, fingerprint, template_id):
+    assert isinstance(fingerprint, bytes), f'Expecting `fingerprint` of type bytes, ' \
+        f'got {type(fingerprint)}'
+    return generate_multi_value_hash(
         ['bytes32', 'address', 'bytes4'],
-        [sla_template_id.encode(), contract_address, function_fingerprint]
-    )
-    return key.hex()
+        [template_id, contract_address, fingerprint]
+    ).hex()
     
 ```
 
@@ -245,8 +246,8 @@ create_condition_params_hash(['bytes32', 'uint256'], ['0x...', '25'])
 ```
 def generate_service_agreement_hash(web3, sla_template_id, values_hash_list, service_agreement_id):
     return web3.soliditySha3(
-        ['bytes32', 'bytes32[]', 'uint256[]', 'bytes32'],
-        [sa_template_id, values_hash_list, timeouts, service_agreement_id]
+            ['bytes32', 'bytes32[]', 'uint256[]', 'uint256[]', 'bytes32'],
+            [template_id, values_hash_list, timelocks, timeouts, agreement_id]
     )
 # Sign the agreement hash
 web3_instance.eth.sign(address, generate_service_agreement_hash(...))
