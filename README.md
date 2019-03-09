@@ -5,11 +5,8 @@
 > 💧 Ocean Protocol
 > [oceanprotocol.com](https://oceanprotocol.com)
 
+**Table of Contents**
 
-Table of Contents
-=================
-
-   * [OceanProtocol Enhancement Proposals (OEPs)](#oceanprotocol-enhancement-proposals-oeps)
    * [Current OEPs](#current-oeps)
    * [Current Participants](#current-participants)
       * [Contributors](#contributors)
@@ -28,7 +25,7 @@ The process to add or change a OEP is the following:
 
 Short Name       | Title                                                        | Type         | Status     | Editor
 -----------------|--------------------------------------------------------------|--------------|------------|-------
-[1/C4](1)        | Collective Code Construction Contract                        | Meta         | Draft      | Dimitri De Jonghe
+[1/C4](1)        | Collective Code Construction Contract                        | Meta         | Deleted    | Dimitri De Jonghe
 [2/COSS](2)      | Consensus-Oriented Specification System                      | Meta         | Draft      | Dimitri De Jonghe
 [3/ARCH](3)      | Ocean Core Architecture                                      | Standard     | Draft      | Dimitri De Jonghe
 [4/AGENT](4)     | Ocean Agent Protocol Stack                                   | Standard     | Draft      | Aitor Argomaniz
