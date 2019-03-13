@@ -141,7 +141,7 @@ This method executes internally:
      * controller contract address (obtained from the solidity contract json file matching the contract name in the SLA condition)
      * controller contract function fingerprint (referred to as function signature or selector)
 
-```
+```python
 def build_condition_key(contract_address, fingerprint, template_id):
     assert isinstance(fingerprint, bytes), f'Expecting `fingerprint` of type bytes, ' \
         f'got {type(fingerprint)}'
@@ -171,12 +171,12 @@ def build_condition_key(contract_address, fingerprint, template_id):
 1. PUBLISHER registers the DID, associating the Asset DID to the Aquarius Metadata URL that resolves the DID to a DDO.
 To do that, SQUID needs to integrate the `DIDRegistry` contract using the `registerAttribute` method.
 
-```
+```javascript
 function registerAttribute (
-        bytes32 _did,
-        bytes32 _checksum,
-        string memory _value
-    )
+    bytes32 _did,
+    bytes32 _checksum,
+    string memory _value
+)
 ```
 
 The parameters to pass are:
@@ -193,7 +193,7 @@ The parameters to pass are:
 
 1. The EscrowAccessSecretStore Service Agreement template has the following shape:
 
-```
+```javascript
 const agreement = {
     did: did,
     conditionIds: [
@@ -210,7 +210,7 @@ const agreement = {
 1. For the different conditionIds, the CONSUMER needs to generate those and add them to the agreement to be defined on-chain.
    This requires to generate the hash including the **agreementId** and all the values of the specific condition:
    
-```   
+```javascript
 const conditionIdAccess = await accessSecretStoreCondition.generateId(agreementId, await accessSecretStoreCondition.hashValues(did, receiver))
 const conditionIdLock = await lockRewardCondition.generateId(agreementId, await lockRewardCondition.hashValues(escrowReward.address, escrowAmount))
 const conditionIdEscrow = await escrowReward.generateId(agreementId, await escrowReward.hashValues(escrowAmount, receiver, sender, conditionIdLock, conditionIdAccess))
@@ -236,14 +236,14 @@ Steps for leveraging Squid:
    The `agreementId` is provided by the CONSUMER and has to be globally unique.
    * Each ith item in `values_hash_list` lists corresponds to the ith condition in conditions list
    * `values_hash_list`: a hash of the parameters types and values of each condition
-```
+```python
 def create_condition_params_hash(parameters_types, parameters_values):
     return web3.Web3.soliditySha3(parameters_types, parameters_values).hex()
     
 create_condition_params_hash(['bytes32', 'uint256'], ['0x...', '25'])
 ```
  
-```
+```python
 def generate_service_agreement_hash(template_id, values_hash_list, timelocks, timeouts, agreement_id):
     return web3.soliditySha3(
             ['address', 'bytes32[]', 'uint256[]', 'uint256[]', 'bytes32'],
