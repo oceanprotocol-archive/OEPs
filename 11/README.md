@@ -5,7 +5,7 @@ type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Lev Berman <ldmberman@gmail.com>,
-			  Ahmed Ali <ahmed@oceanprotocol.com>, 
+              Ahmed Ali <ahmed@oceanprotocol.com>, 
               Samer Sallam <samer@oceanprotocol.com>,
               Dimitri De Jonghe <dimi@oceanprotocol.com>
 
@@ -146,7 +146,7 @@ def build_condition_key(contract_address, fingerprint, template_id):
     assert isinstance(fingerprint, bytes), f'Expecting `fingerprint` of type bytes, ' \
         f'got {type(fingerprint)}'
     return generate_multi_value_hash(
-        ['bytes32', 'address', 'bytes4'],
+        ['address', 'address', 'bytes4'],
         [template_id, contract_address, fingerprint]
     ).hex()
     
@@ -246,7 +246,7 @@ create_condition_params_hash(['bytes32', 'uint256'], ['0x...', '25'])
 ```
 def generate_service_agreement_hash(template_id, values_hash_list, timelocks, timeouts, agreement_id):
     return web3.soliditySha3(
-            ['bytes32', 'bytes32[]', 'uint256[]', 'uint256[]', 'bytes32'],
+            ['address', 'bytes32[]', 'uint256[]', 'uint256[]', 'bytes32'],
             [template_id, values_hash_list, timelocks, timeouts, agreement_id]
     )
 # Sign the agreement hash
