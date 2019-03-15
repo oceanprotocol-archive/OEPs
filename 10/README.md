@@ -2,7 +2,7 @@
 shortname: 10/AUTH
 name: On-chain Access Control
 type: Standard
-status: Raw
+status: Deprecated (replaced by OEP-11)
 editors: Ahmed Ali <ahmed@oceanprotocol.com>,
          Samer Sallam <samer@oceanprotocol.com>,
          Fang Gong <fang@oceanprotocol.com>,
