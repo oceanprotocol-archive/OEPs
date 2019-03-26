@@ -153,18 +153,25 @@ Here is an example of an Asset metadata object following the above-described sch
     "price": 10,
     "files": [
       {
+        "contentType": "application/zip",
+        "encoding": "UTF-8",
+        "compression": "zip",
         "checksum": "2bf9d229d110d1976cdf85e9f3256c7f",
         "checksumType": "MD5",
         "contentLength": 12057507,
         "url": "https://s3.amazonaws.com/assets/training.zip"
       },
       {
+        "contentType": "text/txt",
+        "encoding": "UTF-8",
+        "compression": "none",
         "checksum": "354d19c0733c47ef3a6cce5b633116b0",
         "checksumType": "MD5",
         "contentLength": 928,
         "url": "https://s3.amazonaws.com/datacommons/monkey_labels.txt"
       },
       {
+        "contentType": "application/zip",
         "url": "https://s3.amazonaws.com/datacommons/validation.zip"
       }
     ],
