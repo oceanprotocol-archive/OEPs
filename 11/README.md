@@ -11,6 +11,7 @@ contributors: Lev Berman <ldmberman@gmail.com>,
 
 ```
 
+
 Table of Contents
 =================
 
@@ -30,12 +31,15 @@ Table of Contents
                * [Grant Access Condition](#grant-access-condition)
                * [Release Payment Condition](#release-payment-condition)
          * [Consuming the Data](#consuming-the-data)
+            * [Consuming without direct integration of Secret Store](#consuming-without-direct-integration-of-secret-store)
             * [Abort Conditions](#abort-conditions)
          * [Encryption and Decryption](#encryption-and-decryption)
             * [No Encryption](#no-encryption)
             * [Secret Store](#secret-store)
             * [Rsa Public and Private Keys](#rsa-public-and-private-keys)
+         * [Encryption using Brizo](#encryption-using-brizo)
          * [Implementation details](#implementation-details)
+
 
 
 
