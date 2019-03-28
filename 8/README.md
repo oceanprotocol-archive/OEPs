@@ -99,7 +99,7 @@ The `files` attribute includes the details necessary to consume and validate the
 This attribute include an array of objects of type `file`. The type file has the following attributes:
 
 | Attribute         | Required | Description                                         |
-| ----------------- | --------   --------------------------------------------------- |
+| ----------------- | -------- | --------------------------------------------------- |
 | **url**           | yes      | Content URL. The URL is encrypted after publication. |
 | **contentType**   | no       | File format, if applicable. |
 | **checksum**      | no       | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
