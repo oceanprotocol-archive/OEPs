@@ -98,18 +98,16 @@ Attribute       |   Type        |   Required    | Description
 The `files` attribute includes the details necessary to consume and validate the data.
 This attribute include an array of objects of type `file`. The type file has the following attributes:
 
-| Attribute         | Description                                                  |
-| ----------------- | ------------------------------------------------------------ |
-| **url**           | Content Url (mandatory). The URL is encrypted after publication. |
-| **contentType**   | File format, if applicable. |
-| **checksum**      | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
-| **checksumType**  | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
-| **contentLength** | Size of the file in bytes (optional).                        |
-| **encoding**      | File encoding (e.g. UTF-8). |
-| **compression**   | File compression (e.g. no, gzip, bzip2, etc). |
-| **resourceId**    | Remote identifier of the file in the external provider (optional). It is typically the remote id in the cloud provider. |
-
-Only the **url** attribute is mandatory.
+| Attribute         | Required | Description                                         |
+| ----------------- | --------   --------------------------------------------------- |
+| **url**           | yes      | Content URL. The URL is encrypted after publication. |
+| **contentType**   | no       | File format, if applicable. |
+| **checksum**      | no       | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
+| **checksumType**  | no       | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
+| **contentLength** | no       | Size of the file in bytes.                        |
+| **encoding**      | no       | File encoding (e.g. UTF-8). |
+| **compression**   | no       | File compression (e.g. no, gzip, bzip2, etc). |
+| **resourceId**    | no       | Remote identifier of the file in the external provider. It is typically the remote id in the cloud provider. |
 
 ## curation 
 
@@ -149,7 +147,6 @@ Here is an example of an Asset metadata object following the above-described sch
     "dateCreated": "2012-02-01T10:55:11Z",    
     "author": "Mario",
     "license": "CC0: Public Domain",
-    "contentType": "jpg/txt",
     "price": 10,
     "files": [
       {
@@ -186,10 +183,7 @@ Here is an example of an Asset metadata object following the above-described sch
     ],
     "type": "dataset",
     "description": "EXAMPLE ONLY ",
-    "size": "3.1gb",
     "copyrightHolder": "Unknown",
-    "encoding": "UTF-8",
-    "compression": "zip",
     "workExample": "image path, id, label",
     "links": [
       {
@@ -228,7 +222,6 @@ Similarly, this is how the metadata file would look as a response to querying Aq
     "dateCreated": "2012-02-01T10:55:11Z",
     "author": "Mario",
     "license": "CC0: Public Domain",
-    "contentType": "jpg/txt",
     "price": 10,
     "encryptedFiles": "234ab87234acbd095430853424ab87234acbd09543085340abffh21983ddhiiee9821438274234210abffh21983ddhiiee982143827423421",
     "checksum": "",
@@ -241,10 +234,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
     ],
     "type": "dataset",
     "description": "EXAMPLE ONLY ",
-    "size": "3.1gb",
     "copyrightHolder": "Unknown",
-    "encoding": "UTF-8",
-    "compression": "zip",
     "workExample": "image path, id, label",
     "links": [
       {
