@@ -292,7 +292,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
         "schema": "Binary Voting",
         "isListed": true
      }
-  },
+  }
 }
 ```
 
