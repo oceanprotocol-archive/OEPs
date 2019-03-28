@@ -79,7 +79,7 @@ Attribute       |   Type        |   Required    | Description
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
-**files**       | Array of files object | (local)     | Array of File objects including the encrypted file urls. Further metadata about each file is stored: contentType, checksum (optional), content length in bytes (optional), encoding (optional), compression (optional) and remote resourceId (optional)
+**files**       | Array of files object | Yes     | Array of File objects including the encrypted file urls. Further metadata about each file is stored: contentType, checksum (optional), content length in bytes (optional), encoding (optional), compression (optional) and remote resourceId (optional)
 **encryptedFiles** | Text         | (remote)    | Encrypted string of the **files** attribute. 
 **checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
