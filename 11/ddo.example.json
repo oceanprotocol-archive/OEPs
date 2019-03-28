@@ -49,16 +49,17 @@
 					"author": "Met Office",
 					"checksum": "0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377",
 					"compression": "zip",
-					"contentType": "text/csv",
 					"copyrightHolder": "Met Office",
 					"dateCreated": "2019-02-08T08:13:49Z",
 					"description": "Weather information of UK including temperature and humidity",
-					"encoding": "UTF-8",
 					"files": [{
 						"url": "https://raw.githubusercontent.com/tbertinmahieux/MSongsDB/master/Tasks_Demos/CoverSongs/shs_dataset_test.txt",
 						"checksum": "efb2c764274b745f5fc37f97c6b0e761",
-						"contentLength": "4535431",
-						"resourceId": "access-log2018-02-13-15-17-29-18386C502CAEA932"
+              			"contentLength": "4535431",
+              			"contentType": "text/csv",
+              			"encoding": "UTF-8",
+              			"compression": "zip",
+              			"resourceId": "access-log2018-02-13-15-17-29-18386C502CAEA932"
 					}],
 					"encryptedFiles": "0x2e48ceefcca7abb024f90c87c676fce8f7913f889605a349c08c0c4a822c69ad651e122cc81db4fbb52938ac627786491514f37a2ebfd04fd98ec726f1d9061ed52f13fde132222af34d9af8ec358429cf45fc669f81a607185cb9a8150df3cbb2b4e3e382fb16429be228ddd920f061b78dd54701025fac8aab976239fb31a5b60a57393e96a338324c5ac8a5600a1247339c4835533cecdb5b53caf6b6f9d6478b579b7426f650a4154a20d18a9d49f509770af62647a57fc174741b47af3c8beeaaa76bee276cce8fba1f3fec0e1c",
 					"inLanguage": "en",
@@ -75,7 +76,6 @@
 					],
 					"name": "UK Weather information 2011",
 					"price": "10",
-					"size": "3.1gb",
 					"tags": "weather, uk, 2011, temperature, humidity",
 					"type": "dataset",
 					"workExample": "423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68"
