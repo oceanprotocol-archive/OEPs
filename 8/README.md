@@ -3,7 +3,7 @@ shortname: 8/ASSET-DDO
 name: Assets Metadata Ontology
 type: Standard
 status: Raw
-version: 0.1
+version: 0.2
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>, Marcus Jones <marcus@oceanprotocol.com>
 ```
@@ -27,7 +27,7 @@ contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanp
 
 # Assets Metadata Ontology
 
-`version 0.1`
+`version 0.2`
 
 Every Asset (dataset, algorithm, etc.) in the Ocean Network has an associated Decentralized Identifier (DID) and DID document / DID Descriptor Object (DDO). Why? Because Assets without proper descriptive metadata have poor visibility and discoverability.
 
@@ -79,7 +79,7 @@ Attribute       |   Type        |   Required    | Description
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
-**files**       | Array of files object | (local)     | Array of File objects including the encrypted file urls. Further metadata about each file is stored: contentType, checksum (optional), content length in bytes (optional), encoding (optional), compression (optional) and remote resourceId (optional)
+**files**       | Array of files object | Yes     | Array of File objects including the encrypted file urls. Further metadata about each file is stored: contentType, checksum (optional), content length in bytes (optional), encoding (optional), compression (optional) and remote resourceId (optional)
 **encryptedFiles** | Text         | (remote)    | Encrypted string of the **files** attribute. 
 **checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
@@ -98,18 +98,17 @@ Attribute       |   Type        |   Required    | Description
 The `files` attribute includes the details necessary to consume and validate the data.
 This attribute include an array of objects of type `file`. The type file has the following attributes:
 
-| Attribute         | Description                                                  |
-| ----------------- | ------------------------------------------------------------ |
-| **url**           | Content Url (mandatory). The URL is encrypted after publication. |
-| **contentType**   | File format, if applicable. |
-| **checksum**      | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
-| **checksumType**  | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
-| **contentLength** | Size of the file in bytes (optional).                        |
-| **encoding**      | File encoding (e.g. UTF-8). |
-| **compression**   | File compression (e.g. no, gzip, bzip2, etc). |
-| **resourceId**    | Remote identifier of the file in the external provider (optional). It is typically the remote id in the cloud provider. |
-
-Only the **url** attribute is mandatory.
+| Attribute         | Required | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| **url**           | yes      | Content URL. The URL is encrypted after publication. |
+| **index**           | yes      | Index number starting from 0 of the file. |
+| **contentType**   | no       | File format, if applicable. |
+| **checksum**      | no       | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
+| **checksumType**  | no       | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
+| **contentLength** | no       | Size of the file in bytes.                        |
+| **encoding**      | no       | File encoding (e.g. UTF-8). |
+| **compression**   | no       | File compression (e.g. no, gzip, bzip2, etc). |
+| **resourceId**    | no       | Remote identifier of the file in the external provider. It is typically the remote id in the cloud provider. |
 
 ## curation 
 
@@ -149,10 +148,10 @@ Here is an example of an Asset metadata object following the above-described sch
     "dateCreated": "2012-02-01T10:55:11Z",    
     "author": "Mario",
     "license": "CC0: Public Domain",
-    "contentType": "jpg/txt",
     "price": 10,
     "files": [
       {
+        "index":0,
         "contentType": "application/zip",
         "encoding": "UTF-8",
         "compression": "zip",
@@ -162,6 +161,7 @@ Here is an example of an Asset metadata object following the above-described sch
         "url": "https://s3.amazonaws.com/assets/training.zip"
       },
       {
+        "index":1,
         "contentType": "text/txt",
         "encoding": "UTF-8",
         "compression": "none",
@@ -171,7 +171,7 @@ Here is an example of an Asset metadata object following the above-described sch
         "url": "https://s3.amazonaws.com/datacommons/monkey_labels.txt"
       },
       {
-        "contentType": "application/zip",
+        "index":2,
         "url": "https://s3.amazonaws.com/datacommons/validation.zip"
       }
     ],
@@ -186,10 +186,7 @@ Here is an example of an Asset metadata object following the above-described sch
     ],
     "type": "dataset",
     "description": "EXAMPLE ONLY ",
-    "size": "3.1gb",
     "copyrightHolder": "Unknown",
-    "encoding": "UTF-8",
-    "compression": "zip",
     "workExample": "image path, id, label",
     "links": [
       {
@@ -219,7 +216,9 @@ Here is an example of an Asset metadata object following the above-described sch
 
 ## Example - Remote metadata
 
-Similarly, this is how the metadata file would look as a response to querying Aquarius (remote metadata). Note that *files* is replaced with *encryptedFiles*, and *curation* is added. 
+Similarly, this is how the metadata file would look as a response to querying Aquarius (remote metadata). Note that *files* is replaced with *encryptedFiles*, and *curation* is added.
+
+
 
 ```json
 {
@@ -228,8 +227,30 @@ Similarly, this is how the metadata file would look as a response to querying Aq
     "dateCreated": "2012-02-01T10:55:11Z",
     "author": "Mario",
     "license": "CC0: Public Domain",
-    "contentType": "jpg/txt",
     "price": 10,
+    "files": [
+      {
+        "index":0,
+        "contentType": "application/zip",
+        "encoding": "UTF-8",
+        "compression": "zip",
+        "checksum": "2bf9d229d110d1976cdf85e9f3256c7f",
+        "checksumType": "MD5",
+        "contentLength": 12057507
+      },
+      {
+        "index":1,
+        "contentType": "text/txt",
+        "encoding": "UTF-8",
+        "compression": "none",
+        "checksum": "354d19c0733c47ef3a6cce5b633116b0",
+        "checksumType": "MD5",
+        "contentLength": 928
+      },
+      {
+        "index":2
+      }
+    ],
     "encryptedFiles": "234ab87234acbd095430853424ab87234acbd09543085340abffh21983ddhiiee9821438274234210abffh21983ddhiiee982143827423421",
     "checksum": "",
     "categories": [
@@ -241,10 +262,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
     ],
     "type": "dataset",
     "description": "EXAMPLE ONLY ",
-    "size": "3.1gb",
     "copyrightHolder": "Unknown",
-    "encoding": "UTF-8",
-    "compression": "zip",
     "workExample": "image path, id, label",
     "links": [
       {
@@ -267,14 +285,14 @@ Similarly, this is how the metadata file would look as a response to querying Aq
         "type": "sample"
       }
     ],
-    "inLanguage": "en"
-  },
-  "curation": {
+    "inLanguage": "en",
+    "curation": {
         "rating": 0.93,
         "numVotes": 123,
         "schema": "Binary Voting",
         "isListed": true
-    }
+     }
+  }
 }
 ```
 
