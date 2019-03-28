@@ -248,7 +248,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
         "contentLength": 928
       },
       {
-        "index":2,
+        "index":2
       }
     ],
     "encryptedFiles": "234ab87234acbd095430853424ab87234acbd09543085340abffh21983ddhiiee9821438274234210abffh21983ddhiiee982143827423421",
