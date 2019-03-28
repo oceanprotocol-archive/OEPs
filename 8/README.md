@@ -285,14 +285,14 @@ Similarly, this is how the metadata file would look as a response to querying Aq
         "type": "sample"
       }
     ],
-    "inLanguage": "en"
-  },
-  "curation": {
+    "inLanguage": "en",
+    "curation": {
         "rating": 0.93,
         "numVotes": 123,
         "schema": "Binary Voting",
         "isListed": true
-    }
+     }
+  },
 }
 ```
 
