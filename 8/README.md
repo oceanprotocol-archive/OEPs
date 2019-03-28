@@ -213,7 +213,9 @@ Here is an example of an Asset metadata object following the above-described sch
 
 ## Example - Remote metadata
 
-Similarly, this is how the metadata file would look as a response to querying Aquarius (remote metadata). Note that *files* is replaced with *encryptedFiles*, and *curation* is added. 
+Similarly, this is how the metadata file would look as a response to querying Aquarius (remote metadata). Note that *files* is replaced with *encryptedFiles*, and *curation* is added.
+
+
 
 ```json
 {
@@ -223,6 +225,27 @@ Similarly, this is how the metadata file would look as a response to querying Aq
     "author": "Mario",
     "license": "CC0: Public Domain",
     "price": 10,
+    "files": [
+      {
+        "contentType": "application/zip",
+        "encoding": "UTF-8",
+        "compression": "zip",
+        "checksum": "2bf9d229d110d1976cdf85e9f3256c7f",
+        "checksumType": "MD5",
+        "contentLength": 12057507
+      },
+      {
+        "contentType": "text/txt",
+        "encoding": "UTF-8",
+        "compression": "none",
+        "checksum": "354d19c0733c47ef3a6cce5b633116b0",
+        "checksumType": "MD5",
+        "contentLength": 928
+      },
+      {
+        "contentType": "application/zip",
+      }
+    ],
     "encryptedFiles": "234ab87234acbd095430853424ab87234acbd09543085340abffh21983ddhiiee9821438274234210abffh21983ddhiiee982143827423421",
     "checksum": "",
     "categories": [
