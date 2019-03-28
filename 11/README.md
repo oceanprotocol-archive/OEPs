@@ -11,6 +11,7 @@ contributors: Lev Berman <ldmberman@gmail.com>,
 
 ```
 
+
 Table of Contents
 =================
 
@@ -30,12 +31,15 @@ Table of Contents
                * [Grant Access Condition](#grant-access-condition)
                * [Release Payment Condition](#release-payment-condition)
          * [Consuming the Data](#consuming-the-data)
+            * [Consuming without direct integration of Secret Store](#consuming-without-direct-integration-of-secret-store)
             * [Abort Conditions](#abort-conditions)
          * [Encryption and Decryption](#encryption-and-decryption)
             * [No Encryption](#no-encryption)
             * [Secret Store](#secret-store)
             * [Rsa Public and Private Keys](#rsa-public-and-private-keys)
+         * [Encryption using Brizo](#encryption-using-brizo)
          * [Implementation details](#implementation-details)
+
 
 
 
@@ -120,7 +124,9 @@ const asset = ocean.assets.create(metadata, publisherAccount, services=[ocean.se
 This method executes internally:
 
 1. PUBLISHER generates a DID. See [How to generate a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#length-of-a-did). Currently the DID is a UUID. Later on, this might be computed as a DDO hash.
-1. PUBLISHER optionally can encrypt the URLs using different encryption plugins. If that's the case, in the DDO will be added an **encryption** service describing the procedure used.
+1. PUBLISHER optionally can encrypt the URLs using different encryption plugins. If that's the case, in the DDO will be added an **encryption** service describing the procedure used. 
+   If PUBLISHER is running a client not supporting direct integration with Secret Store (for example because is using Metamask and can't provide the account password), 
+   it's possible to integrate the Brizo encryption method.
 1. PUBLISHER encrypts the URL using the Secret Store identified by a DID.
 1. PUBLISHER creates a DDO including the following information:
    - DID
@@ -175,6 +181,7 @@ To do that, SQUID needs to integrate the `DIDRegistry` contract using the `regis
 function registerAttribute (
     bytes32 _did,
     bytes32 _checksum,
+    address[] memory _providers,
     string memory _value
 )
 ```
@@ -182,6 +189,7 @@ function registerAttribute (
 The parameters to pass are:
   - **bytes32 _did** - The hash part of the DID, the part just after `did:op:`
   - **bytes32 _checksum** - The checksum generated after [compute the DID](https://github.com/oceanprotocol/OEPs/tree/master/7#how-to-compute-a-did)
+  - **address[] _providers** - The list of providers which PUBLISHER delegates URL decryption capabilities and SEA management
   - **string _value** - The Metadata service endpoint. In the above DDO its: http://myaquarius.org/api/v1/provider/assets/metadata/{did}
 
 ![Publishing Flow](images/publishing-flow.png)
@@ -448,6 +456,30 @@ Using those parameters, BRIZO does the following things:
 
 ![Consuming Flow](images/consuming-flow.png)
 
+#### Consuming without direct integration of Secret Store
+
+If the CONSUMER (via Squid) can't integrate directly Secret Store for decryption (Squid-js using Metamask can't provide the account password), 
+it's possible to call Brizo with an alternative `consume` method.
+
+In this scenario, it's BRIZO as provider the one in charge of decrypting the content in behalf of the CONSUMER.
+
+The consume URL may look like:
+
+```
+HTTP GET /api/v1/brizo/services/access/consume?pubKey=${pubKey}&serviceAgreementId={serviceAgreementId}&signature={signature}&index={index}`
+```
+
+This method will return an HTTP 200 status code if everything was okay, plus the URL required to get access to the data.
+
+When CONSUMER requests purchased data, BRIZO gets 3 parameters:
+
+* Consumer public key: `pubKey`
+* Service Agreement ID: `serviceAgreementId`
+* Signature: `signature`. The signed `serviceAgreementId` value by the CONSUMER to validate his/her identity
+* Index: `index`. Integer value representiong the position of the content to download in the `DDO.files` array
+
+
+
 
 #### Abort Conditions
 
@@ -569,6 +601,21 @@ service": [{
     "serviceDefinitionId": "0"
   }    
 ```
+
+### Encryption using Brizo
+
+For those clients not able to integrate Secret Store directly, Brizo will support and encryption endpoint supporting the following parameters:
+
+```
+HTTP POST /api/v1/brizo/services/encrypt
+
+{
+ "id": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
+ "document": "[{"url":"234ab87234acbd09543085340abffh21983ddhiiee982143827423421","checksum":"efb2c764274b745f5fc37f97c6b0e761","contentLength":"4535431","resourceId":"access-log2018-02-13-15-17-29-18386C502CAEA932" }, { "url":"234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421","checksum":"085340abffh21495345af97c6b0e761","contentLength":"12324"},{"url":"80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"}]"
+}
+```
+
+This endpoint will return the content encrypted. In the secret store, this will be encrypted using the `provider` (Brizo) account.
 
 
 ### Implementation details
