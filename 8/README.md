@@ -101,6 +101,7 @@ This attribute include an array of objects of type `file`. The type file has the
 | Attribute         | Required | Description                                         |
 | ----------------- | -------- | --------------------------------------------------- |
 | **url**           | yes      | Content URL. The URL is encrypted after publication. |
+| **index**           | yes      | Index number starting from 0 of the file. |
 | **contentType**   | no       | File format, if applicable. |
 | **checksum**      | no       | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
 | **checksumType**  | no       | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
@@ -150,6 +151,7 @@ Here is an example of an Asset metadata object following the above-described sch
     "price": 10,
     "files": [
       {
+        "index":0,
         "contentType": "application/zip",
         "encoding": "UTF-8",
         "compression": "zip",
@@ -159,6 +161,7 @@ Here is an example of an Asset metadata object following the above-described sch
         "url": "https://s3.amazonaws.com/assets/training.zip"
       },
       {
+        "index":1,
         "contentType": "text/txt",
         "encoding": "UTF-8",
         "compression": "none",
@@ -168,7 +171,7 @@ Here is an example of an Asset metadata object following the above-described sch
         "url": "https://s3.amazonaws.com/datacommons/monkey_labels.txt"
       },
       {
-        "contentType": "application/zip",
+        "index":2,
         "url": "https://s3.amazonaws.com/datacommons/validation.zip"
       }
     ],
@@ -227,6 +230,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
     "price": 10,
     "files": [
       {
+        "index":0,
         "contentType": "application/zip",
         "encoding": "UTF-8",
         "compression": "zip",
@@ -235,6 +239,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
         "contentLength": 12057507
       },
       {
+        "index":1,
         "contentType": "text/txt",
         "encoding": "UTF-8",
         "compression": "none",
@@ -243,7 +248,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
         "contentLength": 928
       },
       {
-        "contentType": "application/zip",
+        "index":2,
       }
     ],
     "encryptedFiles": "234ab87234acbd095430853424ab87234acbd09543085340abffh21983ddhiiee9821438274234210abffh21983ddhiiee982143827423421",
