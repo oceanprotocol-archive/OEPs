@@ -3,7 +3,7 @@ shortname: 8/ASSET-DDO
 name: Assets Metadata Ontology
 type: Standard
 status: Raw
-version: 0.2
+version: 0.3
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>, Marcus Jones <marcus@oceanprotocol.com>
 ```
@@ -27,7 +27,7 @@ contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanp
 
 # Assets Metadata Ontology
 
-`version 0.2`
+`version 0.3`
 
 Every Asset (dataset, algorithm, etc.) in the Ocean Network has an associated Decentralized Identifier (DID) and DID document / DID Descriptor Object (DDO). Why? Because Assets without proper descriptive metadata have poor visibility and discoverability.
 
@@ -76,6 +76,7 @@ Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name or title of the Asset.
 **dateCreated** | DateTime      | Yes   | The date on which the asset was created by the originator. ISO 8601 format, Coordinated Universal Time, (`2019-01-31T08:38:32Z`).
+**datePublished** | DateTime      | (remote)   | The date on which the asset DDO is registered into the metadata store (Aquarius)
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
@@ -225,6 +226,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
   "base": {
     "name": "10 Monkey Species Small",
     "dateCreated": "2012-02-01T10:55:11Z",
+    "datePublished": "2019-03-29T13:01:30Z",    
     "author": "Mario",
     "license": "CC0: Public Domain",
     "price": 10,
