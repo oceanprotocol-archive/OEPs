@@ -58,7 +58,9 @@ The main motivations of this OEP are to:
 
 ## Life Cycle of Metadata
 
-Metadata is first created by the publisher of the asset. The publisher has knowledge of the file URL's, and they are stored in plaintext in the **files** attribute. After publication, the metadata store (Aquarius) will return the Metadata with this data encrypted. The result will be a single ciphertext of the attribute. The **dateCreated** attribute is created by the metadata store. The **curation** attribute is furthermore not created by the publisher, but by the metadata store. As such, there are 2 flavors of metadata:
+Metadata is first created by the publisher of the asset. The publisher has knowledge of the file URLs, and they are stored in plaintext in the `files` attribute. After publication, the metadata store (Aquarius) will return the Metadata with this data encrypted. The result will be a single ciphertext of the attribute. The `datePublished` attribute is created by the metadata store. The `curation` attribute is furthermore not created by the publisher, but by the metadata store.
+
+As such, there are 2 flavors of metadata:
 
 1) Local metadata - Created by the publisher of the asset, added to the `DDO` and sent to the metadata store API. 
 
