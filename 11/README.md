@@ -430,19 +430,20 @@ The following are steps that have to be performed by the CONSUMER to receive the
 1. CONSUMER decrypts the URL using Squid. This only requires the encryptedUrl existing in the DDO and the DID. 
    A Parity EVM client (local or remote) and Secret Store cluster can be used for that.
 
-1. CONSUMER retrieves data by calling the dedicated BRIZO endpoint providing it with CONSUMER public key, service ID, and decrypted URL.
+1. CONSUMER retrieves data by calling the dedicated Brizo endpoint (`serviceEndpoint` in the service definition) 
+providing it with Consumer ethereum address, service agreement ID, and decrypted URL.
 
 The consume URL may look like:
 
 ```
-HTTP GET /api/v1/brizo/services/access/consume?pubKey=${pubKey}&serviceAgreementId={serviceAgreementId}&url={url}`
+HTTP GET /api/v1/brizo/services/access/consume?consumerAddress=${consumerAddress}&serviceAgreementId={serviceAgreementId}&url={url}`
 ```
 
-This method will return an HTTP 200 status code if everything was okay, plus the URL required to get access to the data.
+This method will return a HTTP 200 status code if everything was okay and the data file.
 
 When CONSUMER requests purchased data, BRIZO gets 3 parameters:
 
-* Consumer public key: `pubKey`
+* Consumer ethereum address: `consumerAddress`
 * Service Agreement ID: `serviceAgreementId`
 * Decrypted URL: `url`. This URL is only valid if BRIZO acts as a proxy. CONSUMER cannot download using the URL if it's not done through BRIZO.
 
@@ -450,7 +451,7 @@ Using those parameters, BRIZO does the following things:
 
 * Find the `did` by the given `serviceAgreementId`
 
-* Verify the given service is allowed to be consumed by the given `pubKey` and `did` using the `checkPermissions` method of the `SLA` Smart Contract.
+* Verify the given service is allowed to be consumed by the given `consumerAddress` and `did` using the `checkPermissions` method of the `SLA` Smart Contract.
 
 * If CONSUMER has permissions to consume, download and provide data for the given DID
 
