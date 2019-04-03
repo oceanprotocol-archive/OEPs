@@ -103,8 +103,8 @@ This attribute include an array of objects of type `file`. The type file has the
 
 | Attribute         | Required | Description                                         |
 | ----------------- | -------- | --------------------------------------------------- |
-| **url**           | yes      | Content URL. The URL is encrypted after publication. |
-| **index**           | yes      | Index number starting from 0 of the file. |
+| **url**           | (local)  | Content URL. Omitted from the remote metadata. |
+| **index**         | yes      | Index number starting from 0 of the file. |
 | **contentType**   | no       | File format, if applicable. |
 | **checksum**      | no       | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
 | **checksumType**  | no       | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
@@ -219,9 +219,7 @@ Here is an example of an Asset metadata object following the above-described sch
 
 ## Example - Remote metadata
 
-Similarly, this is how the metadata file would look as a response to querying Aquarius (remote metadata). Note that *files* is replaced with *encryptedFiles*, and *curation* is added.
-
-
+Similarly, this is how the metadata file would look as a response to querying Aquarius (remote metadata). Note that `url` is removed from all objects in the `files` array, and `encryptedFiles` & `curation` are added.
 
 ```json
 {
