@@ -1,6 +1,6 @@
-```
+```text
 shortname: 11/ACL
-name: On-Chain Access Control using Service Agreements
+name: On-Chain Access Control using Service Execution Agreements
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
@@ -8,135 +8,136 @@ contributors: Lev Berman <ldmberman@gmail.com>,
               Ahmed Ali <ahmed@oceanprotocol.com>, 
               Samer Sallam <samer@oceanprotocol.com>,
               Dimitri De Jonghe <dimi@oceanprotocol.com>
-
 ```
 
+**Table of Contents**
 
-Table of Contents
-=================
-
-   * [Table of Contents](#table-of-contents)
-   * [On-Chain Access Control using Service Agreements](#on-chain-access-control-using-service-agreements)
-      * [Change Process](#change-process)
-      * [Language](#language)
-      * [Motivation](#motivation)
-      * [Actors](#actors)
-         * [Technical components](#technical-components)
-      * [Flow](#flow)
-         * [Publishing](#publishing)
+<!--ts-->
+   * [Abstract](#abstract)
+   * [Change Process](#change-process)
+   * [Language](#language)
+   * [Motivation](#motivation)
+   * [Actors](#actors)
+      * [Technical Components](#technical-components)
+   * [Flow](#flow)
+      * [Publishing](#publishing)
          * [EscrowAccessSecretStore Service Agreement Template](#escrowaccesssecretstore-service-agreement-template)
-         * [Consuming](#consuming)
-            * [Execution of the SEA](#execution-of-the-sea)
-               * [Lock Payment Condition](#lock-payment-condition)
-               * [Grant Access Condition](#grant-access-condition)
-               * [Release Payment Condition](#release-payment-condition)
-         * [Consuming the Data](#consuming-the-data)
-            * [Consuming without direct integration of Secret Store](#consuming-without-direct-integration-of-secret-store)
-            * [Abort Conditions](#abort-conditions)
-         * [Encryption and Decryption](#encryption-and-decryption)
-            * [No Encryption](#no-encryption)
-            * [Secret Store](#secret-store)
-            * [Rsa Public and Private Keys](#rsa-public-and-private-keys)
-         * [Encryption using Brizo](#encryption-using-brizo)
-         * [Implementation details](#implementation-details)
+      * [Consuming](#consuming)
+         * [Execution of the SEA](#execution-of-the-sea)
+            * [Lock Payment Condition](#lock-payment-condition)
+            * [Grant Access Condition](#grant-access-condition)
+            * [Release Payment Condition](#release-payment-condition)
+      * [Consuming the Data](#consuming-the-data)
+         * [Consuming without direct integration of Secret Store](#consuming-without-direct-integration-of-secret-store)
+         * [Abort Conditions](#abort-conditions)
+      * [Encryption and Decryption](#encryption-and-decryption)
+         * [Secret Store](#secret-store)
+         * [Encryption Using Brizo](#encryption-using-brizo)
+   * [Implementation Details](#implementation-details)
 
-
-
+<!--te-->
 
 ---
 
+# Abstract
 
-# On-Chain Access Control using Service Agreements
+This OEP introduces an integration pattern for the use of **Service Execution Agreements (SEAs)** (also called "Service Agreements" or "Agreements") as contracts between parties interacting in a transaction.
+This OEP evolves the existing [OEP-10](../10/README.md), using the SEA as the core element to orchestrate the publish/consume transactions for multiple services.
 
-This OEP introduces the integration pattern for the use **Service Execution Agreements (SEA)** as contracts between parties interacting in a transaction.
-This OEP evolves the existing OEP-10 [OEP-10](../10/README.md), using the SEA as the core element to orchestrate the publish/consume transactions for multiple services.
+This OEP doesn't detail the implementation of SEAs; see [the dev-ocean repository](https://github.com/oceanprotocol/dev-ocean).
 
-It's out of the scope to detail the Service Agreements implementation. Service Agreements are described as part of the Dev-Ocean repository.
+# Change Process
 
-## Change Process
+The process to change this document is described in [OEP-2 (COSS)](../2/README.md).
 
-This document is governed by the [2/COSS](../2/README.md) (COSS).
-
-
-## Language
+# Language
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
-
-## Motivation
+# Motivation
 
 The main motivations of this OEP are:
 
-* Evolve the OEP-10 to support more complex contract interactions between consumers and publishers of services
+* Evolve [OEP-10](../10/README.md) to support more complex contract interactions between consumers and publishers of services
 * Detail the main characteristics of this interaction
-* Introduce an alternative negotiation mechanism to the one described in the [OEP-10](../10/README.md)
-* Specify the pros and cons of this approach
+* Introduce an alternative negotiation mechanism to the one described in [OEP-10](../10/README.md)
+* List the pros and cons of this approach
 * Identify the modifications required to integrate this approach
 * Identify the API methods exposed via the different libraries
 * Develop a more secure/stable approach overall
 
-
-## Actors
+# Actors
 
 The different actors interacting in this flow are:
 
-* PUBLISHERS - Provide access to Assets and/or Services
-* CONSUMERS - Want to get access to Assets or Services
-* MARKETPLACES or DOMAINS - Store the DDO/Metadata related with the Assets
+* PUBLISHERS - Provide access to assets and/or services
+* CONSUMERS - Want to get access to assets and/or services
+* MARKETPLACES or DOMAINS - Store the DDO/metadata associated with the assets and/or services
 
-### Technical components
+Note: Below, we write "assets" to mean "assets and/or services."
+
+## Technical Components
 
 The following technical components are involved in an end-to-end publishing and consumption flow:
 
-* [MARKETPLACE](https://github.com/oceanprotocol/pleuston) - Exposes a web interface allowing the users to publish and purchase assets. Also facilitates the discovery of assets.
-* SQUID - Library encapsulating the Ocean Protocol business logic. Interacts with all the different components/APIs of the system. Currently it's provided in the following languages:
-  - [Squid Javascript](https://github.com/oceanprotocol/squid-js) - Javascript version of Squid to be integrated with Frontend applications.
-  - [Squid Python](https://github.com/oceanprotocol/squid-py) - Python version of Squid to be integrated with Backend applications. The primary users are data scientists.
-  - [Squid Java](https://github.com/oceanprotocol/squid-java) - Java version of Squid to be integrated with JVM applications. The primary users are data engineers.
-* [KEEPER CONTRACTS](https://github.com/oceanprotocol/keeper-contracts) - Provides the Service Agreement (SA) business logic.
-* [SECRET STORE](https://github.com/oceanprotocol/parity-ethereum) - Included as part of the Parity Ethereum client. Allows the PUBLISHER to encrypt the Asset url. Integrates with the SA in order to authorize on-chain the decryption of the Asset url by the CONSUMER
-* [BRIZO](https://github.com/oceanprotocol/brizo) - Microservice to be executed by a PUBLISHER. It exposes the HTTP REST API permitting access to PUBLISHER Assets or additional services like computation.
-* [AQUARIUS](https://github.com/oceanprotocol/aquarius) - Microservice to be executed by the MARKETPLACES. Facilitates creating, updating, deleting and searching the Asset's metadata registered by the PUBLISHERS. This Metadata, is included as part of a [DDO](../7/README.md), which also includes the Services associated with the Asset (Consumption, Computation, etc.).
+* MARKETPLACE - Exposes a web interface allowing users to publish and purchase assets. Also facilitates the discovery of assets. An example MARKETPLACE web interface is [Pleuston](https://github.com/oceanprotocol/pleuston).
+* [SQUID](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/squid.md) - Software library encapsulating the Ocean Protocol business logic. It's used to interact with all the components & APIs of the system. It's currently implemented in the following packages:
+  * [squid-js](https://github.com/oceanprotocol/squid-js) - JavaScript version of SQUID to be integrated with front-end applications.
+  * [squid-py](https://github.com/oceanprotocol/squid-py) - Python version of SQUID to be integrated with back-end applications. The primary users are data scientists.
+  * [squid-java](https://github.com/oceanprotocol/squid-java) - Java version of SQUID to be integrated with [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) applications. The primary users are data engineers.
+* [KEEPER CONTRACTS](https://github.com/oceanprotocol/keeper-contracts) - Provide the Service Agreement business logic.
+* [SECRET STORE](https://github.com/oceanprotocol/parity-ethereum) - Included as part of the Parity Ethereum client. Allows the PUBLISHER to encrypt the asset URL. Integrates with the SA to authorize (on-chain) the decryption of the asset URL by the CONSUMER.
+* [BRIZO](https://github.com/oceanprotocol/brizo) - Microservice to be executed by PUBLISHERS. It exposes an HTTP REST API permitting access to PUBLISHER assets or additional services such as computation.
+* [AQUARIUS](https://github.com/oceanprotocol/aquarius) - Microservice to be executed by MARKETPLACES. Facilitates creating, updating, deleting and searching the asset metadata registered by the PUBLISHERS. This metadata is included as part of a DDO (see [OEP-7](../7/README.md) and [OEP-8](../8/README.md)) and also includes the services associated with the asset (consumption, computation, etc.).
 
 ![Actors running Components](images/software-run-by-actors.png)
 
-## Flow
+# Flow
 
-This section describes the Asset purchase flow in detail. It should be straightforward to implement the flow by reading this description, although the actual implementation may deviate slightly.
+This section describes the asset publishing and purchasing flow in detail. It should be straightforward to implement the flow by reading this description, although the actual implementation may deviate slightly.
 The detailed description is an attempt to account for important edge cases and to create a good reference for the authors of particular implementations.
 
 There are some parameters used in this flow:
 
-* **did** - See [OEP-7](../7/README.md).
-* **agreementId** or **serviceAgreementId** - Is the unique ID referring to a Service Agreement established between a PUBLISHER and a CONSUMER. The CONSUMER (via Squid) is the one creating this random unique serviceId.
-* **serviceDefinitionId** - Identifies one service in the array of services included in the DDO. It is created by the PUBLISHER (via Squid) upon DDO creation and is associated with different services.
-* **templateId** - Identifies a unique Service Agreement template. The templates supported are deployed on-chain by Ocean Protocol and the addresses or templateIds can be found in the ABIs. Initially the following templates are supported:
-  - **EscrowAccessSecretStoreTemplate**
+* **did** - Decentralized Identifier (DID). See [OEP-7](../7/README.md).
+* **agreementId** or **serviceAgreementId** - The unique ID referring to a Service Agreement established between a PUBLISHER and a CONSUMER. The CONSUMER (via SQUID) is the one creating this unique ID.
+* **serviceDefinitionId** - Identifies one service in the array of services included in the DDO. It is created by the PUBLISHER (via SQUID) upon DDO creation.
+* **templateId** - Identifies a unique Service Agreement template. All supported templates are deployed on-chain by Ocean Protocol and the addresses or templateIds can be found in the ABIs. The following templates are supported: `EscrowAccessSecretStoreTemplate`
 
+## Publishing
 
-### Publishing
+Using only one SQUID call, the PUBLISHER should be able to register an asset. For example, a squid-js call might look like this:
 
-Using only one Squid call, the PUBLISHER should be able to register an Asset:
-```
+```javascript
 const asset = ocean.assets.create(metadata, publisherAccount, services=[ocean.services.createAccessService(...)])
 ```
 
-This method executes internally:
+The high-level summary of what that does is that it constructs a new DDO (JSON object describing the asset), registers it on-chain through [the DIDRegistry smart contract (Keeper contract)](https://github.com/oceanprotocol/keeper-contracts/tree/develop/contracts/registry), and stores it off-chain in an AQUARIUS instance's database.
+
+To see _exactly_ what the asset-publishing SQUID call does, see the implementations in:
+
+* [squid-js: the OceanAssets.create() method](https://github.com/oceanprotocol/squid-js/blob/develop/src/ocean/OceanAssets.ts) (TypeScript)
+* [squid-py: the OceanAssets.create() method](https://github.com/oceanprotocol/squid-py/blob/develop/squid_py/ocean/ocean_assets.py)
+* [squid-java: the OceanManager.registerAsset() method](https://github.com/oceanprotocol/squid-java/blob/develop/src/main/java/com/oceanprotocol/squid/manager/OceanManager.java) (The Assets API create() method calls that.)
+
+Below we outline the steps in the asset-publishing SQUID call.
+
+Please note that the following outline might be out-of-sync with the current implementations. We intend to fix that, but until we do, please treat the implementations as the source of truth.
 
 1. PUBLISHER generates a DID. See [How to generate a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#length-of-a-did). Currently the DID is a UUID. Later on, this might be computed as a DDO hash.
 1. PUBLISHER optionally can encrypt the URLs using different encryption plugins. If that's the case, in the DDO will be added an **encryption** service describing the procedure used. 
-   If PUBLISHER is running a client not supporting direct integration with Secret Store (for example because is using Metamask and can't provide the account password), 
+   If PUBLISHER is running a client not supporting direct integration with SECRET STORE (for example because is using Metamask and can't provide the account password), 
    it's possible to integrate the Brizo encryption method.
-1. PUBLISHER encrypts the URL using the Secret Store identified by a DID.
+1. PUBLISHER encrypts the URL using the SECRET STORE identified by a DID.
 1. PUBLISHER creates a DDO including the following information:
    - DID
    - Metadata
-     Contains Asset name, description, etc. For details see [OEP-8](../8/README.md).
+     Contains asset name, description, etc. For details see [OEP-8](../8/README.md).
    - Public key of the PUBLISHER
    - Encrypted URL; this URL, when decrypted, is not used by the CONSUMER directly, but as an identifier to request data from PUBLISHER
    - A list of services (Access, Compute, etc)
 
-   Each service in the list contains certain information depending on its type. Here we document two types of services required for purchasing and consuming an Asset. 
+   Each service in the list contains certain information depending on its type. Here we document two types of services required for purchasing and consuming an asset. 
 
    A service of type "Access" contains:
    - Service Definition ID (`serviceDefinitionId`); this helps PUBLISHER find the service definition of a DDO signed by CONSUMER
@@ -174,7 +175,7 @@ def build_condition_key(contract_address, fingerprint, template_id):
 
 1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS.
 
-1. PUBLISHER registers the DID, associating the Asset DID to the Aquarius Metadata URL that resolves the DID to a DDO.
+1. PUBLISHER registers the DID, associating the asset DID to the Aquarius Metadata URL that resolves the DID to a DDO.
 To do that, SQUID needs to integrate the `DIDRegistry` contract using the `registerAttribute` method.
 
 ```javascript
@@ -195,7 +196,6 @@ The parameters to pass are:
 ![Publishing Flow](images/publishing-flow.png)
 
 1. The KEEPER will emit the `DIDAttributeRegistered` including the `did`, `checksum` and `url` registered.
-
 
 ### EscrowAccessSecretStore Service Agreement Template
 
@@ -224,14 +224,13 @@ const conditionIdLock = await lockRewardCondition.generateId(agreementId, await 
 const conditionIdEscrow = await escrowReward.generateId(agreementId, await escrowReward.hashValues(escrowAmount, receiver, sender, conditionIdLock, conditionIdAccess))
 ```
 
+## Consuming
 
-### Consuming
+Using SQUID calls, a CONSUMER can discover, purchase and get access to assets.
 
-Using Squid calls, a CONSUMER can discover, purchase and get access to Assets.
+Steps for leveraging SQUID:
 
-Steps for leveraging Squid:
-
-1. The CONSUMER uses the search method to find relevant Assets related with his query. It returns a list of DDO's.
+1. The CONSUMER uses the search method to find relevant assets related with his query. It returns a list of DDO's.
    `assets = ocean.assets.search("weather Germany 2017")`
 
 1. The CONSUMER chooses a service inside a DDO (the CONSUMER selects a `serviceDefinitionId`).
@@ -286,7 +285,7 @@ This signature is used to correlate events and to prevent the PUBLISHER from ins
 
 
 1. The CONSUMER sends `(did, serviceAgreementId, serviceDefinitionId, signature, consumerAddress`) to the service endpoint (BRIZO).
-`serviceDefinitionId` tells the PUBLISHER where to find the preimage to verify the signature. The DID tells the PUBLISHER which Asset to serve under these terms.
+`serviceDefinitionId` tells the PUBLISHER where to find the preimage to verify the signature. The DID tells the PUBLISHER which asset to serve under these terms.
 
 ```
 HTTP POST /api/v1/brizo/services/access/initialize
@@ -315,15 +314,13 @@ The execution of this endpoint should return a `HTTP 201` if everything goes oka
 
 1. After receiving the HTTP response confirmation from BRIZO, the CONSUMER starts listening for the `AgreementCreated` events specified in the corresponding service definition, filtering them by `agreementId`.
 
+### Execution of the SEA
 
-
-#### Execution of the SEA
-
-Consider an Asset purchase example. CONSUMER locks the payment. Then PUBLISHER grants access to the document. Then payment is released. Now CONSUMER may decrypt the document.
+Consider an asset purchase example. CONSUMER locks the payment. Then PUBLISHER grants access to the document. Then payment is released. Now CONSUMER may decrypt the document.
 
 In general, there is a broad range of conditions which can be implemented and integrated into the described workflow.
 
-##### Lock Payment Condition
+#### Lock Payment Condition
 
 Consider a sample of a service definition.
 
@@ -344,7 +341,7 @@ Consider a sample of a service definition.
 
 According to this sample, the CONSUMER listens for the `AgreementCreated` event emitted in the very beginning of Service Agreement execution, filtering it by `agreementId`.
 
-Note that the structure of `serviceAgreementContract.events` is identical to `conditions.events`. Squid needs to offer a utility that subscribes the specified callbacks to the events from both lists.
+Note that the structure of `serviceAgreementContract.events` is identical to `conditions.events`. SQUID needs to offer a utility that subscribes the specified callbacks to the events from both lists.
 
 When the CONSUMER receives this event it means the agreement is in place and can perform the lock reward: 
 
@@ -355,7 +352,7 @@ await lockRewardCondition.fulfill(agreementId, escrowReward.address, escrowAmoun
 
 If everything goes right, it will emit `LockRewardCondition.Fulfilled` and thus will trigger the next condition. 
 
-##### Grant Access Condition
+#### Grant Access Condition
 
 PUBLISHER (via BRIZO) listens for `LockRewardCondition.Fulfilled` event filtered by `agreementId` to confirm the reward was locked by the CONSUMER.
 
@@ -379,11 +376,9 @@ In this case the PUBLISHER can grant access to the CONSUMER for a specific `agre
 await accessSecretStoreCondition.fulfill(agreementId, agreement.did, receiver)
 ```
 
-If everything goes right, the Smart Contract will emit the `AccessSecretStoreCondition.Fulfilled` event. 
+If everything goes right, the Smart Contract will emit the `AccessSecretStoreCondition.Fulfilled` event.
 
-
-
-##### Release Payment Condition
+#### Release Payment Condition
 
 PUBLISHER (via BRIZO) listens for `AccessSecretStoreCondition.Fulfilled` event to transfer tokens to PUBLISHER's account.
 
@@ -407,9 +402,9 @@ So when the PUBLISHER receives the `AccessSecretStoreCondition.Fulfilled` he can
 await escrowReward.fulfill(agreementId, escrowAmount, receiver, sender, agreement.conditionIds[1], agreement.conditionIds[0])
 ```
 
-### Consuming the Data
+## Consuming the Data
 
-CONSUMER (via Squid) listens for `AccessSecretStoreCondition.Fulfilled` event to access the document.
+CONSUMER (via SQUID) listens for `AccessSecretStoreCondition.Fulfilled` event to access the document.
 
 ```
 "conditions": [{
@@ -427,8 +422,8 @@ CONSUMER (via Squid) listens for `AccessSecretStoreCondition.Fulfilled` event to
 
 The following are steps that have to be performed by the CONSUMER to receive the data.
 
-1. CONSUMER decrypts the URL using Squid. This only requires the encryptedUrl existing in the DDO and the DID. 
-   A Parity EVM client (local or remote) and Secret Store cluster can be used for that.
+1. CONSUMER decrypts the URL using SQUID. This only requires the encryptedUrl existing in the DDO and the DID. 
+   A Parity EVM client (local or remote) and SECRET STORE cluster can be used for that.
 
 1. CONSUMER retrieves data by calling the dedicated Brizo endpoint (`serviceEndpoint` in the service definition) 
 providing it with Consumer ethereum address, service agreement ID, and decrypted URL.
@@ -457,9 +452,9 @@ Using those parameters, BRIZO does the following things:
 
 ![Consuming Flow](images/consuming-flow.png)
 
-#### Consuming without direct integration of Secret Store
+### Consuming without direct integration of Secret Store
 
-If the CONSUMER (via Squid) can't integrate directly Secret Store for decryption (Squid-js using Metamask can't provide the account password), 
+If the CONSUMER (via SQUID) can't integrate directly SECRET STORE for decryption (squid-js using Metamask can't provide the account password), 
 it's possible to call Brizo with an alternative `consume` method.
 
 In this scenario, it's BRIZO as provider the one in charge of decrypting the content in behalf of the CONSUMER.
@@ -477,27 +472,22 @@ When CONSUMER requests purchased data, BRIZO gets 3 parameters:
 * Consumer public key: `pubKey`
 * Service Agreement ID: `serviceAgreementId`
 * Signature: `signature`. The signed `serviceAgreementId` value by the CONSUMER to validate his/her identity
-* Index: `index`. Integer value representiong the position of the content to download in the `DDO.files` array
+* Index: `index`. Integer value representing the position of the content to download in the `DDO.files` array
 
-
-
-
-#### Abort Conditions
+### Abort Conditions
 
 Every condition can be fulfilled or aborted using the configured timeout.
-For example it would allows to the CONSUMER to cancel the payment after locking it but not receiving access to the Asset for a long period of time. 
+For example it would allows to the CONSUMER to cancel the payment after locking it but not receiving access to the asset for a long period of time.
 Mechanisms implemented in the Service Agreement contract ensure there are no race conditions.
 
+## Encryption and Decryption
 
-
-### Encryption and Decryption
-
-The PUBLISHER can define if he/she wants to encrypt or not the URLs before adding to the DDO. This information added to the DDO allows to the CONSUMER's (via SQUID) to understand how to deal with the URLs.
+The PUBLISHER can define how they want to encrypt the URLs in the DDO. This information added to the DDO allows the CONSUMERs (via SQUID) to understand how to deal with the URLs.
 To support this, in the Services section of the DDO can be specified this configuration as a DDO service. Example:
 
 ```json
-service": [{    
-    "type": "Authorization",    
+service": [{
+    "type": "Authorization",
     "service": "SecretStore",
     "serviceDefinitionId": "0",
     "serviceEndpoint": "http://secretstore.org:12001"
@@ -510,40 +500,25 @@ service": [{
 
 This new Service encapsulate one object with the following attributes:
 
-* type - Diferenciate this kind of service with the word **Authorization**
-* service - The authorization service type. It could be SecretStore, RSAES-OAEP, None.
+* type - Differentiate this kind of service with the word **Authorization**
+* service - The authorization service type.
 * serviceEndpoint (optional) - Url used during the encryption and decryption process.
-* serviceDefinitionId - Existing in all the DDO services to differenciate one entry in the `services` list
+* serviceDefinitionId - Existing in all the DDO services to differentiate one entry in the `services` list
 
-The authorization service is optional. If it's not provide the usual secret store cluster defined in the SQUID configuration will be used.
+The authorization service is optional. If it's not provide the usual SECRET STORE cluster defined in the SQUID configuration will be used.
 
 The different encryption procedures supported are:
 
-#### No Encryption
+### Secret Store
 
-This is the case when PUBLISHER doesn't want to encrypt the URLs. This is represented in DDO when:
-
-* The encryption attribute is not defined as part of the service
-* The encryption type is **"None"**
+This is the case when PUBLISHER wants to encrypt the URLs using a SECRET STORE cluster.
+The cluster to use during the encryption and decryption is specified in the **serviceEndpoint** attribute.
 
 Example:
+
 ```json
-service": [{    
-    "type": "Authorization",    
-    "service": "None",
-    "serviceDefinitionId": "0"
-  },
-```
-
-#### Secret Store
-
-This is the case when PUBLISHER wants to encrypt the URLs using a Secret Store cluster.
-The cluster to use during the encryption and decryption is specfied in the **serviceEndpoint** attribute.
-
-Example:
-```json
-service": [{    
-    "type": "Authorization",    
+service": [{
+    "type": "Authorization",
     "service": "SecretStore",
     "serviceDefinitionId": "0",
     "serviceEndpoint": "http://secretstore.org:12001"
@@ -554,6 +529,7 @@ All the urls in this scenario are encrypted at once. It means if a DDO has multi
 This array will be encrypted and the HASH returned will be added as one entry of the files attribute. Example:
 
 A DDO with 3 urls as input:
+
 ```json
    "files": [
           {
@@ -574,40 +550,24 @@ A DDO with 3 urls as input:
 ```
 
 In this case, the following text will be encrypted:
+
 ```
 [{"url":"234ab87234acbd09543085340abffh21983ddhiiee982143827423421","checksum":"efb2c764274b745f5fc37f97c6b0e761","contentLength":"4535431","resourceId":"access-log2018-02-13-15-17-29-18386C502CAEA932" }, { "url":"234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421","checksum":"085340abffh21495345af97c6b0e761","contentLength":"12324"},{"url":"80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"}]
 ```
 
 After the encryption, the previous URLs will be removed and the encrypted HASH added to the DDO.
+
 ```json
  "encryptedFiles": "ihfuewufhwieuhcciweuhiweucnksdcnksdncksdvndksjn3u34n3unnfrunf4u3"
 ```
 
-More information about the integration of the Secret Store can be found [in the Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/secret-store.md).
+More information about the integration of the SECRET STORE can be found [in the Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/secret-store.md).
 
-#### Rsa Public and Private Keys
+### Encryption Using Brizo
 
-This is the case when PUBLISHER wants to encrypt the URLs related with the contents. The PUBLISHER encrypts individually each URL using the
-RSA encryption protocol according to PKCS#1 OAEP. In Python can be used the [PyCrypto library](https://pythonhosted.org/pycrypto/Crypto.Cipher.PKCS1_OAEP-module.html) to implement this.
+For those clients not able to integrate SECRET STORE directly, Brizo will support and encryption endpoint supporting the following parameters:
 
-Because each URL is encrypted individually, given an input of N URLs, an output of N URLs encrypted will be created in the DDO.
-
-In this case the CONSUMER doesn't need to decrypt the URLs, is the PUBLISHER who decrypt the URLs during the consumption flow.
-
-Example:
-```json
-service": [{    
-    "type": "Authorization",    
-    "service": "RSAES-OAEP",
-    "serviceDefinitionId": "0"
-  }    
-```
-
-### Encryption using Brizo
-
-For those clients not able to integrate Secret Store directly, Brizo will support and encryption endpoint supporting the following parameters:
-
-```
+```http
 HTTP POST /api/v1/brizo/services/encrypt
 
 {
@@ -616,10 +576,9 @@ HTTP POST /api/v1/brizo/services/encrypt
 }
 ```
 
-This endpoint will return the content encrypted. In the secret store, this will be encrypted using the `provider` (Brizo) account.
+This endpoint will return the content encrypted. In the SECRET STORE, this will be encrypted using the `provider` (Brizo) account.
 
-
-### Implementation details
+# Implementation Details
 
 - SQUID: An utility to compute CONSUMER signatures.
 
@@ -635,12 +594,12 @@ This endpoint will return the content encrypted. In the secret store, this will 
 - Event handlers:
    * SQUID: payments : lock payment
    * BRIZO: payment : release payment
-   * BRIZO: secret store : grant access
+   * BRIZO: SECRET STORE : grant access
    * SQUID: consumer: retrieve data
 
 - SQUID: A function for cancelling payments
-- SQUID: A function for publishing an Asset
-- SQUID: A function for purchasing an Asset, which consists of:
+- SQUID: A function for publishing an asset
+- SQUID: A function for purchasing an asset, which consists of:
    * signing the given service
    * registering service ID locally
    * calling the purchase endpoint
