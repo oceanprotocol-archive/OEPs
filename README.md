@@ -36,9 +36,7 @@ Short Name       | Title                                             | Type     
 [8/ASSET-DDO](8) | Assets Metadata Ontology                          | Standard     | Raw        | Aitor Argomaniz
 [9/BOUNTY](9)    | Bounties in Ocean Protocol                        | Standard     | Raw        | Chalid Mannaa, Manan Patel
 [10/OAA](10)     | On-Chain Access Control                           | Standard     | Deprecated | Ahmed Ali
-[11/ACL](11)     | On-Chain Access Control using Service Agreements  | Standard     | Raw        | Aitor Argomaniz
-
-
+[11/ACL](11)     | On-Chain Access Control using Service Execution Agreements | Standard | Raw   | Aitor Argomaniz
 
 # Current Participants
 
