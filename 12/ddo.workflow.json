@@ -1,0 +1,89 @@
+{
+  "@context": "https://w3id.org/future-method/v1",
+  "authentication": [],
+  "created": "2019-04-09T19:02:11Z",
+  "id": "did:op:8d1b4d73e7af4634958f071ab8dfe7ab0df14019755e444090fd392c8ec9c3f4",
+  "proof": {
+    "created": "2019-04-09T19:02:11Z",
+    "creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
+    "signatureValue": "1cd57300733bcbcda0beb59b3e076de6419c0d7674e7befb77820b53c79e3aa8f1776effc64cf088bad8cb694cc4d71ebd74a13b2f75893df5a53f3f318f6cf828",
+    "type": "DDOIntegritySignature"
+  },
+  "publicKey": [{
+    "id": "did:op:8d1b4d73e7af4634958f071ab8dfe7ab0df14019755e444090fd392c8ec9c3f4",
+    "owner": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
+    "type": "EthereumECDSAKey"
+  }],
+  "service": [{
+    "metadata": {
+      "base": {
+        "author": "Met Office",
+        "checksum": "0x67184faa8ccb1818524ed54127df79bc79700646659709ca2e7e6e6902060a3a",
+        "copyrightHolder": "Met Office",
+        "dateCreated": "2012-10-10T17:00:00Z",
+        "description": "Cleansing and filtering workflow of satellite stations",
+        "files": [],
+        "inLanguage": "en",
+        "license": "CC-BY",
+        "name": "Satellite Cleansing process",
+        "price": "0",
+        "type": "workflow",
+        "datePublished": "2019-04-09T19:02:11Z"
+      },
+      "curation": {
+        "rating": 0.0,
+        "numVotes": 0,
+        "isListed": true
+      }
+    },
+    "serviceDefinitionId": "0",
+    "serviceEndpoint": "http://172.15.0.15:5000/api/v1/aquarius/assets/ddo/{did}",
+    "type": "Metadata"
+  }, {
+    "serviceDefinitionId": "1",
+    "type": "Workflow",
+    "stages": [{
+      "index": 0,
+      "stageType": "Filtering",
+      "requirements": {
+        "image": "did:op:1234",
+        "cpu": 2,
+        "memory": "8gb",
+        "nodes": 1
+      },
+      "input": [{
+        "index": 0,
+        "id": "did:op:12345"
+      },
+        {
+          "index": 1,
+          "id": "did:op:67890"
+        }
+      ],
+      "transformation": {
+        "id": "did:op:abcde"
+      },
+      "output": {}
+    },
+      {
+        "index": 1,
+        "stageType": "Transformation",
+        "requirements": {
+          "image": "did:op:1234",
+          "cpu": 8,
+          "memory": "32gb",
+          "nodes": 2
+        },
+        "input": [{
+          "index": 0,
+          "previousStage": 0
+        }],
+        "transformation": {
+          "id": "did:op:999999"
+        },
+        "output": {}
+      }
+
+    ]
+  }]
+}
