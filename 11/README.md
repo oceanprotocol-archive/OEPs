@@ -279,30 +279,68 @@ Steps for leveraging SQUID:
 1. The CONSUMER chooses a service inside a DDO (the CONSUMER selects a `serviceDefinitionId`).
 
 1. The Service Agreement needs to have an associated unique `serviceAgreementId` that can be generated/provided by the CONSUMER.    
-   In the Smart Contracts, this `serviceAgreementId` will be stored as a `bytes32`. This `serviceAgreementId` is random and is represented by a 64-character hex string (using the characters 0-9 and a-f).
-   The CONSUMER can generate the `serviceAgreementId` using any kind of implementation providing enough randomness to generate this ID (64-characters hex string).
+   In the Smart Contracts, this `serviceAgreementId` will be stored as a `bytes32`. This `serviceAgreementId` 
+   is random and is represented by a 64-character hex string (using the characters 0-9 and a-f).
+   The CONSUMER can generate the `serviceAgreementId` using any kind of implementation providing enough 
+   randomness to generate this ID (64-characters hex string).
 
-1. The CONSUMER signs the service details. The signature contains `(templateId, valuesHashList, timeoutValues, agreementId)`. 
-   The `agreementId` is provided by the CONSUMER and has to be globally unique.
-   * Each ith item in `values_hash_list` lists corresponds to the ith condition in conditions list
-   * `values_hash_list`: a hash of the parameters types and values of each condition
+1. Deploying the agreement on-chain. There are two methods that can be used to create/initialize the agreement:
+
+  1. The CONSUMER sends `(did, serviceAgreementId, serviceDefinitionId, signature, consumerAddress`) 
+     to the service endpoint (BRIZO). The DID tells the PUBLISHER which asset to serve under these terms.
+`serviceDefinitionId` tells the PUBLISHER where to find the preimage to verify the signature. 
+
+```
+HTTP POST /api/v1/brizo/services/access/initialize
+
+{
+ "did": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
+ "serviceAgreementId": "bb23s87856d59867503f80a690357406857698570b964ac8dcc9d86da4ada010",
+ "serviceDefinitionId": "0",
+ "signature": "cade376598342cdae231321a0097876aeda656a567a67c6767fd8710129a9dc1",
+ "consumerAddress": "0x00a329c0648769A73afAc7F9381E08FB43dBEA72"
+}
+
+```
+
+   * The execution of this endpoint should return a `HTTP 201` if everything goes okay. Satisfactory conditions include:
+
+   - When BRIZO receives a signature from the service endpoint and verifies the signature.
+
+   - Having the `did`, BRIZO fetches the DDO related with this `did`.
+
+   - BRIZO records the `serviceAgreementId` as corresponding to the given `did`.
+
+   - BRIZO executes the Service Agreement by calling `EscrowAccessSecretStoreTemplate.createAgreement`, providing 
+     it with the agreementId and all the agreement values
+
+   - BRIZO starts listening for the `publisher` events from the events section of the service definition.
+
+   * The CONSUMER signature contains `(templateId, conditionIds, timelockValues, timeoutValues, agreementId)`. 
+    The `agreementId` is provided by the CONSUMER and has to be globally unique.
+    * Each ith item in `conditionIds` list corresponds to the ith condition in conditions list. The conditions and their order 
+     is specified in the agreement template `EscrowAccessSecretStoreTemplate`. 
 ```python
-def create_condition_params_hash(parameters_types, parameters_values):
-    return web3.Web3.soliditySha3(parameters_types, parameters_values).hex()
-    
-create_condition_params_hash(['bytes32', 'uint256'], ['0x...', '25'])
+
+def generate_condition_id(agreement_id, condition_contract_address, types, values):
+    values_hash = Web3.soliditySha3(types, values)
+    return Web3.soliditySha3(
+        ['bytes32', 'address', 'bytes32'],
+        [agreement_id, condition_contract_address, values_hash])
+        
 ```
  
 ```python
-def generate_service_agreement_hash(template_id, values_hash_list, timelocks, timeouts, agreement_id):
-    return web3.soliditySha3(
+def generate_service_agreement_hash(template_id, condition_ids, timelocks, timeouts, agreement_id):
+    return Web3.soliditySha3(
             ['address', 'bytes32[]', 'uint256[]', 'uint256[]', 'bytes32'],
-            [template_id, values_hash_list, timelocks, timeouts, agreement_id]
+            [template_id, condition_ids, timelocks, timeouts, agreement_id]
     )
+    
 # Sign the agreement hash
-web3_instance.eth.sign(address, generate_service_agreement_hash(...))
+Web3.personal.sign(generate_service_agreement_hash(...), address, password)
 
-#The content of value_hash_list is generated calling this method:
+#The content of condition_ids list is generated calling this method:
     def generate_agreement_condition_ids(self, agreement_id, asset_id, consumer_address,
                                          publisher_address, keeper):
         lock_cond_id = keeper.lock_reward_condition.generate_id(
@@ -324,38 +362,31 @@ web3_instance.eth.sign(address, generate_service_agreement_hash(...))
         return access_cond_id, lock_cond_id, escrow_cond_id
 ```
 
-This signature is used to correlate events and to prevent the PUBLISHER from instantiating multiple Service Agreements from a single request.
+    This signature is used to correlate events and to prevent the PUBLISHER from instantiating multiple 
+    Service Agreements from a single request.
 
+   * After receiving the HTTP response confirmation from BRIZO, the CONSUMER starts listening for the `AgreementCreated` 
+events specified in the corresponding service definition, filtering them by `_agreementId`.
 
-1. The CONSUMER sends `(did, serviceAgreementId, serviceDefinitionId, signature, consumerAddress`) to the service endpoint (BRIZO).
-`serviceDefinitionId` tells the PUBLISHER where to find the preimage to verify the signature. The DID tells the PUBLISHER which asset to serve under these terms.
-
-```
-HTTP POST /api/v1/brizo/services/access/initialize
-
-{
- "did": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
- "serviceAgreementId": "bb23s87856d59867503f80a690357406857698570b964ac8dcc9d86da4ada010",
- "serviceDefinitionId": "0",
- "signature": "cade376598342cdae231321a0097876aeda656a567a67c6767fd8710129a9dc1",
- "consumerAddress": "0x00a329c0648769A73afAc7F9381E08FB43dBEA72"
-}
-
-```
-
-The execution of this endpoint should return a `HTTP 201` if everything goes okay. Satisfactory conditions include:
-
-   - When BRIZO receives a signature from the service endpoint and verifies the signature.
-
-   - Having the `did`, BRIZO fetches the DDO related with this `did`.
-
-   - BRIZO records the `serviceAgreementId` as corresponding to the given `did`.
-
-   - BRIZO executes the Service Agreement by calling `EscrowAccessSecretStoreTemplate.createAgreement`, providing it with the agreementId and all the agreement values
-
-   - BRIZO starts listening for the `publisher` events from the events section of the service definition.
-
-1. After receiving the HTTP response confirmation from BRIZO, the CONSUMER starts listening for the `AgreementCreated` events specified in the corresponding service definition, filtering them by `agreementId`.
+  1. The CONSUMER initialize the agreement directly via `ocean.agreements.create` from the Squid library. 
+     This in turn calls `EscrowAccessSecretStoreTemplate.createAgreement` which emits the `AgreementCreated` event
+     
+   * CONSUMER signature is not necessary in this case.
+   * This requires that the PUBLISHER/PROVIDER Brizo instance is listening to the `AgreementCreated` event 
+     filtering by either the PUBLISHER or PROVIDER address using the `_accessProvider` event argument
+      
+   * Once Brizo detects an agreement referencing its ethereum address it can start listening for the `publisher` 
+     events from the events section of the service definition. PUBLISHER/PROVIDER (Brizo instance) must handle 
+     the following actions:
+     * Grant authorization to CONSUMER by calling the `AccessSecretStoreCondition.fulfill` function
+     * Finalize the agreement and release the token reward by calling the `EscrowReward.fulfill` function
+     * Serve consume requests from the CONSUMER after checking access authorization
+     
+   * The CONSUMER starts listening for the `AgreementCreated` events specified in the corresponding service definition, 
+     filtering by `_agreementId`. CONSUMER must handle the following actions:
+     * Lock token payment using the `LockRewardCondition.fulfill` function
+     * Download the asset data files using the consume endpoint in the DDO's service definition. The consume 
+       endpoint should be invoked once for each data file url 
 
 ### Execution of the SEA
 
