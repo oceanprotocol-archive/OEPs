@@ -41,8 +41,10 @@ contributors: Lev Berman <ldmberman@gmail.com>,
 
 # Abstract
 
-This OEP introduces an integration pattern for the use of **Service Execution Agreements (SEAs)** (also called "Service Agreements" or "Agreements") as contracts between parties interacting in a transaction.
-This OEP evolves the existing [OEP-10](../10/README.md), using the SEA as the core element to orchestrate the publish/consume transactions for multiple services.
+This OEP introduces an integration pattern for the use of **Service Execution Agreements (SEAs)** 
+(also called "Service Agreements" or "Agreements") as contracts between parties interacting in a transaction.
+This OEP evolves the existing [OEP-10](../10/README.md), using the SEA as the core element to orchestrate the 
+publish/consume transactions for multiple services.
 
 This OEP doesn't detail the implementation of SEAs; see [the dev-ocean repository](https://github.com/oceanprotocol/dev-ocean).
 
@@ -52,7 +54,10 @@ The process to change this document is described in [OEP-2 (COSS)](../2/README.m
 
 # Language
 
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", 
+"NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as 
+described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\]
+ \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
 # Motivation
 
@@ -70,7 +75,8 @@ The main motivations of this OEP are:
 
 The different actors interacting in this flow are:
 
-* PUBLISHERS - Provide access to assets and/or services
+* PUBLISHERS - Create/publish assets and/or services
+* PROVIDERS - Provide assets data files and/or services (PUBLISHER can also be a PROVIDER)
 * CONSUMERS - Want to get access to assets and/or services
 * MARKETPLACES or DOMAINS - Store the DDO/metadata associated with the assets and/or services
 
@@ -80,68 +86,93 @@ Note: Below, we write "assets" to mean "assets and/or services."
 
 The following technical components are involved in an end-to-end publishing and consumption flow:
 
-* MARKETPLACE - Exposes a web interface allowing users to publish and purchase assets. Also facilitates the discovery of assets. An example MARKETPLACE web interface is [Pleuston](https://github.com/oceanprotocol/pleuston).
-* [SQUID](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/squid.md) - Software library encapsulating the Ocean Protocol business logic. It's used to interact with all the components & APIs of the system. It's currently implemented in the following packages:
+* MARKETPLACE - Exposes a web interface allowing users to publish and purchase assets. Also facilitates 
+the discovery of assets. An example MARKETPLACE web interface is [Pleuston](https://github.com/oceanprotocol/pleuston).
+* [SQUID](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/squid.md) - Software library 
+encapsulating the Ocean Protocol business logic. It's used to interact with all the components & APIs of the 
+system. It's currently implemented in the following packages:
   * [squid-js](https://github.com/oceanprotocol/squid-js) - JavaScript version of SQUID to be integrated with front-end applications.
-  * [squid-py](https://github.com/oceanprotocol/squid-py) - Python version of SQUID to be integrated with back-end applications. The primary users are data scientists.
-  * [squid-java](https://github.com/oceanprotocol/squid-java) - Java version of SQUID to be integrated with [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) applications. The primary users are data engineers.
+  * [squid-py](https://github.com/oceanprotocol/squid-py) - Python version of SQUID to be integrated with 
+  back-end applications. The primary users are data scientists.
+  * [squid-java](https://github.com/oceanprotocol/squid-java) - Java version of SQUID to be integrated with 
+  [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) applications. The primary users are data engineers.
 * [KEEPER CONTRACTS](https://github.com/oceanprotocol/keeper-contracts) - Provide the Service Agreement business logic.
-* [SECRET STORE](https://github.com/oceanprotocol/parity-ethereum) - Included as part of the Parity Ethereum client. Allows the PUBLISHER to encrypt the asset URL. Integrates with the SA to authorize (on-chain) the decryption of the asset URL by the CONSUMER.
-* [BRIZO](https://github.com/oceanprotocol/brizo) - Microservice to be executed by PUBLISHERS. It exposes an HTTP REST API permitting access to PUBLISHER assets or additional services such as computation.
-* [AQUARIUS](https://github.com/oceanprotocol/aquarius) - Microservice to be executed by MARKETPLACES. Facilitates creating, updating, deleting and searching the asset metadata registered by the PUBLISHERS. This metadata is included as part of a DDO (see [OEP-7](../7/README.md) and [OEP-8](../8/README.md)) and also includes the services associated with the asset (consumption, computation, etc.).
+* [SECRET STORE](https://github.com/oceanprotocol/parity-ethereum) - Included as part of the Parity Ethereum client. 
+Allows the PUBLISHER to encrypt the asset URL. Integrates with the SA to authorize (on-chain) the decryption of the asset URL by the CONSUMER.
+* [BRIZO](https://github.com/oceanprotocol/brizo) - Microservice to be executed by PROVIDERs. It exposes 
+an HTTP REST API permitting access to PUBLISHER assets or additional services such as computation.
+* [AQUARIUS](https://github.com/oceanprotocol/aquarius) - Microservice to be executed by MARKETPLACES. Facilitates 
+creating, updating, deleting and searching the asset metadata registered by the PUBLISHERS. This metadata is 
+included as part of a DDO (see [OEP-7](../7/README.md) and [OEP-8](../8/README.md)) and also includes the services 
+associated with the asset (consumption, computation, etc.).
 
 ![Actors running Components](images/software-run-by-actors.png)
 
 # Flow
 
-This section describes the asset publishing and purchasing flow in detail. It should be straightforward to implement the flow by reading this description, although the actual implementation may deviate slightly.
-The detailed description is an attempt to account for important edge cases and to create a good reference for the authors of particular implementations.
+This section describes the asset publishing and purchasing flow in detail. It should be straightforward to 
+implement the flow by reading this description, although the actual implementation may deviate slightly.
+The detailed description is an attempt to account for important edge cases and to create a good reference 
+for the authors of particular implementations.
 
 There are some parameters used in this flow:
 
 * **did** - Decentralized Identifier (DID). See [OEP-7](../7/README.md).
-* **agreementId** or **serviceAgreementId** - The unique ID referring to a Service Agreement established between a PUBLISHER and a CONSUMER. The CONSUMER (via SQUID) is the one creating this unique ID.
-* **serviceDefinitionId** - Identifies one service in the array of services included in the DDO. It is created by the PUBLISHER (via SQUID) upon DDO creation.
-* **templateId** - Identifies a unique Service Agreement template. All supported templates are deployed on-chain by Ocean Protocol and the addresses or templateIds can be found in the ABIs. The following templates are supported: `EscrowAccessSecretStoreTemplate`
+* **agreementId** or **serviceAgreementId** - The unique ID referring to a Service Agreement established 
+between a PUBLISHER and a CONSUMER. The CONSUMER (via SQUID) is the one creating this unique ID.
+* **serviceDefinitionId** - Identifies one service in the array of services included in the DDO. It is 
+created by the PUBLISHER (via SQUID) upon DDO creation.
+* **templateId** - Identifies a unique Service Agreement template. All supported templates are deployed 
+on-chain by Ocean Protocol and the addresses or templateIds can be found in the ABIs. The following 
+templates are supported: `EscrowAccessSecretStoreTemplate`
 
 ## Publishing
 
 Using only one SQUID call, the PUBLISHER should be able to register an asset. For example, a squid-js call might look like this:
 
 ```javascript
-const asset = ocean.assets.create(metadata, publisherAccount, services=[ocean.services.createAccessService(...)])
+const asset = ocean.assets.create(metadata, publisherAccount, services=[ocean.services.createAccessService(...)], [providerAddress, ])
 ```
 
-The high-level summary of what that does is that it constructs a new DDO (JSON object describing the asset), registers it on-chain through [the DIDRegistry smart contract (Keeper contract)](https://github.com/oceanprotocol/keeper-contracts/tree/develop/contracts/registry), and stores it off-chain in an AQUARIUS instance's database.
+The high-level summary of what that does is that it constructs a new DDO (JSON object describing the asset), 
+registers it on-chain through 
+[the DIDRegistry smart contract (Keeper contract)](https://github.com/oceanprotocol/keeper-contracts/tree/develop/contracts/registry), 
+and stores it off-chain in an AQUARIUS instance's database.
 
 To see _exactly_ what the asset-publishing SQUID call does, see the implementations in:
 
 * [squid-js: the OceanAssets.create() method](https://github.com/oceanprotocol/squid-js/blob/develop/src/ocean/OceanAssets.ts) (TypeScript)
 * [squid-py: the OceanAssets.create() method](https://github.com/oceanprotocol/squid-py/blob/develop/squid_py/ocean/ocean_assets.py)
-* [squid-java: the OceanManager.registerAsset() method](https://github.com/oceanprotocol/squid-java/blob/develop/src/main/java/com/oceanprotocol/squid/manager/OceanManager.java) (The Assets API create() method calls that.)
+* [squid-java: the OceanManager.registerAsset() method](https://github.com/oceanprotocol/squid-java/blob/develop/src/main/java/com/oceanprotocol/squid/manager/OceanManager.java) 
+(The Assets API create() method calls that.)
 
 Below we outline the steps in the asset-publishing SQUID call.
 
-Please note that the following outline might be out-of-sync with the current implementations. We intend to fix that, but until we do, please treat the implementations as the source of truth.
+Please note that the following outline might be out-of-sync with the current implementations. We intend to fix that, 
+but until we do, please treat the implementations as the source of truth.
 
-1. PUBLISHER generates a DID. See [How to generate a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#length-of-a-did). Currently the DID is a UUID. Later on, this might be computed as a DDO hash.
-1. PUBLISHER optionally can encrypt the URLs using different encryption plugins. If that's the case, in the DDO will be added an **encryption** service describing the procedure used. 
-   If PUBLISHER is running a client not supporting direct integration with SECRET STORE (for example because is using Metamask and can't provide the account password), 
-   it's possible to integrate the Brizo encryption method.
-1. PUBLISHER encrypts the URL using the SECRET STORE identified by a DID.
+1. PUBLISHER generates a DID. See [How to generate a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#length-of-a-did). 
+Currently the DID is a UUID. Later on, this might be computed as a DDO hash.
+1. PUBLISHER optionally can encrypt the URLs using different encryption plugins. If that's the case, in the DDO will 
+be added an **encryption** service describing the procedure used. There are two options for encryption:
+  1. PUBLISHER encrypts the URLs list using the SECRET STORE identified by a DID.
+  1. If PUBLISHER is running a client not supporting direct integration with SECRET STORE (for example because is using 
+   Metamask and can't provide the account password), it's possible to use the Brizo encryption method.
 1. PUBLISHER creates a DDO including the following information:
    - DID
    - Metadata
      Contains asset name, description, etc. For details see [OEP-8](../8/README.md).
    - Public key of the PUBLISHER
-   - Encrypted URL; this URL, when decrypted, is not used by the CONSUMER directly, but as an identifier to request data from PUBLISHER
+   - Encrypted URL; this URL, when decrypted, is not used by the CONSUMER directly, but as an identifier to request data from PROVIDER
    - A list of services (Access, Compute, etc)
 
-   Each service in the list contains certain information depending on its type. Here we document two types of services required for purchasing and consuming an asset. 
+   Each service in the list contains certain information depending on its type. Here we document two types of services 
+   required for purchasing and consuming an asset. 
 
    A service of type "Access" contains:
    - Service Definition ID (`serviceDefinitionId`); this helps PUBLISHER find the service definition of a DDO signed by CONSUMER
-   - Service Agreement Template ID (`templateId`); has to be whitelisted, can be hardcoded in Trilobite; points to a deployed on-chain Service Agreement contract
+   - Service Agreement Template ID (`templateId`); has to be whitelisted, can be hardcoded in Trilobite; points to 
+   a deployed on-chain Service Agreement contract
    - Service endpoint (`serviceEndpoint`); CONSUMERS signing this service send their signatures to this endpoint
    - A list of condition keys; condition key is the `keccak256` hash of the following:
      * SLA template ID
@@ -159,23 +190,32 @@ def build_condition_key(contract_address, fingerprint, template_id):
     
 ```
 
-   - For each condition, a list is required of its parameter values, a timeout, a set of fields determining what conditions depend on other conditions, and a mapping of events emitted by the condition to the off-chain handlers of these events
+   - For each condition, a list is required of its parameter values, a timeout, a set of fields determining what 
+   conditions depend on other conditions, and a mapping of events emitted by the condition to the off-chain 
+   handlers of these events
    - Each event is identified by name. Each event handler is a function from a whitelisted module
    - Service Agreement contract address and the event mapping in the same format as the condition events, for off-chain listeners
-   - An integer defining when the agreement is fulfilled in case there are multiple terminal conditions, according to the Service Agreement smart contract
+   - An integer defining when the agreement is fulfilled in case there are multiple terminal conditions, 
+   according to the Service Agreement smart contract
 
    A service of type "Access" contains 2 different endpoints:
    - **serviceEndpoint** - A URL to fetch data decryption keys from
    - **purchaseEndpoint** - A URL to initialize the Service Agreement
 
-    An example of a complete DDO can be found [here](./ddo.example.json). Please do note that the condition's order in the DID document should reflect the same order in on-chain service agreement.
+    An example of a complete DDO can be found [here](./ddo.example.json). Please do note that the condition's 
+    order in the DID document should reflect the same order in on-chain service agreement.
 
-1. PUBLISHER computes the key attributes of the DDO, generates a `checksum` and signs. The signature is added in the `proof` attribute.
-   More information about this process can be found in the [How to Compute a DID section](https://github.com/oceanprotocol/OEPs/tree/master/7#how-to-compute-a-did).
+1. PUBLISHER computes the key attributes of the DDO, generates a `checksum` and signs. The signature is added 
+in the `proof` attribute.
+   More information about this process can be found in the 
+   [How to Compute a DID section](https://github.com/oceanprotocol/OEPs/tree/master/7#how-to-compute-a-did).
 
 1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS.
 
-1. PUBLISHER registers the DID, associating the asset DID to the Aquarius Metadata URL that resolves the DID to a DDO.
+1. PUBLISHER registers the DID:
+  * Associating the asset DID to the Aquarius Metadata URL that resolves the DID to a DDO
+  * (optionally) Associating the asset DID to a list of PROVIDER addresses. A PROVIDER address must match 
+  the ethereum address used by the PROVIDER's Brizo instance whose endpoints are specified in the DDO's services.
 To do that, SQUID needs to integrate the `DIDRegistry` contract using the `registerAttribute` method.
 
 ```javascript
@@ -190,7 +230,7 @@ function registerAttribute (
 The parameters to pass are:
   - **bytes32 _did** - The hash part of the DID, the part just after `did:op:`
   - **bytes32 _checksum** - The checksum generated after [compute the DID](https://github.com/oceanprotocol/OEPs/tree/master/7#how-to-compute-a-did)
-  - **address[] _providers** - The list of providers which PUBLISHER delegates URL decryption capabilities and SEA management
+  - **address[] _providers** - The list of providers which PUBLISHER delegates URL decryption capabilities, SEA management and asset consumption
   - **string _value** - The Metadata service endpoint. In the above DDO its: http://myaquarius.org/api/v1/provider/assets/metadata/{did}
 
 ![Publishing Flow](images/publishing-flow.png)
@@ -219,9 +259,12 @@ const agreement = {
    This requires to generate the hash including the **agreementId** and all the values of the specific condition:
    
 ```javascript
-const conditionIdAccess = await accessSecretStoreCondition.generateId(agreementId, await accessSecretStoreCondition.hashValues(did, receiver))
-const conditionIdLock = await lockRewardCondition.generateId(agreementId, await lockRewardCondition.hashValues(escrowReward.address, escrowAmount))
-const conditionIdEscrow = await escrowReward.generateId(agreementId, await escrowReward.hashValues(escrowAmount, receiver, sender, conditionIdLock, conditionIdAccess))
+const conditionIdAccess = await accessSecretStoreCondition.generateId(
+    agreementId, await accessSecretStoreCondition.hashValues(did, receiver))
+const conditionIdLock = await lockRewardCondition.generateId(
+    agreementId, await lockRewardCondition.hashValues(escrowReward.address, escrowAmount))
+const conditionIdEscrow = await escrowReward.generateId(
+    agreementId, await escrowReward.hashValues(escrowAmount, receiver, sender, conditionIdLock, conditionIdAccess))
 ```
 
 ## Consuming
@@ -316,7 +359,8 @@ The execution of this endpoint should return a `HTTP 201` if everything goes oka
 
 ### Execution of the SEA
 
-Consider an asset purchase example. CONSUMER locks the payment. Then PUBLISHER grants access to the document. Then payment is released. Now CONSUMER may decrypt the document.
+Consider an asset purchase example. CONSUMER locks the payment. Then PUBLISHER grants access to the document. 
+Then payment is released. Now CONSUMER may decrypt the document.
 
 In general, there is a broad range of conditions which can be implemented and integrated into the described workflow.
 
@@ -339,9 +383,12 @@ Consider a sample of a service definition.
   }
 ```
 
-According to this sample, the CONSUMER listens for the `AgreementCreated` event emitted in the very beginning of Service Agreement execution, filtering it by `agreementId`.
+According to this sample, the CONSUMER listens for the `AgreementCreated` event emitted in the very beginning of 
+Service Agreement execution, filtering by `_agreementId`.
 
-Note that the structure of `serviceAgreementContract.events` is identical to `conditions.events`. SQUID needs to offer a utility that subscribes the specified callbacks to the events from both lists.
+Note that the structure of `serviceAgreementContract.events` is identical to `conditions.events` 
+(in the DDO service json). SQUID needs to offer a utility that subscribes the specified callbacks to the events 
+from both lists.
 
 When the CONSUMER receives this event it means the agreement is in place and can perform the lock reward: 
 
@@ -354,7 +401,8 @@ If everything goes right, it will emit `LockRewardCondition.Fulfilled` and thus 
 
 #### Grant Access Condition
 
-PUBLISHER (via BRIZO) listens for `LockRewardCondition.Fulfilled` event filtered by `agreementId` to confirm the reward was locked by the CONSUMER.
+PUBLISHER (via BRIZO) listens for `LockRewardCondition.Fulfilled` event filtered by `_agreementId` to confirm 
+the reward was locked by the CONSUMER.
 
 ```
 "conditions": [{
@@ -370,7 +418,8 @@ PUBLISHER (via BRIZO) listens for `LockRewardCondition.Fulfilled` event filtered
 }]
 ```
 
-In this case the PUBLISHER can grant access to the CONSUMER for a specific `agreementId` and `documentId` using in this case the `AccessSecretStoreCondition.fulfill`:
+In this case the PUBLISHER can grant access to the CONSUMER for a specific `agreementId` and `documentId` 
+using in this case the `AccessSecretStoreCondition.fulfill`:
 
 ```
 await accessSecretStoreCondition.fulfill(agreementId, agreement.did, receiver)
@@ -396,7 +445,8 @@ PUBLISHER (via BRIZO) listens for `AccessSecretStoreCondition.Fulfilled` event t
 }]
 ```
 
-So when the PUBLISHER receives the `AccessSecretStoreCondition.Fulfilled` he can call the `EscrowReward.fulfill` method to receive the reward:
+So when the PUBLISHER receives the `AccessSecretStoreCondition.Fulfilled` event he can call the `EscrowReward.fulfill` 
+method to receive the reward:
 
 ```
 await escrowReward.fulfill(agreementId, escrowAmount, receiver, sender, agreement.conditionIds[1], agreement.conditionIds[0])
@@ -440,13 +490,15 @@ When CONSUMER requests purchased data, BRIZO gets 3 parameters:
 
 * Consumer ethereum address: `consumerAddress`
 * Service Agreement ID: `serviceAgreementId`
-* Decrypted URL: `url`. This URL is only valid if BRIZO acts as a proxy. CONSUMER cannot download using the URL if it's not done through BRIZO.
+* Decrypted URL: `url`. This URL is only valid if BRIZO acts as a proxy. CONSUMER cannot download using the URL 
+if it's not done through BRIZO.
 
 Using those parameters, BRIZO does the following things:
 
 * Find the `did` by the given `serviceAgreementId`
 
-* Verify the given service is allowed to be consumed by the given `consumerAddress` and `did` using the `checkPermissions` method of the `SLA` Smart Contract.
+* Verify the given service is allowed to be consumed by the given `consumerAddress` and `did` using 
+the `checkPermissions` method of the `SLA` Smart Contract.
 
 * If CONSUMER has permissions to consume, download and provide data for the given DID
 
@@ -454,8 +506,8 @@ Using those parameters, BRIZO does the following things:
 
 ### Consuming without direct integration of Secret Store
 
-If the CONSUMER (via SQUID) can't integrate directly SECRET STORE for decryption (squid-js using Metamask can't provide the account password), 
-it's possible to call Brizo with an alternative `consume` method.
+If the CONSUMER (via SQUID) can't integrate directly SECRET STORE for decryption (squid-js using 
+Metamask can't provide the account password), it's possible to call Brizo with an alternative `consume` method.
 
 In this scenario, it's BRIZO as provider the one in charge of decrypting the content in behalf of the CONSUMER.
 
@@ -477,12 +529,14 @@ When CONSUMER requests purchased data, BRIZO gets 3 parameters:
 ### Abort Conditions
 
 Every condition can be fulfilled or aborted using the configured timeout.
-For example it would allows to the CONSUMER to cancel the payment after locking it but not receiving access to the asset for a long period of time.
+For example it would allows to the CONSUMER to cancel the payment after locking it but not receiving 
+access to the asset for a long period of time.
 Mechanisms implemented in the Service Agreement contract ensure there are no race conditions.
 
 ## Encryption and Decryption
 
-The PUBLISHER can define how they want to encrypt the URLs in the DDO. This information added to the DDO allows the CONSUMERs (via SQUID) to understand how to deal with the URLs.
+The PUBLISHER can define how they want to encrypt the URLs in the DDO. This information added to the DDO 
+allows the CONSUMERs (via SQUID) to understand how to deal with the URLs.
 To support this, in the Services section of the DDO can be specified this configuration as a DDO service. Example:
 
 ```json
@@ -505,7 +559,8 @@ This new Service encapsulate one object with the following attributes:
 * serviceEndpoint (optional) - Url used during the encryption and decryption process.
 * serviceDefinitionId - Existing in all the DDO services to differentiate one entry in the `services` list
 
-The authorization service is optional. If it's not provide the usual SECRET STORE cluster defined in the SQUID configuration will be used.
+The authorization service is optional. If it's not provide the usual SECRET STORE cluster defined in 
+the SQUID configuration will be used.
 
 The different encryption procedures supported are:
 
@@ -525,7 +580,8 @@ service": [{
   }
 ```
 
-All the urls in this scenario are encrypted at once. It means if a DDO has multiple URLs, an array in JSON format will be created with all the URLs.
+All the urls in this scenario are encrypted at once. It means if a DDO has multiple URLs, an array in JSON 
+format will be created with all the URLs.
 This array will be encrypted and the HASH returned will be added as one entry of the files attribute. Example:
 
 A DDO with 3 urls as input:
@@ -552,7 +608,19 @@ A DDO with 3 urls as input:
 In this case, the following text will be encrypted:
 
 ```
-[{"url":"234ab87234acbd09543085340abffh21983ddhiiee982143827423421","checksum":"efb2c764274b745f5fc37f97c6b0e761","contentLength":"4535431","resourceId":"access-log2018-02-13-15-17-29-18386C502CAEA932" }, { "url":"234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421","checksum":"085340abffh21495345af97c6b0e761","contentLength":"12324"},{"url":"80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"}]
+[
+  {
+    "url":"234ab87234acbd09543085340abffh21983ddhiiee982143827423421",
+    "checksum":"efb2c764274b745f5fc37f97c6b0e761",
+    "contentLength":"4535431",
+    "resourceId":"access-log2018-02-13-15-17-29-18386C502CAEA932" }, 
+  {
+    "url":"234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421",
+    "checksum":"085340abffh21495345af97c6b0e761",
+    "contentLength":"12324"},
+  {
+    "url":"80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"}
+]
 ```
 
 After the encryption, the previous URLs will be removed and the encrypted HASH added to the DDO.
@@ -561,7 +629,8 @@ After the encryption, the previous URLs will be removed and the encrypted HASH a
  "encryptedFiles": "ihfuewufhwieuhcciweuhiweucnksdcnksdncksdvndksjn3u34n3unnfrunf4u3"
 ```
 
-More information about the integration of the SECRET STORE can be found [in the Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/secret-store.md).
+More information about the integration of the SECRET STORE can be found 
+[in the Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/architecture/secret-store.md).
 
 ### Encryption Using Brizo
 
@@ -572,7 +641,14 @@ HTTP POST /api/v1/brizo/services/encrypt
 
 {
  "id": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
- "document": "[{"url":"234ab87234acbd09543085340abffh21983ddhiiee982143827423421","checksum":"efb2c764274b745f5fc37f97c6b0e761","contentLength":"4535431","resourceId":"access-log2018-02-13-15-17-29-18386C502CAEA932" }, { "url":"234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421","checksum":"085340abffh21495345af97c6b0e761","contentLength":"12324"},{"url":"80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"}]"
+ "document": "[{"url":"234ab87234acbd09543085340abffh21983ddhiiee982143827423421",
+   "checksum":"efb2c764274b745f5fc37f97c6b0e761",
+   "contentLength":"4535431",
+   "resourceId":"access-log2018-02-13-15-17-29-18386C502CAEA932" }, 
+   { "url":"234ab87234acbd6894237582309543085340abffh21983ddhiiee982143827423421",
+     "checksum":"085340abffh21495345af97c6b0e761",
+     "contentLength":"12324"},
+   {"url":"80684089027358963495379879a543085340abffh21983ddhiiee982143827abcc2"}]"
 }
 ```
 
