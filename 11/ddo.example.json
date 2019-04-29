@@ -98,8 +98,8 @@
 			"templateId": "0x044852b2a670ade5407e78fb2863c51de9fcb96542a07186fe3aeda6bb8a116d",
 
 			"serviceDefinitionId": "1",
-			"serviceEndpoint": "http://localhost:8030/api/v1/brizo/services/consume?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}&url=${url}",
-			"purchaseEndpoint": "http://localhost:8030/api/v1/brizo/services/access/initialize",
+			"serviceEndpoint": "http://localhost:8030/api/v1/brizo/services/access/initialize",
+			"consumeEndpoint": "http://localhost:8030/api/v1/brizo/services/consume?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}&url=${url}",
 
 			"name": "dataAssetAccessServiceAgreement",
 			"description": "",

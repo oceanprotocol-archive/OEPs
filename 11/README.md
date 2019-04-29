@@ -165,8 +165,8 @@ def build_condition_key(contract_address, fingerprint, template_id):
    - An integer defining when the agreement is fulfilled in case there are multiple terminal conditions, according to the Service Agreement smart contract
 
    A service of type "Access" contains 2 different endpoints:
-   - **serviceEndpoint** - A URL to fetch data decryption keys from
-   - **purchaseEndpoint** - A URL to initialize the Service Agreement
+   - **serviceEndpoint** - A URL to initialize the Service Agreement
+   - **consumeEndpoint** - A URL to fetch data decryption keys from
 
     An example of a complete DDO can be found [here](./ddo.example.json). Please do note that the condition's order in the DID document should reflect the same order in on-chain service agreement.
 
