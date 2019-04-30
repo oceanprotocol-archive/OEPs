@@ -25,6 +25,7 @@ Table of Contents
          * [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
          * [Execution phase](#execution-phase)
       * [Infrastructure Orchestration](#infrastructure-orchestration)
+      * [Runtime Environment](#runtime-environment)
 
 
 
@@ -33,13 +34,16 @@ Table of Contents
 
 # Execution of Computing Services using Service Agreements
 
-This OEP introduces the integration pattern for the use **Service Execution Agreements (SEA)** as contracts between parties interacting in the execution of a Compute Service transaction.
-This OEP using the SEA as core element to orchestrate the publishing/execution of this type of computing services.
+This OEP introduces the integration pattern for the usage of **Service Execution Agreements (SEA)** 
+(also called Service Agreements or Agreements) as contracts between parties interacting in the execution of a Compute Service transaction.
+This OEP using the SEA as core element, orchestrates the publishing/execution of this type of computing services.
 
-The intention of this OEP is to describe the flow and integration pattern independently of the Cloud Computing Service.
-This could happen using a classical cloud provider like Amazon EC2 or Azure, but also can be used to integrate web3 compute providers like Fitchain or On-Premise infrastructure.
+The intention of this OEP is to describe the flow and integration pattern independently of the infrastructure Cloud Computing Service.
+This OEP MUST be valid for integrating classical infrastructure cloud providers like Amazon EC2 or Azure, 
+but also can be used to integrate web3 compute providers like Fitchain or On-Premise infrastructure.
 
-It's out of the scope to detail the Service Execution Agreements implementation. Service Agreements are described as part of the Dev-Ocean repository.
+It's out of the scope to detail the Service Execution Agreements implementation. 
+Service Agreements are described as part of the Dev-Ocean repository.
 
 ## Change Process
 
@@ -55,7 +59,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Identify the actors involved
+* Identify the actors involved on the definition and execution of an Ocean Computing service
 * Detail the main characteristics of this interaction
 * Specify the pros and cons of this approach
 * Identify the modifications required to integrate in the Ocean stack
@@ -65,10 +69,10 @@ The main motivations of this OEP are:
 
 The different actors interacting in this flow are:
 
-* PROVIDERS - Provide access to the Computing Services
+* PROVIDERS - Give access to the Computing Services
 * CONSUMERS - Want to make use of the Computing Services
 * MARKETPLACES or DOMAINS - Store the DDO/Metadata related with the Assets/services
-* COMPUTE PROVIDER - Cloud or on-premise provider of computation. Typically Amazon, Azure, etc.
+* INFRASTRUCTURE - Cloud or on-premise infrastructure services providing computing. Typically Amazon, Azure, etc.
 
 
 ### Technical components
@@ -81,7 +85,7 @@ The following technical components are involved in an end-to-end publishing and 
   - [Squid Python](https://github.com/oceanprotocol/squid-py) - Python version of Squid to be integrated with Backend applications. The primary users are data scientists.
   - [Squid Java](https://github.com/oceanprotocol/squid-java) - Java version of Squid to be integrated with Backend applications. The primary users are data engineers.
 * [KEEPER CONTRACTS](https://github.com/oceanprotocol/keeper-contracts) - Provides the Service Execution Agreement (SA) business logic.
-* [BRIZO](https://github.com/oceanprotocol/brizo) - Micro-service to be executed by a PROVIDER. It exposes the HTTP REST API permitting access to PUBLISHER Assets or additional services like computation.
+* [BRIZO or GATEWAY](https://github.com/oceanprotocol/brizo) - Micro-service to be executed by a PROVIDER. It exposes the HTTP REST API permitting access to PUBLISHER Assets or additional services like computation.
 * [AQUARIUS](https://github.com/oceanprotocol/aquarius) - Micro-service to be executed by the MARKETPLACES. Facilitates creating, updating, deleting and searching the Asset's metadata registered by the PUBLISHERS. This Metadata, is included as part of a [DDO](../7/README.md), which also includes the Services associated with the Asset (Consumption, Computation, etc.).
 
 
@@ -98,20 +102,23 @@ There are some parameters used in this flow:
 ### Workflows
 
 From a high-level point of view, a workflow may be considered a view or representation of a real work.
-A workflow consists of an orchestrated and repeatable pattern of activities transformed into processes that transform or process information.
+A workflow consists of an orchestrated and repeatable pattern of activities 
+transformed into processes that transform or process information.
 
 In Ocean we use the concept of workflow to represent a list of tasks to accomplish with the intention of process data.
 
-From a technical point of view, a workflow is a type of Asset (it takes advantage of all the Ocean plumbing of registering, metadata publishing, resolving, etc.). 
-The main objective of a workflow is to describe an execution pipeline. A workflow can be splitted in sequential stages, having each stage input, algorithm and output.
+From a technical point of view, a workflow is a type of Asset 
+(it takes advantage of all the Ocean plumbing of registering, metadata publishing, resolving, etc.). 
+The main objective of a workflow is to describe an execution pipeline.
+ A workflow can be splitted in sequential stages, having each stage an input, transformation (via algorithm) and output.
 
 In the below example, a workflow is modeled in a JSON document with the following characteristics:
 
-* It has a list of sorted stages by the `stages.index` parameter to be executed sequencially
-* Each stage has a list of optional minimum requirements, like the image where it will be executed, cpu required, memory, etc.
+* It has a list of sorted stages by the `stages.index` parameter to be executed sequentially
+* Each stage has a list of minimum requirements, like the image required to support the execution of the algorithm, minimum cpu, memory, etc.
 * Each stage has an array of sorted input parameters. Each input parameter may be: 
   - A DID (example: `"id": "did:op:12345"`)
-  - The output of a previous stage (example: `"previousStage": 0`)
+  - The output of a previous stage (example: `"previousIndexStage": 0`)
 * Each stage has one transformation entry. It includes the id (DID) of the asset in charge of process the input to generate some output
 * Each stage includes an entry with some additional output details. This could be a DID or a specific detail about the expected output.
 
@@ -158,7 +165,7 @@ Example of a Workflow:
       "input": [
         {
           "index": 0,
-          "previousStage": 0
+          "previousIndexStage": 0
         }
       ],
       "transformation": {
@@ -171,14 +178,16 @@ Example of a Workflow:
 }  
 ```
 
+A Workflow is a new type of Asset (a part of datasets, algorithms, etc.)*[]: 
 You can find a complete DDO of type workflow in the [ddo.workflow.json example file](ddo.workflow.json).
 
-As a new kind of asset, the workflow details will be persisted inside a DDO in a new service of type "Workflow". Typically an Asset of type workflow, will include in the DDO:
+As a new kind of asset, the workflow details will be persisted inside a DDO in a new service of type "Workflow". 
+An Asset of type workflow, will include in the DDO the following information:
 
 * The Workflow model as part of the DDO.services array
 * The Workflow metadata as part of the existing Metadata service
 
-A workflow, as every DDO in Ocean, can be resolved using the assetId (DID).
+A workflow, as every DDO in Ocean, can be resolved using the Asset Id (DID).
 
 ### Publishing an Asset including Computing Services
 
@@ -228,7 +237,15 @@ A workflow, as every DDO in Ocean, can be resolved using the assetId (DID).
       "type": "Azure",
       "description": "",
       "environment": {
-        "flavour": "tensorflow/tensorflow:latest",
+        "supportedImages": [{
+          "id": "did:op:9f9f9f9f9f",
+          "flavour": "tensorflow/tensorflow:latest",
+          "checksum": "432943243243243254323adsa"
+        }, {
+          "id": "did:op:8a8a8a8a8a",
+          "flavour": "spark/spark:v2.1",
+          "checksum": "bcbcbcbcb43243204238bcdfe"
+        }],
         "typeContainer": "xlsize",
         "cpu": "16",
         "gpu": "0",
@@ -271,15 +288,17 @@ A workflow, as every DDO in Ocean, can be resolved using the assetId (DID).
 To do that, SQUID needs to integrate the `DIDRegistry` contract using the `registerAttribute` method.
 
 
-![Publishing of a Computing Service](images/computing-setup.png)
+![Publishing of a Computing Service](../12/images/computing-setup.png)
 
 
 ### Setting up the Service Execution Agreement
 
-Using only one Squid call `registerAsset(asset_metadata, services_description, publisher_public_key)`, the PUBLISHER should be able to register an Asset including a **Computing** service.
+Using only one Squid call `registerAsset(asset_metadata, services_description, publisher_public_key)`, t
+he PUBLISHER should be able to register an Asset including a **Computing** service.
 The `services_description` attribute includes the different services (like computing) associated to this asset.
 
-During this phase, through the CONSUMER and the PROVIDER (via BRIZO) negotiation, the Service Execution Agreement (SEA) is created and initialized.
+During this phase, through the CONSUMER and the PROVIDER (via BRIZO) negotiation, 
+the Service Execution Agreement (SEA) is created and initialized.
 
 Using Squid calls, a CONSUMER can discover, purchase and use the PROVIDER Computing services.
 
@@ -291,7 +310,7 @@ The complete flow for setting up the SEA is:
 In the Smart Contracts, this `serviceAgreementId` will be stored as a `bytes32`. This `serviceAgreementId` is random and is represented by a 64-character hex string (using the characters 0-9 and a-f).
 The CONSUMER can generate the `serviceAgreementId` using any kind of implementation providing enough randomness to generate this ID (64-characters hex string).
 
-1. The CONSUMER signs the service details. There is a particular way of building the signature documented elsewhere.
+1. The CONSUMER signs the service details. 
 The signature contains `(templateId, conditionKeys, valuesHashList, timeoutValues, serviceAgreementId)`. `serviceAgreementId` is provided by the CONSUMER and has to be globally unique.
   * Each ith item in `values_hash_list` and `timeoutValues` lists corresponds to the ith condition in conditionKeys
   * `values_hash_list`: a hash of the parameters types and values of each condition
@@ -317,7 +336,8 @@ It is used to correlate events and to prevent the PUBLISHER from instantiating m
 
 ### Execution phase
 
-During this phase, if and only if the CONSUMER is granted, the CONSUMER can request the start of the Computation in the PUBLISHER infrastructure via BRIZO.
+During this phase, if and only if the CONSUMER is granted, 
+the CONSUMER can request the start of the Computation in the PUBLISHER infrastructure via BRIZO.
 
 The complete flow for the Execution phase is:
 
@@ -363,6 +383,22 @@ To support that BRIZO includes the kubernetes driver allowing to wrap the comple
 - Creation of volumes
 - Starting and stopping the service
 - Retrieval of logs
+
+
+## Runtime Environment
+
+In the described OEP, the PUBLISHER of computation services is in charge of defining the 
+requirements to allow the execution of algorithms on top of of the data assets.
+It means only the images specified in the DDO by the publisher with a specific DID and checksum
+ will be allowed to be executed in the Runtime environment.
+  
+BRIZO is in charge of setting up the runtime environment speaking with the infrastructure provider via Kubernetes.
+
+The images defined in the DDO and defined by the PUBLISHER only SHOULD include the minimum libraries specified,
+it will reduce the risk of executing unexpected software via external libraries.
+In addition to this, it's recommened that the images running in the runtime environment don't have network connectivity
+a part of the minimum required to get access to the Assets.
+
 
 
  
