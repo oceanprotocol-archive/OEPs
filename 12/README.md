@@ -4,8 +4,12 @@ name: Execution of Computing Services
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>,
-			  Ahmed Ali <ahmed@oceanprotocol.com>
+contributors:
+        Javier Cortejoso <javier@oceanprotocol.com>,
+        Enrique Ruiz <enrique@oceanprotocol.com>, 
+        Troy <troy@oceanprotocol.com>,
+        Dimitri De Jonghe <dimi@oceanprotocol.com>,        
+		Ahmed Ali <ahmed@oceanprotocol.com>
 
 ```
 
@@ -18,14 +22,18 @@ Table of Contents
       * [Language](#language)
       * [Motivation](#motivation)
       * [Actors](#actors)
-         * [Technical components](#technical-components)
+      * [Technical components](#technical-components)
       * [Flow](#flow)
+         * [Requirements](#requirements)
          * [Workflows](#workflows)
          * [Publishing an Asset including Computing Services](#publishing-an-asset-including-computing-services)
          * [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
          * [Execution phase](#execution-phase)
       * [Infrastructure Orchestration](#infrastructure-orchestration)
       * [Runtime Environment](#runtime-environment)
+         * [Volumes](#volumes)
+         * [Network isolation](#network-isolation)
+
 
 
 
@@ -75,7 +83,7 @@ The different actors interacting in this flow are:
 * INFRASTRUCTURE - Cloud or on-premise infrastructure services providing computing. Typically Amazon, Azure, etc.
 
 
-### Technical components
+## Technical components
 
 The following technical components are involved in an end-to-end publishing and consumption flow:
 
@@ -98,6 +106,21 @@ There are some parameters used in this flow:
 * **serviceAgreementId** - Is the unique ID referring to a Service Execution Agreement established between a PUBLISHER and a CONSUMER. The CONSUMER (via Squid) is the one creating this random unique serviceAgreementId.
 * **serviceDefinitionId** - Identifies one service in the array of services included in the DDO. It is created by the PUBLISHER (via Squid) upon DDO creation and is associated with different services.
 * **templateId** - Identifies a unique Service Agreement template. The Service Agreement is an instance of one existing template. In the scenario described in this OEP, the templateId is `hash(2):ad7c5bef027816a800da1736444fb58a807ef4c9603b7848673f7e3a68eb14a5`
+
+### Requirements
+
+* A PROVIDER define the conditions that a Computing service supports. It includes:
+  - What kind of image (Docker container) can be deployed in his/her infrastructure
+  - CPU and memory
+  - Number of instances
+  - Storage
+* A CONSUMER define the computation to execute modeling it in a Workflow (including configuration, input, transformations and output)
+* A workflow is a new type of Asset. It can be resolvable and be used across multiple independent computing services
+* A CONSUMER purchasing a computing service defines which Workflow (DID) is going to execute
+* A CONSUMER can purchase a service given by a PROVIDER and execute multiple times till the timeout expires
+* A CONSUMER could purchase a service and execute later, the purchase MUST be totally decoupled of execution
+* The previous two points could support to buy once a compute service and execute for example the service every night at 3 am
+ 
 
 ### Workflows
 
@@ -125,69 +148,71 @@ In the below example, a workflow is modeled in a JSON document with the followin
 Example of a Workflow:
 
 ```json
-{
-  "type": "Workflow",
-  "serviceDefinitionId": "1",
-  "stages": [
-    {
-      "index": 0,
-      "stageType": "Filtering",
-      "requirements": {
-        "image": "did:op:1234",
-        "cpu": 2,
-        "memory": "8gb",
-        "nodes": 1
-      },
-      "input": [
-        {
+"metadata": {
+      "base": { "type": "workflow"},
+      "curation": {},
+      "workflow": {
+        "stages": [{
           "index": 0,
-          "id": "did:op:12345"
-        },
-        {
+          "stageType": "Filtering",
+          "requirements": {
+            "container": {
+              "image": "tensorflow/tensorflow",
+              "tag": "latest",
+              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+            },
+            "cpu": 2,
+            "memory": "8gb",
+            "nodes": 1
+          },
+          "input": [{
+            "index": 0,
+            "id": "did:op:12345"
+          },
+            {
+              "index": 1,
+              "id": "did:op:67890"
+            }
+          ],
+          "transformation": {
+            "id": "did:op:abcde"
+          },
+          "output": {}
+        }, {
           "index": 1,
-          "id": "did:op:67890"
-        }
-      ],
-      "transformation": {
-        "id": "did:op:abcde"
-      },
-      "output": {} 
-    },
-    {
-      "index": 1,
-      "stageType": "Transformation",
-      "requirements": {
-        "image": "did:op:1234",
-        "cpu": 8,
-        "memory": "32gb",
-        "nodes": 2
-      },
-      "input": [
-        {
-          "index": 0,
-          "previousIndexStage": 0
-        }
-      ],
-      "transformation": {
-        "id": "did:op:999999"
-      },
-      "output": {} 
+          "stageType": "Transformation",
+          "requirements": {
+            "image": "did:op:1234",
+            "cpu": 8,
+            "memory": "32gb",
+            "nodes": 2
+          },
+          "input": [{
+            "index": 0,
+            "previousStage": 0
+          }],
+          "transformation": {
+            "id": "did:op:999999"
+          },
+          "output": {}
+        }]
+      }
     }
-
-  ]
-}  
 ```
 
 A Workflow is a new type of Asset (a part of datasets, algorithms, etc.)*[]: 
 You can find a complete DDO of type workflow in the [ddo.workflow.json example file](ddo.workflow.json).
 
-As a new kind of asset, the workflow details will be persisted inside a DDO in a new service of type "Workflow". 
+As a new kind of asset, the workflow details will be persisted inside a DDO as part of the "Metadata" service where the **type** is **Workflow**. 
 An Asset of type workflow, will include in the DDO the following information:
 
-* The Workflow model as part of the DDO.services array
-* The Workflow metadata as part of the existing Metadata service
+* The Workflow model as part of the `DDO.services["Metadata"].workflow` entity
+* The rest of the Workflow metadata information (title, author, ect.) as part of the existing Metadata service
 
 A workflow, as every DDO in Ocean, can be resolved using the Asset Id (DID).
+
+By the time being, the workflow definition supports the execution of sequential stages. 
+It's not supported yet the execution of parallel stages. 
 
 ### Publishing an Asset including Computing Services
 
@@ -227,6 +252,8 @@ A workflow, as every DDO in Ocean, can be resolved using the Asset Id (DID).
 
 [Here](ddo.computing.json) you have an example of the DDO including a Computing service. Below you can find a small fraction of this:
 
+"container": 
+
 ```json
   "service": [{
     "type": "Computing",
@@ -237,15 +264,19 @@ A workflow, as every DDO in Ocean, can be resolved using the Asset Id (DID).
       "type": "Azure",
       "description": "",
       "environment": {
-        "supportedImages": [{
-          "id": "did:op:9f9f9f9f9f",
-          "flavour": "tensorflow/tensorflow:latest",
-          "checksum": "432943243243243254323adsa"
-        }, {
-          "id": "did:op:8a8a8a8a8a",
-          "flavour": "spark/spark:v2.1",
-          "checksum": "bcbcbcbcb43243204238bcdfe"
-        }],
+        "cluster": {
+          "type": "Kubernetes",
+          "url": "http://10.0.0.17/xxx"
+        },
+        "supportedContainers": [{
+                                	"image": "tensorflow/tensorflow",
+                                	"tag": "latest",
+                                	"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+                                }, {
+                                	"image": "tensorflow/tensorflow",
+                                	"tag": "latest",
+                                	"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+                                }],
         "typeContainer": "xlsize",
         "cpu": "16",
         "gpu": "0",
@@ -379,10 +410,13 @@ To facilitate the infrastructure orchestration BRIZO integrates with Kubernetes.
 It allows to abstract the execution of Docker containers with computing services independently of the backend (Amazon, Azure, On-Premise).
 To support that BRIZO includes the kubernetes driver allowing to wrap the complete execution including:
 
-- Setting up the cluster
+- Download of the container images
+- Setting up the pods
 - Creation of volumes
 - Starting and stopping the service
 - Retrieval of logs
+- Registering the new Asset
+- Destroy the pods
 
 
 ## Runtime Environment
@@ -396,11 +430,27 @@ BRIZO is in charge of setting up the runtime environment speaking with the infra
 
 The images defined in the DDO and defined by the PUBLISHER only SHOULD include the minimum libraries specified,
 it will reduce the risk of executing unexpected software via external libraries.
-In addition to this, it's recommened that the images running in the runtime environment don't have network connectivity
+In addition to this, it's recommended that the images running in the runtime environment don't have network connectivity
 a part of the minimum required to get access to the Assets.
 
+### Volumes
 
+The input assets will be added to the runtime environment as **read only** volumes. 
+The complete paths to the folders where the volumes are mounted will be given to the algorithm as parameters, using the same order of the parameters specified in the Workflow definition.
+The new derived Asset generated as a result of the execution of the algorithm MUST be written in the output volume. 
+The pods will be **destroyed** after the execution, so only the data stored in the **output** or **logs** volumes should be used.
 
+| Type  | Permissions  | CLI Parameter  |
+|-------|--------------|----------------|
+| Input | Read         | --input1=/mnt/volume1 --input2=/mnt/volume2 |
+| Output| Read, Write  | --output=/mnt/output |
+| Logs  | Read, Write  | --logs=/mnt/logs |
+
+### Network isolation
+
+The runtime environment doesn't need to have network connectivity to external networks to be executed. 
+To avoid sending the internal information about the data, it's recommended to restrict the output connectivity. 
+   
  
  
 

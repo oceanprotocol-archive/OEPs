@@ -24,7 +24,19 @@
       "type": "Azure",
       "description": "",
       "environment": {
-        "flavour": "tensorflow/tensorflow:latest",
+        "cluster": {
+          "type": "Kubernetes",
+          "url": "http://10.0.0.17/xxx"
+        },
+        "supportedContainers": [{
+          "image": "tensorflow/tensorflow",
+          "tag": "latest",
+          "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+        }, {
+          "image": "tensorflow/tensorflow",
+          "tag": "latest",
+          "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+        }],
         "typeContainer": "xlsize",
         "cpu": "16",
         "gpu": "0",

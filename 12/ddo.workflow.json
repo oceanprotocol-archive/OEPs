@@ -15,6 +15,10 @@
     "type": "EthereumECDSAKey"
   }],
   "service": [{
+    "serviceDefinitionId": "0",
+    "serviceEndpoint": "http://172.15.0.15:5000/api/v1/aquarius/assets/ddo/{did}",
+    "type": "Metadata",
+
     "metadata": {
       "base": {
         "author": "Met Office",
@@ -34,56 +38,54 @@
         "rating": 0.0,
         "numVotes": 0,
         "isListed": true
-      }
-    },
-    "serviceDefinitionId": "0",
-    "serviceEndpoint": "http://172.15.0.15:5000/api/v1/aquarius/assets/ddo/{did}",
-    "type": "Metadata"
-  }, {
-    "serviceDefinitionId": "1",
-    "type": "Workflow",
-    "stages": [{
-      "index": 0,
-      "stageType": "Filtering",
-      "requirements": {
-        "image": "did:op:1234",
-        "cpu": 2,
-        "memory": "8gb",
-        "nodes": 1
       },
-      "input": [{
-        "index": 0,
-        "id": "did:op:12345"
-      },
-        {
-          "index": 1,
-          "id": "did:op:67890"
-        }
-      ],
-      "transformation": {
-        "id": "did:op:abcde"
-      },
-      "output": {}
-    },
-      {
-        "index": 1,
-        "stageType": "Transformation",
-        "requirements": {
-          "image": "did:op:1234",
-          "cpu": 8,
-          "memory": "32gb",
-          "nodes": 2
-        },
-        "input": [{
+      "workflow": {
+        "stages": [{
           "index": 0,
-          "previousStage": 0
-        }],
-        "transformation": {
-          "id": "did:op:999999"
-        },
-        "output": {}
+          "stageType": "Filtering",
+          "requirements": {
+            "container": {
+              "image": "tensorflow/tensorflow",
+              "tag": "latest",
+              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+            },
+            "cpu": 2,
+            "memory": "8gb",
+            "nodes": 1
+          },
+          "input": [{
+            "index": 0,
+            "id": "did:op:12345"
+          },
+            {
+              "index": 1,
+              "id": "did:op:67890"
+            }
+          ],
+          "transformation": {
+            "id": "did:op:abcde"
+          },
+          "output": {}
+        }, {
+          "index": 1,
+          "stageType": "Transformation",
+          "requirements": {
+            "image": "did:op:1234",
+            "cpu": 8,
+            "memory": "32gb",
+            "nodes": 2
+          },
+          "input": [{
+            "index": 0,
+            "previousStage": 0
+          }],
+          "transformation": {
+            "id": "did:op:999999"
+          },
+          "output": {}
+        }]
       }
+    }
 
-    ]
   }]
 }
