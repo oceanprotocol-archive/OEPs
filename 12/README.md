@@ -30,10 +30,10 @@ Table of Contents
          * [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
          * [Execution phase](#execution-phase)
       * [Infrastructure Orchestration](#infrastructure-orchestration)
-      * [Runtime Environment](#runtime-environment)
-         * [Volumes](#volumes)
+         * [Orchestration Steps](#orchestration-steps)
+         * [Infrastructure Operator](#infrastructure-operator)
+            * [Volumes](#volumes)
          * [Network isolation](#network-isolation)
-
 
 
 
@@ -145,6 +145,9 @@ In the below example, a workflow is modeled in a JSON document with the followin
 * Each stage has one transformation entry. It includes the id (DID) of the asset in charge of process the input to generate some output
 * Each stage includes an entry with some additional output details. This could be a DID or a specific detail about the expected output.
 
+![Workflow Model](images/workflow-model.png)
+
+
 Example of a Workflow:
 
 ```json
@@ -163,6 +166,7 @@ Example of a Workflow:
             },
             "cpu": 2,
             "memory": "8gb",
+            "storage": "50gb",
             "nodes": 1
           },
           "input": [{
@@ -406,7 +410,7 @@ The complete flow for the Execution phase is:
 
 ## Infrastructure Orchestration
 
-To facilitate the infrastructure orchestration BRIZO integrates with Kubernetes. 
+To facilitate the infrastructure orchestration BRIZO integrates with Kubernetes (aka K8s). 
 It allows to abstract the execution of Docker containers with computing services independently of the backend (Amazon, Azure, On-Premise).
 To support that BRIZO includes the kubernetes driver allowing to wrap the complete execution including:
 
@@ -419,7 +423,49 @@ To support that BRIZO includes the kubernetes driver allowing to wrap the comple
 - Destroy the pods
 
 
-## Runtime Environment
+
+### Orchestration Steps 
+
+The computing scenario requires a complete orchestration of different stages in order to provide an end to end flow.
+The steps included in this scenario are:
+
+1. The CONSUMER send a request to BRIZO using the **compute/exec** method in order to trigger the Workflow execution
+
+1. BRIZO receives this request and check on-chain via KEEPER if the CONSUMER has grants to execute the Workflow. 
+   If the CONSUMER has grants will continue the Infrastructure Operation integration, if not will return an error message. 
+
+1. BRIZO call the Infrastructure Operator (aka OPERATOR) giving the Workflow that needs to be executed
+
+1. The OPERATOR communicates with the K8s cluster to prepare the pods
+
+1. K8s starts a generic [Init Container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/). The responsibilities of the init container are:
+   - Parse the Workflow document
+   - Resolve the DID resources necessary to run the Workflow
+   - Pull the docker image from the Docker registry
+   - Plug the different data inputs as volumes in the Compute Pod
+   - Plug the output for data and logs as volumes in the Compute Pod
+   - Start the Compute Pod and copy the algorithm
+   - Execute the algorithm passing as parameter the input and output volumes   
+
+1. After all the above steps the Init Container must die
+
+1. The Compute Pod must continue running the execution
+
+1. When the Compute Pod ends or the duration is too long (timeout), the OPERATOR via K8s stop and delete the Compute Pod
+
+1. The OPERATOR start a new instance of the Publishing Pod. The responsibilities of the Publishing Pod are:
+   - List of the Log files generated in the Log volume
+   - List of the Output data generated in the Output volume
+   - Generate a new Asset Metadata using the information provided by the CONSUMER
+   - Register a new Asset in Ocean including the Output & Log data generated
+   - Transfer the ownership of the new Asset created to the CONSUMER    
+ 
+ 1. At this point the CONSUMER could get an event of a new created asset where he/she is the owner 
+
+![Infrastructure Orchestration](images/infrastructure-orchestration.png)
+
+
+### Infrastructure Operator
 
 In the described OEP, the PUBLISHER of computation services is in charge of defining the 
 requirements to allow the execution of algorithms on top of of the data assets.
@@ -433,7 +479,7 @@ it will reduce the risk of executing unexpected software via external libraries.
 In addition to this, it's recommended that the images running in the runtime environment don't have network connectivity
 a part of the minimum required to get access to the Assets.
 
-### Volumes
+#### Volumes
 
 The input assets will be added to the runtime environment as **read only** volumes. 
 The complete paths to the folders where the volumes are mounted will be given to the algorithm as parameters, using the same order of the parameters specified in the Workflow definition.
