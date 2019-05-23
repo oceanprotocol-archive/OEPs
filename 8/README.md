@@ -81,7 +81,7 @@ Attribute       |   Type        |   Required    | Description
 **datePublished** | DateTime      | (remote)   | The date on which the asset DDO is registered into the metadata store (Aquarius)
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
-**price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
+**price**       | String        | Yes           | Price of the asset in vodka (attoOCEAN). It must be an integer encoded as a string, e.g. "230".
 **files**       | Array of files object | Yes     | Array of File objects including the encrypted file urls. Further metadata about each file is stored: contentType, checksum (optional), content length in bytes (optional), encoding (optional), compression (optional) and remote resourceId (optional)
 **encryptedFiles** | Text         | (remote)    | Encrypted string of the **files** attribute. 
 **checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
@@ -151,7 +151,7 @@ Here is an example of an Asset metadata object following the above-described sch
     "dateCreated": "2012-02-01T10:55:11Z",    
     "author": "Mario",
     "license": "CC0: Public Domain",
-    "price": 10,
+    "price": "10",
     "files": [
       {
         "index":0,
@@ -229,7 +229,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
     "datePublished": "2019-03-29T13:01:30Z",    
     "author": "Mario",
     "license": "CC0: Public Domain",
-    "price": 10,
+    "price": "10",
     "files": [
       {
         "index":0,
