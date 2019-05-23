@@ -120,26 +120,23 @@ A DDO document is composed of standard DDO attributes like:
 * "id"
 * "service"
 
-In addition to these, the asset metadata can be included as part of the DDO inside the "service" entry, using the type **AssetsMetadataService**.
+Asset metadata can be included as one of the objects inside the `"service"` array, with type `"Metadata"`.
 Example:
 
 ```json
 {
-  "@context": "https://example.org/example-method/v1",
-  "id": "did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
-  "authentication": [{ ... }],
-  "service": [{
-    "type": "AssetsMetadataService",
-    "serviceEndpoint": "https://myservice.org/assets/",
-    "metadata": {
-        "title": "my asset",
-        "description": "blabla"
-    }
-  }]
+  "type": "Metadata",
+  "serviceEndpoint": "https://aquarius-example.com:443/api/v1/aquarius/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+  "serviceDefinitionId": "2",
+  "metadata": {
+    "base": { … },
+    "curation": { … },
+    "additionalInformation": { … }
+  }
 }
 ```
 
-You can find a complete reference of the asset metadata in the scope of the [OEP-8](8).
+You can find a complete reference of the asset metadata in [OEP-8](8).
 Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the W3C DID spec.
 
 ### Integrity
