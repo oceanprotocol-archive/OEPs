@@ -126,7 +126,7 @@ with the details necessary to consume and validate the data.
 | ----------------- | -------- | --------------------------------------------------- |
 | **url**           | (local)  | Content URL. Omitted from the remote metadata. |
 | **index**         | yes      | Index number starting from 0 of the file. |
-| **contentType**   | no       | File format, if applicable. |
+| **contentType**   | yes      | File format. |
 | **checksum**      | no       | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
 | **checksumType**  | no       | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
 | **contentLength** | no       | Size of the file in bytes.                        |
