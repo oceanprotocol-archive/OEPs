@@ -74,11 +74,11 @@ Metadata is first created by the publisher of the asset. The publisher has knowl
 
 ### Remote Metadata
 
-A publisher runs Squid on their local machine. When they publish (register) an asset, they give their local metadata to their local Squid. Squid makes some changes and additions in the metadata, puts it into a DDO, and sends that DDO to a metadata store (Aquarius).
+A publisher publishes (registers) an asset using [Squid](https://docs.oceanprotocol.com/concepts/components/#squid-libraries) (which might be running on their local machine or remotely). When they do, the local metadata is passed to Squid, which makes some changes and additions in the metadata, puts it into a DDO, and sends that DDO to a metadata store (Aquarius).
 
 Aquarius may also make some changes and additions to the metadata, such as the `datePublished` or parts of the `curation` object. The metadata that finally gets stored by Aquarius is the "remote metadata."
 
-Note: [OEP-11](11) describes the publishing flow in more detail.
+Note: A marketplace can and might also act as a publisher. [OEP-11](11) describes the publishing flow in more detail.
 
 ## Metadata Attributes
 
