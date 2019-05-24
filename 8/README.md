@@ -109,7 +109,7 @@ Attribute       |   Type        |   Required    | Description
 **encryptedFiles** | Text       | (remote)      | Encrypted **files** object. [OEP-11](11) specifies how it is computed.
 **checksum**    | Text          | (remote)      | [OEP-7](7) specifies how the checksum is computed.
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
-**tags**        | Array of Text | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
+**tags**        | Array of Text | No            | Array of keywords or tags used to describe this content. Empty by default.
 **type**        | Text          | No            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "other"). It's up to the PROVIDER or MARKETPLACE to use a different list of types or not use it.
 **description** | Text          | No            | Details of what the resource is. For a dataset, this attribute explains what the data represents and what it can be used for.
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default.
@@ -186,7 +186,7 @@ The publisher of a DDO MAY add additional attributes or change the above object 
       "Other"
     ],
     "links": [],
-    "tags": "",
+    "tags": [],
     "price": 0
   },
   "additionalInformation": {
@@ -227,7 +227,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
       "Other"
     ],
     "links": [],
-    "tags": "",
+    "tags": [],
     "price": 0,
     "encryptedFiles": "0x7a0d1c66ae861…df43aa9",
     "checksum": "d7296ccaaec630452be65a13ea1d2d750f071b6f50b779e99cc9adf05faebfca",
