@@ -176,7 +176,6 @@ The publisher of a DDO MAY add additional attributes or change the above object 
     "files": [
       {
         "url": "https://example-url.net/weather/forecast/madrid/350750305731.xml",
-        "found": true,
         "contentLength": "0",
         "contentType": "text/xml",
         "compression": "none",
@@ -218,7 +217,6 @@ Similarly, this is how the metadata file would look as a response to querying Aq
     "copyrightHolder": "Norwegian Meteorological Institute",
     "files": [
       {
-        "found": true,
         "contentLength": "0",
         "contentType": "text/xml",
         "compression": "none",
