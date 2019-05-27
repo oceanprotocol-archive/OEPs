@@ -76,7 +76,7 @@
 					],
 					"name": "UK Weather information 2011",
 					"price": "10",
-					"tags": "weather, uk, 2011, temperature, humidity",
+					"tags": ["weather", "uk", "2011", "temperature", "humidity"],
 					"type": "dataset",
 					"workExample": "423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68"
 				},
