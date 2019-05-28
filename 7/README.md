@@ -154,12 +154,13 @@ In the `registerAttribute` will be possible to specify a `bytes32 checksum` para
 
 This hash composing the **integrity checksum** is calculated in the following way:
 
-- Concatenation of all the `DDO.services['AccessService'].metadata.files.checksum[*]` attributes. Every file included in the asset can have a file checksum associated
+- Concatenation of all the `DDO.services['AccessService'].metadata.files.checksum[*]` attributes. If no file checksum is available, then don't compute it, just ignore that file's checksum (or pretend its checksum is an empty string)
 - Concatenating to the previous string the metadata attributes `name`, `author` and `license`
 - Concatenating to the previous string the `did` (e.g. `did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea`)
-- Hashing the complete string generated using SHA3-256
+- Hashing the complete string generated using SHA3-256. (You might have to convert the string to bytes first.)
+- In the DDO, the checksum should be represented as a hex string beginning with `0x` and ending with 64 hex characters (e.g. `0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377`)
 
-Here an example of the algorithm to apply:
+Here is an example of the algorithm to apply:
 
 ```js
 var checksum = Hash.sha3( checksum1 + checksum2 + checksum3 + name + author + license + did)
