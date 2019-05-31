@@ -104,10 +104,10 @@ Attribute       |   Type        |   Required    | Description
 **datePublished** | DateTime      | (remote)   | The date on which the asset DDO is registered into the metadata store (Aquarius)
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
 **license**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
-**price**       | Number        | Yes           | Price of the asset. If not specified, then the default is 0.
-**files**       | Array of file objects | Yes   | See the section about **File Attributes** below.
-**encryptedFiles** | Text       | (remote)      | Encrypted **files** object. [OEP-11](11) specifies how it is computed.
-**checksum**    | Text          | (remote)      | [OEP-7](7) specifies how the checksum is computed.
+**price**       | String        | Yes           | Price of the asset in vodka (attoOCEAN). It must be an integer encoded as a string, e.g. "123000000000000000000".
+**files**       | Array of files object | Yes     | Array of File objects including the encrypted file urls. Further metadata about each file is stored: contentType, checksum (optional), content length in bytes (optional), encoding (optional), compression (optional) and remote resourceId (optional)
+**encryptedFiles** | Text         | (remote)    | Encrypted string of the **files** attribute. 
+**checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
 **tags**        | Array of Text | No            | Array of keywords or tags used to describe this content. Empty by default.
 **type**        | Text          | No            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "other"). It's up to the PROVIDER or MARKETPLACE to use a different list of types or not use it.
@@ -172,6 +172,7 @@ The publisher of a DDO MAY add additional attributes or change the above object 
     "author": "Norwegian Meteorological Institute",
     "type": "dataset",
     "license": "Public Domain",
+    "price": "123000000000000000000",
     "copyrightHolder": "Norwegian Meteorological Institute",
     "files": [
       {
@@ -214,6 +215,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
     "author": "Norwegian Meteorological Institute",
     "type": "dataset",
     "license": "Public Domain",
+    "price": "123000000000000000000",
     "copyrightHolder": "Norwegian Meteorological Institute",
     "files": [
       {
