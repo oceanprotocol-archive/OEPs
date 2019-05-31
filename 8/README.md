@@ -5,7 +5,12 @@ type: Standard
 status: Raw
 version: 0.3
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanprotocol.com>, Mike Anderson <mike.anderson@dex.sg>, Matthias Kretschmann <matthias@oceanprotocol.com>, Marcus Jones <marcus@oceanprotocol.com>
+contributors: Kiran Karkera <kiran.karkera@dex.sg>,
+              Enrique Ruiz <enrique@oceanprotocol.com>,
+              Mike Anderson <mike.anderson@dex.sg>,
+              Matthias Kretschmann <matthias@oceanprotocol.com>,
+              Marcus Jones <marcus@oceanprotocol.com>,
+              Troy McConaghy <troy@oceanprotocol.com>
 ```
 
 **Table of Contents**
@@ -16,11 +21,16 @@ contributors: Kiran Karkera <kiran.karkera@dex.sg>, Enrique Ruiz <enrique@oceanp
       * [Change Process](#change-process)
       * [Language](#language)
       * [Motivation](#motivation)
-      * [Life Cycle of Metadata](#life-cycle-of-metadata)      
-      * [Base Attributes](#base-attributes)
-      * [Curation Attributes](#curation-attributes)
-      * [Additional Information](#additional-information)
-      * [Example](#example)
+      * [Life Cycle of Metadata](#life-cycle-of-metadata)
+         * [Local Metadata](#local-metadata)
+         * [Remote Metadata](#remote-metadata)
+      * [Metadata Attributes](#metadata-attributes)
+         * [Base Attributes](#base-attributes)
+            * [File Attributes](#file-attributes)
+         * [Curation Attributes](#curation-attributes)
+         * [AdditionalInformation Attributes](#additionalinformation-attributes)
+      * [Example of Local Metadata](#example-of-local-metadata)
+      * [Example of Remote Metadata](#example-of-remote-metadata)
       * [References](#references)
 
 <!--te-->
@@ -58,21 +68,34 @@ The main motivations of this OEP are to:
 
 ## Life Cycle of Metadata
 
-Metadata is first created by the publisher of the asset. The publisher has knowledge of the file URLs, and they are stored in plaintext in the `files` attribute. After publication, the metadata store (Aquarius) will return the Metadata with this data encrypted. The result will be a single ciphertext of the attribute. The `datePublished` attribute is created by the metadata store. The `curation` attribute is furthermore not created by the publisher, but by the metadata store.
+### Local Metadata
 
-As such, there are 2 flavors of metadata:
+Metadata is first created by the publisher of the asset. The publisher has knowledge of the file URLs, and they are stored in plaintext in the `files` object. This initial metadata is the "local metadata."
 
-1) Local metadata - Created by the publisher of the asset, added to the `DDO` and sent to the metadata store API. 
+### Remote Metadata
 
-2) Remote metadata - Created and existing internally by the metadata store, and sent as a result of querying the API for discoverability of assets. 
+A publisher publishes (registers) an asset using [Squid](https://docs.oceanprotocol.com/concepts/components/#squid-libraries) (which might be running on their local machine or remotely). When they do, the local metadata is passed to Squid, which makes some changes and additions in the metadata, puts it into a DDO, and sends that DDO to a metadata store (Aquarius).
 
-## Base Attributes
+Aquarius may also make some changes and additions to the metadata, such as the `datePublished` or parts of the `curation` object. The metadata that finally gets stored by Aquarius is the "remote metadata."
 
-The base attributes are recommended to be included in the Asset Metadata.
-A part of the most basic, Ocean Protocol doesn't require attributes, it's up to the PROVIDERS to use the optional attributes.
-The stored _values_ can be empty. The following are the base attributes:
+Note: A marketplace can and might also act as a publisher. [OEP-11](11) describes the publishing flow in more detail.
 
-Some attributes are required by only the metadata store *(remote)* and others are mandatory for *(local)* metadata only. If required or not by both, they are marked with *Yes/No* in the *Required* column.
+## Metadata Attributes
+
+A `metadata` object has the following attributes, all of which are objects.
+Their contents are detailed below.
+
+Attribute                 | Required |
+--------------------------|----------|
+**base**                  | Yes      |
+**curation**              | (remote) |
+**additionalInformation** | No       |
+
+### Base Attributes
+
+A `base` object has the following attributes.
+Not all are required.
+Some are required by only the metadata store *(remote)* and others are mandatory for *(local)* metadata only. If required or not by both, they are marked with *Yes/No* in the *Required* column.
 
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
@@ -86,26 +109,24 @@ Attribute       |   Type        |   Required    | Description
 **encryptedFiles** | Text         | (remote)    | Encrypted string of the **files** attribute. 
 **checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
-**tags**        | Array of Text | No            | Keywords or tags used to describe this content. Multiple entries in a keyword list are typically delimited by commas. Empty by default.
+**tags**        | Array of Text | No            | Array of keywords or tags used to describe this content. Empty by default.
 **type**        | Text          | No            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "other"). It's up to the PROVIDER or MARKETPLACE to use a different list of types or not use it.
 **description** | Text          | No            | Details of what the resource is. For a dataset, this attribute explains what the data represents and what it can be used for.
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default.
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
 **links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. Links may be to either a URL or another Asset. We expect marketplaces to converge on agreements of typical formats for linked data: The Ocean Protocol itself does not mandate any specific formats as these requirements are likely to be domain-specific.
 **inLanguage**  | Text          | No            | The language of the content. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47).
-**curation** | Object | (remote) | The curation attributes such as votes or rating. 
-**additionalInformation** | Object | No | A catch-all for extra attributes and custom functionality. Defined by the metadata store / marketplace operator. 
 
-## files
+#### File Attributes
 
-The `files` attribute includes the details necessary to consume and validate the data.
-This attribute include an array of objects of type `file`. The type file has the following attributes:
+A file object has the following attributes,
+with the details necessary to consume and validate the data.
 
 | Attribute         | Required | Description                                         |
 | ----------------- | -------- | --------------------------------------------------- |
 | **url**           | (local)  | Content URL. Omitted from the remote metadata. |
 | **index**         | yes      | Index number starting from 0 of the file. |
-| **contentType**   | no       | File format, if applicable. |
+| **contentType**   | yes      | File format. |
 | **checksum**      | no       | Checksum of the file using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
 | **checksumType**  | no       | Format of the provided checksum. Can vary according to server (i.e Amazon vs. Azure) |
 | **contentLength** | no       | Size of the file in bytes.                        |
@@ -113,18 +134,18 @@ This attribute include an array of objects of type `file`. The type file has the
 | **compression**   | no       | File compression (e.g. no, gzip, bzip2, etc). |
 | **resourceId**    | no       | Remote identifier of the file in the external provider. It is typically the remote id in the cloud provider. |
 
-## curation 
+### Curation Attributes
 
-To normalize the different possible rating attributes after a curation process, this is the normalized list of curation attributes:
+A `curation` object has the following attributes.
 
 Attribute       |   Type           |   Required    | Description
 ----------------|------------------|---------------|----------------------
 **rating**      | Number (decimal) | Yes           | Decimal value between 0 and 1. 0 is the default value.
 **numVotes**    | Integer          | Yes           | Number of votes. 0 is the default value.
 **schema**      | Text             | No            | Schema applied to calculate the rating.
-**isListed**   | Boolean          | No            | Flag unsuitable content. False by default. If it's true, the content must not be returned.
+**isListed**    | Boolean          | No            | Flag unsuitable content. False by default. If it's true, the content must not be returned.
 
-## additionalInformation
+### AdditionalInformation Attributes
 
 These are examples of attributes that can enhance the discoverability of a resource:
 
@@ -138,162 +159,85 @@ These are examples of attributes that can enhance the discoverability of a resou
 | **keyword**           | A list of keywords/tags describing a dataset.                                                                                 |
 | **structured-markup** | A link to machine-readable structured markup (such as ttl/json-ld/rdf) describing the dataset.                                |
 
-The publisher of a DDO MAY add additional attributes or change the above object definition. 
+The publisher of a DDO MAY add additional attributes or change the above object definition.
 
-## Example - Local metadata
-
-Here is an example of an Asset metadata object following the above-described schema for a local publisher metadata file. 
+## Example of Local Metadata
 
 ```json
 {
   "base": {
-    "name": "10 Monkey Species Small",
-    "dateCreated": "2012-02-01T10:55:11Z",    
-    "author": "Mario",
-    "license": "CC0: Public Domain",
+    "name": "Madrid Weather forecast",
+    "description": "Wheater forecast of Europe/Madrid in XML format",
+    "dateCreated": "2019-05-16T12:36:14.535Z",
+    "author": "Norwegian Meteorological Institute",
+    "type": "dataset",
+    "license": "Public Domain",
     "price": "123000000000000000000",
+    "copyrightHolder": "Norwegian Meteorological Institute",
     "files": [
       {
-        "index":0,
-        "contentType": "application/zip",
-        "encoding": "UTF-8",
-        "compression": "zip",
-        "checksum": "2bf9d229d110d1976cdf85e9f3256c7f",
-        "checksumType": "MD5",
-        "contentLength": 12057507,
-        "url": "https://s3.amazonaws.com/assets/training.zip"
-      },
-      {
-        "index":1,
-        "contentType": "text/txt",
-        "encoding": "UTF-8",
+        "url": "https://example-url.net/weather/forecast/madrid/350750305731.xml",
+        "contentLength": "0",
+        "contentType": "text/xml",
         "compression": "none",
-        "checksum": "354d19c0733c47ef3a6cce5b633116b0",
-        "checksumType": "MD5",
-        "contentLength": 928,
-        "url": "https://s3.amazonaws.com/datacommons/monkey_labels.txt"
-      },
-      {
-        "index":2,
-        "url": "https://s3.amazonaws.com/datacommons/validation.zip"
+        "index": 0
       }
     ],
-    "checksum": "",
     "categories": [
-      "image"
+      "Other"
     ],
-    "tags": [
-      "image data",
-      "classification",
-      "animals"
-    ],
-    "type": "dataset",
-    "description": "EXAMPLE ONLY ",
-    "copyrightHolder": "Unknown",
-    "workExample": "image path, id, label",
-    "links": [
-      {
-        "name": "example model",
-        "url": "https://drive.google.com/open?id=1uuz50RGiAW8YxRcWeQVgQglZpyAebgSM"
-      },
-      {
-        "name": "example code",
-        "type": "example code",
-        "url": "https://github.com/slothkong/CNN_classification_10_monkey_species"
-      },
-      {
-        "url": "https://s3.amazonaws.com/datacommons/links/discovery/n5151.jpg",
-        "name": "n5151.jpg",
-        "type": "discovery"
-      },
-      {
-        "url": "https://s3.amazonaws.com/datacommons/links/sample/sample.zip",
-        "name": "sample.zip",
-        "type": "sample"
-      }
-    ],
-    "inLanguage": "en"
+    "links": [],
+    "tags": [],
+    "price": 0
+  },
+  "additionalInformation": {
+    "updateFrequency": null,
+    "structuredMarkup": []
   }
 }
 ```
 
-## Example - Remote metadata
+## Example of Remote Metadata
 
 Similarly, this is how the metadata file would look as a response to querying Aquarius (remote metadata). Note that `url` is removed from all objects in the `files` array, and `encryptedFiles` & `curation` are added.
 
 ```json
 {
+  "curation": {
+    "rating": 0,
+    "numVotes": 0,
+    "isListed": true
+  },
   "base": {
-    "name": "10 Monkey Species Small",
-    "dateCreated": "2012-02-01T10:55:11Z",
-    "datePublished": "2019-03-29T13:01:30Z",    
-    "author": "Mario",
-    "license": "CC0: Public Domain",
+    "name": "Madrid Weather forecast",
+    "description": "Wheater forecast of Europe/Madrid in XML format",
+    "dateCreated": "2019-05-16T12:36:14.535Z",
+    "author": "Norwegian Meteorological Institute",
+    "type": "dataset",
+    "license": "Public Domain",
     "price": "123000000000000000000",
+    "copyrightHolder": "Norwegian Meteorological Institute",
     "files": [
       {
-        "index":0,
-        "contentType": "application/zip",
-        "encoding": "UTF-8",
-        "compression": "zip",
-        "checksum": "2bf9d229d110d1976cdf85e9f3256c7f",
-        "checksumType": "MD5",
-        "contentLength": 12057507
-      },
-      {
-        "index":1,
-        "contentType": "text/txt",
-        "encoding": "UTF-8",
+        "contentLength": "0",
+        "contentType": "text/xml",
         "compression": "none",
-        "checksum": "354d19c0733c47ef3a6cce5b633116b0",
-        "checksumType": "MD5",
-        "contentLength": 928
-      },
-      {
-        "index":2
+        "index": 0
       }
     ],
-    "encryptedFiles": "234ab87234acbd095430853424ab87234acbd09543085340abffh21983ddhiiee9821438274234210abffh21983ddhiiee982143827423421",
-    "checksum": "",
     "categories": [
-      "image"
+      "Other"
     ],
-    "tags": [
-      "image data",
-      " animals"
-    ],
-    "type": "dataset",
-    "description": "EXAMPLE ONLY ",
-    "copyrightHolder": "Unknown",
-    "workExample": "image path, id, label",
-    "links": [
-      {
-        "name": "example model",
-        "url": "https://drive.google.com/open?id=1uuz50RGiAW8YxRcWeQVgQglZpyAebgSM"
-      },
-      {
-        "name": "example code",
-        "type": "example code",
-        "url": "https://github.com/slothkong/CNN_classification_10_monkey_species"
-      },
-      {
-        "url": "https://s3.amazonaws.com/datacommons/links/discovery/n5151.jpg",
-        "name": "n5151.jpg",
-        "type": "discovery"
-      },
-      {
-        "url": "https://s3.amazonaws.com/datacommons/links/sample/sample.zip",
-        "name": "sample.zip",
-        "type": "sample"
-      }
-    ],
-    "inLanguage": "en",
-    "curation": {
-        "rating": 0.93,
-        "numVotes": 123,
-        "schema": "Binary Voting",
-        "isListed": true
-     }
+    "links": [],
+    "tags": [],
+    "price": 0,
+    "encryptedFiles": "0x7a0d1c66ae861…df43aa9",
+    "checksum": "d7296ccaaec630452be65a13ea1d2d750f071b6f50b779e99cc9adf05faebfca",
+    "datePublished": "2019-05-16T12:41:01Z"
+  },
+  "additionalInformation": {
+    "updateFrequency": null,
+    "structuredMarkup": []
   }
 }
 ```
