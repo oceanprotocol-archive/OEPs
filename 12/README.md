@@ -133,7 +133,7 @@ In Ocean we use the concept of workflow to represent a list of tasks to accompli
 From a technical point of view, a workflow is a type of Asset 
 (it takes advantage of all the Ocean plumbing of registering, metadata publishing, resolving, etc.). 
 The main objective of a workflow is to describe an execution pipeline.
- A workflow can be splitted in sequential stages, having each stage an input, transformation (via algorithm) and output.
+ A workflow can be split in sequential stages, having each stage an input, transformation (via algorithm) and output.
 
 In the below example, a workflow is modeled in a JSON document with the following characteristics:
 
@@ -145,7 +145,7 @@ In the below example, a workflow is modeled in a JSON document with the followin
 * Each stage has one transformation entry. It includes the id (DID) of the asset in charge of process the input to generate some output
 * Each stage includes an entry with some additional output details. This could be a DID or a specific detail about the expected output.
 
-![Workflow Model](images/workflow-model.png)
+![Workflow JSON Model](images/workflow-model.png)
 
 
 Example of a Workflow:
@@ -328,8 +328,8 @@ To do that, SQUID needs to integrate the `DIDRegistry` contract using the `regis
 
 ### Setting up the Service Execution Agreement
 
-Using only one Squid call `registerAsset(asset_metadata, services_description, publisher_public_key)`, t
-he PUBLISHER should be able to register an Asset including a **Computing** service.
+Using only one Squid call `registerAsset(asset_metadata, services_description, publisher_public_key)`, 
+the PUBLISHER should be able to register an Asset including a **Computing** service.
 The `services_description` attribute includes the different services (like computing) associated to this asset.
 
 During this phase, through the CONSUMER and the PROVIDER (via BRIZO) negotiation, 
@@ -361,7 +361,8 @@ It is used to correlate events and to prevent the PUBLISHER from instantiating m
 
 1. The PROVIDER grant the execution permissions for the computation on-chain calling the `execComputeCondition.Fullfill` method  
 
-1. The CONSUMER get the `execComputeCondition.Fullfilled` event. When he/she receives the event, can call the Brizo `serviceEndpoint` url added in the DDO to start the execution of the computation workflow.
+1. The CONSUMER get the `execComputeCondition.Fullfilled` event. When he/she receives the event, 
+   can call the BRIZO `serviceEndpoint` url added in the DDO to start the execution of the computation workflow.
    Typically: `HTTP POST /api/v1/brizo/services/computing/exec`
 
 1. BRIZO receives the CONSUMER request, and calls the `checkPermissions` method to validate if the CONSUMER address is granted to execute the service
@@ -434,7 +435,7 @@ The steps included in this scenario are:
 1. BRIZO receives this request and check on-chain via KEEPER if the CONSUMER has grants to execute the Workflow. 
    If the CONSUMER has grants will continue the Infrastructure Operation integration, if not will return an error message. 
 
-1. BRIZO call the Infrastructure Operator (aka OPERATOR) giving the Workflow that needs to be executed
+1. BRIZO calls the Infrastructure Operator (aka OPERATOR) giving the Workflow that needs to be executed
 
 1. The OPERATOR communicates with the K8s cluster to prepare the pods
 
@@ -498,23 +499,3 @@ The runtime environment doesn't need to have network connectivity to external ne
 To avoid sending the internal information about the data, it's recommended to restrict the output connectivity. 
    
  
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
