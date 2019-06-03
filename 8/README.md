@@ -3,7 +3,7 @@ shortname: 8/ASSET-DDO
 name: Assets Metadata Ontology
 type: Standard
 status: Raw
-version: 0.3
+version: 0.4
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Kiran Karkera <kiran.karkera@dex.sg>,
               Enrique Ruiz <enrique@oceanprotocol.com>,
@@ -107,10 +107,12 @@ Attribute       |   Type        |   Required    | Description
 **price**       | String        | Yes           | Price of the asset in vodka (attoOCEAN). It must be an integer encoded as a string, e.g. "123000000000000000000".
 **files**       | Array of files object | Yes     | Array of File objects including the encrypted file urls. Further metadata about each file is stored: contentType, checksum (optional), content length in bytes (optional), encoding (optional), compression (optional) and remote resourceId (optional)
 **encryptedFiles** | Text         | (remote)    | Encrypted string of the **files** attribute. 
+**services**       | Array of service object | Yes     | Array of Service object including the encrypted service endpoints. Further metadata about each service is stored: method, index, authentication (optional), description (optional), checksum (optional) 
+**encryptedServices** | Text         | (remote)    | Encrypted string of the **services** attribute. 
 **checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
 **tags**        | Array of Text | No            | Array of keywords or tags used to describe this content. Empty by default.
-**type**        | Text          | No            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "other"). It's up to the PROVIDER or MARKETPLACE to use a different list of types or not use it.
+**type**        | Text          | No            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "service", "other"). It's up to the PROVIDER or MARKETPLACE to use a different list of types or not use it.
 **description** | Text          | No            | Details of what the resource is. For a dataset, this attribute explains what the data represents and what it can be used for.
 **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default.
 **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
@@ -133,6 +135,22 @@ with the details necessary to consume and validate the data.
 | **encoding**      | no       | File encoding (e.g. UTF-8). |
 | **compression**   | no       | File compression (e.g. no, gzip, bzip2, etc). |
 | **resourceId**    | no       | Remote identifier of the file in the external provider. It is typically the remote id in the cloud provider. |
+
+#### Service Attributes
+
+A service object has the following attributes,
+with the details necessary to consume and validate the data.
+
+| Attribute         | Required | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| **url**           | (local)  | Service URL. Omitted from the remote metadata. |
+| **index**         | yes      | Index number starting from 0 of the service. |
+| **method**   | yes      | Service method (GET, POST, etc.) |
+| **checksum**      | no       | Checksum of the service using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
+| **checksumType**  | no       | Format of the provided checksum. Can vary according to server |
+| **description** | no       | URL to the service definition                      |
+| **auth**      | no       | Object containing the different authentication parameters (user, password, token). All of those are optional. |
+
 
 ### Curation Attributes
 
@@ -182,6 +200,20 @@ The publisher of a DDO MAY add additional attributes or change the above object 
         "compression": "none",
         "index": 0
       }
+    ],
+    "services": [
+            {
+              "index": 0,
+              "url": "https://my.service.inet:8080/api/v1/weather",
+              "method": "POST",
+              "auth": {
+                "user": "aitor",
+                "password": "1234",
+                "token": "89c06eb5a88f4bbbf4ac966d737593b36e61e885"
+              },
+              "description": "https://my.service.inet:8080/spec",
+              "checksum": "859486596784567856758aaaa"
+            }
     ],
     "categories": [
       "Other"
