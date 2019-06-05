@@ -25,6 +25,7 @@ Table of Contents
       * [Technical components](#technical-components)
       * [Flow](#flow)
          * [Requirements](#requirements)
+         * [Terminology](#terminology)
          * [Workflows](#workflows)
          * [Publishing an Asset including Computing Services](#publishing-an-asset-including-computing-services)
          * [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
@@ -110,23 +111,30 @@ There are some parameters used in this flow:
 ### Requirements
 
 * A PROVIDER define the conditions that a Computing service supports. It includes:
-  - What kind of image (Docker container) can be deployed in his/her infrastructure
+  - What kind of image (Docker container) can be deployed in the infrastructure
   - CPU and memory
   - Number of instances
   - Storage
+  - Price
 * A CONSUMER define the computation to execute modeling it in a Workflow (including configuration, input, transformations and output)
 * A workflow is a new type of Asset. It can be resolvable and be used across multiple independent computing services
 * A CONSUMER purchasing a computing service defines which Workflow (DID) is going to execute
 * A CONSUMER can purchase a service given by a PROVIDER and execute multiple times till the timeout expires
 * A CONSUMER could purchase a service and execute later, the purchase MUST be totally decoupled of execution
 * The previous two points could support to buy once a compute service and execute for example the service every night at 3 am
- 
+
+### Terminology
+
+* Compute Provider - Entity providing a compute service for a price (or for free).
+* Compute Service - Service offered by a Compute Provider. It could have different conditions like the type of services, price, etc. 
+* Workflow - It describes an execution pipeline where you put together input data and an algorithm to process this data and you run using a Compute Service. 
+  
 
 ### Workflows
 
 From a high-level point of view, a workflow may be considered a view or representation of a real work.
 A workflow consists of an orchestrated and repeatable pattern of activities 
-transformed into processes that transform or process information.
+transformed into tasks that transform or process information.
 
 In Ocean we use the concept of workflow to represent a list of tasks to accomplish with the intention of process data.
 
@@ -159,21 +167,20 @@ Example of a Workflow:
           "index": 0,
           "stageType": "Filtering",
           "requirements": {
+            "computeServiceId": "did:op8934894328989423",
+            "serviceDefinitionId": "1",
+            "serverId": "1",
+            "serverInstances": 1,            
             "container": {
               "image": "tensorflow/tensorflow",
               "tag": "latest",
               "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-            },
-            "cpu": 2,
-            "memory": "8gb",
-            "storage": "50gb",
-            "nodes": 1
+            }
           },
           "input": [{
             "index": 0,
             "id": "did:op:12345"
-          },
-            {
+          }, {
               "index": 1,
               "id": "did:op:67890"
             }
@@ -186,10 +193,15 @@ Example of a Workflow:
           "index": 1,
           "stageType": "Transformation",
           "requirements": {
-            "image": "did:op:1234",
-            "cpu": 8,
-            "memory": "32gb",
-            "nodes": 2
+            "computeServiceId": "did:op8934894328989423",
+            "serviceDefinitionId": "1",
+            "serverId": "2",
+            "serverInstances": 1,            
+            "container": {
+              "image": "tensorflow/tensorflow",
+              "tag": "latest",
+              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+            }
           },
           "input": [{
             "index": 0,
@@ -272,21 +284,38 @@ It's not supported yet the execution of parallel stages.
           "type": "Kubernetes",
           "url": "http://10.0.0.17/xxx"
         },
-        "supportedContainers": [{
-                                	"image": "tensorflow/tensorflow",
-                                	"tag": "latest",
-                                	"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-                                }, {
-                                	"image": "tensorflow/tensorflow",
-                                	"tag": "latest",
-                                	"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-                                }],
-        "typeContainer": "xlsize",
-        "cpu": "16",
-        "gpu": "0",
-        "memory": "128gb",
-        "disk": "160gb",
-        "maxExecutionTime": 86400
+        "supportedContainers": [
+          {
+            "image": "tensorflow/tensorflow",
+            "tag": "latest",
+            "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+          }, {
+            "image": "tensorflow/tensorflow",
+            "tag": "latest",
+            "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+          }],
+        "supportedServers": [
+          {
+            "serverId": "1",
+            "serverType": "xlsize",
+            "price": "5000000000000000000",
+            "cpu": "16",
+            "gpu": "0",
+            "memory": "128gb",
+            "disk": "160gb",
+            "maxExecutionTime": 86400
+          }, {
+            "containerId": "2",
+            "typeContainer": "medium",
+            "price": "1000000000000000000",
+            "cpu": "2",
+            "gpu": "0",
+            "memory": "8gb",
+            "disk": "80gb",
+            "maxExecutionTime": 86400
+          }                     
+        ]
+
       }
     },
 
