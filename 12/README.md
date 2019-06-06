@@ -49,7 +49,7 @@ This OEP using the SEA as core element, orchestrates the publishing/execution of
 
 The intention of this OEP is to describe the flow and integration pattern independently of the infrastructure Cloud Computing Service.
 This OEP MUST be valid for integrating classical infrastructure cloud providers like Amazon EC2 or Azure, 
-but also can be used to integrate web3 compute providers like Fitchain or On-Premise infrastructure.
+but also can be used to integrate web3 compute providers or On-Premise infrastructure.
 
 It's out of the scope to detail the Service Execution Agreements implementation. 
 Service Agreements are described as part of the Dev-Ocean repository.
@@ -108,27 +108,26 @@ There are some parameters used in this flow:
 * **serviceDefinitionId** - Identifies one service in the array of services included in the DDO. It is created by the PUBLISHER (via Squid) upon DDO creation and is associated with different services.
 * **templateId** - Identifies a unique Service Agreement template. The Service Agreement is an instance of one existing template. In the scenario described in this OEP, the templateId is `hash(2):ad7c5bef027816a800da1736444fb58a807ef4c9603b7848673f7e3a68eb14a5`
 
-### Requirements
-
-* A PROVIDER define the conditions that a Computing service supports. It includes:
-  - What kind of image (Docker container) can be deployed in the infrastructure
-  - CPU and memory
-  - Number of instances
-  - Storage
-  - Price
-* A CONSUMER define the computation to execute modeling it in a Workflow (including configuration, input, transformations and output)
-* A workflow is a new type of Asset. It can be resolvable and be used across multiple independent computing services
-* A CONSUMER purchasing a computing service defines which Workflow (DID) is going to execute
-* A CONSUMER can purchase a service given by a PROVIDER and execute multiple times till the timeout expires
-* A CONSUMER could purchase a service and execute later, the purchase MUST be totally decoupled of execution
-* The previous two points could support to buy once a compute service and execute for example the service every night at 3 am
-
 ### Terminology
 
 * Compute Provider - Entity providing a compute service for a price (or for free).
 * Compute Service - Service offered by a Compute Provider. It could have different conditions like the type of services, price, etc. 
 * Workflow - It describes an execution pipeline where you put together input data and an algorithm to process this data and you run using a Compute Service. 
   
+
+### Requirements
+
+* A COMPUTE PROVIDER or PROVIDER define the conditions that a Computing service supports. It includes:
+  - What kind of image (Docker container) can be deployed in the infrastructure
+  - What are the infrastructure resources available (CPU, memory, storage)  
+  - What is the price of using the infrastructure resources
+* A CONSUMER defines the task to execute modeling it in a Workflow (including configuration, input, transformations and output)
+* A workflow is a new type of Asset. It can be resolvable and be used across multiple independent computing services
+* A CONSUMER purchasing a computing service defines which Workflow (DID) is going to execute
+* A CONSUMER can purchase a service given by a PROVIDER and execute multiple times till the timeout expires
+* A CONSUMER could purchase a service and execute later, the purchase MUST be totally decoupled of execution
+* The previous two points could support to buy once a compute service and execute for example the service every night at 3 am
+
 
 ### Workflows
 
