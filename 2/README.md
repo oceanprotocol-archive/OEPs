@@ -50,7 +50,13 @@ There are three types of OEPs:
 ### OEP Format
 A OEP is a set of Markdown documents (the main file SHOULD be called `README.md`), together with comments, attached files, and other resources. A OEP is identified by its number and short name (e.g. this OEP is **2/COSS**). The number of the OEP is also the name of the directory where its files are stored.
 
-Every OEP (including branches) carries a different number. New versions of the same OEP have new numbers.
+Every OEP (including branches) carries a different number.
+
+If there are different versions of an OEP which don't differ very much, and you want to make them all easy to find, then put them in `README.md` files in separate subfolders, where the subfolder name is the version (e.g. `v0.3`). If using subfolders to expose multiple versions, then the root `README.md` file should have links to the versions/files in the subfolders. Example folder structure:
+
+* `15/README.md`
+* `15/v0.1/README.md`
+* `15/v0.2/README.md`
 
 ### OEP template
 Each OEP MUST customize and include this header:
@@ -113,7 +119,7 @@ value. Only Raw and Draft OEPs can be deleted.
 A OEP MUST have a single responsible editor, the only person
 who SHALL change the status of the OEP through the lifecycle stages.
 
-A OEP MAY also have additional contributors who contribute changes to it. It is RECOMMENDED to use the [C4 process](../1/README.md) to maximize the scale and diversity of contributions.
+A OEP MAY also have additional contributors who contribute changes to it. It is RECOMMENDED to maximize the scale and diversity of contributions.
 
 The editor is responsible for accurately maintaining the state of OEPs and for handling all comments on the OEP.
 
