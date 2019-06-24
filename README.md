@@ -57,7 +57,7 @@ Some people have specializations:
 ## Administrators (Founders and Others)
 
 - Aitor - @aaitor
-- Ahmed - @aabdulwahed
+- Ahmed - @0x3bfc
 - Dimi - @diminator
 - Don - @dgossen
 - Trent - @trentmc
