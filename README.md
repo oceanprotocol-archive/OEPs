@@ -34,6 +34,7 @@ Short Name       | Title                                             | Type     
 [9/BOUNTY](9)    | Bounties in Ocean Protocol                        | Standard     | Raw        | Chalid Mannaa, Manan Patel
 [10/OAA](10)     | On-Chain Access Control                           | Standard     | Deprecated | Ahmed Ali
 [11/ACL](11)     | On-Chain Access Control using Service Execution Agreements | Standard | Raw   | Aitor Argomaniz
+[12/EXEC](12)     | Execution of Computing Services                  | Standard     | Raw        | Aitor Argomaniz
 
 # Current Participants
 
