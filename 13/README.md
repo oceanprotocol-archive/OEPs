@@ -421,12 +421,6 @@ All the provenance information will be stored as part of the DDO as a an
     
     "provenance": {
     
-        "prefix": {
-            "did": "https://w3c-ccg.github.io/did-spec/",
-            "ex": "http://example.org",
-            "tr": "http://www.w3.org/TR/2011/"
-        },
-    
         "entity": {
             "did:op:1234": {
                 "ex:version": "5",
