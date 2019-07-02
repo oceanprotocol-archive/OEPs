@@ -338,7 +338,7 @@ structure containing the entity's attribute-values pairs.
 ```json
 ...
 "activity": {
-    "a1": {
+    "did:op:a1": {
         "prov:startTime": "2011-11-16T16:05:00",
         "prov:endTime": "2011-11-16T16:06:00",
         "ehost": "server.example.org",
@@ -368,13 +368,13 @@ Relations are grouped by relationName in a PROV-JSON structure.
     "wasGeneratedBy": {
         "8989": {
             "prov:entity": "did:op:1234",
-            "prov:activity": "a1",
+            "prov:activity": "did:op:a1",
             "prov:time": "2001-10-26T21:32:52",
             "ex:port": "p1"
         },
         "8990": {
             "prov:entity": "did:op:1235",
-            "prov:activity": "a1",
+            "prov:activity": "did:op:a1",
             "prov:time": "2001-10-26T10:00:00",
             "ex:port": "p1"
         },
