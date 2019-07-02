@@ -506,8 +506,8 @@ removed
 * The Json document and all the nested objects must be sort 
 alphabetically
 
-This must generate a JSON object of only one line that can be hashed and
-the verification of the hash can be repeated.
+This must generate a compact JSON object of only one line that can be hashed and
+the verification of the hash can be re-calculated.
 
 
 ## Links
