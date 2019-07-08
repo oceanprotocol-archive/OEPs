@@ -467,29 +467,29 @@ The steps included in this scenario are:
 
 1. The OPERATOR communicates with the K8s cluster to prepare the pods
 
-1. K8s starts a generic [Init Container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/). The responsibilities of the init container are:
+1. The OPERATOR via K8s starts a generic [Configuration Pod](https://github.com/oceanprotocol/pod-configuration). The responsibilities of the configuration pod are:
    - Parse the Workflow document
    - Resolve the DID resources necessary to run the Workflow
    - Pull the docker image from the Docker registry
    - Plug the different data inputs as volumes in the Compute Pod
    - Plug the output for data and logs as volumes in the Compute Pod
-   - Start the Compute Pod and copy the algorithm
-   - Execute the algorithm passing as parameter the input and output volumes   
 
-1. After all the above steps the Init Container must die
+1. After all the above steps the Configuration Pod must die
 
-1. The Compute Pod must continue running the execution
+1. If the Configuration Pod ends successfully the OPERATOR via K8s starts the Computing Pod
+
+1. The Compute Pod starts and run the `ocean-entrypoint.sh` part of the algorithm downloaded by the Configuration Pod
 
 1. When the Compute Pod ends or the duration is too long (timeout), the OPERATOR via K8s stop and delete the Compute Pod
 
-1. The OPERATOR start a new instance of the Publishing Pod. The responsibilities of the Publishing Pod are:
-   - List of the Log files generated in the Log volume
+1.  If the Computing Pod ends, the OPERATOR start a new instance of the Publishing Pod. The responsibilities of the Publishing Pod are:
+   - List of the Log files generated in the Log volume and copy to the output
    - List of the Output data generated in the Output volume
    - Generate a new Asset Metadata using the information provided by the CONSUMER
    - Register a new Asset in Ocean including the Output & Log data generated
    - Transfer the ownership of the new Asset created to the CONSUMER    
- 
- 1. At this point the CONSUMER could get an event of a new created asset where he/she is the owner 
+
+1. At this point the CONSUMER could get an event of a new created asset where he/she is the owner 
 
 ![Infrastructure Orchestration](images/infrastructure-orchestration.png)
 
