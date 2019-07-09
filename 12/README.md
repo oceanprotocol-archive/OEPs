@@ -24,13 +24,14 @@ Table of Contents
       * [Actors](#actors)
       * [Technical components](#technical-components)
       * [Flow](#flow)
-         * [Requirements](#requirements)
          * [Terminology](#terminology)
+         * [Requirements](#requirements)
          * [Workflows](#workflows)
          * [Publishing an Asset including Computing Services](#publishing-an-asset-including-computing-services)
          * [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
          * [Execution phase](#execution-phase)
       * [Infrastructure Orchestration](#infrastructure-orchestration)
+         * [Services Provided by the Operator](#services-provided-by-the-operator)
          * [Orchestration Steps](#orchestration-steps)
          * [Infrastructure Operator](#infrastructure-operator)
             * [Volumes](#volumes)
@@ -121,6 +122,7 @@ There are some parameters used in this flow:
   - What kind of image (Docker container) can be deployed in the infrastructure
   - What are the infrastructure resources available (CPU, memory, storage)  
   - What is the price of using the infrastructure resources
+* A COMPUTE PROVIDER defines a Compute Service in the scope of the Asset (DID/DDO) of the dataset that can be computed
 * A CONSUMER defines the task to execute modeling it in a Workflow (including configuration, input, transformations and output)
 * A workflow is a new type of Asset. It can be resolvable and be used across multiple independent computing services
 * A CONSUMER purchasing a computing service defines which Workflow (DID) is going to execute
@@ -187,7 +189,11 @@ Example of a Workflow:
           "transformation": {
             "id": "did:op:abcde"
           },
-          "output": {}
+          "output": {
+            "metadata": {
+              "title": "my filtered asset"
+            }
+          }
         }, {
           "index": 1,
           "stageType": "Transformation",
@@ -215,7 +221,7 @@ Example of a Workflow:
     }
 ```
 
-A Workflow is a new type of Asset (a part of datasets, algorithms, etc.)*[]: 
+A Workflow is a new type of Asset (a part of datasets, algorithms, etc.).  
 You can find a complete DDO of type workflow in the [ddo.workflow.json example file](ddo.workflow.json).
 
 As a new kind of asset, the workflow details will be persisted inside a DDO as part of the "Metadata" service where the **type** is **Workflow**. 
@@ -231,6 +237,9 @@ It's not supported yet the execution of parallel stages.
 
 ### Publishing an Asset including Computing Services
 
+The Computing services are published as part of the asset (dataset) metadata as an additional service offered for that specific asset.
+
+The complete flow of publishing an asset with a computing service attached is:
 
 1. PUBLISHER generates a DID. See [How to compute a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#how-to-compute-a-did).
 1. PUBLISHER creates a DDO including the following information:
@@ -411,25 +420,24 @@ The complete flow for the Execution phase is:
 
 1. BRIZO resolves the DID of the Workflow associated with the Service Agreement. The workflow includes the details of the pipeline to execute, including the different stages, inputs and outputs.
 
-1. For each stage included in the workflow, BRIZO orchestrates the following steps:
+1. BRIZO send a "Workflow Registration" HTTP REST request to the Infrastructure Operator (aka OPERATOR). 
+   This request must include the serviceAgreementId and the Workflow (JSON)
 
-   - Resolve the DID of the Algorithm associated with the Workflow 
-   - Download the Docker Images from the Docker Registry
-   - Copy the algorithm to a volume or bucket
-   - Initialize the container/s in the Kubernetes cluster of the provider infrastructure
-     This container will have attached 3 different volumes. The first one is for the algorithm, the second is for the input data, the third is for the output data
-   - After the container is running, the algorithm is executed. The input and output volumes are passed as the first and second parameter to the algorithm
-   - The execution logs are retrieved and stored in the output volume
-   - After the algorithm finish, the output should be written in the output volume
+1. The OPERATOR receives a "Workflow Registration" request and:
+   - Validates in K8s there is no an existing/running workflow with the same `serviceAgreementId`
+   - Creates an unique `workflowExecutionId` identifying a unique execution of the service
+   - Validates the container flavour defined by the CONSUMER in the Workflow is supported in the computing service (DDO) 
+   - Starts the Orchestration Flow
 
-1. After finalize the execution of the algorithm, BRIZO request the stop and deletion of the container in the Kubernetes cluster
+1. All the actions made by the OPERATOR in the infrastructure via K8s MUST include the `serviceAgreementId` and `workflowExecutionId` as tags/labels
 
-1. BRIZO retrieve from the INFRASTRUCTURE (if it's available) a receipt demonstrating the execution of the service
+1. For each stage included in the workflow, the OPERATOR orchestrates [Orchestration Steps](#orchestration-steps)
 
-1. The new ASSET created after the execution is registered as a new ASSET. It should includes the Metadata of the new Asset created.
-   The OWNER of this new asset must be the CONSUMER.
+1. The OPERATOR request the deletion of all the containers and volumes created in the Kubernetes cluster
 
-1. The Consumer receives an event including the DID of the new ASSET created
+1. The OPERATOR retrieve from the INFRASTRUCTURE (if it's available) a receipt demonstrating the execution of the service
+
+1. The CONSUMER receives an event including the DID of the new ASSET created
 
 1. BRIZO or any other user may requests the `releasePayment` through the KEEPER. It commit on-chain the HASH of the receipt ticket collected from the INFRASTRUCTURE provider.
 
@@ -439,9 +447,9 @@ The complete flow for the Execution phase is:
 
 ## Infrastructure Orchestration
 
-To facilitate the infrastructure orchestration BRIZO integrates with Kubernetes (aka K8s). 
-It allows to abstract the execution of Docker containers with computing services independently of the backend (Amazon, Azure, On-Premise).
-To support that BRIZO includes the kubernetes driver allowing to wrap the complete execution including:
+To facilitate the infrastructure orchestration BRIZO integrates with Kubernetes (aka K8s) via the OPERATOR component. 
+The OPERATOR allows to abstract the execution of Docker containers with computing services independently of the backend (Amazon, Azure, On-Premise).
+To support that OPERATOR includes the kubernetes driver allowing to wrap the complete execution including:
 
 - Download of the container images
 - Setting up the pods
@@ -451,7 +459,20 @@ To support that BRIZO includes the kubernetes driver allowing to wrap the comple
 - Registering the new Asset
 - Destroy the pods
 
+The OPERATOR handles 3 types of K8s Pods:
 
+a. `Configuration Pod` is in charge of resolve the Workflow resources necessary for the execution of the algorithm. It copy the data and algorithm in volumes
+b. `Computing Pod` is in charge of run the algorithm. This pod has access in read-only mode to the volumes with the input data and write mode to the output volume
+c. `Publishing Pod` is in charge of having all the data and logs generated in the output volume to publish this data in Ocean as a new asset and handover the ownership to the CONSUMER
+
+### Services Provided by the Operator
+
+The services provided by the OPERATOR are:
+
+1. Registering a new Workflow execution. Given a `serviceAgreementId` and a `Workflow` payload, starts the execution of the Workflow. 
+   It returns a `workflowExecutionId` valid to track the execution of the Workflow.
+1. Retrieve logs. Given a `serviceAgreementId` and `workflowExecutionId` retrieve the logs associated to that execution
+1. Stop workflow execution. Given a `serviceAgreementId` and `workflowExecutionId` stop/delete all the containers associated with those 
 
 ### Orchestration Steps 
 
@@ -467,29 +488,29 @@ The steps included in this scenario are:
 
 1. The OPERATOR communicates with the K8s cluster to prepare the pods
 
-1. K8s starts a generic [Init Container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/). The responsibilities of the init container are:
+1. The OPERATOR via K8s starts a generic [Configuration Pod](https://github.com/oceanprotocol/pod-configuration). The responsibilities of the configuration pod are:
    - Parse the Workflow document
    - Resolve the DID resources necessary to run the Workflow
    - Pull the docker image from the Docker registry
    - Plug the different data inputs as volumes in the Compute Pod
    - Plug the output for data and logs as volumes in the Compute Pod
-   - Start the Compute Pod and copy the algorithm
-   - Execute the algorithm passing as parameter the input and output volumes   
 
-1. After all the above steps the Init Container must die
+1. After all the above steps the `Configuration Pod` must die
 
-1. The Compute Pod must continue running the execution
+1. If the `Configuration Pod` ends successfully the OPERATOR via K8s starts the `Computing Pod` using the flavour specifid in the Workflow definition
 
-1. When the Compute Pod ends or the duration is too long (timeout), the OPERATOR via K8s stop and delete the Compute Pod
+1. The `Compute Pod` starts and run the `ocean-entrypoint.sh` part of the algorithm downloaded by the `Configuration Pod`
 
-1. The OPERATOR start a new instance of the Publishing Pod. The responsibilities of the Publishing Pod are:
-   - List of the Log files generated in the Log volume
+1. When the `Compute Pod` ends or the duration is too long (timeout), the OPERATOR via K8s stop and delete the Compute Pod
+
+1.  If the `Computing Pod ends, the OPERATOR start a new instance of the Publishing Pod. The responsibilities of the Publishing Pod are:
+   - List of the Log files generated in the Log volume and copy to the output
    - List of the Output data generated in the Output volume
    - Generate a new Asset Metadata using the information provided by the CONSUMER
    - Register a new Asset in Ocean including the Output & Log data generated
    - Transfer the ownership of the new Asset created to the CONSUMER    
- 
- 1. At this point the CONSUMER could get an event of a new created asset where he/she is the owner 
+
+1. At this point the CONSUMER could get an event of a new created asset where he/she is the owner 
 
 ![Infrastructure Orchestration](images/infrastructure-orchestration.png)
 
