@@ -188,7 +188,11 @@ Example of a Workflow:
           "transformation": {
             "id": "did:op:abcde"
           },
-          "output": {}
+          "output": {
+            "metadata": {
+              "title": "my filtered asset"
+            }
+          }
         }, {
           "index": 1,
           "stageType": "Transformation",
