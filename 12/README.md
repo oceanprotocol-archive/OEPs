@@ -121,6 +121,7 @@ There are some parameters used in this flow:
   - What kind of image (Docker container) can be deployed in the infrastructure
   - What are the infrastructure resources available (CPU, memory, storage)  
   - What is the price of using the infrastructure resources
+* A COMPUTE PROVIDER defines a Compute Service in the scope of the Asset (DID/DDO) of the dataset that can be computed
 * A CONSUMER defines the task to execute modeling it in a Workflow (including configuration, input, transformations and output)
 * A workflow is a new type of Asset. It can be resolvable and be used across multiple independent computing services
 * A CONSUMER purchasing a computing service defines which Workflow (DID) is going to execute
@@ -215,7 +216,7 @@ Example of a Workflow:
     }
 ```
 
-A Workflow is a new type of Asset (a part of datasets, algorithms, etc.)*[]: 
+A Workflow is a new type of Asset (a part of datasets, algorithms, etc.).  
 You can find a complete DDO of type workflow in the [ddo.workflow.json example file](ddo.workflow.json).
 
 As a new kind of asset, the workflow details will be persisted inside a DDO as part of the "Metadata" service where the **type** is **Workflow**. 
@@ -231,6 +232,9 @@ It's not supported yet the execution of parallel stages.
 
 ### Publishing an Asset including Computing Services
 
+The Computing services are published as part of the assets metadata as an additional service offered for that specific asset.
+
+The complete flow of publishing an asset with a computing service attached is:
 
 1. PUBLISHER generates a DID. See [How to compute a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#how-to-compute-a-did).
 1. PUBLISHER creates a DDO including the following information:
