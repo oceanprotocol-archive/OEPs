@@ -119,8 +119,7 @@ Attribute       |   Type        |   Required    | Description
 **price**       | String        | Yes           | Price of the asset in vodka (attoOCEAN). It must be an integer encoded as a string, e.g. "123000000000000000000".
 **files**       | Array of files object | Yes     | Array of File objects including the encrypted file urls. Further metadata about each file is stored: contentType, checksum (optional), content length in bytes (optional), encoding (optional), compression (optional) and remote resourceId (optional)
 **encryptedFiles** | Text         | (remote)    | Encrypted string of the **files** attribute. 
-**services**       | Array of service object | Yes     | Array of Service object including the encrypted service endpoints. Further metadata about each service is stored: method, index, authentication (optional), description (optional), checksum (optional) 
-**encryptedServices** | Text         | (remote)    | Encrypted string of the **services** attribute. 
+**encryptedService** | Text         | (remote)    | Encrypted string of the **services** attribute. 
 **checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
 **tags**        | Array of Text | No            | Array of keywords or tags used to describe this content. Empty by default.
@@ -379,18 +378,26 @@ Example of workflow:
 
 #### Service attributes
 
-An asset of type "service" has the following attributes,
-with the details necessary to consume and validate the data.
+An asset of type "service" has an entry named **services**, 
+that is an array of the individual services or endpoints exposed as part of the service.
+
+The attributes included in each item are the following:
 
 | Attribute         | Required | Description                                         |
 | ----------------- | -------- | --------------------------------------------------- |
-| **url**           | (local)  | Service URL. Omitted from the remote metadata. |
-| **index**         | yes      | Index number starting from 0 of the service. |
-| **method**        | yes      | Service method (GET, POST, etc.) |
-| **checksum**      | no       | Checksum of the service using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
-| **checksumType**  | no       | Format of the provided checksum. Can vary according to server |
-| **description**   | no       | URL to the service definition                      |
-| **auth**          | no       | Object containing the different authentication parameters (user, password, token). All of those are optional. |
+| **spec**          | no       | Url to the web service specifications (Swagger, Documentation, etc.) |
+| **specChecksum**  | no       | Checksum of the service specifications in SHA3 |
+| **definition**    | yes      | Object containing the web service definition. This entry will be encrypted and the hash placed in the **base.encryptedServices** attribute. |
+| **definition.auth**| yes      | Object containing service authentication information |
+| **definition.auth.type**| yes      | Authentication mechanism (none, basic, digest, oauth, etc.) Complete list can be found on the [IANA website](https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml) |
+| **definition.auth.user**| no      | User used for authentication |
+| **definition.auth.password**| no      | Password used for authentication |
+| **definition.auth.token**| no      | Authentication token |
+| **definition.endpoints**| yes      | Array of Endpoint objects including the details of each individual service url |
+| **definition.endpoints.index**| yes      | Index number of the service endpoint starting from 0  |
+| **definition.endpoints.url**| yes      | Endpoint URL | 
+| **definition.endpoints.method**| yes      | HTTP Method (GET, POST, PUT, PATCH, DELETE, HEAD) | 
+| **definition.endpoints.contentTypes**| yes      | Array of content types supported| 
 
 Example of a service:
 
@@ -399,8 +406,22 @@ Example of a service:
       "base": { "type": "service"},
       "curation": {},
       "service": {
-        "url": "",
-        
+        "spec": "https://my.service.inet:8080/spec",
+        "specChecksum": "859486596784567856758aaaa",
+        "definition": {
+          "auth": {
+            "type": "basic",
+            "user": "aitor",
+            "password": "1234",
+            "token": "89c06eb5a88f4bbbf4ac966d737593b36e61e885"
+          },
+          "endpoints": [{
+            "index": 0,
+            "url": "https://my.service.inet:8080/api/v1/weather",
+            "method": "POST",
+            "contentTypes": ["application/json"]          
+          }]
+        }
       }
 }
 ```
