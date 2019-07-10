@@ -37,7 +37,7 @@ contributors: Kiran Karkera <kiran.karkera@dex.sg>,
 
 # Assets Metadata Ontology
 
-`version 0.3`
+`version 0.4`
 
 Every Asset (dataset, algorithm, etc.) in the Ocean Network has an associated Decentralized Identifier (DID) and DID document / DID Descriptor Object (DDO). Why? Because Assets without proper descriptive metadata have poor visibility and discoverability.
 
@@ -82,6 +82,16 @@ Note: A marketplace can and might also act as a publisher. [OEP-11](11) describe
 
 ## Metadata Attributes
 
+An asset is the representation of different type of resources in Ocean Protocol. Typically can asset could be one of the following asset types:
+
+* Dataset. An asset representing a dataset or data resource. It could be for example a CSV file or a multiple JPG files.
+* Algorithm. An asset representing a piece of software. It could be a python script using tensorflow, a spark job, etc.
+* Workflow. An asset representing in the metadata a list of tasks to accomplish with the intention of process data, typically relating datasets as input and algorithms. 
+* Service. An asset representing a service exposed by a provider. Typically a REST web service that a provider want to control the access using SEA.
+
+Each kind of asset require a different subset of metadata attributes. The distintion between the type of asset (dataset, algorithm, etc.) is given by the attribute `DDO.services["Metadata"].base.type`
+
+
 A `metadata` object has the following attributes, all of which are objects.
 Their contents are detailed below.
 
@@ -90,6 +100,8 @@ Attribute                 | Required |
 **base**                  | Yes      |
 **curation**              | (remote) |
 **additionalInformation** | No       |
+
+The base, curation and additionalInformation attributes are independent of the asset type. All the assets have those metadata sections.
 
 ### Base Attributes
 
@@ -121,6 +133,7 @@ Attribute       |   Type        |   Required    | Description
 
 #### File Attributes
 
+File attributes are a subset of the `base` section.
 A file object has the following attributes,
 with the details necessary to consume and validate the data.
 
@@ -135,21 +148,7 @@ with the details necessary to consume and validate the data.
 | **encoding**      | no       | File encoding (e.g. UTF-8). |
 | **compression**   | no       | File compression (e.g. no, gzip, bzip2, etc). |
 | **resourceId**    | no       | Remote identifier of the file in the external provider. It is typically the remote id in the cloud provider. |
-
-#### Service Attributes
-
-A service object has the following attributes,
-with the details necessary to consume and validate the data.
-
-| Attribute         | Required | Description                                         |
-| ----------------- | -------- | --------------------------------------------------- |
-| **url**           | (local)  | Service URL. Omitted from the remote metadata. |
-| **index**         | yes      | Index number starting from 0 of the service. |
-| **method**   | yes      | Service method (GET, POST, etc.) |
-| **checksum**      | no       | Checksum of the service using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
-| **checksumType**  | no       | Format of the provided checksum. Can vary according to server |
-| **description** | no       | URL to the service definition                      |
-| **auth**      | no       | Object containing the different authentication parameters (user, password, token). All of those are optional. |
+| **attributes**    | no       | Key-Value hash map with additional attributes describing the asset file. It could include details like the Amazon S3 bucket, region, etc. |
 
 
 ### Curation Attributes
@@ -178,6 +177,9 @@ These are examples of attributes that can enhance the discoverability of a resou
 | **structured-markup** | A link to machine-readable structured markup (such as ttl/json-ld/rdf) describing the dataset.                                |
 
 The publisher of a DDO MAY add additional attributes or change the above object definition.
+
+
+
 
 ## Example of Local Metadata
 
@@ -273,6 +275,136 @@ Similarly, this is how the metadata file would look as a response to querying Aq
   }
 }
 ```
+
+### Specific attributes per asset type
+
+Depending on the asset type (dataset, algorithm, workflow, service), there are different metadata attributes supported:
+
+#### Algorithm attributes
+
+An asset of type "algorithm" has the following attributes:
+
+| Attribute         | Required | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| **index**         | yes      | Index number starting from 0 of the service. |
+
+#### Workflow attributes
+
+An asset of type "workflow" has the following attributes:
+
+| Attribute         | Required | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| **stages**        | yes      | Array of stages/steps of a workflow. It is required to have at least one stage. |
+| **stages.index**  | yes      | Index number starting from 0 of the stage. |
+| **stages.stageType**  | no      | Optional text with information about the type of stage (cleansing, filtering, etc.)  |
+| **stages.requirements**| yes      | Object defining the system requirements of the stage to be executed |
+| **stages.requirements.container**| yes      | Object defining the details of the container necessary to execute the stage |
+| **stages.requirements.containe.imager**| yes      | Docker image to use |
+| **stages.requirements.containe.tag**| yes      | Docker image tag to use |
+| **stages.requirements.containe.checksum**| yes      | Checksum of the image and tag |
+| **stages.input**  | yes      | Array of inputs of a stage |
+| **stages.input.index**  | yes      | Index number starting from 0 of the input. The inputs will be given to the algorithm in the order defined in the index |
+| **stages.input.id**  | yes      | DID of the Asset (dataset) |
+| **stages.transformation**  | yes      | Object describing the transformation or computation phase made by an algorithm |
+| **stages.transformation.id**  | yes      | DID of the Asset (algorithm) in charge of process the input data |
+| **stages.output**  | yes      | Object including information to tag the output generated |
+| **stages.output.metadataUrl**  | yes      | Url of the Metadata service (Aquarius) that will be used for publishing the metadata of the new asset |
+| **stages.output.secretStoreUrl**  | yes      | Url of the Secret Store service used to encrypt the access urls |
+| **stages.output.accessProxyUrl**  | yes      | Url of the server used to consume the asset (Brizo) |
+| **stages.output.metadata**  | yes      | Object including all the metadata information that will be used to tag the new asset generated |
+
+Example of workflow:
+
+```json
+...
+"workflow": {
+        "stages": [{
+          "index": 0,
+          "stageType": "Filtering",
+          "requirements": {
+            "container": {
+              "image": "tensorflow/tensorflow",
+              "tag": "latest",
+              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+            }
+          },
+          "input": [{
+            "index": 0,
+            "id": "did:op:12345"
+          }, {
+              "index": 1,
+              "id": "did:op:67890"
+            }
+          ],
+          "transformation": {
+            "id": "did:op:abcde"
+          },
+          "output": {
+            "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
+            "secretStoreUrl": "http://secretstore.org:12001",
+            "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
+            "metadata": {
+              "title": "my filtered asset"
+            }
+          }
+        }, {
+          "index": 1,
+          "stageType": "Transformation",
+          "requirements": {
+            "container": {
+              "image": "tensorflow/tensorflow",
+              "tag": "latest",
+              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+            }        
+          },
+          "input": [{
+            "index": 0,
+            "previousStage": 0
+          }],
+          "transformation": {
+            "id": "did:op:999999"
+          },
+          "output": {
+            "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
+            "secretStoreUrl": "http://secretstore.org:12001",
+            "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
+            "metadata": {}
+          }
+        }]
+      }
+...
+```
+
+
+
+#### Service attributes
+
+An asset of type "service" has the following attributes,
+with the details necessary to consume and validate the data.
+
+| Attribute         | Required | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| **url**           | (local)  | Service URL. Omitted from the remote metadata. |
+| **index**         | yes      | Index number starting from 0 of the service. |
+| **method**        | yes      | Service method (GET, POST, etc.) |
+| **checksum**      | no       | Checksum of the service using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
+| **checksumType**  | no       | Format of the provided checksum. Can vary according to server |
+| **description**   | no       | URL to the service definition                      |
+| **auth**          | no       | Object containing the different authentication parameters (user, password, token). All of those are optional. |
+
+Example of a service:
+
+```json
+"metadata": {
+      "base": { "type": "service"},
+      "curation": {},
+      "service": {
+        "url": "",
+        
+      }
+}
+```
+
 
 ## References
 
