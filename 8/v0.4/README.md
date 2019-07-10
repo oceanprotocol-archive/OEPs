@@ -5,10 +5,10 @@ type: Standard
 status: Raw
 version: 0.4
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Kiran Karkera <kiran.karkera@dex.sg>,
-              Enrique Ruiz <enrique@oceanprotocol.com>,
-              Mike Anderson <mike.anderson@dex.sg>,
+contributors: 
+              Enrique Ruiz <enrique@oceanprotocol.com>,              
               Matthias Kretschmann <matthias@oceanprotocol.com>,
+              Jose Pablo Martinez <jose@oceanprotocol.com>,
               Marcus Jones <marcus@oceanprotocol.com>,
               Troy McConaghy <troy@oceanprotocol.com>
 ```
@@ -31,6 +31,10 @@ contributors: Kiran Karkera <kiran.karkera@dex.sg>,
          * [AdditionalInformation Attributes](#additionalinformation-attributes)
       * [Example of Local Metadata](#example-of-local-metadata)
       * [Example of Remote Metadata](#example-of-remote-metadata)
+         * [Specific attributes per asset type](#specific-attributes-per-asset-type)
+            * [Algorithm attributes](#algorithm-attributes)
+            * [Workflow attributes](#workflow-attributes)
+            * [Service attributes](#service-attributes)
       * [References](#references)
 
 <!--te-->
@@ -285,7 +289,32 @@ An asset of type "algorithm" has the following attributes:
 
 | Attribute         | Required | Description                                         |
 | ----------------- | -------- | --------------------------------------------------- |
-| **index**         | yes      | Index number starting from 0 of the service. |
+| **language**      | yes      | Language used to implement the software |
+| **format**        | no      | Packaging format of the software. |
+| **version**       | no      | Version of the software. |
+| **entrypoint**      | yes   | Path of the script inside of the software package used to install the dependencies and run it |
+| **requirements**  | yes   | Array of software requirements |
+
+
+```json
+"algorithm": {    
+  “language”: “scala”,
+  “format” : “jar”
+  “version”: “0.1”,
+  “entrypoint” : “ocean-entrypoint.sh”
+  “requirements”: [
+      {
+          “requirement”: “scala”,
+          “version”: “2.12.8”
+      }
+      {
+          “requirement”: “java”,
+          “version”: “1.8”
+      }
+  ]
+}
+```
+
 
 #### Workflow attributes
 
