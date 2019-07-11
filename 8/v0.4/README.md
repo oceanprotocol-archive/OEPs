@@ -5,10 +5,10 @@ type: Standard
 status: Raw
 version: 0.4
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Kiran Karkera <kiran.karkera@dex.sg>,
-              Enrique Ruiz <enrique@oceanprotocol.com>,
-              Mike Anderson <mike.anderson@dex.sg>,
+contributors: 
+              Enrique Ruiz <enrique@oceanprotocol.com>,              
               Matthias Kretschmann <matthias@oceanprotocol.com>,
+              Jose Pablo Martinez <jose@oceanprotocol.com>,
               Marcus Jones <marcus@oceanprotocol.com>,
               Troy McConaghy <troy@oceanprotocol.com>
 ```
@@ -31,13 +31,17 @@ contributors: Kiran Karkera <kiran.karkera@dex.sg>,
          * [AdditionalInformation Attributes](#additionalinformation-attributes)
       * [Example of Local Metadata](#example-of-local-metadata)
       * [Example of Remote Metadata](#example-of-remote-metadata)
+         * [Specific attributes per asset type](#specific-attributes-per-asset-type)
+            * [Algorithm attributes](#algorithm-attributes)
+            * [Workflow attributes](#workflow-attributes)
+            * [Service attributes](#service-attributes)
       * [References](#references)
 
 <!--te-->
 
 # Assets Metadata Ontology
 
-`version 0.3`
+`version 0.4`
 
 Every Asset (dataset, algorithm, etc.) in the Ocean Network has an associated Decentralized Identifier (DID) and DID document / DID Descriptor Object (DDO). Why? Because Assets without proper descriptive metadata have poor visibility and discoverability.
 
@@ -82,6 +86,16 @@ Note: A marketplace can and might also act as a publisher. [OEP-11](11) describe
 
 ## Metadata Attributes
 
+An asset is the representation of different type of resources in Ocean Protocol. Typically can asset could be one of the following asset types:
+
+* Dataset. An asset representing a dataset or data resource. It could be for example a CSV file or a multiple JPG files.
+* Algorithm. An asset representing a piece of software. It could be a python script using tensorflow, a spark job, etc.
+* Workflow. An asset representing in the metadata a list of tasks to accomplish with the intention of process data, typically relating datasets as input and algorithms. 
+* Service. An asset representing a service exposed by a provider. Typically a REST web service that a provider want to control the access using SEA.
+
+Each kind of asset require a different subset of metadata attributes. The distintion between the type of asset (dataset, algorithm, etc.) is given by the attribute `DDO.services["Metadata"].base.type`
+
+
 A `metadata` object has the following attributes, all of which are objects.
 Their contents are detailed below.
 
@@ -90,6 +104,8 @@ Attribute                 | Required |
 **base**                  | Yes      |
 **curation**              | (remote) |
 **additionalInformation** | No       |
+
+The base, curation and additionalInformation attributes are independent of the asset type. All the assets have those metadata sections.
 
 ### Base Attributes
 
@@ -107,8 +123,7 @@ Attribute       |   Type        |   Required    | Description
 **price**       | String        | Yes           | Price of the asset in vodka (attoOCEAN). It must be an integer encoded as a string, e.g. "123000000000000000000".
 **files**       | Array of files object | Yes     | Array of File objects including the encrypted file urls. Further metadata about each file is stored: contentType, checksum (optional), content length in bytes (optional), encoding (optional), compression (optional) and remote resourceId (optional)
 **encryptedFiles** | Text         | (remote)    | Encrypted string of the **files** attribute. 
-**services**       | Array of service object | Yes     | Array of Service object including the encrypted service endpoints. Further metadata about each service is stored: method, index, authentication (optional), description (optional), checksum (optional) 
-**encryptedServices** | Text         | (remote)    | Encrypted string of the **services** attribute. 
+**encryptedService** | Text         | (remote)    | Encrypted string of the **services** attribute. 
 **checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
 **categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
 **tags**        | Array of Text | No            | Array of keywords or tags used to describe this content. Empty by default.
@@ -121,6 +136,7 @@ Attribute       |   Type        |   Required    | Description
 
 #### File Attributes
 
+File attributes are a subset of the `base` section.
 A file object has the following attributes,
 with the details necessary to consume and validate the data.
 
@@ -135,21 +151,7 @@ with the details necessary to consume and validate the data.
 | **encoding**      | no       | File encoding (e.g. UTF-8). |
 | **compression**   | no       | File compression (e.g. no, gzip, bzip2, etc). |
 | **resourceId**    | no       | Remote identifier of the file in the external provider. It is typically the remote id in the cloud provider. |
-
-#### Service Attributes
-
-A service object has the following attributes,
-with the details necessary to consume and validate the data.
-
-| Attribute         | Required | Description                                         |
-| ----------------- | -------- | --------------------------------------------------- |
-| **url**           | (local)  | Service URL. Omitted from the remote metadata. |
-| **index**         | yes      | Index number starting from 0 of the service. |
-| **method**   | yes      | Service method (GET, POST, etc.) |
-| **checksum**      | no       | Checksum of the service using your preferred format (i.e. MD5). Format specified in **checksumType**. If it's not provided can't be validated if the file was not modified after registering. |
-| **checksumType**  | no       | Format of the provided checksum. Can vary according to server |
-| **description** | no       | URL to the service definition                      |
-| **auth**      | no       | Object containing the different authentication parameters (user, password, token). All of those are optional. |
+| **attributes**    | no       | Key-Value hash map with additional attributes describing the asset file. It could include details like the Amazon S3 bucket, region, etc. |
 
 
 ### Curation Attributes
@@ -178,6 +180,9 @@ These are examples of attributes that can enhance the discoverability of a resou
 | **structured-markup** | A link to machine-readable structured markup (such as ttl/json-ld/rdf) describing the dataset.                                |
 
 The publisher of a DDO MAY add additional attributes or change the above object definition.
+
+
+
 
 ## Example of Local Metadata
 
@@ -273,6 +278,183 @@ Similarly, this is how the metadata file would look as a response to querying Aq
   }
 }
 ```
+
+### Specific attributes per asset type
+
+Depending on the asset type (dataset, algorithm, workflow, service), there are different metadata attributes supported:
+
+#### Algorithm attributes
+
+An asset of type "algorithm" has the following attributes:
+
+| Attribute         | Required | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| **language**      | yes      | Language used to implement the software |
+| **format**        | no      | Packaging format of the software. |
+| **version**       | no      | Version of the software. |
+| **entrypoint**      | yes   | Path of the script inside of the software package used to install the dependencies and run it |
+| **requirements**  | yes   | Array of software requirements |
+
+
+```json
+"algorithm": {    
+  “language”: “scala”,
+  “format” : “jar”
+  “version”: “0.1”,
+  “entrypoint” : “ocean-entrypoint.sh”
+  “requirements”: [
+      {
+          “requirement”: “scala”,
+          “version”: “2.12.8”
+      }
+      {
+          “requirement”: “java”,
+          “version”: “1.8”
+      }
+  ]
+}
+```
+
+
+#### Workflow attributes
+
+An asset of type "workflow" has the following attributes:
+
+| Attribute         | Required | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| **stages**        | yes      | Array of stages/steps of a workflow. It is required to have at least one stage. |
+| **stages.index**  | yes      | Index number starting from 0 of the stage. |
+| **stages.stageType**  | no      | Optional text with information about the type of stage (cleansing, filtering, etc.)  |
+| **stages.requirements**| yes      | Object defining the system requirements of the stage to be executed |
+| **stages.requirements.container**| yes      | Object defining the details of the container necessary to execute the stage |
+| **stages.requirements.containe.imager**| yes      | Docker image to use |
+| **stages.requirements.containe.tag**| yes      | Docker image tag to use |
+| **stages.requirements.containe.checksum**| yes      | Checksum of the image and tag |
+| **stages.input**  | yes      | Array of inputs of a stage |
+| **stages.input.index**  | yes      | Index number starting from 0 of the input. The inputs will be given to the algorithm in the order defined in the index |
+| **stages.input.id**  | yes      | DID of the Asset (dataset) |
+| **stages.transformation**  | yes      | Object describing the transformation or computation phase made by an algorithm |
+| **stages.transformation.id**  | yes      | DID of the Asset (algorithm) in charge of process the input data |
+| **stages.output**  | yes      | Object including information to tag the output generated |
+| **stages.output.metadataUrl**  | yes      | Url of the Metadata service (Aquarius) that will be used for publishing the metadata of the new asset |
+| **stages.output.secretStoreUrl**  | yes      | Url of the Secret Store service used to encrypt the access urls |
+| **stages.output.accessProxyUrl**  | yes      | Url of the server used to consume the asset (Brizo) |
+| **stages.output.metadata**  | yes      | Object including all the metadata information that will be used to tag the new asset generated |
+
+Example of workflow:
+
+```json
+...
+"workflow": {
+        "stages": [{
+          "index": 0,
+          "stageType": "Filtering",
+          "requirements": {
+            "container": {
+              "image": "tensorflow/tensorflow",
+              "tag": "latest",
+              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+            }
+          },
+          "input": [{
+            "index": 0,
+            "id": "did:op:12345"
+          }, {
+              "index": 1,
+              "id": "did:op:67890"
+            }
+          ],
+          "transformation": {
+            "id": "did:op:abcde"
+          },
+          "output": {
+            "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
+            "secretStoreUrl": "http://secretstore.org:12001",
+            "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
+            "metadata": {
+              "title": "my filtered asset"
+            }
+          }
+        }, {
+          "index": 1,
+          "stageType": "Transformation",
+          "requirements": {
+            "container": {
+              "image": "tensorflow/tensorflow",
+              "tag": "latest",
+              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+            }        
+          },
+          "input": [{
+            "index": 0,
+            "previousStage": 0
+          }],
+          "transformation": {
+            "id": "did:op:999999"
+          },
+          "output": {
+            "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
+            "secretStoreUrl": "http://secretstore.org:12001",
+            "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
+            "metadata": {}
+          }
+        }]
+      }
+...
+```
+
+
+
+#### Service attributes
+
+An asset of type "service" has an entry named **services**, 
+that is an array of the individual services or endpoints exposed as part of the service.
+
+The attributes included in each item are the following:
+
+| Attribute         | Required | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| **spec**          | no       | Url to the web service specifications (Swagger, Documentation, etc.) |
+| **specChecksum**  | no       | Checksum of the service specifications in SHA3 |
+| **definition**    | yes      | Object containing the web service definition. This entry will be encrypted and the hash placed in the **base.encryptedServices** attribute. |
+| **definition.auth**| yes      | Object containing service authentication information |
+| **definition.auth.type**| yes      | Authentication mechanism (none, basic, digest, oauth, etc.) Complete list can be found on the [IANA website](https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml) |
+| **definition.auth.user**| no      | User used for authentication |
+| **definition.auth.password**| no      | Password used for authentication |
+| **definition.auth.token**| no      | Authentication token |
+| **definition.endpoints**| yes      | Array of Endpoint objects including the details of each individual service url |
+| **definition.endpoints.index**| yes      | Index number of the service endpoint starting from 0  |
+| **definition.endpoints.url**| yes      | Endpoint URL | 
+| **definition.endpoints.method**| yes      | HTTP Method (GET, POST, PUT, PATCH, DELETE, HEAD) | 
+| **definition.endpoints.contentTypes**| yes      | Array of content types supported| 
+
+Example of a service:
+
+```json
+"metadata": {
+      "base": { "type": "service"},
+      "curation": {},
+      "service": {
+        "spec": "https://my.service.inet:8080/spec",
+        "specChecksum": "859486596784567856758aaaa",
+        "definition": {
+          "auth": {
+            "type": "basic",
+            "user": "aitor",
+            "password": "1234",
+            "token": "89c06eb5a88f4bbbf4ac966d737593b36e61e885"
+          },
+          "endpoints": [{
+            "index": 0,
+            "url": "https://my.service.inet:8080/api/v1/weather",
+            "method": "POST",
+            "contentTypes": ["application/json"]          
+          }]
+        }
+      }
+}
+```
+
 
 ## References
 
