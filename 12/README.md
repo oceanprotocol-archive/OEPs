@@ -9,7 +9,7 @@ contributors:
         Enrique Ruiz <enrique@oceanprotocol.com>, 
         Troy <troy@oceanprotocol.com>,
         Dimitri De Jonghe <dimi@oceanprotocol.com>,        
-		Ahmed Ali <ahmed@oceanprotocol.com>
+		    Ahmed Ali <ahmed@oceanprotocol.com>
 
 ```
 
@@ -160,77 +160,90 @@ In the below example, a workflow is modeled in a JSON document with the followin
 Example of a Workflow:
 
 ```json
-"metadata": {
-      "base": { "type": "workflow"},
-      "curation": {},
-      "workflow": {
-        "stages": [{
-          "index": 0,
-          "stageType": "Filtering",
-          "requirements": {
-            "container": {
-              "image": "tensorflow/tensorflow",
-              "tag": "latest",
-              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+{
+	"service": [{
+		"index": "0",
+		"type": "metadata",
+		"serviceEndpoint": "https://service/api/v1/metadata/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+		"attributes": {
+			"main": {
+        "type": "workflow",
+        "workflow": {
+          "stages": [{
+            "index": 0,
+            "stageType": "Filtering",
+            "requirements": {
+              "container": {
+                "image": "tensorflow/tensorflow",
+                "tag": "latest",
+                "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+              },
+              "computeServiceId": "did:op8934894328989423",
+              "serviceDefinitionId": "1",
+              "serverId": "1",
+              "serverInstances": 1
             },
-            "computeServiceId": "did:op8934894328989423",
-            "serviceDefinitionId": "1",
-            "serverId": "1",
-            "serverInstances": 1
-          },
-          "input": [{
-            "index": 0,
-            "id": "did:op:12345"
+            "input": [{
+              "index": 0,
+              "id": "did:op:12345"
+            }, {
+                "index": 1,
+                "id": "did:op:67890"
+              }
+            ],
+            "transformation": {
+              "id": "did:op:abcde"
+            },
+            "output": {
+              "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
+              "secretStoreUrl": "http://secretstore.org:12001",
+              "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
+              "metadata": {
+                "title": "my filtered asset"
+              }
+            }
           }, {
-              "index": 1,
-              "id": "did:op:67890"
-            }
-          ],
-          "transformation": {
-            "id": "did:op:abcde"
-          },
-          "output": {
-            "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
-            "secretStoreUrl": "http://secretstore.org:12001",
-            "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
-            "metadata": {
-              "title": "my filtered asset"
-            }
-          }
-        }, {
-          "index": 1,
-          "stageType": "Transformation",
-          "requirements": {
-            "computeServiceId": "did:op8934894328989423",
-            "serviceDefinitionId": "1",
-            "serverId": "2",
-            "serverInstances": 1,            
-            "container": {
-              "image": "tensorflow/tensorflow",
-              "tag": "latest",
-              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-            }
-          },
-          "input": [{
-            "index": 0,
-            "previousStage": 0
-          }],
-          "transformation": {
-            "id": "did:op:999999"
-          },
-          "output": {}
-        }]
+            "index": 1,
+            "stageType": "Transformation",
+            "requirements": {
+              "computeServiceId": "did:op8934894328989423",
+              "serviceDefinitionId": "1",
+              "serverId": "2",
+              "serverInstances": 1,            
+              "container": {
+                "image": "tensorflow/tensorflow",
+                "tag": "latest",
+                "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+              }
+            },
+            "input": [{
+              "index": 0,
+              "previousStage": 0
+            }],
+            "transformation": {
+              "id": "did:op:999999"
+            },
+            "output": {}
+          }]
       }
+      },
+      "additional": {},
+      "curation": {}
     }
+  },
+  {}
+  ]
+}
+
 ```
 
 A Workflow is a new type of Asset (a part of datasets, algorithms, etc.).  
 You can find a complete DDO of type workflow in the [ddo.workflow.json example file](ddo.workflow.json).
 
-As a new kind of asset, the workflow details will be persisted inside a DDO as part of the "Metadata" service where the **type** is **Workflow**. 
+As a new kind of asset, the workflow details will be persisted inside a DDO as part of the "Metadata" service where the **type** is **workflow**. 
 An Asset of type workflow, will include in the DDO the following information:
 
-* The Workflow model as part of the `DDO.services["Metadata"].workflow` entity
+* The Workflow model as part of the `DDO.services["metadata"].main.workflow` entity
 * The rest of the Workflow metadata information (title, author, ect.) as part of the existing Metadata service
 
 A workflow, as every DDO in Ocean, can be resolved using the Asset Id (DID).
@@ -275,7 +288,7 @@ The complete flow of publishing an asset with a computing service attached is:
 
     An example of a complete DDO can be found [here](./ddo.example.json). Please do note that the condition's order in the DID document should reflect the same order in on-chain service agreement.
 
-1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS. This DDO must include at least one service of type "Computing".
+1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS. This DDO must include at least one service of type "computing".
 
 [Here](ddo.computing.json) you have an example of the DDO including a Computing service. Below you can find a small fraction of this:
 
@@ -283,80 +296,187 @@ The complete flow of publishing an asset with a computing service attached is:
 
 ```json
   "service": [{
-    "type": "Computing",
-    "serviceDefinitionId": "0",
-    "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/exec?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}",
-    "templateId": "804932804923850985093485039850349850439583409583404534231321131a",
-    "provider": {
-      "type": "Azure",
-      "description": "",
-      "environment": {
-        "cluster": {
-          "type": "Kubernetes",
-          "url": "http://10.0.0.17/xxx"
-        },
-        "supportedContainers": [
-          {
-            "image": "tensorflow/tensorflow",
-            "tag": "latest",
-            "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-          }, {
-            "image": "tensorflow/tensorflow",
-            "tag": "latest",
-            "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-          }],
-        "supportedServers": [
-          {
-            "serverId": "1",
-            "serverType": "xlsize",
-            "price": "5000000000000000000",
-            "cpu": "16",
-            "gpu": "0",
-            "memory": "128gb",
-            "disk": "160gb",
-            "maxExecutionTime": 86400
-          }, {
-            "containerId": "2",
-            "typeContainer": "medium",
-            "price": "1000000000000000000",
-            "cpu": "2",
-            "gpu": "0",
-            "memory": "8gb",
-            "disk": "80gb",
-            "maxExecutionTime": 86400
-          }                     
-        ]
+		"type": "computing",
+		"serviceDefinitionId": "2",
+		"serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/exec?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}",
+		"templateId": "804932804923850985093485039850349850439583409583404534231321131a",
 
-      }
-    },
+		"main": {
 
-    "serviceAgreementTemplate": {
-      "contractName": "EscrowExecComputeTemplate",
-      "events": [
-        {
-          "name": "AgreementCreated",
-          "actorType": "consumer",
-          "handler": {
-            "moduleName": "escrowExecComputeTemplate",
-            "functionName": "fulfillLockRewardCondition",
-            "version": "0.1"
-          }
-        }
-      ],
-      "fulfillmentOrder": [
-        "lockReward.fulfill",
-        "escrowReward.fulfill"
-      ],
-      "conditionDependency": {
-        "lockReward": [],
-        "grantSecretStoreAccess": [],
-        "releaseReward": [
-          "lockReward",
-          "execCompute"
-        ]
-      },
-    "conditions": [ ]
-  }]
+			"provider": {
+				"type": "Azure",
+				"description": "",
+				"environment": {
+					"cluster": {
+						"type": "Kubernetes",
+						"url": "http://10.0.0.17/xxx"
+					},
+					"supportedContainers": [{
+						"image": "tensorflow/tensorflow",
+						"tag": "latest",
+						"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+					}, {
+						"image": "tensorflow/tensorflow",
+						"tag": "latest",
+						"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+					}],
+					"supportedServers": [{
+						"serverId": "1",
+						"serverType": "xlsize",
+						"price": "5000000000000000000",
+						"cpu": "16",
+						"gpu": "0",
+						"memory": "128gb",
+						"disk": "160gb",
+						"maxExecutionTime": 86400
+					}, {
+						"containerId": "2",
+						"typeContainer": "medium",
+						"price": "1000000000000000000",
+						"cpu": "2",
+						"gpu": "0",
+						"memory": "8gb",
+						"disk": "80gb",
+						"maxExecutionTime": 86400
+					}]
+
+				}
+			},
+
+			"serviceAgreementTemplate": {
+				"contractName": "ServiceExecutionTemplate",
+				"events": [{
+					"name": "AgreementCreated",
+					"actorType": "consumer",
+					"handler": {
+						"moduleName": "serviceExecutionTemplate",
+						"functionName": "fulfillLockRewardCondition",
+						"version": "0.1"
+					}
+				}],
+				"fulfillmentOrder": [
+					"lockReward.fulfill",
+					"serviceExec.fulfill",
+					"escrowReward.fulfill"
+				],
+				"conditionDependency": {
+					"lockReward": [],
+					"grantSecretStoreAccess": [],
+					"releaseReward": [
+						"lockReward",
+						"serviceExec"
+					]
+				},
+				"conditions": [{
+						"name": "lockReward",
+						"timelock": 0,
+						"timeout": 0,
+						"contractName": "LockRewardCondition",
+						"functionName": "fulfill",
+						"parameters": [{
+								"name": "_rewardAddress",
+								"type": "address",
+								"value": ""
+							},
+							{
+								"name": "_amount",
+								"type": "uint256",
+								"value": ""
+							}
+						],
+						"events": [{
+							"name": "Fulfilled",
+							"actorType": "publisher",
+							"handler": {
+								"moduleName": "lockRewardCondition",
+								"functionName": "fulfillAccessSecretStoreCondition",
+								"version": "0.1"
+							}
+						}]
+					},
+					{
+						"name": "serviceExec",
+						"timelock": 0,
+						"timeout": 0,
+						"contractName": "ServiceExecCondition",
+						"functionName": "fulfill",
+						"parameters": [{
+								"name": "_documentId",
+								"type": "bytes32",
+								"value": ""
+							},
+							{
+								"name": "_grantee",
+								"type": "address",
+								"value": ""
+							}
+						],
+						"events": [{
+								"name": "Fulfilled",
+								"actorType": "publisher",
+								"handler": {
+									"moduleName": "serviceExec",
+									"functionName": "fulfillServiceExecCondition",
+									"version": "0.1"
+								}
+							},
+							{
+								"name": "TimedOut",
+								"actorType": "consumer",
+								"handler": {
+									"moduleName": "serviceExec",
+									"functionName": "fulfillServiceExecCondition",
+									"version": "0.1"
+								}
+							}
+						]
+					},
+					{
+						"name": "escrowReward",
+						"timelock": 0,
+						"timeout": 0,
+						"contractName": "EscrowReward",
+						"functionName": "fulfill",
+						"parameters": [{
+								"name": "_amount",
+								"type": "uint256",
+								"value": ""
+							},
+							{
+								"name": "_receiver",
+								"type": "address",
+								"value": ""
+							},
+							{
+								"name": "_sender",
+								"type": "address",
+								"value": ""
+							},
+							{
+								"name": "_lockCondition",
+								"type": "bytes32",
+								"value": ""
+							},
+							{
+								"name": "_releaseCondition",
+								"type": "bytes32",
+								"value": ""
+							}
+						],
+						"events": [{
+							"name": "Fulfilled",
+							"actorType": "publisher",
+							"handler": {
+								"moduleName": "escrowRewardCondition",
+								"functionName": "verifyRewardTokens",
+								"version": "0.1"
+							}
+						}]
+					}
+				]
+			}
+		}
+	}]
 ```
 
 1. PUBLISHER registers the DID, associating the Asset DID to the Aquarius Metadata URL that resolves the DID to a DDO.
