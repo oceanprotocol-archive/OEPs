@@ -93,7 +93,7 @@ An asset is the representation of different type of resources in Ocean Protocol.
 * Workflow. An asset representing in the metadata a list of tasks to accomplish with the intention of process data, typically relating datasets as input and algorithms. 
 * Service. An asset representing a service exposed by a provider. Typically a REST web service that a provider want to control the access using SEA.
 
-Each kind of asset require a different subset of metadata attributes. The distintion between the type of asset (dataset, algorithm, etc.) is given by the attribute `DDO.services["Metadata"].base.type`
+Each kind of asset require a different subset of metadata attributes. The distintion between the type of asset (dataset, algorithm, etc.) is given by the attribute `DDO.services["metadata"].main.type`
 
 
 A `metadata` object has the following attributes, all of which are objects.
@@ -101,21 +101,23 @@ Their contents are detailed below.
 
 Attribute                 | Required |
 --------------------------|----------|
-**base**                  | Yes      |
-**curation**              | (remote) |
+**main**                  | Yes      |
+**curation**      | (remote) |
 **additionalInformation** | No       |
 
 The base, curation and additionalInformation attributes are independent of the asset type. All the assets have those metadata sections.
 
-### Base Attributes
+### Main Attributes
 
-A `base` object has the following attributes.
+A `main` object has the following attributes.
 Not all are required.
 Some are required by only the metadata store *(remote)* and others are mandatory for *(local)* metadata only. If required or not by both, they are marked with *Yes/No* in the *Required* column.
+This list of attributes can't be modified after creation, because are considered as the metadata essence of the Asset created. This information is used to calculate the unique checksum of the asset. If any change would be necessary in the following attributes, it would be necessary to create a **new asset** derived from the existing one.
 
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **name**        | Text          | Yes           | Descriptive name or title of the Asset.
+**type**        | Text          | Yes            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "service", "other"). 
 **dateCreated** | DateTime      | Yes   | The date on which the asset was created by the originator. ISO 8601 format, Coordinated Universal Time, (`2019-01-31T08:38:32Z`).
 **datePublished** | DateTime      | (remote)   | The date on which the asset DDO is registered into the metadata store (Aquarius)
 **author**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
@@ -124,15 +126,7 @@ Attribute       |   Type        |   Required    | Description
 **files**       | Array of files object | Yes     | Array of File objects including the encrypted file urls. Further metadata about each file is stored: contentType, checksum (optional), content length in bytes (optional), encoding (optional), compression (optional) and remote resourceId (optional)
 **encryptedFiles** | Text         | (remote)    | Encrypted string of the **files** attribute. 
 **encryptedService** | Text         | (remote)    | Encrypted string of the **services** attribute. 
-**checksum**    | Text          | Yes           | SHA3 Hash of concatenated values : [list of all file checksums] + name + author + license + did
-**categories**  | Array of Text | No            | Optional array of categories associated to the Asset.
-**tags**        | Array of Text | No            | Array of keywords or tags used to describe this content. Empty by default.
-**type**        | Text          | No            | Type of the Asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "service", "other"). It's up to the PROVIDER or MARKETPLACE to use a different list of types or not use it.
-**description** | Text          | No            | Details of what the resource is. For a dataset, this attribute explains what the data represents and what it can be used for.
-**copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default.
-**workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link.
-**links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. Links may be to either a URL or another Asset. We expect marketplaces to converge on agreements of typical formats for linked data: The Ocean Protocol itself does not mandate any specific formats as these requirements are likely to be domain-specific. The links array can be an empty array, but if there is a link object in it, then an "url" is required in that link object.
-**inLanguage**  | Text          | No            | The language of the content. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47).
+
 
 #### File Attributes
 
@@ -154,18 +148,22 @@ with the details necessary to consume and validate the data.
 | **attributes**    | no       | Key-Value hash map with additional attributes describing the asset file. It could include details like the Amazon S3 bucket, region, etc. |
 
 
-### Curation Attributes
 
-A `curation` object has the following attributes.
+### Additional Attributes
 
-Attribute       |   Type           |   Required    | Description
-----------------|------------------|---------------|----------------------
-**rating**      | Number (decimal) | Yes           | Decimal value between 0 and 1. 0 is the default value.
-**numVotes**    | Integer          | Yes           | Number of votes. 0 is the default value.
-**schema**      | Text             | No            | Schema applied to calculate the rating.
-**isListed**    | Boolean          | No            | Flag unsuitable content. False by default. If it's true, the content must not be returned.
+All the additional information will be stored as part of the `extra` bucket
 
-### AdditionalInformation Attributes
+| Attribute         | Required | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| **categories**  | Array of Text | No            | Optional array of categories associated to the Asset. |
+| **tags**        | Array of Text | No            | Array of keywords or tags used to describe this content. Empty by default. |
+| **description** | Text          | No            | Details of what the resource is. For a dataset, this attribute explains what the data represents and what it can be used for. |
+| **copyrightHolder**| Text       | No            | The party holding the legal copyright. Empty by default. |
+| **workExample** | Text          | No            | Example of the concept of this asset. This example is part of the metadata, not an external link. |
+| **links**       | Array of Link | No            | Mapping of links for data samples, or links to find out more information. Links may be to either a URL or another Asset. We expect marketplaces to converge on agreements of typical formats for linked data: The Ocean Protocol itself does not mandate any specific formats as these requirements are likely to be domain-specific. The links array can be an empty array, but if there is a link object in it, then an "url" is required in that link object. |
+| **inLanguage**  | Text          | No            | The language of the content. Please use one of the language codes from the [IETF BCP 47 standard](https://tools.ietf.org/html/bcp47). |
+
+#### Other additional attributes suggested
 
 These are examples of attributes that can enhance the discoverability of a resource:
 
@@ -184,19 +182,31 @@ The publisher of a DDO MAY add additional attributes or change the above object 
 
 
 
+### Curation Attributes
+
+A `curation` object has the following attributes.
+
+Attribute       |   Type           |   Required    | Description
+----------------|------------------|---------------|----------------------
+**rating**      | Number (decimal) | Yes           | Decimal value between 0 and 1. 0 is the default value.
+**numVotes**    | Integer          | Yes           | Number of votes. 0 is the default value.
+**schema**      | Text             | No            | Schema applied to calculate the rating.
+**isListed**    | Boolean          | No            | Flag unsuitable content. False by default. If it's true, the content must not be returned.
+
+
+
+
 ## Example of Local Metadata
 
 ```json
 {
-  "base": {
+  "main": {
     "name": "Madrid Weather forecast",
-    "description": "Wheater forecast of Europe/Madrid in XML format",
     "dateCreated": "2019-05-16T12:36:14.535Z",
     "author": "Norwegian Meteorological Institute",
     "type": "dataset",
     "license": "Public Domain",
     "price": "123000000000000000000",
-    "copyrightHolder": "Norwegian Meteorological Institute",
     "files": [
       {
         "url": "https://example-url.net/weather/forecast/madrid/350750305731.xml",
@@ -220,14 +230,16 @@ The publisher of a DDO MAY add additional attributes or change the above object 
               "checksum": "859486596784567856758aaaa"
             }
     ],
+    "price": "123000000000000000000",
+  },
+  "additionalInformation": {
+    "description": "Wheater forecast of Europe/Madrid in XML format",
+    "copyrightHolder": "Norwegian Meteorological Institute",
     "categories": [
       "Other"
     ],
     "links": [],
     "tags": [],
-    "price": 0
-  },
-  "additionalInformation": {
     "updateFrequency": null,
     "structuredMarkup": []
   }
@@ -247,13 +259,11 @@ Similarly, this is how the metadata file would look as a response to querying Aq
   },
   "base": {
     "name": "Madrid Weather forecast",
-    "description": "Wheater forecast of Europe/Madrid in XML format",
     "dateCreated": "2019-05-16T12:36:14.535Z",
     "author": "Norwegian Meteorological Institute",
     "type": "dataset",
     "license": "Public Domain",
     "price": "123000000000000000000",
-    "copyrightHolder": "Norwegian Meteorological Institute",
     "files": [
       {
         "contentLength": "0",
@@ -262,19 +272,26 @@ Similarly, this is how the metadata file would look as a response to querying Aq
         "index": 0
       }
     ],
-    "categories": [
-      "Other"
-    ],
-    "links": [],
-    "tags": [],
-    "price": 0,
     "encryptedFiles": "0x7a0d1c66ae861…df43aa9",
     "checksum": "0xd7296ccaaec630452be65a13ea1d2d750f071b6f50b779e99cc9adf05faebfca",
     "datePublished": "2019-05-16T12:41:01Z"
   },
   "additionalInformation": {
+    "description": "Wheater forecast of Europe/Madrid in XML format",
+    "copyrightHolder": "Norwegian Meteorological Institute",
+    "categories": [
+      "Other"
+    ],
+    "links": [],
+    "tags": [],
     "updateFrequency": null,
     "structuredMarkup": []
+  },
+  "curation": {
+    "rating": 1,
+    "numVotes": 7,
+    "schema": "BINARY",
+    "isListed": true
   }
 }
 ```
@@ -285,7 +302,7 @@ Depending on the asset type (dataset, algorithm, workflow, service), there are d
 
 #### Algorithm attributes
 
-An asset of type "algorithm" has the following attributes:
+An asset of type `algorithm` has the following attributes:
 
 | Attribute         | Required | Description                                         |
 | ----------------- | -------- | --------------------------------------------------- |
@@ -297,28 +314,31 @@ An asset of type "algorithm" has the following attributes:
 
 
 ```json
-"algorithm": {    
-  “language”: “scala”,
-  “format” : “jar”
-  “version”: “0.1”,
-  “entrypoint” : “ocean-entrypoint.sh”
-  “requirements”: [
-      {
-          “requirement”: “scala”,
-          “version”: “2.12.8”
-      }
-      {
-          “requirement”: “java”,
-          “version”: “1.8”
-      }
-  ]
+{
+  "type": "algorithm",
+  "main": {    
+    "language": "scala",
+    "format" : "jar",
+    "version": "0.1",
+    "entrypoint" : "ocean-entrypoint.sh",
+    "requirements": [
+        {
+            "requirement": "scala",
+            "version": "2.12.8"
+        }
+        {
+            "requirement": "java",
+            "version": "1.8"
+        }
+    ]
+  }
 }
 ```
 
 
 #### Workflow attributes
 
-An asset of type "workflow" has the following attributes:
+An asset of type `workflow` has the following attributes:
 
 | Attribute         | Required | Description                                         |
 | ----------------- | -------- | --------------------------------------------------- |
@@ -344,63 +364,65 @@ An asset of type "workflow" has the following attributes:
 Example of workflow:
 
 ```json
-...
-"workflow": {
-        "stages": [{
-          "index": 0,
-          "stageType": "Filtering",
-          "requirements": {
-            "container": {
-              "image": "tensorflow/tensorflow",
-              "tag": "latest",
-              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-            }
-          },
-          "input": [{
+{
+  "type": "workflow",
+  "main": {
+          "stages": [{
             "index": 0,
-            "id": "did:op:12345"
+            "stageType": "Filtering",
+            "requirements": {
+              "container": {
+                "image": "tensorflow/tensorflow",
+                "tag": "latest",
+                "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+              }
+            },
+            "input": [{
+              "index": 0,
+              "id": "did:op:12345"
+            }, {
+                "index": 1,
+                "id": "did:op:67890"
+              }
+            ],
+            "transformation": {
+              "id": "did:op:abcde"
+            },
+            "output": {
+              "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
+              "secretStoreUrl": "http://secretstore.org:12001",
+              "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
+              "metadata": {
+                "title": "my filtered asset"
+              }
+            }
           }, {
-              "index": 1,
-              "id": "did:op:67890"
+            "index": 1,
+            "stageType": "Transformation",
+            "requirements": {
+              "container": {
+                "image": "tensorflow/tensorflow",
+                "tag": "latest",
+                "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+              }        
+            },
+            "input": [{
+              "index": 0,
+              "previousStage": 0
+            }],
+            "transformation": {
+              "id": "did:op:999999"
+            },
+            "output": {
+              "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
+              "secretStoreUrl": "http://secretstore.org:12001",
+              "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
+              "metadata": {}
             }
-          ],
-          "transformation": {
-            "id": "did:op:abcde"
-          },
-          "output": {
-            "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
-            "secretStoreUrl": "http://secretstore.org:12001",
-            "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
-            "metadata": {
-              "title": "my filtered asset"
-            }
-          }
-        }, {
-          "index": 1,
-          "stageType": "Transformation",
-          "requirements": {
-            "container": {
-              "image": "tensorflow/tensorflow",
-              "tag": "latest",
-              "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-            }        
-          },
-          "input": [{
-            "index": 0,
-            "previousStage": 0
-          }],
-          "transformation": {
-            "id": "did:op:999999"
-          },
-          "output": {
-            "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
-            "secretStoreUrl": "http://secretstore.org:12001",
-            "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
-            "metadata": {}
-          }
-        }]
-      }
-...
+          }]
+        }
+}
+
 ```
 
 
@@ -431,10 +453,9 @@ The attributes included in each item are the following:
 Example of a service:
 
 ```json
-"metadata": {
-      "base": { "type": "service"},
-      "curation": {},
-      "service": {
+{
+      "type": "service",      
+      "main": {
         "spec": "https://my.service.inet:8080/spec",
         "specChecksum": "859486596784567856758aaaa",
         "definition": {
