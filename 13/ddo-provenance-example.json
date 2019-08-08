@@ -1,0 +1,111 @@
+{
+	"@context": "https://w3id.org/did/v1",
+	"id": "did:op:e6fda48e8d814d5d9655645aac3c046cc87528dbc1a9449799e579d7b83d1360",
+	"created": "2019-06-26T14:53:09",
+	"updated": "2019-06-30T14:53:09",
+	"publicKey": [{
+		"id": "did:op:e6fda48e8d814d5d9655645aac3c046cc87528dbc1a9449799e579d7b83d1360",
+		"type": "ethereumAddress",
+		"controller": "0x610D9314EDF2ced7681BA1633C33fdb8cF365a12"
+	}],
+	"authentication": [{
+		"id": "did:op:e6fda48e8d814d5d9655645aac3c046cc87528dbc1a9449799e579d7b83d1360",
+		"type": "RsaSignatureAuthentication2018",
+		"controller": "0x610D9314EDF2ced7681BA1633C33fdb8cF365a12"
+	}],
+	"proof": {
+		"type": "DDOIntegritySignature",
+		"created": "2016-02-08T16:02:20Z",
+		"creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
+		"signatureValue": "QNB13Y7Q9...1tzjn4w==",
+		"checksum": {
+			"0": "0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377",
+			"1": "0x999999952b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3"
+		}
+	},
+	"verifiableCredential": [{
+		"@context": [
+			"https://www.w3.org/2018/credentials/v1",
+			"https://www.w3.org/2018/credentials/examples/v1"
+		],
+		"id": "1872",
+		"type": ["read", "update", "deactivate"],
+		"issuer": "0x610D9314EDF2ced7681BA1633C33fdb8cF365a12",
+		"issuanceDate": "2019-01-01T19:73:24Z",
+		"credentialSubject": {
+			"id": "0x89328493849328493284932"
+		},
+		"proof": {
+			"type": "RsaSignature2018",
+			"created": "2019-01-01T19:73:24Z",
+			"proofPurpose": "assertionMethod",
+			"signatureValue": "ABCJSDAO23...1tzjn4w=="
+		}
+	}],
+	"service": [{
+		"index": "0",
+		"type": "metadata",
+		"serviceEndpoint": "https://service/api/v1/metadata/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+		"attributes": {
+			"main": {},
+			"additional": {},
+			"curation": {}
+		}
+	}, {
+		"index": "1",
+		"type": "provenance",
+		"serviceEndpoint": "https://service/api/v1/provenance/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+		"attributes": {
+			"main": {
+
+				"entity": {
+					"did:op:1234": {
+						"ex:version": "5",
+						"prov:type": "dataset"
+					}
+				},
+
+				"activity": {
+					"ex:edit1": {
+						"prov:type": "edit"
+					}
+				},
+
+				"comment": {
+					"ex:comment1": {
+						"prov:type": "comment"
+					}
+				},
+
+				"wasGeneratedBy": {
+					"did:op:abcd": {
+						"prov:activity": "ex:edit1",
+						"prov:entity": "did:op:1234"
+					}
+				},
+
+				"wasAssociatedWith": {
+					"did:op:eeff": {
+						"prov:activity": "ex:comment1",
+						"prov:entity": "did:op:1234"
+					}
+				},
+
+				"agent": {
+					"did:op:abcd": {
+						"prov:type": {
+							"$": "prov:Person",
+							"type": "xsd:QName"
+						}
+					},
+					"did:op:eeff": {
+						"prov:type": {
+							"$": "prov:Person",
+							"type": "xsd:QName"
+						}
+					}
+				}
+			}
+		}
+	}]
+}
