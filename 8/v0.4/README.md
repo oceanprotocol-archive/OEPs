@@ -16,7 +16,6 @@ contributors:
 **Table of Contents**
 
 <!--ts-->
-
    * [Assets Metadata Ontology](#assets-metadata-ontology)
       * [Change Process](#change-process)
       * [Language](#language)
@@ -25,10 +24,11 @@ contributors:
          * [Local Metadata](#local-metadata)
          * [Remote Metadata](#remote-metadata)
       * [Metadata Attributes](#metadata-attributes)
-         * [Base Attributes](#base-attributes)
+         * [Main Attributes](#main-attributes)
             * [File Attributes](#file-attributes)
+         * [Additional Attributes](#additional-attributes)
+            * [Other additional attributes suggested](#other-additional-attributes-suggested)
          * [Curation Attributes](#curation-attributes)
-         * [AdditionalInformation Attributes](#additionalinformation-attributes)
       * [Example of Local Metadata](#example-of-local-metadata)
       * [Example of Remote Metadata](#example-of-remote-metadata)
          * [Specific attributes per asset type](#specific-attributes-per-asset-type)

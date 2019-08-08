@@ -10,6 +10,7 @@ contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@o
 **Table of Contents**
 
 <!--ts-->
+
    * [Decentralized Identifiers](#decentralized-identifiers)
       * [Change Process](#change-process)
       * [Language](#language)
@@ -18,6 +19,7 @@ contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@o
       * [Proposed Solution](#proposed-solution)
          * [Decentralized IDs (DIDs)](#decentralized-ids-dids)
          * [DID Documents (DDOs)](#did-documents-ddos)
+            * [DDO Services](#ddo-services)
          * [Integrity](#integrity)
             * [How to compute the integrity checksum](#how-to-compute-the-integrity-checksum)
             * [DID Document Proof](#did-document-proof)
