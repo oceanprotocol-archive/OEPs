@@ -124,6 +124,19 @@ A DDO document is composed of standard DDO attributes:
 * "service"
 
 Asset metadata can be included as one of the objects inside the `"service"` array, with type `"metadata"`.
+
+#### DDO Services
+
+Each type of asset (dataset, algorithm, workflow, etc, ..) typically will have associated different kind of services. There are 2 type of services that are commonly added to all the assets:
+* metadata - describing the asset
+* provenance - describing the asset provenance
+
+Each service is distinguised by the `DDO.service.type` attribute.
+
+In each service will be included an `attributes` section where all the information related to the service is added. As mandatory content, the attributes section will have a `main` sub-section. This one is important because must include all the mandatory information that a service has to provide and **never** change because is used to calculate the integrity checksum of the service.
+
+A part of the `attributes.main` sub-section, other optional sub-sections can be added (like: `attributes.curation` or `attributes.extra`) depending on the service type.
+
 Example:
 
 ```json
@@ -133,15 +146,8 @@ Example:
 		"serviceEndpoint": "https://service/api/v1/metadata/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
 		"attributes": {
 			"main": {},
-			"mutable": {}
-		}
-	}, {
-		"index": "1",
-		"type": "metadata",
-		"serviceEndpoint": "https://service/api/v1/metadata/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
-		"metadata": {
-			"main": {},
-			"mutable": {}
+      "additional": {},
+      "curation": {}
 		}
 	}, {
 		"index": "1",
@@ -149,7 +155,7 @@ Example:
 		"serviceEndpoint": "https://service/api/v1/provenance/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
 		"attributes": {
 			"main": {},
-			"mutable": {}
+			"extra": {}
 		}
 	}, {
 		"index": "2",
@@ -157,7 +163,7 @@ Example:
 		"serviceEndpoint": "https://service/api/v1/access/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
 		"attributes": {
 			"main": {},
-			"mutable": {}
+			"additional": {}
 		}
 	}]
 ```

@@ -48,7 +48,8 @@
 		"serviceEndpoint": "https://service/api/v1/metadata/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
 		"attributes": {
 			"main": {},
-			"mutable": {}
+      "additional": {},
+      "curation": {}
 		}
 	}, {
 		"index": "1",
@@ -56,7 +57,7 @@
 		"serviceEndpoint": "https://service/api/v1/provenance/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
 		"attributes": {
 			"main": {},
-			"mutable": {}
+			"extra": {}
 		}
 	}, {
 		"index": "2",
@@ -64,7 +65,7 @@
 		"serviceEndpoint": "https://service/api/v1/access/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
 		"attributes": {
 			"main": {},
-			"mutable": {}
+			"additional": {}
 		}
 	}]
 }
