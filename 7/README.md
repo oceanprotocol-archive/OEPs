@@ -115,28 +115,54 @@ A DDO document is composed of standard DDO attributes:
 
 * "@context"
 * "id"
+* "created"
+* "updated"
 * "publicKey"
 * "authentication"
-* "service"
-* "created"
 * "proof"
+* "verifiableCredential"
+* "service"
 
-Asset metadata can be included as one of the objects inside the `"service"` array, with type `"Metadata"`.
+Asset metadata can be included as one of the objects inside the `"service"` array, with type `"metadata"`.
 Example:
 
 ```json
-{
-  "type": "Metadata",
-  "serviceEndpoint": "https://aquarius-example.com:443/api/v1/aquarius/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
-  "serviceDefinitionId": "2",
-  "metadata": {
-    "base": { … },
-    "curation": { … },
-    "additionalInformation": { … }
-  }
-}
+"service": [{
+		"index": "0",
+		"type": "metadata",
+		"serviceEndpoint": "https://service/api/v1/metadata/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+		"attributes": {
+			"main": {},
+			"mutable": {}
+		}
+	}, {
+		"index": "1",
+		"type": "metadata",
+		"serviceEndpoint": "https://service/api/v1/metadata/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+		"metadata": {
+			"main": {},
+			"mutable": {}
+		}
+	}, {
+		"index": "1",
+		"type": "provenance",
+		"serviceEndpoint": "https://service/api/v1/provenance/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+		"attributes": {
+			"main": {},
+			"mutable": {}
+		}
+	}, {
+		"index": "2",
+		"type": "access",
+		"serviceEndpoint": "https://service/api/v1/access/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+		"attributes": {
+			"main": {},
+			"mutable": {}
+		}
+	}]
 ```
 
+You can find a complete examplo of a DDO [here](ddo-example.json).
 You can find a complete reference of the asset metadata in [OEP-8](8).
 Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the W3C DID spec.
 
@@ -146,28 +172,25 @@ The Integrity policy for identity and metadata is a sub-specification for the Oc
 
 #### How to compute the integrity checksum
 
-An ASSET in the system is composed by on-chain information maintained by the KEEPER and off-chain Metadata information (DDO) stored in OCEANDB.
-Technically a user could update the DDO accessing directly to the database, modifying attributes (e.g. License information, description, etc.) relevant to a previous consumption agreement with an user.
+An ASSET in the system is composed by on-chain information maintained by the DLT and off-chain Metadata information (DDO) stored by the PROVIDER.
+Technically a user could update the DDO accessing directly to the off-chain database, modifying attributes (e.g. License information, description, etc.) relevant to a previous consumption agreement with an user.
 The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
-
-In the `registerAttribute` will be possible to specify a `bytes32 checksum` parameter representing the hash calculated.
 
 This hash composing the **integrity checksum** is calculated in the following way:
 
-- Concatenation of all the `DDO.services['AccessService'].metadata.files.checksum[*]` attributes. If no file checksum is available, then don't compute it, just ignore that file's checksum (or pretend its checksum is an empty string)
-- Concatenating to the previous string the metadata attributes `name`, `author` and `license`
-- Concatenating to the previous string the `did` (e.g. `did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea`)
-- Hashing the complete string generated using SHA3-256. (You might have to convert the string to bytes first.)
-- In the DDO, the checksum should be represented as a hex string beginning with `0x` and ending with 64 hex characters (e.g. `0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377`)
+- The complete content of the `service[index].attributes.main` is serialized in a common string
+- The string generated is is Hashed using SHA3-256 algorithm  (You might have to convert the string to bytes first.)
+- The hash generated as a result of this process is stored in the `proof.checksum[index].checksum` attribute
+- The previous 3 steps are repeated for every individual service include in the `service` array. The hash generated is always stored in the `proof.checksum` array using as key the `index` of the service computed
+- During the serialization process, the objects to serialize (`service[index].attributes.main` are prepared using the following process:
+  * The object is sorted alphabetically independently of the existing nested levels
+  * In the JSON generated, all the characters between entries are removed (`\n`, `\t`, `\r`, whitespaces, etc.)
+  * As a result must be generated a string of only one line 
+- After hashing, in the DDO, the checksums should be represented as a hex string beginning with `0x` and ending with 64 hex characters (e.g. `0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377`)
+- After generating each individual checksum the complete `proof.checksum` entry is sorted, serialized and hashed as previusly described in the other checksums
+- The final hash generated as a result of hashing the checksums (DID CHECKSUM or DID HASH) will be the ID part of the DID (the string after the prefix `did:op:`)
 
-Here is an example of the algorithm to apply:
-
-```js
-var checksum = Hash.sha3( checksum1 + checksum2 + checksum3 + name + author + license + did)
-```
-
-Any modification of the files referenced in the DDO or the attributes included in the checksum would generate a different string.
-Because this checksum will be stored on-chain and emitted as an event, a validator could use this information to check if something changed regarding the initial registration.
+Because this DID HASH will be stored on-chain and emitted as an event, a validator could use this information to check if something changed regarding the initial registration.
 
 #### DID Document Proof
 
@@ -176,8 +199,7 @@ We enforce the usage of the `proof` attribute to demonstrate the Owner of an Ass
 The information to sign by the owner is the **integrity checksum** defined in the above section.
 
 ```js
-var checksum = Hash.sha3( checksum1 + checksum2 + checksum3 + name + author + license + did)
-var signature = Sign.signMessage(checksum)
+var signature = Sign.signMessage(DID)
 ```
 
 The DID Document (DDO) SHOULD include the following `proof` information:
@@ -185,7 +207,8 @@ The DID Document (DDO) SHOULD include the following `proof` information:
 * `type` - Type of proof, in our case `"DDOIntegritySignature"`
 * `created` - Date and time when the proof was created
 * `creator` - Address of the user providing the proof
-* `signatureValue` - Result of the signature applied to the integrity checksum
+* `signatureValue` - Result of the signature given by the creator
+* `checksum` - Checksums of the individual services included in the DDO 
 
 Here is an example `proof` section to add in the DDO:
 
@@ -194,7 +217,11 @@ Here is an example `proof` section to add in the DDO:
     "type": "DDOIntegritySignature",
     "created": "2016-02-08T16:02:20Z",
     "creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
-    "signatureValue": "0xc9eeb2b8106e…6abfdc5d1192641b"
+    "signatureValue": "0xc9eeb2b8106e…6abfdc5d1192641b",
+    "checksum": {
+        "0": "0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377",
+        "1": "0x999999952b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3"
+    }    
   }
 ```
 
