@@ -412,66 +412,70 @@ independent service:
   "id": "did:op:0000",
   "proof": {},
   "publicKey": [{}],
-  "service": [
-  {
-    "type": "Provenance",
-    "serviceDefinitionId": "x",
-    "serviceEndpoint": "http://localhost:5000/api/v1/aquarius/assets/provenance/{did}",
-    "checksum": "0abcd8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
-    
-    "provenance": {
-    
-        "entity": {
-            "did:op:1234": {
-                "ex:version": "5",
-                "prov:type": "dataset"
-          }
-        },
+  "service": [{
+		"index": "0",
+		"type": "metadata",
+		"serviceEndpoint": "https://service/api/v1/metadata/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+		"attributes": {
+			"main": {},
+			"additional": {},
+			"curation": {}
+		}
+	}, {
+		"index": "1",
+		"type": "provenance",
+		"serviceEndpoint": "https://service/api/v1/provenance/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+		"attributes": {
+			"main": {
+				"entity": {
+					"did:op:1234": {
+						"ex:version": "5",
+						"prov:type": "dataset"
+					}
+				},
+				"activity": {
+					"ex:edit1": {
+						"prov:type": "edit"
+					}
+				},
 
-        "activity": {
-            "ex:edit1": {
-                "prov:type": "edit"
-            }
-        },
- 
-        "comment": {
-            "ex:comment1": {
-                "prov:type": "comment"
-            }
-        },
-        
-        "wasGeneratedBy": {
-            "did:op:abcd": {
-                "prov:activity": "ex:edit1",
-                "prov:entity": "did:op:1234"
-            }
-        },        
-        
-       "wasAssociatedWith": {
-            "did:op:eeff": {
-                "prov:activity": "ex:comment1",
-                "prov:entity": "did:op:1234"
-            }
-        },        
-        
-        "agent": {
-            "did:op:abcd": {
-                "prov:type": {
-                    "$": "prov:Person",
-                    "type": "xsd:QName"
-                }
-            },
-            "did:op:eeff": {
-                "prov:type": {
-                    "$": "prov:Person",
-                    "type": "xsd:QName"
-                }
-            }
-        }
-    }
-  }
-  
-  ]
+				"comment": {
+					"ex:comment1": {
+						"prov:type": "comment"
+					}
+				},
+
+				"wasGeneratedBy": {
+					"did:op:abcd": {
+						"prov:activity": "ex:edit1",
+						"prov:entity": "did:op:1234"
+					}
+				},
+
+				"wasAssociatedWith": {
+					"did:op:eeff": {
+						"prov:activity": "ex:comment1",
+						"prov:entity": "did:op:1234"
+					}
+				},
+
+				"agent": {
+					"did:op:abcd": {
+						"prov:type": {
+							"$": "prov:Person",
+							"type": "xsd:QName"
+						}
+					},
+					"did:op:eeff": {
+						"prov:type": {
+							"$": "prov:Person",
+							"type": "xsd:QName"
+						}
+					}
+				}
+			}
+		}
+	}]
 }
 ```
 
