@@ -356,15 +356,15 @@ The complete flow of publishing an asset with a computing service attached is:
 				}],
 				"fulfillmentOrder": [
 					"lockReward.fulfill",
-					"serviceExec.fulfill",
+					"serviceExecution.fulfill",
 					"escrowReward.fulfill"
 				],
 				"conditionDependency": {
 					"lockReward": [],
-					"grantSecretStoreAccess": [],
+					"serviceExecution": [],
 					"releaseReward": [
 						"lockReward",
-						"serviceExec"
+						"serviceExecution"
 					]
 				},
 				"conditions": [{
@@ -389,13 +389,13 @@ The complete flow of publishing an asset with a computing service attached is:
 							"actorType": "publisher",
 							"handler": {
 								"moduleName": "lockRewardCondition",
-								"functionName": "fulfillAccessSecretStoreCondition",
+								"functionName": "fulfillServiceExecutionCondition",
 								"version": "0.1"
 							}
 						}]
 					},
 					{
-						"name": "serviceExec",
+						"name": "serviceExecution",
 						"timelock": 0,
 						"timeout": 0,
 						"contractName": "ServiceExecCondition",
@@ -415,8 +415,8 @@ The complete flow of publishing an asset with a computing service attached is:
 								"name": "Fulfilled",
 								"actorType": "publisher",
 								"handler": {
-									"moduleName": "serviceExec",
-									"functionName": "fulfillServiceExecCondition",
+									"moduleName": "serviceExecution",
+									"functionName": "fulfillServiceExecutionCondition",
 									"version": "0.1"
 								}
 							},
@@ -425,7 +425,7 @@ The complete flow of publishing an asset with a computing service attached is:
 								"actorType": "consumer",
 								"handler": {
 									"moduleName": "serviceExec",
-									"functionName": "fulfillServiceExecCondition",
+									"functionName": "fulfillServiceExecutionCondition",
 									"version": "0.1"
 								}
 							}
