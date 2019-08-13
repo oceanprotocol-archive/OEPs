@@ -398,7 +398,7 @@ The complete flow of publishing an asset with a computing service attached is:
 						"name": "serviceExecution",
 						"timelock": 0,
 						"timeout": 0,
-						"contractName": "ServiceExecCondition",
+						"contractName": "ServiceExecutionCondition",
 						"functionName": "fulfill",
 						"parameters": [{
 								"name": "_documentId",
@@ -519,9 +519,9 @@ It is used to correlate events and to prevent the PUBLISHER from instantiating m
 
 1. The PROVIDER via BRIZO receives the `LockReward.Fulfilled` event where he/she is the provider for this agreement
 
-1. The PROVIDER grant the execution permissions for the computation on-chain calling the `execComputeCondition.Fullfill` method  
+1. The PROVIDER grant the execution permissions for the computation on-chain calling the `executeComputeCondition.Fullfill` method  
 
-1. The CONSUMER get the `execComputeCondition.Fullfilled` event. When he/she receives the event, 
+1. The CONSUMER get the `executeComputeCondition.Fullfilled` event. When he/she receives the event, 
    can call the BRIZO `serviceEndpoint` url added in the DDO to start the execution of the computation workflow.
    Typically: `HTTP POST /api/v1/brizo/services/computing/exec`
 
