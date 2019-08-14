@@ -251,49 +251,46 @@ Attribute       |   Type           |   Required    | Description
 Similarly, this is how the metadata file would look as a response to querying Aquarius (remote metadata). Note that `url` is removed from all objects in the `files` array, and `encryptedFiles` & `curation` are added.
 
 ```json
-{
-  "curation": {
-    "rating": 0,
-    "numVotes": 0,
-    "isListed": true
-  },
-  "base": {
-    "name": "Madrid Weather forecast",
-    "dateCreated": "2019-05-16T12:36:14.535Z",
-    "author": "Norwegian Meteorological Institute",
-    "type": "dataset",
-    "license": "Public Domain",
-    "price": "123000000000000000000",
-    "files": [
-      {
-        "contentLength": "0",
-        "contentType": "text/xml",
-        "compression": "none",
-        "index": 0
-      }
-    ],
-    "encryptedFiles": "0x7a0d1c66ae861…df43aa9",
-    "checksum": "0xd7296ccaaec630452be65a13ea1d2d750f071b6f50b779e99cc9adf05faebfca",
-    "datePublished": "2019-05-16T12:41:01Z"
-  },
-  "additionalInformation": {
-    "description": "Wheater forecast of Europe/Madrid in XML format",
-    "copyrightHolder": "Norwegian Meteorological Institute",
-    "categories": [
-      "Other"
-    ],
-    "links": [],
-    "tags": [],
-    "updateFrequency": null,
-    "structuredMarkup": []
-  },
-  "curation": {
-    "rating": 1,
-    "numVotes": 7,
-    "schema": "BINARY",
-    "isListed": true
+"service": [{
+	"serviceDefinitionId": "0",
+	"serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
+	"type": "metadata",
+  "attributes": {
+    "main": {  
+      "type": "dataset",
+      "name": "Madrid Weather forecast",
+      "dateCreated": "2019-05-16T12:36:14.535Z",
+      "author": "Norwegian Meteorological Institute",
+      "license": "Public Domain",
+      "price": "123000000000000000000",
+      "files": [{
+          "contentLength": "0",
+          "contentType": "text/xml",
+          "compression": "none",
+          "index": 0
+      }],
+      "encryptedFiles": "0x7a0d1c66ae861…df43aa9",
+      "datePublished": "2019-05-16T12:41:01Z"
+    }, 
+    "curation": {
+      "rating": 1,
+      "numVotes": 7,
+      "schema": "BINARY",
+      "isListed": true
+    },
+    "additionalInformation": {
+      "description": "Wheater forecast of Europe/Madrid in XML format",
+      "copyrightHolder": "Norwegian Meteorological Institute",
+      "categories": [
+        "Other"
+      ],
+      "links": [],
+      "tags": [],
+      "updateFrequency": null,
+      "structuredMarkup": []
+    }
   }
-}
+}]
 ```
 
 ### Specific attributes per asset type
@@ -314,25 +311,32 @@ An asset of type `algorithm` has the following attributes:
 
 
 ```json
-{
-  "type": "algorithm",
-  "main": {    
-    "language": "scala",
-    "format" : "jar",
-    "version": "0.1",
-    "entrypoint" : "ocean-entrypoint.sh",
-    "requirements": [
-        {
-            "requirement": "scala",
-            "version": "2.12.8"
-        }
-        {
-            "requirement": "java",
-            "version": "1.8"
-        }
-    ]
+"service": [{
+	"serviceDefinitionId": "0",
+	"serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
+	"type": "metadata",
+  "attributes": {
+    "main": {  
+      "type": "algorithm",
+      "algorithm": {
+        "language": "scala",
+        "format" : "jar",
+        "version": "0.1",
+        "entrypoint" : "ocean-entrypoint.sh",
+        "requirements": [
+            {
+                "requirement": "scala",
+                "version": "2.12.8"
+            }
+            {
+                "requirement": "java",
+                "version": "1.8"
+            }
+        ]
+      }
+    }
   }
-}
+}]
 ```
 
 
@@ -365,63 +369,71 @@ Example of workflow:
 
 ```json
 {
-  "type": "workflow",
-  "main": {
-          "stages": [{
-            "index": 0,
-            "stageType": "Filtering",
-            "requirements": {
-              "container": {
-                "image": "tensorflow/tensorflow",
-                "tag": "latest",
-                "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-              }
-            },
-            "input": [{
+"service": [{
+	"serviceDefinitionId": "0",
+	"serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
+	"type": "metadata",
+  "attributes": {
+    "main": {
+      "type": "workflow",
+      "workflow": {
+            "stages": [{
               "index": 0,
-              "id": "did:op:12345"
+              "stageType": "Filtering",
+              "requirements": {
+                "container": {
+                  "image": "tensorflow/tensorflow",
+                  "tag": "latest",
+                  "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+                }
+              },
+              "input": [{
+                "index": 0,
+                "id": "did:op:12345"
+              }, {
+                  "index": 1,
+                  "id": "did:op:67890"
+                }
+              ],
+              "transformation": {
+                "id": "did:op:abcde"
+              },
+              "output": {
+                "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
+                "secretStoreUrl": "http://secretstore.org:12001",
+                "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
+                "metadata": {
+                  "title": "my filtered asset"
+                }
+              }
             }, {
-                "index": 1,
-                "id": "did:op:67890"
+              "index": 1,
+              "stageType": "Transformation",
+              "requirements": {
+                "container": {
+                  "image": "tensorflow/tensorflow",
+                  "tag": "latest",
+                  "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+                }        
+              },
+              "input": [{
+                "index": 0,
+                "previousStage": 0
+              }],
+              "transformation": {
+                "id": "did:op:999999"
+              },
+              "output": {
+                "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
+                "secretStoreUrl": "http://secretstore.org:12001",
+                "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
+                "metadata": {}
               }
-            ],
-            "transformation": {
-              "id": "did:op:abcde"
-            },
-            "output": {
-              "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
-              "secretStoreUrl": "http://secretstore.org:12001",
-              "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
-              "metadata": {
-                "title": "my filtered asset"
-              }
-            }
-          }, {
-            "index": 1,
-            "stageType": "Transformation",
-            "requirements": {
-              "container": {
-                "image": "tensorflow/tensorflow",
-                "tag": "latest",
-                "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-              }        
-            },
-            "input": [{
-              "index": 0,
-              "previousStage": 0
-            }],
-            "transformation": {
-              "id": "did:op:999999"
-            },
-            "output": {
-              "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
-              "secretStoreUrl": "http://secretstore.org:12001",
-              "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
-              "metadata": {}
-            }
-          }]
-        }
-}
+            }]
+          }
+    }
+  }
+}]
 
 ```
 
@@ -453,9 +465,14 @@ The attributes included in each item are the following:
 Example of a service:
 
 ```json
-{
-      "type": "service",      
-      "main": {
+"service": [{
+	"serviceDefinitionId": "0",
+	"serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
+	"type": "metadata",
+  "attributes": {
+    "main": {  
+      "type": "service",
+      "service": {
         "spec": "https://my.service.inet:8080/spec",
         "specChecksum": "859486596784567856758aaaa",
         "definition": {
@@ -473,7 +490,9 @@ Example of a service:
           }]
         }
       }
-}
+    }
+  }
+}]
 ```
 
 
