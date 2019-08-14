@@ -226,7 +226,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
 {  
   "service": [
     {  
-      "serviceDefinitionId": "0",
+      "index": 0,
       "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
       "type": "metadata",
       "attributes": {  
@@ -289,7 +289,7 @@ An asset of type `algorithm` has the following attributes:
 {  
   "service":[  
     {  
-      "serviceDefinitionId": "0",
+      "index": 0,
       "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
       "type": "metadata",
       "attributes": {  
@@ -349,7 +349,7 @@ Example of workflow:
 {
   "service": [  
     {  
-      "serviceDefinitionId": "0",
+      "index": 0,
       "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
       "type": "metadata",
       "attributes": {  
@@ -451,8 +451,8 @@ Example of a service:
 ```json
 {  
   "service": [  
-    {  
-      "serviceDefinitionId": "0",
+    {
+      "index": 0,
       "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
       "type": "metadata",
       "attributes": {  
