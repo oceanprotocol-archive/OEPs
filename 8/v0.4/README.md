@@ -193,7 +193,7 @@ Attribute       |   Type           |   Required    | Description
     ],
     "services": [  
       {  
-        "index": 0,
+        "index": "0",
         "url": "https://my.service.inet:8080/api/v1/weather",
         "method": "POST",
         "auth": {  
@@ -226,7 +226,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
 {  
   "service": [
     {  
-      "index": 0,
+      "index": "0",
       "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
       "type": "metadata",
       "attributes": {  
@@ -289,7 +289,7 @@ An asset of type `algorithm` has the following attributes:
 {  
   "service":[  
     {  
-      "index": 0,
+      "index": "0",
       "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
       "type": "metadata",
       "attributes": {  
@@ -349,7 +349,7 @@ Example of workflow:
 {
   "service": [  
     {  
-      "index": 0,
+      "index": "0",
       "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
       "type": "metadata",
       "attributes": {  
@@ -452,7 +452,7 @@ Example of a service:
 {  
   "service": [  
     {
-      "index": 0,
+      "index": "0",
       "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
       "type": "metadata",
       "attributes": {  
