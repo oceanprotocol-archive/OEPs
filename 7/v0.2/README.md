@@ -249,14 +249,7 @@ Only the hash value _needs_ to be stored, not the "did:op:" prefix, because it s
 
 The DID ("id") string begins with "did:op:" and is followed by a string representation of a bytes32.
 
-In the first version of this spec (to be implemented in the Trilobite release), the bytes32 part is _random_ and is represented by a 64-character hex string (using the characters 0-9 and a-f).
-One way to compute such a DID is by concatenating two random UUIDs. (Each UUID is 128 bits = 16 bytes, which can be represented by a 32-character hex string with all hyphens "-" removed.)
-
-One way NOT to compute such a DID is `sha3_256_hash(UUID).to_hex_string()`, because the space of UUIDs (16 bytes) is smaller than the space of bytes32 (32 bytes).
-
-In the future, this spec might allow for other ways to compute a DID (e.g. the SHA3-256 hash of the DDO-without-DID).
-
-Note: The bytes32 (a sequence of bytes) is what gets stored in a blockchain, not the final DID ("id") value. That is, the "did:op:" part doesn't have to be stored in a blockchain because it should be clear from context that the stored bytes32 is part of an Ocean DID.
+As is decribed previously, the DID is calculating doing the Hash (SHA3-256) of the `DDO.proof.checksum` entry
 
 ### Registry
 
