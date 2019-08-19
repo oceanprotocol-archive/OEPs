@@ -15,7 +15,7 @@
 		"type": "EthereumECDSAKey"
 	}],
 	"service": [{
-		"serviceDefinitionId": "0",
+		"index": 0,
 		"serviceEndpoint": "http://172.15.0.15:5000/api/v1/aquarius/assets/ddo/{did}",
 		"type": "metadata",
 
