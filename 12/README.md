@@ -170,60 +170,46 @@ Example of a Workflow:
         "type": "workflow",
         "workflow": {
           "stages": [{
-            "index": 0,
-            "stageType": "Filtering",
-            "requirements": {
-              "container": {
-                "image": "tensorflow/tensorflow",
-                "tag": "latest",
-                "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-              },
-              "computeServiceId": "did:op8934894328989423",
-              "serviceDefinitionId": "1",
-              "serverId": "1",
-              "serverInstances": 1
-            },
-            "input": [{
-              "index": 0,
-              "id": "did:op:12345"
-            }, {
-                "index": 1,
-                "id": "did:op:67890"
-              }
-            ],
-            "transformation": {
-              "id": "did:op:abcde"
-            },
-            "output": {
-              "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
-              "secretStoreUrl": "http://secretstore.org:12001",
-              "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
-              "metadata": {
-                "title": "my filtered asset"
-              }
-            }
-          }, {
-            "index": 1,
-            "stageType": "Transformation",
-            "requirements": {
-              "computeServiceId": "did:op8934894328989423",
-              "serviceDefinitionId": "1",
-              "serverId": "2",
-              "serverInstances": 1,            
-              "container": {
-                "image": "tensorflow/tensorflow",
-                "tag": "latest",
-                "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-              }
-            },
-            "input": [{
-              "index": 0,
-              "previousStage": 0
-            }],
-            "transformation": {
-              "id": "did:op:999999"
-            },
-            "output": {}
+						"index": 0,
+						"stageType": "Filtering",
+						"requirements": {
+							"serverInstances": 1,
+							"container": {
+								"image": "tensorflow/tensorflow",
+								"tag": "latest",
+								"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+							}
+						},
+						"input": [{
+							"index": 0,
+							"id": "did:op:12345"
+						}, {
+							"index": 1,
+							"id": "did:op:67890"
+						}],
+						"transformation": {
+							"id": "did:op:abcde"
+						},
+						"output": {}
+					}, {
+						"index": 1,
+						"stageType": "Transformation",
+						"requirements": {
+							"serverInstances": 1,
+							"container": {
+								"image": "tensorflow/tensorflow",
+								"tag": "latest",
+								"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+							}
+						},
+						"input": [{
+							"index": 0,
+							"previousStage": 0
+						}],
+						"transformation": {
+							"id": "did:op:999999"
+						},
+						"output": {}
           }]
       }
       },
