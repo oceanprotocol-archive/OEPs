@@ -16,20 +16,18 @@
 	}],
 	"service": [{
 		"index": 0,
-		"serviceEndpoint": "http://172.15.0.15:5000/api/v1/aquarius/assets/ddo/{did}",
+		"serviceEndpoint": "http://172.15.0.15:5000/api/v1/aquarius/assets/ddo/did:op:8d1b4d73e7af4634958f071ab8dfe7ab0df14019755e444090fd392c8ec9c3f4",
 		"type": "metadata",
-
 		"attributes": {
 			"main": {
+				"dateCreated": "2012-10-10T17:00:00Z",
 				"type": "workflow",
+				"datePublished": "2019-04-09T19:02:11Z",
 				"workflow": {
 					"stages": [{
 						"index": 0,
 						"stageType": "Filtering",
 						"requirements": {
-							"computeServiceId": "did:op8934894328989423",
-							"serviceDefinitionId": "1",
-							"serverId": "1",
 							"serverInstances": 1,
 							"container": {
 								"image": "tensorflow/tensorflow",
@@ -52,9 +50,6 @@
 						"index": 1,
 						"stageType": "Transformation",
 						"requirements": {
-							"computeServiceId": "did:op8934894328989423",
-							"serviceDefinitionId": "1",
-							"serverId": "2",
 							"serverInstances": 1,
 							"container": {
 								"image": "tensorflow/tensorflow",
@@ -72,14 +67,8 @@
 						"output": {}
 					}]
 				}
-			},
-			"additional": {},
-			"curation": {
-				"rating": 0.0,
-				"numVotes": 0,
-				"isListed": true
 			}
 		}
-
 	}]
 }
+
