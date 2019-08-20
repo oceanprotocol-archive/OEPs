@@ -8,8 +8,8 @@ contributors:
         Javier Cortejoso <javier@oceanprotocol.com>,
         Enrique Ruiz <enrique@oceanprotocol.com>, 
         Troy <troy@oceanprotocol.com>,
-        Dimitri De Jonghe <dimi@oceanprotocol.com>,        
-		    Ahmed Ali <ahmed@oceanprotocol.com>
+        Dimitri De Jonghe <dimi@oceanprotocol.com>,
+        Ahmed Ali <ahmed@oceanprotocol.com>
 
 ```
 
@@ -53,7 +53,7 @@ This OEP MUST be valid for integrating classical infrastructure cloud providers 
 but also can be used to integrate web3 compute providers or On-Premise infrastructure.
 
 It's out of the scope to detail the Service Execution Agreements implementation. 
-Service Agreements are described as part of the Dev-Ocean repository.
+Service Agreements are described as part of the [Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean).
 
 ## Change Process
 
@@ -479,9 +479,13 @@ To do that, SQUID needs to integrate the `DIDRegistry` contract using the `regis
 
 ### Setting up the Service Execution Agreement
 
+#### Registering Asset
+
 Using only one Squid call `registerAsset(asset_metadata, services_description, publisher_public_key)`, 
 the PUBLISHER should be able to register an Asset including a **Computing** service.
 The `services_description` attribute includes the different services (like computing) associated to this asset.
+
+#### Consuming Asset
 
 During this phase, through the CONSUMER and the PROVIDER (via BRIZO) negotiation, 
 the Service Execution Agreement (SEA) is created and initialized.
@@ -497,22 +501,22 @@ In the Smart Contracts, this `serviceAgreementId` will be stored as a `bytes32`.
 The CONSUMER can generate the `serviceAgreementId` using any kind of implementation providing enough randomness to generate this ID (64-characters hex string).
 
 1. The CONSUMER signs the service details. 
-The signature contains `(templateId, conditionKeys, valuesHashList, timeoutValues, serviceAgreementId)`. `serviceAgreementId` is provided by the CONSUMER and has to be globally unique.
+The signature contains `(templateId, conditionTypes, valuesHashList, timeoutValues, serviceAgreementId)`. `serviceAgreementId` is provided by the CONSUMER and has to be globally unique.
   * Each ith item in `values_hash_list` and `timeoutValues` lists corresponds to the ith condition in conditionKeys
   * `values_hash_list`: a hash of the parameters types and values of each condition
   * `timeoutValues`: list of numbers to specify a timeout value for each condition.
 
 It is used to correlate events and to prevent the PUBLISHER from instantiating multiple Service Agreements from a single request.
 
-1. The CONSUMER initialize the SEA on-chain `(did, serviceAgreementId, serviceDefinitionId, signature, consumerAddress, workflowId`).
+1. The CONSUMER initializes the SEA on-chain `(did, serviceAgreementId, serviceDefinitionId, signature, consumerAddress, workflowId`).
 
-1. The CONSUMER lock the payment on-chain through the `LockRewardCondition` Smart Contract
+1. The CONSUMER locks the payment on-chain through the `LockRewardCondition` Smart Contract
 
 1. The PROVIDER via BRIZO receives the `LockReward.Fulfilled` event where he/she is the provider for this agreement
 
-1. The PROVIDER grant the execution permissions for the computation on-chain calling the `executeComputeCondition.Fullfill` method  
+1. The PROVIDER grants the execution permissions for the computation on-chain calling the `executeComputeCondition.Fullfill` method  
 
-1. The CONSUMER get the `executeComputeCondition.Fullfilled` event. When he/she receives the event, 
+1. The CONSUMER gets the `executeComputeCondition.Fullfilled` event. When he/she receives the event, 
    can call the BRIZO `serviceEndpoint` url added in the DDO to start the execution of the computation workflow.
    Typically: `HTTP POST /api/v1/brizo/services/computing/exec`
 
@@ -528,13 +532,13 @@ the CONSUMER can request the start of the Computation in the PUBLISHER infrastru
 
 The complete flow for the Execution phase is:
 
-1. BRIZO, after receiving the `execution` request from CONSUMER and validate the permissions using the `checkPermissions` function
+1. BRIZO, after receiving the `execution` request from CONSUMER and validating the permissions using the `checkPermissions` function
 
 1. If the CONSUMER is authorized, BRIZO starts the operations in the INFRASTRUCTURE (cloud or on-premise).
 
 1. BRIZO resolves the DID of the Workflow associated with the Service Agreement. The workflow includes the details of the pipeline to execute, including the different stages, inputs and outputs.
 
-1. BRIZO send a "Workflow Registration" HTTP REST request to the Infrastructure Operator (aka OPERATOR). 
+1. BRIZO sends a "Workflow Registration" HTTP REST request to the Infrastructure Operator (aka OPERATOR). 
    This request must include the serviceAgreementId and the Workflow (JSON)
 
 1. The OPERATOR receives a "Workflow Registration" request and:
@@ -545,11 +549,11 @@ The complete flow for the Execution phase is:
 
 1. All the actions made by the OPERATOR in the infrastructure via K8s MUST include the `serviceAgreementId` and `workflowExecutionId` as tags/labels
 
-1. For each stage included in the workflow, the OPERATOR orchestrates [Orchestration Steps](#orchestration-steps)
+1. For each stage in the workflow, the OPERATOR orchestrates [Orchestration Steps](#orchestration-steps)
 
-1. The OPERATOR request the deletion of all the containers and volumes created in the Kubernetes cluster
+1. The OPERATOR requests the deletion of all the containers and volumes created in the Kubernetes cluster
 
-1. The OPERATOR retrieve from the INFRASTRUCTURE (if it's available) a receipt demonstrating the execution of the service
+1. The OPERATOR retrieves from the INFRASTRUCTURE (if it's available) a receipt demonstrating the execution of the service
 
 1. The CONSUMER receives an event including the DID of the new ASSET created
 
@@ -603,17 +607,17 @@ The steps included in this scenario are:
 1. The OPERATOR communicates with the K8s cluster to prepare the pods
 
 1. The OPERATOR via K8s starts a generic [Configuration Pod](https://github.com/oceanprotocol/pod-configuration). The responsibilities of the configuration pod are:
-   - Parse the Workflow document
-   - Resolve the DID resources necessary to run the Workflow
-   - Pull the docker image from the Docker registry
-   - Plug the different data inputs as volumes in the Compute Pod
-   - Plug the output for data and logs as volumes in the Compute Pod
+   - Parses the Workflow document
+   - Resolves the DID resources necessary to run the Workflow
+   - Pulls the docker image from the Docker registry
+   - Plugs the different data inputs as volumes in the Compute Pod
+   - Plugs the output for data and logs as volumes in the Compute Pod
 
 1. After all the above steps the `Configuration Pod` must die
 
 1. If the `Configuration Pod` ends successfully the OPERATOR via K8s starts the `Computing Pod` using the flavour specifid in the Workflow definition
 
-1. The `Compute Pod` starts and run the `ocean-entrypoint.sh` part of the algorithm downloaded by the `Configuration Pod`
+1. The `Compute Pod` starts and runs the `ocean-entrypoint.sh` part of the algorithm downloaded by the `Configuration Pod`
 
 1. When the `Compute Pod` ends or the duration is too long (timeout), the OPERATOR via K8s stop and delete the Compute Pod
 
