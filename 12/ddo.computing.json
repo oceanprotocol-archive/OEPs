@@ -33,6 +33,8 @@
 
 		"main": {
 
+			"creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
+			"datePublished": "2019-04-09T19:02:11Z",
 			"provider": {
 				"type": "Azure",
 				"description": "",
@@ -71,140 +73,142 @@
 					}]
 
 				}
-			},
+			}
 
-			"serviceAgreementTemplate": {
-				"contractName": "ServiceExecutionTemplate",
-				"events": [{
-					"name": "AgreementCreated",
-					"actorType": "consumer",
-					"handler": {
-						"moduleName": "serviceExecutionTemplate",
-						"functionName": "fulfillLockRewardCondition",
-						"version": "0.1"
-					}
-				}],
-				"fulfillmentOrder": [
-					"lockReward.fulfill",
-					"serviceExecution.fulfill",
-					"escrowReward.fulfill"
-				],
-				"conditionDependency": {
-					"lockReward": [],
-					"serviceExecution": [],
-					"releaseReward": [
-						"lockReward",
-						"serviceExecution"
-					]
+		},
+
+		"serviceAgreementTemplate": {
+			"contractName": "ServiceExecutionTemplate",
+			"events": [{
+				"name": "AgreementCreated",
+				"actorType": "consumer",
+				"handler": {
+					"moduleName": "serviceExecutionTemplate",
+					"functionName": "fulfillLockRewardCondition",
+					"version": "0.1"
+				}
+			}],
+			"fulfillmentOrder": [
+				"lockReward.fulfill",
+				"serviceExecution.fulfill",
+				"escrowReward.fulfill"
+			],
+			"conditionDependency": {
+				"lockReward": [],
+				"serviceExecution": [],
+				"releaseReward": [
+					"lockReward",
+					"serviceExecution"
+				]
+			},
+			"conditions": [{
+					"name": "lockReward",
+					"timelock": 0,
+					"timeout": 0,
+					"contractName": "LockRewardCondition",
+					"functionName": "fulfill",
+					"parameters": [{
+							"name": "_rewardAddress",
+							"type": "address",
+							"value": ""
+						},
+						{
+							"name": "_amount",
+							"type": "uint256",
+							"value": ""
+						}
+					],
+					"events": [{
+						"name": "Fulfilled",
+						"actorType": "publisher",
+						"handler": {
+							"moduleName": "lockRewardCondition",
+							"functionName": "fulfillServiceExecutionCondition",
+							"version": "0.1"
+						}
+					}]
 				},
-				"conditions": [{
-						"name": "lockReward",
-						"timelock": 0,
-						"timeout": 0,
-						"contractName": "LockRewardCondition",
-						"functionName": "fulfill",
-						"parameters": [{
-								"name": "_rewardAddress",
-								"type": "address",
-								"value": ""
-							},
-							{
-								"name": "_amount",
-								"type": "uint256",
-								"value": ""
-							}
-						],
-						"events": [{
+				{
+					"name": "serviceExecution",
+					"timelock": 0,
+					"timeout": 0,
+					"contractName": "ServiceExecCondition",
+					"functionName": "fulfill",
+					"parameters": [{
+							"name": "_documentId",
+							"type": "bytes32",
+							"value": ""
+						},
+						{
+							"name": "_grantee",
+							"type": "address",
+							"value": ""
+						}
+					],
+					"events": [{
 							"name": "Fulfilled",
 							"actorType": "publisher",
 							"handler": {
-								"moduleName": "lockRewardCondition",
+								"moduleName": "serviceExecution",
 								"functionName": "fulfillServiceExecutionCondition",
 								"version": "0.1"
 							}
-						}]
-					},
-					{
-						"name": "serviceExecution",
-						"timelock": 0,
-						"timeout": 0,
-						"contractName": "ServiceExecCondition",
-						"functionName": "fulfill",
-						"parameters": [{
-								"name": "_documentId",
-								"type": "bytes32",
-								"value": ""
-							},
-							{
-								"name": "_grantee",
-								"type": "address",
-								"value": ""
-							}
-						],
-						"events": [{
-								"name": "Fulfilled",
-								"actorType": "publisher",
-								"handler": {
-									"moduleName": "serviceExecution",
-									"functionName": "fulfillServiceExecutionCondition",
-									"version": "0.1"
-								}
-							},
-							{
-								"name": "TimedOut",
-								"actorType": "consumer",
-								"handler": {
-									"moduleName": "serviceExec",
-									"functionName": "fulfillServiceExecutionCondition",
-									"version": "0.1"
-								}
-							}
-						]
-					},
-					{
-						"name": "escrowReward",
-						"timelock": 0,
-						"timeout": 0,
-						"contractName": "EscrowReward",
-						"functionName": "fulfill",
-						"parameters": [{
-								"name": "_amount",
-								"type": "uint256",
-								"value": ""
-							},
-							{
-								"name": "_receiver",
-								"type": "address",
-								"value": ""
-							},
-							{
-								"name": "_sender",
-								"type": "address",
-								"value": ""
-							},
-							{
-								"name": "_lockCondition",
-								"type": "bytes32",
-								"value": ""
-							},
-							{
-								"name": "_releaseCondition",
-								"type": "bytes32",
-								"value": ""
-							}
-						],
-						"events": [{
-							"name": "Fulfilled",
-							"actorType": "publisher",
+						},
+						{
+							"name": "TimedOut",
+							"actorType": "consumer",
 							"handler": {
-								"moduleName": "escrowRewardCondition",
-								"functionName": "verifyRewardTokens",
+								"moduleName": "serviceExec",
+								"functionName": "fulfillServiceExecutionCondition",
 								"version": "0.1"
 							}
-						}]
-					}
-				]
-			}
+						}
+					]
+				},
+				{
+					"name": "escrowReward",
+					"timelock": 0,
+					"timeout": 0,
+					"contractName": "EscrowReward",
+					"functionName": "fulfill",
+					"parameters": [{
+							"name": "_amount",
+							"type": "uint256",
+							"value": ""
+						},
+						{
+							"name": "_receiver",
+							"type": "address",
+							"value": ""
+						},
+						{
+							"name": "_sender",
+							"type": "address",
+							"value": ""
+						},
+						{
+							"name": "_lockCondition",
+							"type": "bytes32",
+							"value": ""
+						},
+						{
+							"name": "_releaseCondition",
+							"type": "bytes32",
+							"value": ""
+						}
+					],
+					"events": [{
+						"name": "Fulfilled",
+						"actorType": "publisher",
+						"handler": {
+							"moduleName": "escrowRewardCondition",
+							"functionName": "verifyRewardTokens",
+							"version": "0.1"
+						}
+					}]
+				}
+			]
 		}
+
 	}]
 }
