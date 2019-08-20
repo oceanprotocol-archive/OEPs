@@ -1,41 +1,39 @@
+# OEP-7: Decentralized Identifiers
+
 ```
-shortname: 7/DID
-name: Decentralized Identifiers
-type: Standard
-status: Draft
-version: 0.2
-editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@oceanprotocol.com>
+shortname:      7/DID
+name:           Decentralized Identifiers
+type:           Standard
+status:         Draft
+version:        0.2
+editor:         Aitor Argomaniz <aitor@oceanprotocol.com>
+contributors:   Dimitri De Jonghe <dimi@oceanprotocol.com>,
+                Troy McConaghy <troy@oceanprotocol.com>
 ```
 
 **Table of Contents**
 
-<!--ts-->
+- [Motivation](#motivation)
+- [Specification](#specification)
+- [Proposed Solution](#proposed-solution)
+  - [Decentralized IDs (DIDs)](#decentralized-ids-dids)
+  - [DID Documents (DDOs)](#did-documents-ddos)
+    - [DDO Services](#ddo-services)
+  - [Integrity](#integrity)
+    - [How to compute the integrity checksum](#how-to-compute-the-integrity-checksum)
+    - [DID Document Proof](#did-document-proof)
+    - [Length of a DID](#length-of-a-did)
+    - [How to compute a DID](#how-to-compute-a-did)
+  - [Registry](#registry)
+  - [Resolver](#resolver)
+- [Changes Required](#changes-required)
+  - [List 1](#list-1)
+  - [List 2](#list-2)
+- [References](#references)
+- [Change Process](#change-process)
+- [Language](#language)
 
-   * [Decentralized Identifiers](#decentralized-identifiers)
-      * [Change Process](#change-process)
-      * [Language](#language)
-      * [Motivation](#motivation)
-      * [Specification](#specification)
-      * [Proposed Solution](#proposed-solution)
-         * [Decentralized IDs (DIDs)](#decentralized-ids-dids)
-         * [DID Documents (DDOs)](#did-documents-ddos)
-            * [DDO Services](#ddo-services)
-         * [Integrity](#integrity)
-            * [How to compute the integrity checksum](#how-to-compute-the-integrity-checksum)
-            * [DID Document Proof](#did-document-proof)
-            * [Length of a DID](#length-of-a-did)
-            * [How to compute a DID](#how-to-compute-a-did)
-         * [Registry](#registry)
-         * [Resolver](#resolver)
-      * [Changes Required](#changes-required)
-         * [List 1](#list-1)
-         * [List 2](#list-2)
-      * [References](#references)
-
-<!--te-->
-
-# Decentralized Identifiers
+---
 
 This specification is based on:
 
@@ -43,14 +41,6 @@ This specification is based on:
 * the [Ocean Protocol technical whitepaper](https://github.com/oceanprotocol/whitepaper),
 * [3/ARCH](../3/README.md), and
 * [4/AGENT](../4/README.md).
-
-## Change Process
-
-This document is governed by [OEP 2/COSS](../2/README.md).
-
-## Language
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
 ## Motivation
 
@@ -116,15 +106,15 @@ The combination of a DID and its associated DID Document forms the root record f
 
 A DDO document is composed of standard DDO attributes:
 
-* "@context"
-* "id"
-* "created"
-* "updated"
-* "publicKey"
-* "authentication"
-* "proof"
-* "verifiableCredential"
-* "service"
+* `@context`
+* `id`
+* `created`
+* `updated`
+* `publicKey`
+* `authentication`
+* `proof`
+* `verifiableCredential`
+* `service`
 
 Asset metadata can be included as one of the objects inside the `"service"` array, with type `"metadata"`.
 
@@ -134,46 +124,50 @@ Each type of asset (dataset, algorithm, workflow, etc, ..) typically will have a
 * metadata - describing the asset
 * provenance - describing the asset provenance
 
-Each service is distinguised by the `DDO.service.type` attribute.
+Each service is distinguished by the `DDO.service.type` attribute.
 
-In each service will be included an `attributes` section where all the information related to the service is added. As mandatory content, the attributes section will have a `main` sub-section. This one is important because must include all the mandatory information that a service has to provide and **never** change because is used to calculate the integrity checksum of the service.
+Each service has an `attributes` section where all the information related to the service is added. As mandatory content, the attributes section will have a `main` sub-section. This one is important because it must include all the mandatory information that a service has to provide and **never** change because it is used to calculate the integrity checksum of the service.
 
 A part of the `attributes.main` sub-section, other optional sub-sections can be added (like: `attributes.curation` or `attributes.extra`) depending on the service type.
 
 Example:
 
 ```json
-"service": [{
-		"index": "0",
-		"type": "metadata",
-		"serviceEndpoint": "https://service/api/v1/metadata/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
-		"attributes": {
-			"main": {},
-      "additional": {},
+"service": [  
+  {  
+    "index": 0,
+    "type": "metadata",
+    "serviceEndpoint": "https://service/api/v1/metadata/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+    "attributes": {  
+      "main": {},
+      "additionalInformation": {},
       "curation": {}
-		}
-	}, {
-		"index": "1",
-		"type": "provenance",
-		"serviceEndpoint": "https://service/api/v1/provenance/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
-		"attributes": {
-			"main": {},
-			"extra": {}
-		}
-	}, {
-		"index": "2",
-		"type": "access",
-		"serviceEndpoint": "https://service/api/v1/access/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
-		"attributes": {
-			"main": {},
-			"additional": {}
-		}
-	}]
+    }
+  },
+  {  
+    "index": 1,
+    "type": "provenance",
+    "serviceEndpoint": "https://service/api/v1/provenance/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+    "attributes": {  
+      "main": {},
+      "additionalInformation": {}
+    }
+  },
+  {  
+    "index": 2,
+    "type": "access",
+    "serviceEndpoint": "https://service/api/v1/access/assets/ddo/did:op:0ebed8226ada17fde24b6bf2b95d27f8f05fcce09139ff5cec31f6d81a7cd2ea",
+    "attributes": {  
+      "main": {},
+      "additionalInformation": {}
+    }
+  }
+]
 ```
 
-You can find a complete examplo of a DDO [here](ddo-example.json).
-You can find a complete reference of the asset metadata in [OEP-8](8).
-Also it's possible to find a complete [real example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the W3C DID spec.
+- You can find a [complete example of a DDO](ddo-example.json).
+- You can find a complete reference of the asset metadata in [OEP-8](8).
+- You can find a complete [real world example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the W3C DID spec.
 
 ### Integrity
 
@@ -182,7 +176,9 @@ The Integrity policy for identity and metadata is a sub-specification for the Oc
 #### How to compute the integrity checksum
 
 An ASSET in the system is composed by on-chain information maintained by the DLT and off-chain Metadata information (DDO) stored by the PROVIDER.
+
 Technically a user could update the DDO accessing directly to the off-chain database, modifying attributes (e.g. License information, description, etc.) relevant to a previous consumption agreement with an user.
+
 The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
 
 This hash composing the **integrity checksum** is calculated in the following way:
@@ -196,7 +192,7 @@ This hash composing the **integrity checksum** is calculated in the following wa
   * In the JSON generated, all the characters between entries are removed (`\n`, `\t`, `\r`, whitespaces, etc.)
   * As a result must be generated a string of only one line 
 - After hashing, in the DDO, the checksums should be represented as a hex string beginning with `0x` and ending with 64 hex characters (e.g. `0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377`)
-- After generating each individual checksum the complete `proof.checksum` entry is sorted, serialized and hashed as previusly described in the other checksums
+- After generating each individual checksum the complete `proof.checksum` entry is sorted, serialized and hashed as previously described in the other checksums
 - The final hash generated as a result of hashing the checksums (DID CHECKSUM or DID HASH) will be the ID part of the DID (the string after the prefix `did:op:`)
 
 Because this DID HASH will be stored on-chain and emitted as an event, a validator could use this information to check if something changed regarding the initial registration.
@@ -208,7 +204,7 @@ We enforce the usage of the `proof` attribute to demonstrate the Owner of an Ass
 The information to sign by the owner is the **integrity checksum** defined in the above section.
 
 ```js
-var signature = Sign.signMessage(DID)
+const signature = Sign.signMessage(DID)
 ```
 
 The DID Document (DDO) SHOULD include the following `proof` information:
@@ -222,7 +218,7 @@ The DID Document (DDO) SHOULD include the following `proof` information:
 Here is an example `proof` section to add in the DDO:
 
 ```json
-  "proof": {
+"proof": {
     "type": "DDOIntegritySignature",
     "created": "2016-02-08T16:02:20Z",
     "creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
@@ -231,43 +227,41 @@ Here is an example `proof` section to add in the DDO:
         "0": "0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377",
         "1": "0x999999952b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3"
     }    
-  }
+}
 ```
 
-Using the `proof` information, a third-party with access to the DDO could validate the `creator` signed a specific integrity checksum refering to an Asset.
+Using the `proof` information, a third-party with access to the DDO could validate the `creator` signed a specific integrity checksum referring to an Asset.
 
 #### Length of a DID
 
-The length of a DID must be compliant with the underlying storage layer and function calls.
-Given that decentralized virtual machines make use of contract languages such as Solidity and WASM, it is advised to fit the DID in structures such as `bytes32`.
+The length of a DID must be compliant with the underlying storage layer and function calls. Given that decentralized virtual machines make use of contract languages such as Solidity and WASM, it is advised to fit the DID in structures such as `bytes32`.
 
-It would be nice to store the "did:op:" prefix in those 32 bytes, but that means fewer than 32 bytes would be left for storing the rest (25 bytes since "did:op:" takes 7 bytes if using UTF-8). If the rest is a secure hash, then we need a 25-byte secure hash, but secure hashes typically have 28, 32 or more bytes, so that won't work.
+It would be nice to store the `did:op:` prefix in those 32 bytes, but that means fewer than 32 bytes would be left for storing the rest (25 bytes since "did:op:" takes 7 bytes if using UTF-8). If the rest is a secure hash, then we need a 25-byte secure hash, but secure hashes typically have 28, 32 or more bytes, so that won't work.
 
-Only the hash value _needs_ to be stored, not the "did:op:" prefix, because it should be clear from context that the value is an Ocean DID.
+Only the hash value _needs_ to be stored, not the `did:op:` prefix, because it should be clear from context that the value is an Ocean DID.
 
 #### How to compute a DID
 
-The DID ("id") string begins with "did:op:" and is followed by a string representation of a bytes32.
+The DID (`id`) string begins with `did:op:` and is followed by a string representation of a bytes32.
 
-As is decribed previously, the DID is calculating doing the Hash (SHA3-256) of the `DDO.proof.checksum` entry
+As is described previously, the DID is calculating doing the Hash (SHA3-256) of the `DDO.proof.checksum` entry
 
 ### Registry
 
-To register the different kind of objects can be stored in a **simple** register contract named **DidRegistry**.
-This DidRegistry can act as generic/flexible way to associate Resources (ie. Assets) to the public providers resolving the DDO (and Metadata included) of those resources.
+To register the different kind of objects can be stored in a **simple** register contract named **DidRegistry**. This DidRegistry can act as generic/flexible way to associate Resources (ie. Assets) to the public providers resolving the DDO (and Metadata included) of those resources. 
+
 The key of the Identity entity in Ocean is the **DID**. Each entity will have a unique DID.
-To resolve the DDO associated to a Resource (Asset), associated to this Resource DID we have the DID of the Provider giving access to this Resource.
-The Provider will have associated a mapping (key - value) of attributes. One of those can be used to related with the public service returning the DDO of a specific resource.
+
+To resolve the DDO associated to a Resource (Asset), associated to this Resource DID we have the DID of the Provider giving access to this Resource. The Provider will have associated a mapping (key - value) of attributes. One of those can be used to related with the public service returning the DDO of a specific resource.
 
 Applied to Assets, typically are part of a Service Agreement. The suggested approach to implement this is:
 
 * Associate the Resource (ie. Asset DID) to the Provider DID
-* Each Provider will have associated a Public URL where the provider is exposing the DDO's
+* Each Provider will have associated a Public URL where the provider is exposing the DDOs
 
-Here a draft **DidRegistry** implementation:
+Here is a draft **DidRegistry** implementation:
 
 ```solidity
-
 // This piece of code is for reference only!
 // Doesn't include any validation, types could be reviewed, enums, etc
 
@@ -293,13 +287,14 @@ contract DidRegistry {
 
 To register the provider publicly resolving the DDO associated to a DID, we will register an attribute with the public hostname of that provider:
 
-```
+```solidity
 registerAttribute("21tDAKCERh95uGgKbJNHYp", "328aabb94534935864312", "https://myprovider.example.com/ddo")
 ```
 
 ### Resolver
 
-The resolving capabilities will be encapsulated in the Ocean Client libraries (Javascript, Python, ..), allowing to resolve a DDO directly speaking with the KEEPER.
+The resolving capabilities will be encapsulated in the Ocean Client libraries (JavaScript, Python, etc.), allowing to resolve a DDO directly speaking with the KEEPER.
+
 No third-party requests or API need to be integrated. This allows to have a simple a seam-less integration from the consumer side.
 
 This is a generic definition of what could be exposed in the client libraries from an API point of view:
@@ -311,16 +306,19 @@ function DDO resolve(String did)  {
 }
 ```
 
-To resolve a DID to the associated DDO, some information is stored on-chain associated to the DID. In the approach recommended in the scope of this OEP, this is stored
-as an attribute associated to the ```DidAttributeRegistered``` event. Because the did and key are indexed parameters of the event, a consumer in any supported web3 language,
-could filter the ```DidAttributeRegistered``` events filtering by the DID and the key named **"service-ddo"**.
+To resolve a DID to the associated DDO, some information is stored on-chain associated to the DID. In the approach recommended in the scope of this OEP, this is stored as an attribute associated to the `DidAttributeRegistered` event.
+
+Because the DID and key are indexed parameters of the event, a consumer in any supported web3 language could filter the `DidAttributeRegistered` events filtering by the DID and the key named **"service-ddo"**.
 
 A DDO pointing to a DID could be resolved hierarchically using the same mechanism.
 
-This is an example in Javascript using web3.js:
+This is an example in JavaScript using web3.js:
 
-```javascript
-var event = contractInstance.DidAttributeRegistered( {did: "21tDAKCERh95uGgKbJNHYp"}, {fromBlock: 0, toBlock: 'latest'});
+```js
+const event = contractInstance.DidAttributeRegistered( 
+    { did: '21tDAKCERh95uGgKbJNHYp' },
+    { fromBlock: 0, toBlock: 'latest' }
+);
 ```
 
 Here in Python using web3.py:
@@ -330,6 +328,7 @@ event = mycontract.events.DidAttributeRegistered.createFilter(fromBlock='latest'
 ```
 
 This logic could be encapsulated in the client libraries (**Squid**) in different languages, allowing to the client applications to get the attributes enabling to resolve the DDO associated to the DID.
+
 Using this information a consumer can query directly to the provider able to return the DDO.
 
 Here you have the complete flow using as example a new ASSET:
@@ -339,10 +338,10 @@ Here you have the complete flow using as example a new ASSET:
 Steps:
 
 1. A PUBLISHER, using the KEEPER, register the new Resource (ie. ASSET) providing the DID and the DID of the Provider acting as Public service returning the DDO of the Resource (ASSET)
-1. The KEEPER register the Resource using the Service Agreement Smart Contract and after of that register the identity using the DidRegistry Smart Contract. In this point, the attribute is raised as a new event
-1. The PUBLISHER publish the DDO in the metadata-store/OCEANDB provided by PROVIDER
-1. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **service-ddo** attribute associated to the DID directly from the KEEPER
-1. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
+2. The KEEPER register the Resource using the Service Agreement Smart Contract and after of that register the identity using the DidRegistry Smart Contract. In this point, the attribute is raised as a new event
+3. The PUBLISHER publish the DDO in the metadata-store/OCEANDB provided by PROVIDER
+4. A CONSUMER (it could be a frontend application or a backend software), having a DID and using a client library (Python or Javascript) get the **service-ddo** attribute associated to the DID directly from the KEEPER
+5. The CONSUMER, using the provider public url, query directly to the provider passing the DID to obtain the DDO
 
 ## Changes Required
 
@@ -367,3 +366,11 @@ The changes to apply in the proposed solution are:
 
 * [DID Spec from the W3C Credentials Community Group](https://w3c-ccg.github.io/did-spec/)
 * [DID Spec from _Rebooting the Web of Trust_](https://github.com/WebOfTrustInfo/rebooting-the-web-of-trust-fall2016/blob/master/topics-and-advance-readings/did-spec-working-draft-03.md)
+
+## Change Process
+
+This document is governed by [OEP 2/COSS](../2/README.md).
+
+## Language
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
