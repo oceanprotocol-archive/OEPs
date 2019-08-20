@@ -3,6 +3,7 @@ shortname: 7/DID
 name: Decentralized Identifiers
 type: Standard
 status: Draft
+version: 0.1
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Dimitri De Jonghe <dimi@oceanprotocol.com>, Troy McConaghy <troy@oceanprotocol.com>
 ```

@@ -3,6 +3,7 @@ shortname: 11/ACL
 name: On-Chain Access Control using Service Execution Agreements
 type: Standard
 status: Raw
+version: 0.2
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Lev Berman <ldmberman@gmail.com>,
               Ahmed Ali <ahmed@oceanprotocol.com>, 
