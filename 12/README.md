@@ -287,6 +287,9 @@ The complete flow of publishing an asset with a computing service attached is:
 		"serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/exec?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}",
 		"templateId": "804932804923850985093485039850349850439583409583404534231321131a",
 
+		"attributes": {
+			
+		
 		"main": {
 
 			"creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
@@ -465,7 +468,7 @@ The complete flow of publishing an asset with a computing service attached is:
 					}
 				]
 			}
-
+		}
 		}
 	}]
 ```
