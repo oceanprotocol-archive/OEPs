@@ -303,11 +303,10 @@ HTTP POST /api/v1/brizo/services/access/initialize
 {
  "did": "did:op:08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d",
  "serviceAgreementId": "bb23s87856d59867503f80a690357406857698570b964ac8dcc9d86da4ada010",
- "serviceDefinitionId": "0",
+ "index": 0,
  "signature": "cade376598342cdae231321a0097876aeda656a567a67c6767fd8710129a9dc1",
  "consumerAddress": "0x00a329c0648769A73afAc7F9381E08FB43dBEA72"
 }
-
 ```
 
 The execution of this endpoint should return a `HTTP 201` if everything goes okay. Satisfactory conditions include:
@@ -496,9 +495,9 @@ The PUBLISHER can define how they want to encrypt the URLs in the `base.files` a
 
 ```json
 "service": [{
-    "type": "Authorization",
+    "type": "authorization",
+    "index": 0,
     "service": "SecretStore",
-    "serviceDefinitionId": "0",
     "serviceEndpoint": "http://secretstore.org:12001"
   },
   …
@@ -522,9 +521,9 @@ The SECRET STORE cluster to use during the encryption and decryption is specifie
 
 ```json
 "service": [{
-    "type": "Authorization",
+    "type": "authorization",
+    "index": 0,
     "service": "SecretStore",
-    "serviceDefinitionId": "0",
     "serviceEndpoint": "http://secretstore.org:12001"
   },
   …
