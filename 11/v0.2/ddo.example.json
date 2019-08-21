@@ -45,7 +45,7 @@
 						}
 					]
 				},
-				"base": {
+				"attributes": {
 					"author": "Met Office",
 					"checksum": "0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377",
 					"compression": "zip",
@@ -88,27 +88,27 @@
 			},
 			"serviceDefinitionId": "0",
 			"serviceEndpoint": "http://localhost:5000/api/v1/aquarius/assets/ddo/{did}",
-			"type": "Metadata"
+			"type": "metadata"
 		},
 
 
 
 		{
-			"type": "Access",
+			"type": "access",
 			"templateId": "0x044852b2a670ade5407e78fb2863c51de9fcb96542a07186fe3aeda6bb8a116d",
 
-			"serviceDefinitionId": "1",
+			"index": 1,
 			"serviceEndpoint": "http://localhost:8030/api/v1/brizo/services/access/initialize",
 			"consumeEndpoint": "http://localhost:8030/api/v1/brizo/services/consume?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}&url=${url}",
+			"attributes": {
+				"main": {
+					"creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
+					"datePublished": "2019-04-09T19:02:11Z",
+					"price": "10",
+					"timeout": 0
+				},
 
-			"main": {
-				"creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
-				"datePublished": "2019-04-09T19:02:11Z",
-				"price": "10",
-				"timeout": 0
-			},
-
-			"serviceAgreementTemplate": {
+				"serviceAgreementTemplate": {
 				"contractName": "EscrowAccessSecretStoreTemplate",
 				"events": [{
 					"name": "AgreementCreated",
@@ -239,6 +239,7 @@
 						}]
 					}
 				]
+				}
 			}
 
 		}
