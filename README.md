@@ -36,7 +36,6 @@ The process to add or change a OEP is the following:
 | [13/DEC-PROV](13)    | Decentralized Data Provenance                              | Standard | Raw        | Aitor Argomaniz            |
 | [14/COMMONS-MKT](14) | Ocean Commons Marketplace                                  | Standard | Raw        | Aitor Argomaniz            |
 
-
 ## Current Participants
 
 ### Contributors
