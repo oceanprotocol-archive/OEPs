@@ -1,3 +1,5 @@
+# OEP-14: Ocean Commons Marketplace
+
 ```
 shortname: 14/COMMONS-MKT
 name: Ocean Commons Marketplace
@@ -11,23 +13,18 @@ release: Tethys
 Table of Contents
 =================
 
-   * [Table of Contents](#table-of-contents)
-   * [Ocean Commons Marketplace use case](#ocean-commons-marketplace-use-case)
-      * [Motivation](#motivation)
-      * [Actors](#actors)
-      * [Flow](#flow)
-         * [Publishing](#publishing)
-         * [Importing from Google Dataset](#importing-from-google-dataset)
-         * [Consuming](#consuming)
-         * [Network Reward](#network-reward)
-         * [User Interface Screens](#user-interface-screens)
-      * [Next steps](#next-steps)
+- [Motivation](#motivation)
+- [Actors](#actors)
+- [Flow](#flow)
+  - [Publishing](#publishing)
+  - [Importing from Google Dataset](#importing-from-google-dataset)
+  - [Consuming](#consuming)
+  - [Network Reward](#network-reward)
+  - [User Interface Screens](#user-interface-screens)
+- [Next steps](#next-steps)
 
 
 -----
-
-
-# Ocean Commons Marketplace use case
 
 The intention of this document is to describe the scenario of a working Ocean Commons Marketplace. There the users should be able to publish and discover free/commons assets (datasets). 
 
@@ -69,9 +66,9 @@ The Publishing flow describe the procedure to put in place allowing to an Ocean 
 
 1. The PUBLISHER, search on the internet and discover a relevant free/commons asset, get the publicly available information of the asset, metadata and license information.
 
-1. The PUBLISHER goes to the Ocean Commons Marketplace frontend application, and open the form of "Register a new Commons/Free Asset"
+2. The PUBLISHER goes to the Ocean Commons Marketplace frontend application, and open the form of "Register a new Commons/Free Asset"
 
-1. The PUBLISHER fill the following information:
+3. The PUBLISHER fill the following information:
    - List of public URL's where the Asset is located
    - Title
    - Description
@@ -81,11 +78,11 @@ The Publishing flow describe the procedure to put in place allowing to an Ocean 
    
    A complete list of attributes can be found in the [OEP-8](https://github.com/oceanprotocol/OEPs/tree/master/8).
    
-1. The MKT validate that URL's are correct and contents are available in those URL's initiating the download of the contents. Contents are not persisted in any place, the MKT application only validate that content exist in the URL's provided. If any URL is invalid, the processed is cancelled and the user is informed of the error.
+4. The MKT validate that URL's are correct and contents are available in those URL's initiating the download of the contents. Contents are not persisted in any place, the MKT application only validate that content exist in the URL's provided. If any URL is invalid, the processed is cancelled and the user is informed of the error.
 
-1. The MKT validate the input fields provided by the user. If information is missing, the process is cancelled and the user is informed of the error.
+5. The MKT validate the input fields provided by the user. If information is missing, the process is cancelled and the user is informed of the error.
 
-1. The MKT, using SQUID-JS do the following:
+6. The MKT, using SQUID-JS do the following:
    - Create a new DDO for the Asset
    - Encrypt the URL's using the PROVIDER Keys
    - Add the encrypted URL's and Metadata to the DDO
@@ -94,7 +91,7 @@ The Publishing flow describe the procedure to put in place allowing to an Ocean 
    - The DDO should include the prize equals to zero in the conditions for the access service.
    - Persist the DDO in the Provider AQUARIUS instance
 
-1. The MKT, using SQUID-JS register the DID on-chain associating the public URL where the DDO just published is available
+7. The MKT, using SQUID-JS register the DID on-chain associating the public URL where the DDO just published is available
 
 [Here](./ddo-commons.example.json) you can find an example of the subset of the DDO to be used. The main characteristics are:
 
@@ -201,17 +198,17 @@ Network Reward using the KEEPER using the `PaymentConditions.releasePayment` met
 Example of `releasePayment` method parameters using the DDO format:
 
 ```
-        "parameters": [
-            {
-             "name": "assetId",
-             "type": "bytes32",
-             "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
-            }, {
-             "name": "price",
-             "type": "uint",
-             "value": 0
-          }
-        ]
+"parameters": [
+    {
+        "name": "assetId",
+        "type": "bytes32",
+        "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
+    }, {
+        "name": "price",
+        "type": "uint",
+        "value": 0
+    }
+]
  ```
 
 For the network rewards, the Smart Contracts need to have the internal logic to calculate the rewards in free and paid scenarios.
