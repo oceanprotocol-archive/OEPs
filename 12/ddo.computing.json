@@ -19,64 +19,62 @@
 		"type": "metadata",
 		"index": 0,
 		"serviceEndpoint": "http://myaquarius.org/api/v1/provider/assets/metadata/{did}",
-		"main": {}
-	}, {
-		"type": "provenance",
-		"index": 1,
-		"serviceEndpoint": "http://myaquarius.org/api/v1/provider/assets/provenance/{did}",
-		"main": {}
+		"attributes" : {
+			"main": {},
+			"additionalInformation" : {}
+		}
 	}, {
 		"type": "computing",
 		"index": 2,
 		"serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/exec?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}",
 		"templateId": "804932804923850985093485039850349850439583409583404534231321131a",
+		"attributes" : {
+			"main": {
+				"creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
+				"datePublished": "2019-04-09T19:02:11Z",
+				"price": "10",
+				"timeout": 86400,
+				"provider": {
+					"type": "Azure",
+					"description": "",
+					"environment": {
+						"cluster": {
+							"type": "Kubernetes",
+							"url": "http://10.0.0.17/xxx"
+						},
+						"supportedContainers": [{
+							"image": "tensorflow/tensorflow",
+							"tag": "latest",
+							"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+						}, {
+							"image": "tensorflow/tensorflow",
+							"tag": "latest",
+							"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+						}],
+						"supportedServers": [{
+							"serverId": "1",
+							"serverType": "xlsize",
+							"price": "5000000000000000000",
+							"cpu": "16",
+							"gpu": "0",
+							"memory": "128gb",
+							"disk": "160gb",
+							"maxExecutionTime": 86400
+						}, {
+							"containerId": "2",
+							"typeContainer": "medium",
+							"price": "1000000000000000000",
+							"cpu": "2",
+							"gpu": "0",
+							"memory": "8gb",
+							"disk": "80gb",
+							"maxExecutionTime": 86400
+						}]
 
-		"main": {
-
-			"creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
-			"datePublished": "2019-04-09T19:02:11Z",
-			"price": "10",
-			"timeout": 86400,
-			"provider": {
-				"type": "Azure",
-				"description": "",
-				"environment": {
-					"cluster": {
-						"type": "Kubernetes",
-						"url": "http://10.0.0.17/xxx"
-					},
-					"supportedContainers": [{
-						"image": "tensorflow/tensorflow",
-						"tag": "latest",
-						"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-					}, {
-						"image": "tensorflow/tensorflow",
-						"tag": "latest",
-						"checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-					}],
-					"supportedServers": [{
-						"serverId": "1",
-						"serverType": "xlsize",
-						"price": "5000000000000000000",
-						"cpu": "16",
-						"gpu": "0",
-						"memory": "128gb",
-						"disk": "160gb",
-						"maxExecutionTime": 86400
-					}, {
-						"containerId": "2",
-						"typeContainer": "medium",
-						"price": "1000000000000000000",
-						"cpu": "2",
-						"gpu": "0",
-						"memory": "8gb",
-						"disk": "80gb",
-						"maxExecutionTime": 86400
-					}]
-
+						}
 				}
-			}
-
+			},
+			"additionalInformation" : {}
 		},
 
 		"serviceAgreementTemplate": {
