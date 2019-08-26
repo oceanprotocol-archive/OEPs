@@ -17,17 +17,17 @@
 
 	"service": [{
 		"type": "metadata",
-		"serviceDefinitionId": "0",
+		"index": 0,
 		"serviceEndpoint": "http://myaquarius.org/api/v1/provider/assets/metadata/{did}",
 		"main": {}
 	}, {
 		"type": "provenance",
-		"serviceDefinitionId": "1",
+		"index": 1,
 		"serviceEndpoint": "http://myaquarius.org/api/v1/provider/assets/provenance/{did}",
 		"main": {}
 	}, {
 		"type": "computing",
-		"serviceDefinitionId": "2",
+		"index": 2,
 		"serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/exec?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}",
 		"templateId": "804932804923850985093485039850349850439583409583404534231321131a",
 
