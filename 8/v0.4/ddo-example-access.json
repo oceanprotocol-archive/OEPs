@@ -59,9 +59,7 @@
       "type": "metadata",
       "attributes": {
         "main": {
-
           "author": "Met Office",
-          "checksum": "0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377",
           "dateCreated": "2019-02-08T08:13:49Z",
           "files": [
             {
@@ -129,7 +127,6 @@
       "templateId": "",
       "attributes": {
         "main": {
-          "purchaseEndpoint": "http://localhost:8030/api/v1/brizo/services/access/initialize",
           "name": "dataAssetAccessServiceAgreement",
           "creator": "",
           "datePublished": "2019-02-08T08:13:49Z",
