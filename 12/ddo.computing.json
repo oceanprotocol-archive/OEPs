@@ -61,7 +61,7 @@
 							"disk": "160gb",
 							"maxExecutionTime": 86400
 						}, {
-							"containerId": "2",
+							"serverId": "2",
 							"typeContainer": "medium",
 							"price": "1000000000000000000",
 							"cpu": "2",
