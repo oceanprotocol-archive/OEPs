@@ -84,11 +84,13 @@ Each kind of asset require a different subset of metadata attributes. The distin
 
 A `metadata` object has the following attributes, all of which are objects.
 
-Attribute                   | Required |
-----------------------------|----------|
-**`main`**                  | Yes      |
-**`curation`**              | (remote) |
-**`additionalInformation`** | No       |
+Attribute                   | Required | Description
+----------------------------|----------|----------|
+**`main`**                  | Yes      | Main attributes used to calculate the service checksum |
+**`curation`**              | (remote) | Curation attributes
+**`additionalInformation`** | No       | Optional attributes
+**`encryptedFiles`**        | (remote) | Encrypted string of the `attributes.main.files` object.
+**`encryptedServices`**      | (remote) | Encrypted string of the `attributes.main.services` object.
 
 The `main`, `curation` and `additionalInformation` attributes are independent of the asset type, all assets have those metadata sections.
 
@@ -108,8 +110,7 @@ Attribute       |   Type        |   Required    | Description
 **`license`**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **`price`**       | String        | Yes           | Price of the asset in _vodka_ (_attoOCEAN_). It must be an integer encoded as a string, e.g. `"123000000000000000000"`.
 **`files`**       | Array of files object | Yes     | Array of `File` objects including the encrypted file urls. Further metadata about each file is stored, see [File Attributes](#file-attributes)
-**`encryptedFiles`** | Text         | (remote)    | Encrypted string of the `files` attribute.
-**`encryptedService`** | Text         | (remote)    | Encrypted string of the `services` attribute.
+
 
 #### File Attributes
 

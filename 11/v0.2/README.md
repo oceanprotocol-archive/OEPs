@@ -140,12 +140,11 @@ An asset DDO is a [DID Document](https://w3c-ccg.github.io/did-spec/#did-documen
    * DID
    * Public key of the PUBLISHER
    * Authentication section (with RSA public key)
-1. Encrypt the URLs in the `base.files` array of the metadata.
+1. Encrypt the URLs in the `attributes.main.files` array of the metadata.
    The PUBLISHER must specify which encryption service/procedure/plugin they wish to use.
    That encryption service gets recorded in the asset DDO.
    For details, see the section about [Encryption and Decryption](#encryption-and-decryption) below.
    Note: This step changes the metadata and also the `"service"` section of the DDO.
-1. Compute the checksum of the metadata according to [OEP-8](../8/README.md). Add the `base.checksum` key and value to the metadata.
 1. Sign that checksum using the `publisher_account` (i.e. compute a signature) and add the computed signature to the `proof` attribute.
 1. Add the rest of the services to the DDO.
    Each service in the list contains certain information depending on its type. Here we document two types of services required for purchasing and consuming an asset.
@@ -491,7 +490,7 @@ Mechanisms implemented in the Service Agreement contract ensure there are no rac
 
 # Encryption and Decryption
 
-The PUBLISHER can define how they want to encrypt the URLs in the `base.files` array of the metadata. This information must be added to the DDO to allow CONSUMERs (via SQUID) to understand how to deal with the URLs. Below is an example of how to add an encryption service to the `service` section of a DDO.
+The PUBLISHER can define how they want to encrypt the URLs in the `attributes.main.files` array of the metadata. This information must be added to the DDO to allow CONSUMERs (via SQUID) to understand how to deal with the URLs. Below is an example of how to add an encryption service to the `service` section of a DDO.
 
 ```json
 "service": [{
@@ -530,7 +529,7 @@ The SECRET STORE cluster to use during the encryption and decryption is specifie
 ]
 ```
 
-Suppose the `base.files` array in the metadata has three URLs:
+Suppose the `attributes.main.files` array in the metadata has three URLs:
 
 ```json
 "files": [
@@ -554,7 +553,7 @@ Suppose the `base.files` array in the metadata has three URLs:
 ]
 ```
 
-The `base.files` array is encrypted as follows.
+The `attributes.main.files` array is encrypted as follows.
 First it is converted into a string like so:
 
 ```json
@@ -563,7 +562,7 @@ First it is converted into a string like so:
 
 where all spaces are removed (except inside the string values). Also, all newlines, line feeds, and carriage returns are removed. That JSON string can then be encrypted.
 
-After encryption, all `"url"` keys and values are removed from the `base.files` array objects, and a new `base.encryptedFiles` key and value are added to the metadata, e.g.
+After encryption, all `"url"` keys and values are removed from the `attributes.main.files` array objects, and a new `attributes.encryptedFiles` key and value are added to the metadata, e.g.
 
 ```json
 "encryptedFiles": "0x2e48ceefcca7abb024f90…f3fec0e1c"
@@ -599,7 +598,7 @@ HTTP POST /api/v1/brizo/services/encrypt
 }
 ```
 
-That is, the value of `document` should be the `base.files` array.
+That is, the value of `document` should be the `attributes.main.files` array.
 
 This endpoint will return the content encrypted using the BRIZO account.
 

@@ -44,6 +44,7 @@
             "index": 0,
             "serviceEndpoint": "http://localhost:5000/api/v1/aquarius/assets/ddo/{did}",
             "attributes": {
+                "encryptedFiles": "0x2e48ceefcca7abb024f90c87c676fce8f7913f889605a349c08c0c4a822c69ad651e122cc81db4fbb52938ac627786491514f37a2ebfd04fd98ec726f1d9061ed52f13fde132222af34d9af8ec358429cf45fc669f81a607185cb9a8150df3cbb2b4e3e382fb16429be228ddd920f061b78dd54701025fac8aab976239fb31a5b60a57393e96a338324c5ac8a5600a1247339c4835533cecdb5b53caf6b6f9d6478b579b7426f650a4154a20d18a9d49f509770af62647a57fc174741b47af3c8beeaaa76bee276cce8fba1f3fec0e1c",
                 "main": {
                     "name": "Madrid Weather forecast",
                     "dateCreated": "2019-05-16T12:36:14.535Z",
@@ -62,9 +63,7 @@
                             "compression": "zip",
                             "resourceId": "access-log2018-02-13-15-17-29-18386C502CAEA932"
                         }
-                    ],
-                    "encryptedFiles": "0x2e48ceefcca7abb024f90c87c676fce8f7913f889605a349c08c0c4a822c69ad651e122cc81db4fbb52938ac627786491514f37a2ebfd04fd98ec726f1d9061ed52f13fde132222af34d9af8ec358429cf45fc669f81a607185cb9a8150df3cbb2b4e3e382fb16429be228ddd920f061b78dd54701025fac8aab976239fb31a5b60a57393e96a338324c5ac8a5600a1247339c4835533cecdb5b53caf6b6f9d6478b579b7426f650a4154a20d18a9d49f509770af62647a57fc174741b47af3c8beeaaa76bee276cce8fba1f3fec0e1c"
-                },
+                    ]},
                 "additionalInformation": {
                     "description": "Weather information of UK including temperature and humidity",
                     "copyrightHolder": "Met Office",
