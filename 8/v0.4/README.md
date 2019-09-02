@@ -245,10 +245,10 @@ Similarly, this is how the metadata file would look as a response to querying Aq
               "compression": "none",
               "index": 0
             }
-          ],
-          "encryptedFiles": "0x7a0d1c66ae861…df43aa9",
+          ],          
           "datePublished": "2019-05-16T12:41:01Z"
         },
+        "encryptedFiles": "0x7a0d1c66ae861…df43aa9",
         "curation":{  
           "rating": 1,
           "numVotes": 7,
