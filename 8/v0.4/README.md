@@ -121,6 +121,7 @@ A file object has the following attributes, with the details necessary to consum
 | Attribute         | Required | Description                                         |
 | ----------------- | -------- | --------------------------------------------------- |
 | **`url`**           | (local)  | Content URL. Omitted from the remote metadata. |
+| **`name`**          | no       | File name. |
 | **`index`**         | yes      | Index number starting from 0 of the file. |
 | **`contentType`**   | yes      | File format. |
 | **`checksum`**      | no       | Checksum of the file using your preferred format (i.e. MD5). Format specified in `checksumType`. If it's not provided can't be validated if the file was not modified after registering. |
