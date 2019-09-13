@@ -129,6 +129,8 @@ A file object has the following attributes, with the details necessary to consum
 | **`contentLength`** | no       | Size of the file in bytes.                        |
 | **`encoding`**      | no       | File encoding (e.g. UTF-8). |
 | **`compression`**   | no       | File compression (e.g. no, gzip, bzip2, etc). |
+| **`encrypted`**     | no       | Boolean. Is the file encrypted? If is not set is assumed the file is not encrypted |
+| **`encryptionMode`**| no       | Encryption mode used. Just valid if `encrypted=true` |
 | **`resourceId`**    | no       | Remote identifier of the file in the external provider. It is typically the remote id in the cloud provider. |
 | **`attributes`**    | no       | Key-Value hash map with additional attributes describing the asset file. It could include details like the Amazon S3 bucket, region, etc. |
 
