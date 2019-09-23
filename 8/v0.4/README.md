@@ -120,7 +120,7 @@ A file object has the following attributes, with the details necessary to consum
 
 | Attribute         | Required | Description                                         |
 | ----------------- | -------- | --------------------------------------------------- |
-| **`url`**           | (local)  | Content URL. Omitted from the remote metadata. |
+| **`url`**           | (local)  | Content URL. Omitted from the remote metadata. Supports `http(s)://` and `ipfs://` URLs. |
 | **`name`**          | no       | File name. |
 | **`index`**         | yes      | Index number starting from 0 of the file. |
 | **`contentType`**   | yes      | File format. |
