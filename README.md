@@ -36,7 +36,7 @@ Short Name       | Title                                             | Type     
 [11/ACL](11)     | On-Chain Access Control using Service Execution Agreements | Standard | Raw   | Aitor Argomaniz
 [12/EXEC](12)    | Execution of Computing Services                   | Standard     | Raw        | Aitor Argomaniz
 [13/DEC-PROV](13)| Decentralized Data Provenance                     | Standard     | Raw        | Aitor Argomaniz
-
+[15/IPFS](15)| Distributed Asset File Storage with IPFS              | Standard     | Draft        | Matthias Kretschmann
 
 # Current Participants
 
