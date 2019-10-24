@@ -24,9 +24,9 @@
 			"additionalInformation" : {}
 		}
 	}, {
-		"type": "computing",
+		"type": "compute",
 		"index": 2,
-		"serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/exec?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}",
+		"serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/exec",
 		"templateId": "804932804923850985093485039850349850439583409583404534231321131a",
 		"attributes" : {
 			"main": {
@@ -132,10 +132,10 @@
 					}]
 				},
 				{
-					"name": "serviceExecution",
+					"name": "execCompute",
 					"timelock": 0,
 					"timeout": 0,
-					"contractName": "ServiceExecCondition",
+					"contractName": "ComputeExecutionCondition",
 					"functionName": "fulfill",
 					"parameters": [{
 							"name": "_documentId",
@@ -152,7 +152,7 @@
 							"name": "Fulfilled",
 							"actorType": "publisher",
 							"handler": {
-								"moduleName": "serviceExecution",
+								"moduleName": "execCompute",
 								"functionName": "fulfillServiceExecutionCondition",
 								"version": "0.1"
 							}
@@ -161,7 +161,7 @@
 							"name": "TimedOut",
 							"actorType": "consumer",
 							"handler": {
-								"moduleName": "serviceExec",
+								"moduleName": "execCompute",
 								"functionName": "fulfillServiceExecutionCondition",
 								"version": "0.1"
 							}

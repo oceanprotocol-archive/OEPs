@@ -9,7 +9,7 @@ version:      0.4
 editor:       Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Enrique Ruiz <enrique@oceanprotocol.com>,
               Matthias Kretschmann <matthias@oceanprotocol.com>,
-              Jose Pablo Martinez <jose@oceanprotocol.com>,
+              Jose Pablo Fernandez <jose@oceanprotocol.com>,
               Marcus Jones <marcus@oceanprotocol.com>,
               Troy McConaghy <troy@oceanprotocol.com>
 ```
