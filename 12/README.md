@@ -1,6 +1,6 @@
 ```
 shortname: 12/EXEC
-name: Execution of Computing Services
+name: Execution of Compute Services
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
@@ -9,7 +9,8 @@ contributors:
         Enrique Ruiz <enrique@oceanprotocol.com>, 
         Troy <troy@oceanprotocol.com>,
         Dimitri De Jonghe <dimi@oceanprotocol.com>,
-        Ahmed Ali <ahmed@oceanprotocol.com>
+        Ahmed Ali <ahmed@oceanprotocol.com>,
+        Jose Pablo Fernandez <jose@oceanprotocol.com>
 
 ```
 
@@ -17,7 +18,7 @@ Table of Contents
 =================
 
    * [Table of Contents](#table-of-contents)
-   * [Execution of Computing Services using Service Agreements](#execution-of-computing-services-using-service-agreements)
+   * [Execution of Compute Services using Service Agreements](#execution-of-computing-services-using-service-agreements)
       * [Change Process](#change-process)
       * [Language](#language)
       * [Motivation](#motivation)
@@ -27,7 +28,7 @@ Table of Contents
          * [Terminology](#terminology)
          * [Requirements](#requirements)
          * [Workflows](#workflows)
-         * [Publishing an Asset including Computing Services](#publishing-an-asset-including-computing-services)
+         * [Publishing an Asset including Compute Services](#publishing-an-asset-including-computing-services)
          * [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
          * [Execution phase](#execution-phase)
       * [Infrastructure Orchestration](#infrastructure-orchestration)
@@ -42,13 +43,13 @@ Table of Contents
 ---
 
 
-# Execution of Computing Services using Service Agreements
+# Execution of Compute Services using Service Agreements
 
 This OEP introduces the integration pattern for the usage of **Service Execution Agreements (SEA)** 
 (also called Service Agreements or Agreements) as contracts between parties interacting in the execution of a Compute Service transaction.
-This OEP using the SEA as core element, orchestrates the publishing/execution of this type of computing services.
+This OEP using the SEA as core element, orchestrates the publishing/execution of this type of compute services.
 
-The intention of this OEP is to describe the flow and integration pattern independently of the infrastructure Cloud Computing Service.
+The intention of this OEP is to describe the flow and integration pattern independently of the infrastructure Cloud Compute Service.
 This OEP MUST be valid for integrating classical infrastructure cloud providers like Amazon EC2 or Azure, 
 but also can be used to integrate web3 compute providers or On-Premise infrastructure.
 
@@ -69,7 +70,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Identify the actors involved on the definition and execution of an Ocean Computing service
+* Identify the actors involved on the definition and execution of an Ocean Compute service
 * Detail the main characteristics of this interaction
 * Specify the pros and cons of this approach
 * Identify the modifications required to integrate in the Ocean stack
@@ -79,8 +80,8 @@ The main motivations of this OEP are:
 
 The different actors interacting in this flow are:
 
-* PROVIDERS - Give access to the Computing Services
-* CONSUMERS - Want to make use of the Computing Services
+* PROVIDERS - Give access to the Compute Services
+* CONSUMERS - Want to make use of the Compute Services
 * MARKETPLACES or DOMAINS - Store the DDO/Metadata related with the Assets/services
 * INFRASTRUCTURE - Cloud or on-premise infrastructure services providing computing. Typically Amazon, Azure, etc.
 
@@ -118,14 +119,14 @@ There are some parameters used in this flow:
 
 ### Requirements
 
-* A COMPUTE PROVIDER or PROVIDER define the conditions that a Computing service supports. It includes:
+* A COMPUTE PROVIDER or PROVIDER define the conditions that a Compute service supports. It includes:
   - What kind of image (Docker container) can be deployed in the infrastructure
   - What are the infrastructure resources available (CPU, memory, storage)  
   - What is the price of using the infrastructure resources
 * A COMPUTE PROVIDER defines a Compute Service in the scope of the Asset (DID/DDO) of the dataset that can be computed
 * A CONSUMER defines the task to execute modeling it in a Workflow (including configuration, input, transformations and output)
-* A workflow is a new type of Asset. It can be resolvable and be used across multiple independent computing services
-* A CONSUMER purchasing a computing service defines which Workflow (DID) is going to execute
+* A workflow is a new type of Asset. It can be resolvable and be used across multiple independent compute services
+* A CONSUMER purchasing a compute service defines which Workflow (DID) is going to execute
 * A CONSUMER can purchase a service given by a PROVIDER and execute multiple times till the timeout expires
 * A CONSUMER could purchase a service and execute later, the purchase MUST be totally decoupled of execution
 * The previous two points could support to buy once a compute service and execute for example the service every night at 3 am
@@ -237,11 +238,11 @@ A workflow, as every DDO in Ocean, can be resolved using the Asset Id (DID).
 By the time being, the workflow definition supports the execution of sequential stages. 
 It's not supported yet the execution of parallel stages. 
 
-### Publishing an Asset including Computing Services
+### Publishing an Asset including Compute Services
 
-The Computing services are published as part of the asset (dataset) metadata as an additional service offered for that specific asset.
+The Compute services are published as part of the asset (dataset) metadata as an additional service offered for that specific asset.
 
-The complete flow of publishing an asset with a computing service attached is:
+The complete flow of publishing an asset with a compute service attached is:
 
 1. PUBLISHER generates a DID. See [How to compute a DID](https://github.com/oceanprotocol/OEPs/tree/master/7#how-to-compute-a-did).
 1. PUBLISHER creates a DDO including the following information:
@@ -251,12 +252,12 @@ The complete flow of publishing an asset with a computing service attached is:
    - A list of services (Access, etc). For more details see [OEP-11](../11/README.md).
 
    Each service in the list contains certain information depending on its type.
-   Here we document the **Computing** service. The **Access** and **Metadata** services where discussed in the scope of the [OEP-11](../11/README.md).
+   Here we document the **Compute** service. The **Access** and **Metadata** services where discussed in the scope of the [OEP-11](../11/README.md).
 
-   A service of type "Computing" contains:
+   A service of type "compute" contains:
 
    - Service Definition ID (`serviceDefinitionId`); this helps PUBLISHER find the service definition of a DDO signed by CONSUMER
-   - Service Agreement Template ID (`templateId`); points to a deployed on-chain SEA Template Smart Contract. In this case is a template implementing the Computing end to end flow
+   - Service Agreement Template ID (`templateId`); points to a deployed on-chain SEA Template Smart Contract. In this case is a template implementing the Compute end to end flow
    - Service endpoint (`serviceEndpoint`); CONSUMERS signing this service send their signatures to this endpoint to request the execution of a workflow
 
    - A list of condition keys; condition key is the `keccak256` hash of the following:
@@ -269,22 +270,22 @@ The complete flow of publishing an asset with a computing service attached is:
    - Service Agreement contract address and the event mapping in the same format as the condition events, for off-chain listeners
    - An integer defining when the agreement is fulfilled in case there are multiple terminal conditions, according to the Service Agreement smart contract
 
-   A service of type "Computing" contains one endpoint:
+   A service of type "compute" contains one endpoint:
    - **serviceEndpoint** - A URL to call when the CONSUMER request the execution of a workflow
 
     An example of a complete DDO can be found [here](./ddo.example.json). Please do note that the condition's order in the DID document should reflect the same order in on-chain service agreement.
 
-1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS. This DDO must include at least one service of type "computing".
+1. PUBLISHER publishes the DDO in the Metadata Store (OceanDB) using AQUARIUS. This DDO must include at least one service of type "compute".
 
-[Here](ddo.computing.json) you have an example of the DDO including a Computing service. Below you can find a small fraction of this:
+[Here](ddo.computing.json) you have an example of the DDO including a Compute service. Below you can find a small fraction of this:
 
 "container": 
 
 ```json
   "service": [{
-		"type": "computing",
+		"type": "compute",
 		"serviceDefinitionId": "2",
-		"serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/exec?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}",
+		"serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/exec",
 		"templateId": "804932804923850985093485039850349850439583409583404534231321131a",
 
 		"attributes": {
@@ -388,10 +389,10 @@ The complete flow of publishing an asset with a computing service attached is:
 						}]
 					},
 					{
-						"name": "serviceExecution",
+						"name": "execCompute",
 						"timelock": 0,
 						"timeout": 0,
-						"contractName": "ServiceExecutionCondition",
+						"contractName": "ComputeExecutionCondition",
 						"functionName": "fulfill",
 						"parameters": [{
 								"name": "_documentId",
@@ -408,7 +409,7 @@ The complete flow of publishing an asset with a computing service attached is:
 								"name": "Fulfilled",
 								"actorType": "publisher",
 								"handler": {
-									"moduleName": "serviceExecution",
+									"moduleName": "execCompute",
 									"functionName": "fulfillServiceExecutionCondition",
 									"version": "0.1"
 								}
@@ -417,7 +418,7 @@ The complete flow of publishing an asset with a computing service attached is:
 								"name": "TimedOut",
 								"actorType": "consumer",
 								"handler": {
-									"moduleName": "serviceExec",
+									"moduleName": "execCompute",
 									"functionName": "fulfillServiceExecutionCondition",
 									"version": "0.1"
 								}
@@ -477,7 +478,7 @@ The complete flow of publishing an asset with a computing service attached is:
 To do that, SQUID needs to integrate the `DIDRegistry` contract using the `registerAttribute` method.
 
 
-![Publishing of a Computing Service](../12/images/computing-setup.png)
+![Publishing of a Compute Service](../12/images/computing-setup.png)
 
 
 ### Setting up the Service Execution Agreement
@@ -485,15 +486,15 @@ To do that, SQUID needs to integrate the `DIDRegistry` contract using the `regis
 #### Registering Asset
 
 Using only one Squid call `registerAsset(asset_metadata, services_description, publisher_public_key)`, 
-the PUBLISHER should be able to register an Asset including a **Computing** service.
-The `services_description` attribute includes the different services (like computing) associated to this asset.
+the PUBLISHER should be able to register an Asset including a **Compute** service.
+The `services_description` attribute includes the different services (like compute) associated to this asset.
 
 #### Consuming Asset
 
 During this phase, through the CONSUMER and the PROVIDER (via BRIZO) negotiation, 
 the Service Execution Agreement (SEA) is created and initialized.
 
-Using Squid calls, a CONSUMER can discover, purchase and use the PROVIDER Computing services.
+Using Squid calls, a CONSUMER can discover, purchase and use the PROVIDER Compute services.
 
 The complete flow for setting up the SEA is:
 
@@ -521,7 +522,7 @@ It is used to correlate events and to prevent the PUBLISHER from instantiating m
 
 1. The CONSUMER gets the `executeComputeCondition.Fullfilled` event. When he/she receives the event, 
    can call the BRIZO `serviceEndpoint` url added in the DDO to start the execution of the computation workflow.
-   Typically: `HTTP POST /api/v1/brizo/services/computing/exec`
+   Typically: `HTTP POST /api/v1/brizo/services/exec`
 
 1. BRIZO receives the CONSUMER request, and calls the `checkPermissions` method to validate if the CONSUMER address is granted to execute the service
    If user is granted, BRIZO triggers the Execute Algorithm action in the infrastructure
@@ -547,7 +548,7 @@ The complete flow for the Execution phase is:
 1. The OPERATOR receives a "Workflow Registration" request and:
    - Validates in K8s there is no an existing/running workflow with the same `serviceAgreementId`
    - Creates an unique `workflowExecutionId` identifying a unique execution of the service
-   - Validates the container flavour defined by the CONSUMER in the Workflow is supported in the computing service (DDO) 
+   - Validates the container flavour defined by the CONSUMER in the Workflow is supported in the compute service (DDO) 
    - Starts the Orchestration Flow
 
 1. All the actions made by the OPERATOR in the infrastructure via K8s MUST include the `serviceAgreementId` and `workflowExecutionId` as tags/labels
@@ -569,7 +570,7 @@ The complete flow for the Execution phase is:
 ## Infrastructure Orchestration
 
 To facilitate the infrastructure orchestration BRIZO integrates with Kubernetes (aka K8s) via the OPERATOR component. 
-The OPERATOR allows to abstract the execution of Docker containers with computing services independently of the backend (Amazon, Azure, On-Premise).
+The OPERATOR allows to abstract the execution of Docker containers with compute services independently of the backend (Amazon, Azure, On-Premise).
 To support that OPERATOR includes the kubernetes driver allowing to wrap the complete execution including:
 
 - Download of the container images
@@ -583,7 +584,7 @@ To support that OPERATOR includes the kubernetes driver allowing to wrap the com
 The OPERATOR handles 3 types of K8s Pods:
 
 a. `Configuration Pod` is in charge of resolve the Workflow resources necessary for the execution of the algorithm. It copy the data and algorithm in volumes
-b. `Computing Pod` is in charge of run the algorithm. This pod has access in read-only mode to the volumes with the input data and write mode to the output volume
+b. `Compute Pod` is in charge of run the algorithm. This pod has access in read-only mode to the volumes with the input data and write mode to the output volume
 c. `Publishing Pod` is in charge of having all the data and logs generated in the output volume to publish this data in Ocean as a new asset and handover the ownership to the CONSUMER
 
 ### Services Provided by the Operator
@@ -597,7 +598,7 @@ The services provided by the OPERATOR are:
 
 ### Orchestration Steps 
 
-The computing scenario requires a complete orchestration of different stages in order to provide an end to end flow.
+The compute scenario requires a complete orchestration of different stages in order to provide an end to end flow.
 The steps included in this scenario are:
 
 1. The CONSUMER send a request to BRIZO using the **compute/exec** method in order to trigger the Workflow execution
@@ -618,13 +619,13 @@ The steps included in this scenario are:
 
 1. After all the above steps the `Configuration Pod` must die
 
-1. If the `Configuration Pod` ends successfully the OPERATOR via K8s starts the `Computing Pod` using the flavour specifid in the Workflow definition
+1. If the `Configuration Pod` ends successfully the OPERATOR via K8s starts the `Compute Pod` using the flavour specifid in the Workflow definition
 
 1. The `Compute Pod` starts and runs the `ocean-entrypoint.sh` part of the algorithm downloaded by the `Configuration Pod`
 
 1. When the `Compute Pod` ends or the duration is too long (timeout), the OPERATOR via K8s stop and delete the Compute Pod
 
-1.  If the `Computing Pod ends, the OPERATOR start a new instance of the Publishing Pod. The responsibilities of the Publishing Pod are:
+1.  If the `Compute Pod ends, the OPERATOR start a new instance of the Publishing Pod. The responsibilities of the Publishing Pod are:
    - List of the Log files generated in the Log volume and copy to the output
    - List of the Output data generated in the Output volume
    - Generate a new Asset Metadata using the information provided by the CONSUMER

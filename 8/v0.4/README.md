@@ -9,7 +9,7 @@ version:      0.4
 editor:       Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Enrique Ruiz <enrique@oceanprotocol.com>,
               Matthias Kretschmann <matthias@oceanprotocol.com>,
-              Jose Pablo Martinez <jose@oceanprotocol.com>,
+              Jose Pablo Fernandez <jose@oceanprotocol.com>,
               Marcus Jones <marcus@oceanprotocol.com>,
               Troy McConaghy <troy@oceanprotocol.com>
 ```
@@ -84,11 +84,13 @@ Each kind of asset require a different subset of metadata attributes. The distin
 
 A `metadata` object has the following attributes, all of which are objects.
 
-Attribute                   | Required |
-----------------------------|----------|
-**`main`**                  | Yes      |
-**`curation`**              | (remote) |
-**`additionalInformation`** | No       |
+Attribute                   | Required | Description
+----------------------------|----------|----------|
+**`main`**                  | Yes      | Main attributes used to calculate the service checksum |
+**`curation`**              | (remote) | Curation attributes
+**`additionalInformation`** | No       | Optional attributes
+**`encryptedFiles`**        | (remote) | Encrypted string of the `attributes.main.files` object.
+**`encryptedServices`**      | (remote) | Encrypted string of the `attributes.main.services` object.
 
 The `main`, `curation` and `additionalInformation` attributes are independent of the asset type, all assets have those metadata sections.
 
@@ -108,8 +110,7 @@ Attribute       |   Type        |   Required    | Description
 **`license`**     | Text          | Yes           | Short name referencing the license of the asset (e.g. Public Domain, CC-0, CC-BY, No License Specified, etc. ). If it's not specified, the following value will be added: "No License Specified".
 **`price`**       | String        | Yes           | Price of the asset in _vodka_ (_attoOCEAN_). It must be an integer encoded as a string, e.g. `"123000000000000000000"`.
 **`files`**       | Array of files object | Yes     | Array of `File` objects including the encrypted file urls. Further metadata about each file is stored, see [File Attributes](#file-attributes)
-**`encryptedFiles`** | Text         | (remote)    | Encrypted string of the `files` attribute.
-**`encryptedService`** | Text         | (remote)    | Encrypted string of the `services` attribute.
+
 
 #### File Attributes
 
@@ -119,7 +120,8 @@ A file object has the following attributes, with the details necessary to consum
 
 | Attribute         | Required | Description                                         |
 | ----------------- | -------- | --------------------------------------------------- |
-| **`url`**           | (local)  | Content URL. Omitted from the remote metadata. |
+| **`url`**           | (local)  | Content URL. Omitted from the remote metadata. Supports `http(s)://` and `ipfs://` URLs. |
+| **`name`**          | no       | File name. |
 | **`index`**         | yes      | Index number starting from 0 of the file. |
 | **`contentType`**   | yes      | File format. |
 | **`checksum`**      | no       | Checksum of the file using your preferred format (i.e. MD5). Format specified in `checksumType`. If it's not provided can't be validated if the file was not modified after registering. |
@@ -127,6 +129,8 @@ A file object has the following attributes, with the details necessary to consum
 | **`contentLength`** | no       | Size of the file in bytes.                        |
 | **`encoding`**      | no       | File encoding (e.g. UTF-8). |
 | **`compression`**   | no       | File compression (e.g. no, gzip, bzip2, etc). |
+| **`encrypted`**     | no       | Boolean. Is the file encrypted? If is not set is assumed the file is not encrypted |
+| **`encryptionMode`**| no       | Encryption mode used. Just valid if `encrypted=true` |
 | **`resourceId`**    | no       | Remote identifier of the file in the external provider. It is typically the remote id in the cloud provider. |
 | **`attributes`**    | no       | Key-Value hash map with additional attributes describing the asset file. It could include details like the Amazon S3 bucket, region, etc. |
 
@@ -244,10 +248,10 @@ Similarly, this is how the metadata file would look as a response to querying Aq
               "compression": "none",
               "index": 0
             }
-          ],
-          "encryptedFiles": "0x7a0d1c66ae861…df43aa9",
+          ],          
           "datePublished": "2019-05-16T12:41:01Z"
         },
+        "encryptedFiles": "0x7a0d1c66ae861…df43aa9",
         "curation":{  
           "rating": 1,
           "numVotes": 7,
