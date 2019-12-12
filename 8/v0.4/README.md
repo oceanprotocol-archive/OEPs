@@ -306,7 +306,7 @@ An asset of type `algorithm` has the following attributes:
             "format": "jar",
             "version": "0.1",
             "entrypoint": "ocean-entrypoint.sh",
-            "container": "oceanprotocol/imageName:v1.0.0"",
+            "container": "oceanprotocol/imageName:v1.0.0",
             "requirements": [  
               {  
                 "requirement": "scala",
