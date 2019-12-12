@@ -11,7 +11,8 @@ contributors: Enrique Ruiz <enrique@oceanprotocol.com>,
               Matthias Kretschmann <matthias@oceanprotocol.com>,
               Jose Pablo Fernandez <jose@oceanprotocol.com>,
               Marcus Jones <marcus@oceanprotocol.com>,
-              Troy McConaghy <troy@oceanprotocol.com>
+              Troy McConaghy <troy@oceanprotocol.com>,
+              Alex Coseru <alex@oceanprotocol.com>
 ```
 
 **Table of Contents**
@@ -287,7 +288,8 @@ An asset of type `algorithm` has the following attributes:
 | **`format`**        | no      | Packaging format of the software. |
 | **`version`**       | no      | Version of the software. |
 | **`entrypoint`**      | yes   | Path of the script inside of the software package used to install the dependencies and run it. |
-| **`requirements`**  | yes   | Array of software requirements objects. |
+| **`container`**      | yes   | Container image and tag to use |
+| **`requirements`**  | no   | Array of software requirements objects. |
 
 ```json
 {  
@@ -304,6 +306,7 @@ An asset of type `algorithm` has the following attributes:
             "format": "jar",
             "version": "0.1",
             "entrypoint": "ocean-entrypoint.sh",
+            "container": "oceanprotocol/imageName:v1.0.0"",
             "requirements": [  
               {  
                 "requirement": "scala",
