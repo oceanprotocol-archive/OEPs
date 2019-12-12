@@ -69,6 +69,7 @@
             "language": "scala",
             "format": "jar",
             "version": "0.1",
+            "container": "oceanprotocol/testalgo:latest",
             "entrypoint": "ocean-entrypoint.sh",
             "requirements": [
               {
