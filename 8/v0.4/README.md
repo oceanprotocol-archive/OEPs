@@ -288,7 +288,7 @@ An asset of type `algorithm` has the following attributes:
 | **`format`**        | no      | Packaging format of the software. |
 | **`version`**       | no      | Version of the software. |
 | **`entrypoint`**      | yes   | Path of the script inside of the software package used to install the dependencies and run it. |
-| **`container`**      | yes   | Container image and tag to use |
+| **`container`**      | yes   | Docker container image and tag to use |
 | **`requirements`**  | no   | Array of software requirements objects. |
 
 ```json
