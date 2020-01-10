@@ -4,7 +4,7 @@
 shortname:    8/ASSET-DDO
 name:         Assets Metadata Ontology
 type:         Standard
-status:       Raw
+status:       Draft
 version:      0.4
 editor:       Aitor Argomaniz <aitor@oceanprotocol.com>
 contributors: Enrique Ruiz <enrique@oceanprotocol.com>,
@@ -103,7 +103,7 @@ The `main` object has the following attributes, not all are required. Some are r
 Attribute       |   Type        |   Required    | Description
 ----------------|---------------|---------------|----------------------
 **`name`**        | Text          | Yes           | Descriptive name or title of the asset.
-**`type`**        | Text          | Yes            | Type of the asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm", "container", "workflow", "service", "other").
+**`type`**        | Text          | Yes            | Type of the asset. Helps to filter by the type of asset. It could be for example ("dataset", "algorithm").
 **`dateCreated`** | DateTime      | Yes   | The date on which the asset was created by the originator. ISO 8601 format, Coordinated Universal Time, e.g. `2019-01-31T08:38:32Z`.
 **`datePublished`** | DateTime      | (remote)   | The date on which the asset DDO is registered into the metadata store (Aquarius)
 **`author`**      | Text          | Yes           | Name of the entity generating this data (e.g. Tfl, Disney Corp, etc.).
