@@ -30,8 +30,6 @@ contributors: Enrique Ruiz <enrique@oceanprotocol.com>,
 - [Example of Remote Metadata](#example-of-remote-metadata)
   - [Specific attributes per asset type](#specific-attributes-per-asset-type)
     - [Algorithm attributes](#algorithm-attributes)
-    - [Workflow attributes](#workflow-attributes)
-    - [Service attributes](#service-attributes)
 - [References](#references)
 - [Change Process](#change-process)
 - [Language](#language)
@@ -40,9 +38,9 @@ contributors: Enrique Ruiz <enrique@oceanprotocol.com>,
 
 ## Motivation
 
-Every asset (dataset, algorithm, etc.) in the Ocean Network has an associated Decentralized Identifier (DID) and DID document / DID Descriptor Object (DDO). Because assets without proper descriptive metadata have poor visibility and discoverability.
+Every asset (dataset, algorithm) in the Ocean Network has an associated Decentralized Identifier (DID) and DID document / DID Descriptor Object (DDO). Because assets without proper descriptive metadata have poor visibility and discoverability.
 
-See [OEP 7/DID](../7/README.md) for information about the overall structure of Ocean DDOs and DIDs.
+See [OEP 7/DID](../7/) for information about the overall structure of Ocean DDOs and DIDs.
 
 This OEP is about one particular part of Ocean DDOs: the asset metadata, a JSON object with information about the asset.
 
@@ -77,10 +75,8 @@ An asset is the representation of different type of resources in Ocean Protocol.
 
 * _Dataset_. An asset representing a dataset or data resource. It could be for example a CSV file or a multiple JPG files.
 * _Algorithm_. An asset representing a piece of software. It could be a python script using tensorflow, a spark job, etc.
-* _Workflow_. An asset representing in the metadata a list of tasks to accomplish with the intention of process data, typically relating datasets as input and algorithms. 
-* _Service_. An asset representing a service exposed by a provider. Typically a REST web service that a provider want to control the access using SEA.
 
-Each kind of asset require a different subset of metadata attributes. The distintion between the type of asset (dataset, algorithm, etc.) is given by the attribute `DDO.services["metadata"].main.type`
+Each kind of asset require a different subset of metadata attributes. The distintion between the type of asset (dataset, algorithm) is given by the attribute `DDO.services["metadata"].main.type`
 
 A `metadata` object has the following attributes, all of which are objects.
 
@@ -275,7 +271,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
 
 ### Specific attributes per asset type
 
-Depending on the asset type (dataset, algorithm, workflow, service), there are different metadata attributes supported:
+Depending on the asset type (dataset, algorithm), there are different metadata attributes supported:
 
 #### Algorithm attributes
 
@@ -314,173 +310,6 @@ An asset of type `algorithm` has the following attributes:
                 "version": "1.8"
               }
             ]
-          }
-        }
-      }
-    }
-  ]
-}
-```
-
-#### Workflow attributes
-
-An asset of type `workflow` has the following attributes:
-
-| Attribute         | Required | Description                                         |
-| ----------------- | -------- | --------------------------------------------------- |
-| **`stages`**        | yes      | Array of stages/steps of a workflow. It is required to have at least one stage. |
-| **`stages.index`**  | yes      | Index number starting from 0 of the stage. |
-| **`stages.stageType`**  | no      | Optional text with information about the type of stage (cleansing, filtering, etc.)  |
-| **`stages.requirements`**| yes      | Object defining the system requirements of the stage to be executed |
-| **`stages.requirements.container`**| yes      | Object defining the details of the container necessary to execute the stage |
-| **`stages.requirements.container.image`**| yes      | Docker image to use |
-| **`stages.requirements.container.tag`**| yes      | Docker image tag to use |
-| **`stages.requirements.container.checksum`**| yes      | Checksum of the image and tag |
-| **`stages.input`**  | yes      | Array of inputs of a stage |
-| **`stages.input.index`**  | yes      | Index number starting from 0 of the input. The inputs will be given to the algorithm in the order defined in the index |
-| **`stages.input.id`**  | yes      | DID of the Asset (dataset) |
-| **`stages.transformation`**  | yes      | Object describing the transformation or computation phase made by an algorithm |
-| **`stages.transformation.id`**  | yes      | DID of the Asset (algorithm) in charge of process the input data |
-| **`stages.output`**  | yes      | Object including information to tag the output generated |
-| **`stages.output.metadataUrl`**  | yes      | Url of the Metadata service (Aquarius) that will be used for publishing the metadata of the new asset |
-| **`stages.output.secretStoreUrl`**  | yes      | Url of the Secret Store service used to encrypt the access urls |
-| **`stages.output.accessProxyUrl`**  | yes      | Url of the server used to consume the asset (Brizo) |
-| **`stages.output.metadata`**  | yes      | Object including all the metadata information that will be used to tag the new asset generated |
-
-Example of workflow:
-
-```json
-{
-  "service": [  
-    {  
-      "index": 0,
-      "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
-      "type": "metadata",
-      "attributes": {  
-        "main": {  
-          "type":"workflow",
-          "workflow": {  
-            "stages": [  
-              {  
-                "index": 0,
-                "stageType": "Filtering",
-                "requirements": {  
-                  "container": {  
-                    "image": "tensorflow/tensorflow",
-                    "tag": "latest",
-                    "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-                  }
-                },
-                "input": [  
-                  {  
-                    "index": 0,
-                    "id": "did:op:12345"
-                  },
-                  {  
-                    "index": 1,
-                    "id": "did:op:67890"
-                  }
-                ],
-                "transformation": {  
-                  "id": "did:op:abcde"
-                },
-                "output": {  
-                  "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
-                  "secretStoreUrl": "http://secretstore.org:12001",
-                  "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
-                  "metadata": {  
-                    "title": "my filtered asset"
-                  }
-                }
-              },
-              {  
-                "index": 1,
-                "stageType": "Transformation",
-                "requirements": {  
-                  "container": {  
-                    "image": "tensorflow/tensorflow",
-                    "tag": "latest",
-                    "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-                  }
-                },
-                "input": [  
-                  {  
-                    "index": 0,
-                    "previousStage": 0
-                  }
-                ],
-                "transformation": {  
-                  "id": "did:op:999999"
-                },
-                "output": {  
-                  "metadataUrl": "https://aquarius.net:5000/api/v1/aquarius/assets/ddo/",
-                  "secretStoreUrl": "http://secretstore.org:12001",
-                  "accessProxyUrl": "https://brizo.net:8030/api/v1/brizo/",
-                  "metadata": {}
-                }
-              }
-            ]
-          }
-        }
-      }
-    }
-  ]
-}
-```
-
-#### Service attributes
-
-An asset of type `service` has an entry named `services`, which is an array of the individual services or endpoints exposed as part of the service.
-
-The attributes included in each item are the following:
-
-| Attribute         | Required | Description                                         |
-| ----------------- | -------- | --------------------------------------------------- |
-| **`spec`**          | no       | Url to the web service specifications (Swagger, Documentation, etc.) |
-| **`specChecksum`**  | no       | Checksum of the service specifications in SHA3 |
-| **`definition`**    | yes      | Object containing the web service definition. This entry will be encrypted and the hash placed in the `base.encryptedServices` attribute. |
-| **`definition.auth`**| yes      | Object containing service authentication information |
-| **`definition.auth.type`**| yes      | Authentication mechanism (none, basic, digest, oauth, etc.) Complete list can be found on the [IANA website](https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml) |
-| **`definition.auth.user`**| no      | User used for authentication |
-| **`definition.auth.password`**| no      | Password used for authentication |
-| **`definition.auth.token`**| no      | Authentication token |
-| **`definition.endpoints`**| yes      | Array of Endpoint objects including the details of each individual service url |
-| **`definition.endpoints.index`**| yes      | Index number of the service endpoint starting from 0  |
-| **`definition.endpoints.url`**| yes      | Endpoint URL | 
-| **`definition.endpoints.method`**| yes      | HTTP Method (GET, POST, PUT, PATCH, DELETE, HEAD) | 
-| **`definition.endpoints.contentTypes`**| yes      | Array of content types supported|
-
-Example of a service:
-
-```json
-{  
-  "service": [  
-    {
-      "index": 0,
-      "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
-      "type": "metadata",
-      "attributes": {  
-        "main": {  
-          "type": "service",
-          "service": {  
-            "spec": "https://my.service.inet:8080/spec",
-            "specChecksum": "859486596784567856758aaaa",
-            "definition": {  
-              "auth": {  
-                "type": "basic",
-                "user": "aitor",
-                "password": "1234",
-                "token": "89c06eb5a88f4bbbf4ac966d737593b36e61e885"
-              },
-              "endpoints": [  
-                {  
-                  "index": 0,
-                  "url": "https://my.service.inet:8080/api/v1/weather",
-                  "method": "POST",
-                  "contentTypes": ["application/json"]
-                }
-              ]
-            }
           }
         }
       }
