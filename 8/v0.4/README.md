@@ -40,7 +40,7 @@ contributors: Enrique Ruiz <enrique@oceanprotocol.com>,
 
 Every asset (dataset, algorithm) in the Ocean Network has an associated Decentralized Identifier (DID) and DID document / DID Descriptor Object (DDO). Because assets without proper descriptive metadata have poor visibility and discoverability.
 
-See [OEP 7/DID](../7/) for information about the overall structure of Ocean DDOs and DIDs.
+See [OEP 7/DID](../../7/) for information about the overall structure of Ocean DDOs and DIDs.
 
 This OEP is about one particular part of Ocean DDOs: the asset metadata, a JSON object with information about the asset.
 
@@ -67,7 +67,7 @@ A publisher publishes (registers) an asset using [Squid](https://docs.oceanproto
 
 Aquarius may also make some changes and additions to the metadata, such as the `datePublished` or parts of the `curation` object. The metadata that finally gets stored by Aquarius is the _remote metadata_.
 
-> A marketplace can and might also act as a publisher. [OEP-11](11) describes the publishing flow in more detail.
+> A marketplace can and might also act as a publisher. [OEP-11](../../11) describes the publishing flow in more detail.
 
 ## Metadata Attributes
 
