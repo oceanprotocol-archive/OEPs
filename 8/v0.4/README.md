@@ -278,13 +278,13 @@ Depending on the asset type (dataset, algorithm), there are different metadata a
 
 An asset of type `algorithm` has the following attributes:
 
-| Attribute         | Required | Description                                         |
-| ----------------- | -------- | --------------------------------------------------- |
-| **`language`**      | yes      | Language used to implement the software |
-| **`format`**        | no      | Packaging format of the software. |
-| **`version`**       | no      | Version of the software. |
-| **`container`**     | yes     | Object containing Docker container image, tag to use and the entrypoint for the image|
-| **`files`**         | no      | Array of files implementing custom changes on the image. |
+| Attribute           | Required  | Description                                         |
+| ------------------- | --------- | --------------------------------------------------- |
+| **`language`**      | no        | Language used to implement the software |
+| **`format`**        | no        | Packaging format of the software. |
+| **`version`**       | no        | Version of the software. |
+| **`container`**     | yes       | Object containing Docker container image, tag to use and the entrypoint for the image|
+| **`files`**         | no        | Array of files implementing custom changes on the image. |
 
 ```json
 {
