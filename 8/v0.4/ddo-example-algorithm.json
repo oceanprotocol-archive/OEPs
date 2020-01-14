@@ -65,35 +65,62 @@
   ],
   "service": [
     {
-      "service": [
-        {
-          "index": 0,
-          "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
-          "type": "metadata",
-          "attributes": {
-            "main": {
-              "type": "algorithm",
-              "algorithm": {
-                "language": "scala",
-                "format": "jar",
-                "version": "0.1",
-                "entrypoint": "ocean-entrypoint.sh",
-                "container": "oceanprotocol/imageName:v1.0.0",
-                "requirements": [
-                  {
-                    "requirement": "scala",
-                    "version": "2.12.8"
-                  },
-                  {
-                    "requirement": "java",
-                    "version": "1.8"
-                  }
-                ]
-              }
+      "index": 0,
+      "serviceEndpoint": "http://localhost:5000/api/v1/aquarius/assets/ddo/{did}",
+      "type": "metadata",
+      "attributes": {
+        "main": {
+          "author": "John Doe",
+          "dateCreated": "2019-02-08T08:13:49Z",
+          "license": "CC-BY",
+          "name": "My super algorithm",
+          "price": "1",
+          "type": "algorithm",
+          "algorithm": {
+            "language": "scala",
+            "format": "docker-image",
+            "version": "0.1",
+            "container": {
+              "entrypoint": "ocean-entrypoint.sh",
+              "image": "",
+              "tag": ""
             }
-          }
+          },
+          "files": [
+            {
+              "name": "",
+              "url": "",
+              "index": 0,
+              "checksum": "efb2c764274b745f5fc37f97c6b0e761",
+              "contentLength": "4535431",
+              "contentType": "text/plain",
+              "encoding": "UTF-8",
+              "compression": "zip"
+            },
+            {
+              "name": "",
+              "url": "",
+              "index": 0,
+              "checksum": "efb2c764274b745f5fc37f97c6b0e761",
+              "contentLength": "4535431",
+              "contentType": "text/plain",
+              "encoding": "UTF-8",
+              "compression": "zip"
+            }
+          ]
+        },
+        "additionalInformation": {
+          "description": "Workflow to aggregate weather information",
+          "tags": [
+            "weather",
+            "uk",
+            "2011",
+            "workflow",
+            "aggregation"
+          ],
+          "copyrightHolder": "John Doe"
         }
-      ]
+      }
     }
   ]
 }
