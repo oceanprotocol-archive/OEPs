@@ -285,40 +285,69 @@ An asset of type `algorithm` has the following attributes:
 | **`version`**       | no      | Version of the software. |
 | **`entrypoint`**      | yes   | Path of the script inside of the software package used to install the dependencies and run it. |
 | **`container`**      | yes   | Docker container image and tag to use |
-| **`requirements`**  | no   | Array of software requirements objects. |
+| **`files`**  | no   | Array of files implementing custom changes on the image. |
 
 ```json
-{  
-  "service":[  
-    {  
+{
       "index": 0,
-      "serviceEndpoint": "http://aquarius:5000/api/v1/aquarius/assets/ddo/{did}",
+      "serviceEndpoint": "http://localhost:5000/api/v1/aquarius/assets/ddo/{did}",
       "type": "metadata",
-      "attributes": {  
-        "main": {  
+      "attributes": {
+        "main": {
+          "author": "John Doe",
+          "dateCreated": "2019-02-08T08:13:49Z",
+          "license": "CC-BY",
+          "name": "My super algorithm",
+          "price": "1",
           "type": "algorithm",
-          "algorithm": {  
+          "algorithm": {
             "language": "scala",
-            "format": "jar",
+            "format": "docker-image",
             "version": "0.1",
-            "entrypoint": "ocean-entrypoint.sh",
-            "container": "oceanprotocol/imageName:v1.0.0",
-            "requirements": [  
-              {  
-                "requirement": "scala",
-                "version": "2.12.8"
-              },
-              {  
-                "requirement": "java",
-                "version": "1.8"
-              }
-            ]
-          }
+            "container": {
+              "entrypoint": "ocean-entrypoint.sh",
+              "image": "",
+              "tag": ""
+            }
+          },
+          "files": [
+            {
+              "name": "",
+              "url": "",
+              "index": 0,
+              "checksum": "efb2c764274b745f5fc37f97c6b0e761",
+              "contentLength": "4535431",
+              "contentType": "text/plain",
+              "encoding": "UTF-8",
+              "compression": "zip"
+            },
+            {
+              "name": "",
+              "url": "",
+              "index": 0,
+              "checksum": "efb2c764274b745f5fc37f97c6b0e761",
+              "contentLength": "4535431",
+              "contentType": "text/plain",
+              "encoding": "UTF-8",
+              "compression": "zip"
+            }
+          ]
+        },
+        "additionalInformation": {
+          "description": "Workflow to aggregate weather information",
+          "tags": [
+            "weather",
+            "uk",
+            "2011",
+            "workflow",
+            "aggregation"
+          ],
+          "copyrightHolder": "John Doe"
         }
       }
     }
-  ]
-}
+
+
 ```
 
 ## References
