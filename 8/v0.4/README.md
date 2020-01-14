@@ -283,9 +283,8 @@ An asset of type `algorithm` has the following attributes:
 | **`language`**      | yes      | Language used to implement the software |
 | **`format`**        | no      | Packaging format of the software. |
 | **`version`**       | no      | Version of the software. |
-| **`entrypoint`**      | yes   | Path of the script inside of the software package used to install the dependencies and run it. |
-| **`container`**      | yes   | Docker container image and tag to use |
-| **`files`**  | no   | Array of files implementing custom changes on the image. |
+| **`container`**     | yes     | Object containing Docker container image, tag to use and the entrypoint for the image|
+| **`files`**         | no      | Array of files implementing custom changes on the image. |
 
 ```json
 {
