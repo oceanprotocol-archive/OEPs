@@ -3,8 +3,10 @@ shortname: 12/EXEC
 name: Execution of Compute Services
 type: Standard
 status: Raw
-editor: Aitor Argomaniz <aitor@oceanprotocol.com>
+editor: Ahmed Ali <ahmed@oceanprotocol.com>
 contributors:
+        Aitor Argomaniz <aitor@oceanprotocol.com>,
+        Samer Sallam <samer@oceanprotocol.com>,
         Javier Cortejoso <javier@oceanprotocol.com>,
         Enrique Ruiz <enrique@oceanprotocol.com>, 
         Troy <troy@oceanprotocol.com>,
@@ -56,6 +58,8 @@ but also can be used to integrate web3 compute providers or On-Premise infrastru
 It's out of the scope to detail the Service Execution Agreements implementation. 
 Service Agreements are described as part of the [Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean).
 
+**Disclaimer**: The current focus of this OEP is to bring compute data which assumes that the data owner trusts the compute provider if it is not owned by the data owner.
+
 ## Change Process
 
 This document is governed by the [2/COSS](../2/README.md) (COSS).
@@ -70,8 +74,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The main motivations of this OEP are:
 
-* Identify the actors involved on the definition and execution of an Ocean Compute service
-* Detail the main characteristics of this interaction
+* Identify the actors involved in the Compute service
+* Define the execution procedures of this interaction
 * Specify the pros and cons of this approach
 * Identify the modifications required to integrate in the Ocean stack
 * Identify the API methods exposed via the different libraries
@@ -90,7 +94,7 @@ The different actors interacting in this flow are:
 
 The following technical components are involved in an end-to-end publishing and consumption flow:
 
-* [MARKETPLACE](https://github.com/oceanprotocol/pleuston) - Exposes a web interface allowing the users to publish and purchase assets and services associated to those assets. Also facilitates the discovery of those assets.
+* [MARKETPLACE](https://github.com/oceanprotocol/pleuston) - Exposes a web interface for asset discovery and allowing users to publish / consume assets and data related services such as compute.
 * SQUID - Library encapsulating the Ocean Protocol business logic. Interacts with all the different components/APIs of the system. Currently it's provided in the following languages:
   - [Squid Javascript](https://github.com/oceanprotocol/squid-js) - Javascript version of Squid to be integrated with Frontend applications.
   - [Squid Python](https://github.com/oceanprotocol/squid-py) - Python version of Squid to be integrated with Backend applications. The primary users are data scientists.
