@@ -283,7 +283,6 @@ An asset of type `algorithm` has the following additional attributes under `main
 | **`language`**      | `string`              | no          | Language used to implement the software |
 | **`format`**        | `string`              | no          | Packaging format of the software. |
 | **`version`**       | `string`              | no          | Version of the software. |
-| **`files`**         | Array of files object | no         | Array of `File` objects including the encrypted file urls. Further metadata about each file is stored, see [File Attributes](#file-attributes)
 | **`container`**     | `Object`              | yes         | Object containing Docker container image, tag to use and the entrypoint for the image |
 
 The `container` object has the following attributes:
