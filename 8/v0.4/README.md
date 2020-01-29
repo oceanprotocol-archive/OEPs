@@ -191,20 +191,6 @@ Attribute       |   Type           |   Required    | Description
         "contentType": "text/xml",
         "compression": "none"
       }
-    ],
-    "services": [  
-      {  
-        "index": 0,
-        "url": "https://my.service.inet:8080/api/v1/weather",
-        "method": "POST",
-        "auth": {  
-          "user": "aitor",
-          "password": "1234",
-          "token": "89c06eb5a88f4bbbf4ac966d737593b36e61e885"
-        },
-        "description": "https://my.service.inet:8080/spec",
-        "checksum": "859486596784567856758aaaa"
-      }
     ]
   },
   "additionalInformation":{  
@@ -283,15 +269,15 @@ An asset of type `algorithm` has the following additional attributes under `main
 | **`language`**      | `string`              | no          | Language used to implement the software |
 | **`format`**        | `string`              | no          | Packaging format of the software. |
 | **`version`**       | `string`              | no          | Version of the software. |
-| **`container`**     | `Object`              | yes         | Object containing Docker container image, tag to use and the entrypoint for the image |
+| **`container`**     | `Object`              | yes         | Object describing the Docker container image. |
 
 The `container` object has the following attributes:
 
 | Attribute           |   Type   | Required  | Description                                         |
 | ------------------- | -------- | --------- | --------------------------------------------------- |
-| **`entrypoint`**    | `string` | yes       |  |
-| **`image`**         | `string` | yes       |  |
-| **`tag`**           | `string` | yes        |  |
+| **`entrypoint`**    | `string` | yes       | The command to execute, or script to run inside the Docker image. |
+| **`image`**         | `string` | yes       | Name of the Docker image. |
+| **`tag`**           | `string` | yes       | Tag of the Docker image. |
 
 ```json
 {
