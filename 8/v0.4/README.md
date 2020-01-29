@@ -276,15 +276,24 @@ Depending on the asset type (dataset, algorithm), there are different metadata a
 
 #### Algorithm attributes
 
-An asset of type `algorithm` has the following attributes:
+An asset of type `algorithm` has the following attributes under `main.algorithm`:
 
-| Attribute           | Required  | Description                                         |
-| ------------------- | --------- | --------------------------------------------------- |
-| **`language`**      | no        | Language used to implement the software |
-| **`format`**        | no        | Packaging format of the software. |
-| **`version`**       | no        | Version of the software. |
-| **`container`**     | yes       | Object containing Docker container image, tag to use and the entrypoint for the image|
-| **`files`**         | no        | Array of files implementing custom changes on the image. |
+| Attribute           |   Type   | Required  | Description                                         |
+| ------------------- | -------- | --------- |--------------------------------------------------- |
+| **`language`**      | `string` | no        | Language used to implement the software |
+| **`format`**        | `string` | no        | Packaging format of the software. |
+| **`version`**       | `string` | no        | Version of the software. |
+| **`entrypoint`**    | `string` | no        |  |
+| **`requirements`**  | `Array`  | no        |  |
+| **`container`**     | `Object` | yes       | Object containing Docker container image, tag to use and the entrypoint for the image |
+
+The `container` object has the following attributes:
+
+| Attribute           |   Type   | Required  | Description                                         |
+| ------------------- | -------- | --------- | --------------------------------------------------- |
+| **`entrypoint`**    | `string` | yes       |  |
+| **`image`**         | `string` | yes       |  |
+| **`tag`**           | `string` | no        |  |
 
 ```json
 {
@@ -303,26 +312,18 @@ An asset of type `algorithm` has the following attributes:
             "language": "scala",
             "format": "docker-image",
             "version": "0.1",
+            "entrypoint": "ocean-entrypoint.sh",
+            "requirements": [],
             "container": {
-              "entrypoint": "ocean-entrypoint.sh",
-              "image": "",
-              "tag": ""
+              "entrypoint": "node $ALGO",
+              "image": "node",
+              "tag": "10"
             }
           },
           "files": [
             {
-              "name": "",
-              "url": "",
-              "index": 0,
-              "checksum": "efb2c764274b745f5fc37f97c6b0e761",
-              "contentLength": "4535431",
-              "contentType": "text/plain",
-              "encoding": "UTF-8",
-              "compression": "zip"
-            },
-            {
-              "name": "",
-              "url": "",
+              "name": "build_model",
+              "url": "https://raw.githubusercontent.com/oceanprotocol/test-algorithm/master/javascript/algo.js",
               "index": 0,
               "checksum": "efb2c764274b745f5fc37f97c6b0e761",
               "contentLength": "4535431",
