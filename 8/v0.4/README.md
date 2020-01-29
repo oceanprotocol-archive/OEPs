@@ -191,20 +191,6 @@ Attribute       |   Type           |   Required    | Description
         "contentType": "text/xml",
         "compression": "none"
       }
-    ],
-    "services": [  
-      {  
-        "index": 0,
-        "url": "https://my.service.inet:8080/api/v1/weather",
-        "method": "POST",
-        "auth": {  
-          "user": "aitor",
-          "password": "1234",
-          "token": "89c06eb5a88f4bbbf4ac966d737593b36e61e885"
-        },
-        "description": "https://my.service.inet:8080/spec",
-        "checksum": "859486596784567856758aaaa"
-      }
     ]
   },
   "additionalInformation":{  
@@ -276,15 +262,22 @@ Depending on the asset type (dataset, algorithm), there are different metadata a
 
 #### Algorithm attributes
 
-An asset of type `algorithm` has the following attributes:
+An asset of type `algorithm` has the following additional attributes under `main.algorithm`:
 
-| Attribute           | Required  | Description                                         |
-| ------------------- | --------- | --------------------------------------------------- |
-| **`language`**      | no        | Language used to implement the software |
-| **`format`**        | no        | Packaging format of the software. |
-| **`version`**       | no        | Version of the software. |
-| **`container`**     | yes       | Object containing Docker container image, tag to use and the entrypoint for the image|
-| **`files`**         | no        | Array of files implementing custom changes on the image. |
+| Attribute           |   Type                |   Required  | Description                                         |
+| ------------------- | ----------------------| ----------- |--------------------------------------------------- |
+| **`language`**      | `string`              | no          | Language used to implement the software |
+| **`format`**        | `string`              | no          | Packaging format of the software. |
+| **`version`**       | `string`              | no          | Version of the software. |
+| **`container`**     | `Object`              | yes         | Object describing the Docker container image. |
+
+The `container` object has the following attributes:
+
+| Attribute           |   Type   | Required  | Description                                         |
+| ------------------- | -------- | --------- | --------------------------------------------------- |
+| **`entrypoint`**    | `string` | yes       | The command to execute, or script to run inside the Docker image. |
+| **`image`**         | `string` | yes       | Name of the Docker image. |
+| **`tag`**           | `string` | yes       | Tag of the Docker image. |
 
 ```json
 {
@@ -304,25 +297,15 @@ An asset of type `algorithm` has the following attributes:
             "format": "docker-image",
             "version": "0.1",
             "container": {
-              "entrypoint": "ocean-entrypoint.sh",
-              "image": "",
-              "tag": ""
+              "entrypoint": "node $ALGO",
+              "image": "node",
+              "tag": "10"
             }
           },
           "files": [
             {
-              "name": "",
-              "url": "",
-              "index": 0,
-              "checksum": "efb2c764274b745f5fc37f97c6b0e761",
-              "contentLength": "4535431",
-              "contentType": "text/plain",
-              "encoding": "UTF-8",
-              "compression": "zip"
-            },
-            {
-              "name": "",
-              "url": "",
+              "name": "build_model",
+              "url": "https://raw.githubusercontent.com/oceanprotocol/test-algorithm/master/javascript/algo.js",
               "index": 0,
               "checksum": "efb2c764274b745f5fc37f97c6b0e761",
               "contentLength": "4535431",
