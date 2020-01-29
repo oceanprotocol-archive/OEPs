@@ -283,8 +283,6 @@ An asset of type `algorithm` has the following attributes under `main.algorithm`
 | **`language`**      | `string` | no        | Language used to implement the software |
 | **`format`**        | `string` | no        | Packaging format of the software. |
 | **`version`**       | `string` | no        | Version of the software. |
-| **`entrypoint`**    | `string` | no        |  |
-| **`requirements`**  | `Array`  | no        |  |
 | **`container`**     | `Object` | yes       | Object containing Docker container image, tag to use and the entrypoint for the image |
 
 The `container` object has the following attributes:
@@ -293,7 +291,7 @@ The `container` object has the following attributes:
 | ------------------- | -------- | --------- | --------------------------------------------------- |
 | **`entrypoint`**    | `string` | yes       |  |
 | **`image`**         | `string` | yes       |  |
-| **`tag`**           | `string` | no        |  |
+| **`tag`**           | `string` | yes        |  |
 
 ```json
 {
