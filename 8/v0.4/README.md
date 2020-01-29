@@ -310,8 +310,6 @@ The `container` object has the following attributes:
             "language": "scala",
             "format": "docker-image",
             "version": "0.1",
-            "entrypoint": "ocean-entrypoint.sh",
-            "requirements": [],
             "container": {
               "entrypoint": "node $ALGO",
               "image": "node",
