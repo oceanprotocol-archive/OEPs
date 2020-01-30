@@ -6,8 +6,7 @@ name: Ocean Commons Marketplace
 type: Standard
 status: Raw
 editor: Aitor Argomaniz <aitor@oceanprotocol.com>
-contributors:
-release: Tethys
+contributors: Matthias Kretschmann <matthias@oceanprotocol.com>
 ```
 
 Table of Contents
@@ -17,9 +16,9 @@ Table of Contents
 - [Actors](#actors)
 - [Flow](#flow)
   - [Publishing](#publishing)
+    - [DDO specifics](#ddo-specifics)
   - [Importing from Google Dataset](#importing-from-google-dataset)
   - [Consuming](#consuming)
-  - [Network Reward](#network-reward)
   - [User Interface Screens](#user-interface-screens)
 - [Next steps](#next-steps)
 
@@ -54,7 +53,7 @@ The different actors interacting in this flow are:
   - **AQUARIUS** - Metadata API storing the commons datasets metadata
   - **BRIZO** - Proxy in charge of validate the Service Execution Agreements (SEA)
 * **KEEPER** - Distributed ledger running the Solidity Smart Contracts on Ethereum VM.
-  It includes the Ocean Token, Network Reward function and SEA logic.
+  It includes the Ocean Token, escrow payment function and SEA logic.
 * **CONSUMER** - A user, typically a data scientist or data engineer, looking for new data to use in their data pipelines.
 
 
@@ -82,7 +81,7 @@ The Publishing flow describe the procedure to put in place allowing to an Ocean 
 
 5. The MKT validate the input fields provided by the user. If information is missing, the process is cancelled and the user is informed of the error.
 
-6. The MKT, using SQUID-JS do the following:
+6. The MKT, using SQUID-JS does the following:
    - Create a new DDO for the Asset
    - Encrypt the URL's using the PROVIDER Keys
    - Add the encrypted URL's and Metadata to the DDO
@@ -91,9 +90,9 @@ The Publishing flow describe the procedure to put in place allowing to an Ocean 
    - The DDO should include the prize equals to zero in the conditions for the access service.
    - Persist the DDO in the Provider AQUARIUS instance
 
-7. The MKT, using SQUID-JS register the DID on-chain associating the public URL where the DDO just published is available
+7. The MKT, using SQUID-JS registers the DID on-chain associating the public URL where the DDO just published is available
 
-[Here](./ddo-commons.example.json) you can find an example of the subset of the DDO to be used. The main characteristics are:
+#### DDO specifics
 
 - The `publicKey` section includes the Owner and Provider addresses:
 
@@ -104,11 +103,11 @@ The Publishing flow describe the procedure to put in place allowing to an Ocean 
   "publicKey": [{
     "id": "did:op:123456789abcdefghi",
     "type": "OwnerAddress",
-    "owner": "did:op:123456789abcdefghi"
+    "owner": "0x12345fwgrebrewfewfew"
   }, {
     "id": "did:op:0987654321abcdefghi",
     "type": "ProviderAddress",
-    "owner": "did:op:0987654321abcdefghi"
+    "owner": "0x12345fwgrebrewfewfew"
   }
 
   ...
@@ -166,9 +165,9 @@ The complete flow is the following:
 
 1. BRIZO initialize the SEA on-chain using the KEEPER
 
-1. The KEEPER after to initialize emit the `ExecuteAgreement` event
+1. The KEEPER after initialization emits the `AgreementCreated` and `AgreementActorAdded` event
 
-1. The CONSUMER listens for the `ExecuteAgreement` event and when it's received call the `lockPayment` function on the KEEPER
+1. The CONSUMER listens for the `AgreementCreated` and `AgreementActorAdded` event and when it's received call the `lockPayment` function on the KEEPER
 
 1. The `lockPayment` function on the KEEPER emit the `PaymentLocked` event
 
@@ -184,36 +183,7 @@ The complete flow is the following:
 
 The complete PUBLISH and CONSUME flows can be shown in the below image:
 
-![Publish and Consume flow](images/board.jpg)
-
-### Network Reward
-
-After the [Consume flow](#consuming) has been completed. The PROVIDER or PUBLISHER users can request the
-Network Reward using the KEEPER using the `PaymentConditions.releasePayment` method. It will accept the following parameters:
-
-* assetId - DID of the asset with the fixed prefix
-* price - in the free/commons scenario the price is zero
-
-
-Example of `releasePayment` method parameters using the DDO format:
-
-```
-"parameters": [
-    {
-        "name": "assetId",
-        "type": "bytes32",
-        "value": "08a429b8529856d59867503f8056903a680935a76950bb9649785cc97869a43d"
-    }, {
-        "name": "price",
-        "type": "uint",
-        "value": 0
-    }
-]
- ```
-
-For the network rewards, the Smart Contracts need to have the internal logic to calculate the rewards in free and paid scenarios.
-
-In the `releasePayment` method, it's necessary to validate that parameters are not having a higher value than the caps defined by the system.
+![Publish and Consume flow](board.jpg)
 
 ### User Interface Screens
 

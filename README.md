@@ -7,11 +7,10 @@
 
 **Table of Contents**
 
-- [Current OEPs](#current-oeps)
 - [Current Participants](#current-participants)
   - [Contributors](#contributors)
   - [Maintainers](#maintainers)
-  - [Administrators (Founders and Others)](#administrators-founders-and-others)
+  - [Administrators](#administrators)
 
 The process to add or change a OEP is the following:
 
@@ -46,20 +45,14 @@ Short Name       | Title                                             | Type     
 
 ### Maintainers
 
-Everyone with the ability to merge pull requests. Today that is mainly OceanProtocol contributors.
+Everyone with the ability to merge pull requests. Today that is mainly:
+
+- Ocean Protocol [Engineering team](https://github.com/orgs/oceanprotocol/teams/engineering/members)
 
 In the future, we can add more people to this list.
 
-Some people have specializations:
+### Administrators
 
-- [Research](https://github.com/oceanprotocol/ocean/projects/3): @gongf05, @diminator, @trentmc, @aaitor
-- [Ocean Core](https://github.com/oceanprotocol/ocean/projects/1): @aaitor
-
-### Administrators (Founders and Others)
-
-- Aitor - @aaitor
-- Ahmed - @0x3bfc
-- Dimi - @diminator
-- Don - @dgossen
-- Trent - @trentmc
-- Fang - gongf05
+- Ahmed - [@0x3bfc](https://github.com/0x3bfc)
+- Matthias - [@kremalicious](https://github.com/kremalicious)
+- Ocean Protocol [Core Dev team](https://github.com/orgs/oceanprotocol/teams/core-dev/members)
