@@ -29,11 +29,10 @@ Table of Contents
       * [Flow](#flow)
          * [Terminology](#terminology)
          * [Requirements](#requirements)
-         * [Workflows](#workflows)
          * [Publishing an Asset including Compute Services](#publishing-an-asset-including-computing-services)
          * [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
-         * [Execution phase](#execution-phase)
-      * [Infrastructure Orchestration](#infrastructure-orchestration)
+         * [Execution phase: Part-1](#execution-phase)
+         * [Infrastructure Orchestration](#infrastructure-orchestration)
          * [Services Provided by the Operator](#services-provided-by-the-operator)
          * [Orchestration Steps](#orchestration-steps)
          * [Infrastructure Operator](#infrastructure-operator)
@@ -114,13 +113,13 @@ There are some parameters used in this flow:
 * **index** - Identifies one service in the array of services included in the DDO. It is created by the PUBLISHER (via Squid) upon DDO creation and is associated with different services.
 * **templateId** - Identifies a unique Service Agreement template. The Service Agreement is an instance of one existing template. Please refer to this [documentation](https://github.com/oceanprotocol/keeper-contracts/blob/develop/doc/TEMPLATE_LIFE_CYCLE.md) for more info.
 
-### Terminology
+## Terminology
 
 * Compute Provider - Entity providing a compute service for a price (or for free).
 * Compute Service - Service offered by a Compute Provider. It could have different conditions like the type of services, price, etc. 
   
 
-### Requirements
+## Requirements
 
 * A COMPUTE PROVIDER or PROVIDER define the conditions that a Compute service supports. It includes:
   - What kind of image (Docker container) can be deployed in the infrastructure
@@ -142,30 +141,41 @@ Example of service endpoint:
   
 You can find a complete DDO of type compute service in the [TODO]().
 
-### Publishing an Asset including Compute Services
+## Publishing an Asset including Compute Services
 The following figure describes the exposed services for publishing assets through
-marketplace using [squid-js](), [aquarius](https://github.com/oceanprotocol/aquarius) and keeper contracts.
+marketplace using [squid-js](https://github.com/oceanprotocol/squid-js), [aquarius](https://github.com/oceanprotocol/aquarius) and keeper contracts.
 
-![](images/1-assetRegistry.png)
+![](images/1_assetRegistration.png)
 
 In the case of bringing compute to data, the compute service is described as a part of
 the dataset DID document.
 
-### Setting up the Service Execution Agreement
+## Setting up the Service Execution Agreement
 The compute to data use case follows the same pattern of agreement initialization,
 by pointing to the DID, consumer address, provider address and the agreement template (set of 
 predefined conditions, and actor types).
 
-### Creation phase 
+## Creation phase 
 To create new agreement, the consumer should follow the below sequence diagram:
 ![](images/2_createAgreement.png)
-### Execution phase
+## Execution phase
 
-## Infrastructure Orchestration
+The execution of the agreement starts prior the agreement creation. This is described as follows:
 
-### Services Provided by the Operator
+### Part-1
+The compute to data agreement uses `EscrowComputeExecutionTemplate` which is defined by three conditions:
+- **LockRewardCondition**: allows consumers to lock ERC20 tokens/Ocean tokens.
+- **ComputeExecutionCondition**: allows compute and data provider to confirm and fulfill the computation request.
+- **Release/RefundRewardCondition**: allows compute & data provider to release the payment after timeout-timeLock window or allows consumer
+to withdraw their payments after timeout if the computation service wasn't confirmed. Check out ([part-2]()) for more details
 
-### Orchestration Steps 
+![](images/3_executeSEAPart1.png)
+
+#### Infrastructure Orchestration
+
+#### Services Provided by the Operator
+
+#### Orchestration Steps 
 
 
 ### Infrastructure Operator
