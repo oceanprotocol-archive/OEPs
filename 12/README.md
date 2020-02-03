@@ -171,9 +171,34 @@ to withdraw their payments after timeout if the computation service wasn't confi
 
 ![](images/3_executeSEAPart1.png)
 
-#### Infrastructure Orchestration
+### Part-2
 
-#### Services Provided by the Operator
+In this part, the trigger of the agreement execution goes from on-chain (keeper) to Brizo in order to handle the compute job 
+by calling the operator service. For compute service, Brizo exposes the same endpoints of the operator service. For more details about the operator service APIs check out the below section.
+
+#### Infrastructure Orchestration
+The infrastructure is orchestrated by [operator service](https://github.com/oceanprotocol/operator-service). The operator service provides life cycle management APIs for compute
+service. The APIs are as follows:
+
+- **start**: starts a new job within the context of agreement.
+- **stop**: stop running job. This requires valid agreement Id, job id, and job ownership.
+- **status**: For a given agreement Id, and (job id -- optional) returns job status(es). Status code description below.
+- **restart**: calls stop API, then start job again from scratch.
+- **delete**: deletes a compute job and all resources associated with the job. If job is running it will be stopped first.
+              
+| status   | Description        |
+|----------|--------------------|
+|  10       | Job started        |
+|  20       | Configuring volumes|
+|  30       | Provisioning success |
+|  31       | Data provisioning failed |
+|  32       | Algorithm provisioning failed |
+|  40       | Running algorith   |
+|  50       | Filtering results  |
+|  60       | Publishing results |
+|  70       | Job completed      |
+
+For more details, please refer to [operator service APIs documentation](https://github.com/oceanprotocol/operator-service/blob/develop/API.md)
 
 #### Orchestration Steps 
 

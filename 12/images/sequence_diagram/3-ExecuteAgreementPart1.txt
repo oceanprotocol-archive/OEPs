@@ -9,8 +9,8 @@ alt NotTimedOut
     note right of keeper: Event: ComputeExecutionFullfilled
     keeper -> consumer: ComputeExecutionFullfilled
     keeper -> brizo: ComputeExecutionFullfilled
-    brizo -> operator-engine: start(dataset_did, algorithm_did)
-    operator-engine -> brizo: 200 OK
+    brizo -> operator-service: ....
+    brizo -> operator-service: ....
 else TimedOut
     consumer -> keeper: refundReward(...)
     keeper -> consumer: refunded
