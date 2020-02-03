@@ -158,6 +158,8 @@ predefined conditions, and actor types).
 ## Creation phase 
 To create new agreement, the consumer should follow the below sequence diagram:
 ![](images/2_createAgreement.png)
+
+For a given agreement, consumers are allowed to create ***N*** compute jobs based on the agreement conditions.
 ## Execution phase
 
 The execution of the agreement starts prior the agreement creation. This is described as follows:
@@ -174,11 +176,10 @@ to withdraw their payments after timeout if the computation service wasn't confi
 ### Part-2
 
 In this part, the trigger of the agreement execution goes from on-chain (keeper) to Brizo in order to handle the compute job 
-by calling the operator service. For compute service, Brizo exposes the same endpoints of the operator service. For more details about the operator service APIs check out the below section.
+by calling the operator service. In case of the compute service, Brizo exposes the same endpoints of the operator service. For more details about the operator service APIs, check out the below section.
 
 #### Infrastructure Orchestration
-The infrastructure is orchestrated by [operator service](https://github.com/oceanprotocol/operator-service). The operator service provides life cycle management APIs for compute
-service. The APIs are as follows:
+The infrastructure is orchestrated by [operator service](https://github.com/oceanprotocol/operator-service) which in turn start [operator-engine](), configure pods (workers), and manage the life cycle of compute jobs. The APIs are as follows:
 
 - **start**: starts a new job within the context of agreement.
 - **stop**: stop running job. This requires valid agreement Id, job id, and job ownership.
