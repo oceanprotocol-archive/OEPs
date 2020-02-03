@@ -1,0 +1,9 @@
+title Asset (Dataset/Algorithm) Registration
+
+publisher -> marketplace: Register Asset(data DID)
+marketplace -> aquarias : store metadata in aquarias
+marketplace -> marketplace : generate DID and DDO
+marketplace -> keeper: registerAttributes(...)
+note right of keeper: Event: AssetRegistered
+keeper -> marketplace : Registered
+marketplace -> publisher : Registered

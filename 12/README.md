@@ -143,15 +143,22 @@ Example of service endpoint:
 You can find a complete DDO of type compute service in the [TODO]().
 
 ### Publishing an Asset including Compute Services
+The following figure describes the exposed services for publishing assets through
+marketplace using [squid-js](), [aquarius](https://github.com/oceanprotocol/aquarius) and keeper contracts.
 
-TODO
+![](images/1-assetRegistry.png)
+
+In the case of bringing compute to data, the compute service is described as a part of
+the dataset DID document.
 
 ### Setting up the Service Execution Agreement
+The compute to data use case follows the same pattern of agreement initialization,
+by pointing to the DID, consumer address, provider address and the agreement template (set of 
+predefined conditions, and actor types).
 
-#### Registering Asset
-
-#### Consuming Asset
-
+### Creation phase 
+To create new agreement, the consumer should follow the below sequence diagram:
+![](images/2_createAgreement.png)
 ### Execution phase
 
 ## Infrastructure Orchestration
