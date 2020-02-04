@@ -164,7 +164,7 @@ For a given agreement, consumers are allowed to create ***N*** compute jobs base
 
 The execution of the agreement starts prior the agreement creation. This is described as follows:
 
-### Part-1
+### Part-1: On-chain
 The compute to data agreement uses `EscrowComputeExecutionTemplate` which is defined by three conditions:
 - **LockRewardCondition**: allows consumers to lock ERC20 tokens/Ocean tokens.
 - **ComputeExecutionCondition**: allows compute and data provider to confirm and fulfill the computation request.
@@ -173,20 +173,44 @@ to withdraw their payments after timeout if the computation service wasn't confi
 
 ![](images/3_executeSEAPart1.png)
 
-### Part-2
+### Part-2: Off-chain
 
-In this part, the trigger of the agreement execution goes from on-chain (keeper) to Brizo in order to handle the compute job 
-by calling the operator service. In case of the compute service, Brizo exposes the same endpoints of the operator service. For more details about the operator service APIs, check out the below section.
+In this part, the trigger of the agreement execution goes from on-chain (the keeper) to [Brizo](https://github.com/oceanprotocol/brizo) in order to handle the compute job 
+by calling the operator service. Moreover, [Brizo](https://github.com/oceanprotocol/brizo) exposes the same endpoints of the operator service which will be discussed in the section below.
 
 #### Infrastructure Orchestration
-The infrastructure is orchestrated by [operator service](https://github.com/oceanprotocol/operator-service) which in turn start [operator-engine](), configure pods (workers), and manage the life cycle of compute jobs. The APIs are as follows:
+The infrastructure is orchestrated by [operator service](https://github.com/oceanprotocol/operator-service) 
+which in turn starts [operator-engine](https://github.com/oceanprotocol/operator-engine), configures pods (workers), and manages the life cycle of compute 
+jobs. The APIs are as follows:
 
-- **start**: starts a new job within the context of agreement.
-- **stop**: stop running job. This requires valid agreement Id, job id, and job ownership.
+- **start**: starts a new job within the context of the new/current agreement.
+- **stop**: stop running job. This requires valid agreement Id, job id, and job ownership proof (signature).
 - **status**: For a given agreement Id, and (job id -- optional) returns job status(es). Status code description below.
-- **restart**: calls stop API, then start job again from scratch.
+- **restart**: calls stop API, then starts the compute job again.
 - **delete**: deletes a compute job and all resources associated with the job. If job is running it will be stopped first.
-              
+
+***Starting new compute job***
+
+![](images/4_Starting_New_Compute_Job.png)
+
+
+***Stop Existing Job***
+
+TODO
+
+***Get Job Status***
+
+TODO
+
+
+***Restart Compute Job***
+
+TODO
+
+***Delete Compute Job***
+
+TODO
+
 | status   | Description        |
 |----------|--------------------|
 |  10       | Job started        |
@@ -194,31 +218,28 @@ The infrastructure is orchestrated by [operator service](https://github.com/ocea
 |  30       | Provisioning success |
 |  31       | Data provisioning failed |
 |  32       | Algorithm provisioning failed |
-|  40       | Running algorith   |
+|  40       | Running algorithm   |
 |  50       | Filtering results  |
 |  60       | Publishing results |
 |  70       | Job completed      |
 
 For more details, please refer to [operator service APIs documentation](https://github.com/oceanprotocol/operator-service/blob/develop/API.md)
 
-#### Orchestration Steps 
+#### Infrastructure Operator
 
-
-### Infrastructure Operator
-
-In the described OEP, the PUBLISHER of computation services is in charge of defining the 
+The PUBLISHER of computation services is in charge of defining the 
 requirements to allow the execution of algorithms on top of of the data assets.
 It means only the images specified in the DDO by the publisher with a specific DID and checksum
  will be allowed to be executed in the Runtime environment.
   
-BRIZO is in charge of setting up the runtime environment speaking with the infrastructure provider via Kubernetes.
+[BRIZO](https://github.com/oceanprotocol/brizo) is in charge of setting up the runtime environment speaking with the infrastructure provider via Kubernetes.
 
 The images defined in the DDO and defined by the PUBLISHER only SHOULD include the minimum libraries specified,
 it will reduce the risk of executing unexpected software via external libraries.
 In addition to this, it's recommended that the images running in the runtime environment don't have network connectivity
 a part of the minimum required to get access to the Assets.
 
-#### Volumes
+##### Volumes
 
 The input assets will be added to the runtime environment as **read only** volumes. 
 The complete paths to the folders where the volumes are mounted will be given to the algorithm as parameters, using the same order of the parameters specified in the Workflow definition.
@@ -231,9 +252,11 @@ The pods will be **destroyed** after the execution, so only the data stored in t
 | Output| Read, Write  | --output=/mnt/output |
 | Logs  | Read, Write  | --logs=/mnt/logs |
 
-### Network isolation
+#### Network isolation
 
 The runtime environment doesn't need to have network connectivity to external networks to be executed. 
 To avoid sending the internal information about the data, it's recommended to restrict the output connectivity. 
    
- 
+### Part-3: Agreement Finality
+
+

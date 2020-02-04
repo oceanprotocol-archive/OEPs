@@ -1,0 +1,9 @@
+title Starting New Compute Job
+
+consumer -> brizo: start(agreement_id, algo_DID, data_DID)
+brizo -> keeper: validate agreement ComputeExecutionCondition.isFulfilled()
+keeper -> brizo: valid agreement
+note right of brizo: prepare compute job workflow
+brizo -> operator-service: start(workflow)
+operator-service -> brizo: return (job_id, status==200OK)
+brizo -> consumer : compute job started
