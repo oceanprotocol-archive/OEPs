@@ -196,7 +196,7 @@ jobs. The APIs are as follows:
 
 ***Stop Existing Job***
 
-TODO
+![](images/5_Stop_Compute_Job.png)
 
 ***Get Job Status***
 

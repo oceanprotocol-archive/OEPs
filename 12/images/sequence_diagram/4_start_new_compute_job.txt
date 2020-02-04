@@ -1,9 +1,16 @@
 title Starting New Compute Job
 
 consumer -> brizo: start(agreement_id, algo_DID, data_DID)
-brizo -> keeper: validate agreement ComputeExecutionCondition.isFulfilled()
-keeper -> brizo: valid agreement
-note right of brizo: prepare compute job workflow
-brizo -> operator-service: start(workflow)
-operator-service -> brizo: return (job_id, status==200OK)
-brizo -> consumer : compute job started
+brizo -> keeper: isValidatAgreement
+alt ValidAgreement
+    keeper -> brizo: Yes
+    note right of brizo: prepare compute job workflow
+    brizo -> operator-service: start(workflow)
+    operator-service -> operator-engine: setup new compute job
+    operator-engine -> operator-service: started
+    note right of operator-engine:start pod then run algorithm async
+    operator-service -> brizo: return (job_id, status==200OK)
+    brizo -> consumer : compute job started
+else InvalidAgreement
+    brizo -> consumer : invalid agreement
+end
