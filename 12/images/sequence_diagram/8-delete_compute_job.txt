@@ -1,0 +1,11 @@
+title Delete Compute Job
+
+consumer -> brizo : restart(agreement_id, job_id)
+brizo -> keeper : isValidAgreement(agreement_id, consumer)
+alt YES
+    brizo -> operator-service : delete(job_id)
+    operator-service -> brizo : return DELETED
+    brizo -> consumer : return DELETED
+else NO
+    brizo -> consumer : return Acess Denied
+end

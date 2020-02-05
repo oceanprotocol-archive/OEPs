@@ -1,0 +1,13 @@
+title Restart Compute Job
+
+consumer -> brizo : restart(agreement_id, job_id)
+brizo -> keeper: isValidAgreement(agreement_id, consumer)
+alt YES
+    brizo -> operator-service : restart(job_id)
+    operator-service -> operator-service : stop(job_id)
+    operator-service -> operator-service : start(job_id)
+    operator-service -> brizo : return Restarted
+    brizo -> consumer : return Restarted
+else NO
+    brizo -> consumer : return Access Denied
+end

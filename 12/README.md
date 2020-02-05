@@ -200,16 +200,9 @@ jobs. The APIs are as follows:
 
 ***Get Job Status***
 
-TODO
+![](images/6_Status_of_Compute_Job.png)
 
-
-***Restart Compute Job***
-
-TODO
-
-***Delete Compute Job***
-
-TODO
+The following table lists all the possible status codes for a compute job
 
 | status   | Description        |
 |----------|--------------------|
@@ -222,6 +215,14 @@ TODO
 |  50       | Filtering results  |
 |  60       | Publishing results |
 |  70       | Job completed      |
+
+***Restart Compute Job***
+
+![](images/7_Restart_Compute_Job.png)
+
+***Delete Compute Job***
+
+![](images/8_Delete_Compute_Job.png)
 
 For more details, please refer to [operator service APIs documentation](https://github.com/oceanprotocol/operator-service/blob/develop/API.md)
 
