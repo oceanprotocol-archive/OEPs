@@ -12,7 +12,8 @@ contributors:
         Troy <troy@oceanprotocol.com>,
         Dimitri De Jonghe <dimi@oceanprotocol.com>,
         Ahmed Ali <ahmed@oceanprotocol.com>,
-        Jose Pablo Fernandez <jose@oceanprotocol.com>
+        Jose Pablo Fernandez <jose@oceanprotocol.com>,
+        Alex Coseru <alex@oceanprotocol.com>
 
 ```
 
@@ -253,6 +254,50 @@ The pods will be **destroyed** after the execution, so only the data stored in t
 | Output| Read, Write  | OUTPUTS        | /data/outputs  |               |
 | Logs  | Read, Write  | LOGS           | /data/logs     |               |
 | Input DIDS|  -       | DIDS           | []             | List of input DIDS|
+
+##### Compute image details
+
+Every algorithm has some required attributes
+```
+          "container": {
+            "image": "node",
+            "tag": "10",
+            "entrypoint": "node $ALGO"
+          }
+```
+
+Entrypoint:  It contains a macro ($ALGO) that gets replaced in the compute server with the actual location of the algo (usually /data/transformations/algorithm).
+
+So, if you want to run a python script, you can have the following:
+
+```
+          "container": {
+            "image": "python",
+            "tag": "3.7",
+            "entrypoint": "python3.7 $ALGO"
+          }
+
+```
+
+or a php script
+
+```
+algorithm": {
+          "container": {
+            "image": "php",
+            "tag": "cli",
+            "entrypoint": "/usr/bin/php $ALGO"
+          }
+```
+Or a simple bash script:
+```
+          "container": {
+            "image": "ubuntu",
+            "tag": "18.04",
+            "entrypoint": "$ALGO"
+          }
+```
+
 
 #### Network isolation
 
