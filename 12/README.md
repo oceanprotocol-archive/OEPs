@@ -247,11 +247,12 @@ The complete paths to the folders where the volumes are mounted will be given to
 The new derived Asset generated as a result of the execution of the algorithm MUST be written in the output volume. 
 The pods will be **destroyed** after the execution, so only the data stored in the **output** or **logs** volumes should be used.
 
-| Type  | Permissions  | CLI Parameter  |
-|-------|--------------|----------------|
-| Input | Read         | --input1=/mnt/volume1 --input2=/mnt/volume2 |
-| Output| Read, Write  | --output=/mnt/output |
-| Logs  | Read, Write  | --logs=/mnt/logs |
+| Type  | Permissions  | ENV Parameter  | Default Value  | Comment       |
+|-------|--------------|----------------|----------------|---------------|
+| Input | Read         | INPUTS         | /data/inputs   |               |
+| Output| Read, Write  | OUTPUTS        | /data/outputs  |               |
+| Logs  | Read, Write  | LOGS           | /data/logs     |               |
+| Input DIDS|  -       | DIDS           | []             | List of input DIDS|
 
 #### Network isolation
 
