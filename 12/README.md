@@ -20,32 +20,29 @@ contributors:
 Table of Contents
 =================
 
-   * [Table of Contents](#table-of-contents)
-   * [Execution of Compute Services using Service Agreements](#execution-of-computing-services-using-service-agreements)
-      * [Change Process](#change-process)
-      * [Language](#language)
-      * [Motivation](#motivation)
-      * [Actors](#actors)
-      * [Technical components](#technical-components)
-      * [Flow](#flow)
-         * [Terminology](#terminology)
-         * [Requirements](#requirements)
-         * [Publishing an Asset including Compute Services](#publishing-an-asset-including-computing-services)
-         * [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
-         * [Execution phase: Part-1](#execution-phase)
-         * [Infrastructure Orchestration](#infrastructure-orchestration)
-         * [Services Provided by the Operator](#services-provided-by-the-operator)
-         * [Orchestration Steps](#orchestration-steps)
-         * [Infrastructure Operator](#infrastructure-operator)
-            * [Volumes](#volumes)
-         * [Network isolation](#network-isolation)
+  
+  * [Introduction](#introduction)
+  * [Change Process](#change-process)
+  * [Language](#language)
+  * [Motivation](#motivation)
+  * [Actors](#actors)
+  * [Technical components](#technical-components)
+  * [Compute Flow](#compute-flow)
+ 	* [Requirements](#requirements)
+	* [Publishing an Asset including Compute Services](#publishing-an-asset-including-computing-services)
+ 	* [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
+ 		* [Execution phase](#execution-phase)
+			* [Infrastructure Orchestration](#infrastructure-orchestration)
+ 			* [Infrastructure Operator](#infrastructure-operator)
+    		* [Volumes](#volumes)
+ 			* [Network isolation](#network-isolation)
 
 
 
 ---
 
 
-# Execution of Compute Services using Service Agreements
+# Introduction
 
 This OEP introduces the integration pattern for the usage of **Service Execution Agreements (SEA)** 
 (also called Service Agreements or Agreements) as contracts between parties interacting in the execution of a Compute Service transaction.
@@ -58,66 +55,64 @@ but also can be used to integrate web3 compute providers or On-Premise infrastru
 It's out of the scope to detail the Service Execution Agreements implementation. 
 Service Agreements are described as part of the [Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean).
 
-**Disclaimer**: The current focus of this OEP is to bring compute data which assumes that the data owner trusts the compute provider if it is not owned by the data owner.
+>**Disclaimer**: The current focus of this OEP is to bring compute data which assumes that the DATA PROVIDER trusts the COMPUTE PROVIDER and hence COMPUTE PROVIDER has access to data in case they are not the same entity. For this OEP, we will assume that DATA PROVIDER and COMPUTE PROVIDER are the same entity.
 
-## Change Process
+# Change Process
 
 This document is governed by the [2/COSS](../2/README.md) (COSS).
 
 
-## Language
+# Language
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
 
-## Motivation
+# Motivation
 
 The main motivations of this OEP are:
 
 * Identify the actors involved in the Compute service
 * Define the execution procedures of this interaction
-* Specify the pros and cons of this approach
 * Identify the modifications required to integrate in the Ocean stack
 * Identify the API methods exposed via the different libraries
 
-## Actors
+# Actors
 
 The different actors interacting in this flow are:
 
-* PROVIDERS - Give access to the Compute Services
-* CONSUMERS - Want to make use of the Compute Services
-* MARKETPLACES or DOMAINS - Store the DDO/Metadata related with the Assets/services
-* INFRASTRUCTURE - Cloud or on-premise infrastructure services providing computing. Typically Amazon, Azure, etc.
+* DATA PROVIDERS - one who provides access to Data
+* CONSUMERS - one who wants to use Compute Services
+* MARKETPLACES OR DAPPS- one who facilitates this data and compute exchange and stores the DDO/Metadata related with the Assets/services
+* COMPUTE PROVIDERS - one who provides compute services via cloud or on-premise infrastructure services.
 
 
-## Technical components
+
+# Technical components
 
 The following technical components are involved in an end-to-end publishing and consumption flow:
 
-* [MARKETPLACE](https://github.com/oceanprotocol/pleuston) - Exposes a web interface for asset discovery and allowing users to publish / consume assets and data related services such as compute.
+* [MARKETPLACE](https://github.com/oceanprotocol/commons) - Exposes a web interface for asset discovery and allowing users to publish / consume assets and data related services such as compute.
 * SQUID - Library encapsulating the Ocean Protocol business logic. Interacts with all the different components/APIs of the system. Currently it's provided in the following languages:
   - [Squid Javascript](https://github.com/oceanprotocol/squid-js) - Javascript version of Squid to be integrated with Frontend applications.
   - [Squid Python](https://github.com/oceanprotocol/squid-py) - Python version of Squid to be integrated with Backend applications. The primary users are data scientists.
   - [Squid Java](https://github.com/oceanprotocol/squid-java) - Java version of Squid to be integrated with Backend applications. The primary users are data engineers.
 * [KEEPER CONTRACTS](https://github.com/oceanprotocol/keeper-contracts) - Provides the Service Execution Agreement (SA) business logic.
-* [BRIZO or GATEWAY](https://github.com/oceanprotocol/brizo) - Micro-service to be executed by a PROVIDER. It exposes the HTTP REST API permitting access to PUBLISHER Assets or additional services like computation.
-* [AQUARIUS](https://github.com/oceanprotocol/aquarius) - Micro-service to be executed by the MARKETPLACES. Facilitates creating, updating, deleting and searching the Asset's metadata registered by the PUBLISHERS. This Metadata, is included as part of a [DDO](../7/README.md), which also includes the Services associated with the Asset (Consumption, Computation, etc.).
+* [BRIZO or GATEWAY](https://github.com/oceanprotocol/brizo) - Micro-service to be executed by a PROVIDER. It exposes the HTTP REST API permitting access to data assets or additional services like computation.
+* [AQUARIUS](https://github.com/oceanprotocol/aquarius) - Micro-service to be executed by the MARKETPLACES. Facilitates creating, updating, deleting and searching the Asset's metadata registered by the asset PROVIDERS. This Metadata, is included as part of a [DDO](../7/README.md), which also includes the Services associated with the Asset (Consumption, Computation, etc.).
+* [OPERATOR SERVICE](https://github.com/oceanprotocol/operator-service) - a micro-service in charge of managing the workflow executing requests. Typically the Operator Service is integrated from the Brizo proxy, but can be called independently if it.
+* [OPERATOR ENGINE](https://github.com/oceanprotocol/operator-engine) - a backend agent in charge of orchestrate the compute infrastructure using Kubernetes as backend. Typically the Operator Engine retrieve the Workflows created by the OPERATOR SERVICE, in Kubernetes and manage the infrastructure necessary to complete the execution of the compute workflows.
 
 
-## Flow
+# Compute Flow
 
 This section describes the Asset Compute Service flow in detail.
-There are some parameters used in this flow:
+Below are some parameters and their significance used in this flow:
 
 * **DID** - See [OEP-7](../7/README.md).
-* **serviceAgreementId** - Is the unique ID referring to a Service Execution Agreement established between a PUBLISHER and a CONSUMER. The CONSUMER (via Squid) is the one creating this random unique serviceAgreementId.
-* **index** - Identifies one service in the array of services included in the DDO. It is created by the PUBLISHER (via Squid) upon DDO creation and is associated with different services.
+* **serviceAgreementId** - Is the unique ID referring to a Service Execution Agreement established between a PROVIDER and a CONSUMER. The CONSUMER (via Squid) is the one creating this random unique serviceAgreementId.
+* **index** - Identifies one service in the array of services included in the DDO. It is created by the PROVIDER (via Squid) upon DDO creation and is associated with different services.
 * **templateId** - Identifies a unique Service Agreement template. The Service Agreement is an instance of one existing template. Please refer to this [documentation](https://github.com/oceanprotocol/keeper-contracts/blob/develop/doc/TEMPLATE_LIFE_CYCLE.md) for more info.
 
-## Terminology
-
-* Compute Provider - Entity providing a compute service for a price (or for free).
-* Compute Service - Service offered by a Compute Provider. It could have different conditions like the type of services, price, etc. 
   
 
 ## Requirements
@@ -134,29 +129,227 @@ There are some parameters used in this flow:
 * The previous two points could support to buy once a compute service and execute for example the service every night at 3 am
 
 
-Example of service endpoint:
-
-```json
-#TODO: Service definition in DDO for compute service
-```
-  
-You can find a complete DDO of type compute service in the [TODO]().
 
 ## Publishing an Asset including Compute Services
 The following figure describes the exposed services for publishing assets through
-marketplace using [squid-js](https://github.com/oceanprotocol/squid-js), [aquarius](https://github.com/oceanprotocol/aquarius) and keeper contracts.
+marketplace using [squid-js](https://github.com/oceanprotocol/squid-js), [aquarius](https://github.com/oceanprotocol/aquarius) and [keeper contracts](https://github.com/oceanprotocol/keeper-contracts).
 
 ![](images/1_assetRegistration.png)
 
-In the case of bringing compute to data, the compute service is described as a part of
-the dataset DID document.
+Compute service is described as a part of metadata of the **dataset** type asset. You can find a service definition sample for compute service below -
+
+```
+{
+      "type": "compute",
+      "index": 2,
+      "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/compute",
+      "templateId": "",
+      "attributes": {
+        "main": {
+          "name": "dataAssetComputingServiceAgreement",
+          "creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
+          "datePublished": "2019-04-09T19:02:11Z",
+          "price": "10",
+          "timeout": 86400,
+          "provider": {
+            "type": "Azure",
+            "description": "",
+            "environment": {
+              "cluster": {
+                "type": "Kubernetes",
+                "url": "http://10.0.0.17/xxx"
+              },
+              "supportedContainers": [
+                {
+                  "image": "tensorflow/tensorflow",
+                  "tag": "latest",
+                  "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+                },
+                {
+                  "image": "tensorflow/tensorflow",
+                  "tag": "latest",
+                  "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
+                }
+              ],
+              "supportedServers": [
+                {
+                  "serverId": "1",
+                  "serverType": "xlsize",
+                  "price": "50",
+                  "cpu": "16",
+                  "gpu": "0",
+                  "memory": "128gb",
+                  "disk": "160gb",
+                  "maxExecutionTime": 86400
+                },
+                {
+                  "serverId": "2",
+                  "serverType": "medium",
+                  "price": "10",
+                  "cpu": "2",
+                  "gpu": "0",
+                  "memory": "8gb",
+                  "disk": "80gb",
+                  "maxExecutionTime": 86400
+                }
+              ]
+            }
+          }
+        },
+        "additionalInformation": {},
+        "serviceAgreementTemplate": {
+          "contractName": "EscrowComputeExecutionTemplate",
+          "events": [
+            {
+              "name": "AgreementActorAdded",
+              "actorType": "provider",
+              "handler": {
+                "moduleName": "",
+                "functionName": "fulfillLockRewardCondition",
+                "version": "0.1"
+              }
+            }
+          ],
+          "fulfillmentOrder": [
+            "lockReward.fulfill",
+            "computeExecution.fulfill",
+            "escrowReward.fulfill"
+          ],
+          "conditionDependency": {
+            "lockReward": [],
+            "computeExecution": [],
+            "releaseReward": [
+              "lockReward",
+              "computeExecution"
+            ]
+          },
+          "conditions": [
+            {
+              "name": "lockReward",
+              "timelock": 0,
+              "timeout": 0,
+              "contractName": "LockRewardCondition",
+              "functionName": "fulfill",
+              "parameters": [
+                {
+                  "name": "_rewardAddress",
+                  "type": "address",
+                  "value": ""
+                },
+                {
+                  "name": "_amount",
+                  "type": "uint256",
+                  "value": ""
+                }
+              ],
+              "events": [
+                {
+                  "name": "Fulfilled",
+                  "actorType": "publisher",
+                  "handler": {
+                    "moduleName": "lockRewardExecutionCondition",
+                    "functionName": "fulfillComputeExecutionCondition",
+                    "version": "0.1"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "computeExecution",
+              "timelock": 0,
+              "timeout": 0,
+              "contractName": "ComputeExecutionCondition",
+              "functionName": "fulfill",
+              "parameters": [
+                {
+                  "name": "_documentId",
+                  "type": "bytes32",
+                  "value": ""
+                },
+                {
+                  "name": "_grantee",
+                  "type": "address",
+                  "value": ""
+                }
+              ],
+              "events": [
+                {
+                  "name": "Fulfilled",
+                  "actorType": "publisher",
+                  "handler": {
+                    "moduleName": "accessSecretStore",
+                    "functionName": "fulfillEscrowRewardCondition",
+                    "version": "0.1"
+                  }
+                },
+                {
+                  "name": "TimedOut",
+                  "actorType": "consumer",
+                  "handler": {
+                    "moduleName": "accessSecretStore",
+                    "functionName": "refundReward",
+                    "version": "0.1"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "escrowReward",
+              "timelock": 0,
+              "timeout": 0,
+              "contractName": "EscrowReward",
+              "functionName": "fulfill",
+              "parameters": [
+                {
+                  "name": "_amount",
+                  "type": "uint256",
+                  "value": ""
+                },
+                {
+                  "name": "_receiver",
+                  "type": "address",
+                  "value": ""
+                },
+                {
+                  "name": "_sender",
+                  "type": "address",
+                  "value": ""
+                },
+                {
+                  "name": "_lockCondition",
+                  "type": "bytes32",
+                  "value": ""
+                },
+                {
+                  "name": "_releaseCondition",
+                  "type": "bytes32",
+                  "value": ""
+                }
+              ],
+              "events": [
+                {
+                  "name": "Fulfilled",
+                  "actorType": "publisher",
+                  "handler": {
+                    "moduleName": "escrowRewardCondition",
+                    "functionName": "verifyRewardTokens",
+                    "version": "0.1"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+```
 
 ## Setting up the Service Execution Agreement
-The compute to data use case follows the same pattern of agreement initialization,
+The compute to data use case follows the same pattern of agreement initialization like that of dataset publish and consume,
 by pointing to the DID, consumer address, provider address and the agreement template (set of 
 predefined conditions, and actor types).
 
-## Creation phase 
+### Creation phase 
 To create new agreement, the consumer should follow the below sequence diagram:
 ![](images/2_createAgreement.png)
 
@@ -167,9 +360,10 @@ The execution of the agreement starts prior the agreement creation. This is desc
 
 ### Part-1: On-chain
 The compute to data agreement uses `EscrowComputeExecutionTemplate` which is defined by three conditions:
-- **LockRewardCondition**: allows consumers to lock ERC20 tokens/Ocean tokens.
-- **ComputeExecutionCondition**: allows compute and data provider to confirm and fulfill the computation request.
-- **Release/RefundRewardCondition**: allows compute & data provider to release the payment after timeout-timeLock window or allows consumer
+
+- **LockRewardCondition**: allows CONSUMER to lock ERC20 tokens/OCEAN tokens.
+- **ComputeExecutionCondition**: allows COMPUTE PROVIDER to confirm and fulfill the computation request.
+- **Release/RefundRewardCondition**: allows COMPUTE PROVIDER to release the payment after timeout-timeLock window or allows CONSUMER
 to withdraw their payments after timeout if the computation service wasn't confirmed. Check out ([part-2]()) for more details
 
 ![](images/3_executeSEAPart1.png)
@@ -305,5 +499,4 @@ The runtime environment doesn't need to have network connectivity to external ne
 To avoid sending the internal information about the data, it's recommended to restrict the output connectivity. 
    
 ### Part-3: Agreement Finality
-
 
