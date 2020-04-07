@@ -122,8 +122,7 @@ Below are some parameters and their significance used in this flow:
   - What are the infrastructure resources available (CPU, memory, storage)  
   - What is the price of using the infrastructure resources
 * A COMPUTE PROVIDER defines a Compute Service in the scope of the Asset (DID/DDO) of the dataset that can be computed
-* A CONSUMER defines the task to execute modeling it in a Workflow (including configuration, input, transformations and output)
-* A CONSUMER purchasing a compute service defines which Workflow (DID) is going to execute
+* A CONSUMER defines the algorithm and its requirements to run in the compute service
 * A CONSUMER can purchase a service given by a PROVIDER and execute multiple times till the timeout expires
 * A CONSUMER could purchase a service and execute later, the purchase MUST be totally decoupled of execution
 * The previous two points could support to buy once a compute service and execute for example the service every night at 3 am
@@ -131,12 +130,12 @@ Below are some parameters and their significance used in this flow:
 
 
 ## Publishing an Asset including Compute Services
-The following figure describes the exposed services for publishing assets through
-marketplace using [squid-js](https://github.com/oceanprotocol/squid-js), [aquarius](https://github.com/oceanprotocol/aquarius) and [keeper contracts](https://github.com/oceanprotocol/keeper-contracts).
+The process of publishing an asset is described in [OEP-11](https://github.com/oceanprotocol/OEPs/tree/master/11/v0.2#publishing) 
+which includes the addition of a service of type "access". To enable the compute service, add a "compute` type service to the 
+asset's list of services (under the "service" attribute in the DDO document). The asset type in the metadata section is still 
+set to **dataset**.
 
-![](images/1_assetRegistration.png)
-
-Compute service is described as a part of metadata of the **dataset** type asset. You can find a service definition sample for compute service below -
+The following is an example of a "compute" type service -
 
 ```
 {
@@ -353,34 +352,39 @@ predefined conditions, and actor types).
 To create new agreement, the consumer should follow the below sequence diagram:
 ![](images/2_createAgreement.png)
 
-For a given agreement, consumers are allowed to create ***N*** compute jobs based on the agreement conditions.
+For a given agreement, consumers are allowed to create ***N*** compute jobs with a time limit based on the agreement conditions.
+
 ## Execution phase
 
 The execution of the agreement starts prior the agreement creation. This is described as follows:
 
-### Part-1: On-chain
+### Part-1: On-chain agreement and payment
 The compute to data agreement uses `EscrowComputeExecutionTemplate` which is defined by three conditions:
 
 - **LockRewardCondition**: allows CONSUMER to lock ERC20 tokens/OCEAN tokens.
-- **ComputeExecutionCondition**: allows COMPUTE PROVIDER to confirm and fulfill the computation request.
-- **Release/RefundRewardCondition**: allows COMPUTE PROVIDER to release the payment after timeout-timeLock window or allows CONSUMER
-to withdraw their payments after timeout if the computation service wasn't confirmed. Check out ([part-2]()) for more details
+- **ComputeExecutionCondition**: allows COMPUTE PROVIDER to confirm and fulfill the 
+computation request thus approving the agreement.
+- **Release/RefundRewardCondition**: allows COMPUTE PROVIDER to release the payment after 
+`ComputeExecutionCondition` is fulfilled or allows CONSUMER to withdraw their payment after 
+`ComputeExecutionCondition` timeout if the computation service was not confirmed.
 
 ![](images/3_executeSEAPart1.png)
 
-### Part-2: Off-chain
+### Part-2: Running the compute job
 
-In this part, the trigger of the agreement execution goes from on-chain (the keeper) to [Brizo](https://github.com/oceanprotocol/brizo) in order to handle the compute job 
-by calling the operator service. Moreover, [Brizo](https://github.com/oceanprotocol/brizo) exposes the same endpoints of the operator service which will be discussed in the section below.
+In this part, the trigger of the agreement execution goes from on-chain (the keeper) 
+to [Brizo](https://github.com/oceanprotocol/brizo) in order to handle the compute job 
+by calling the operator service. Moreover, [Brizo](https://github.com/oceanprotocol/brizo) 
+exposes the same endpoints of the operator service which will be discussed in the section below.
 
 #### Infrastructure Orchestration
 The infrastructure is orchestrated by [operator service](https://github.com/oceanprotocol/operator-service) 
-which in turn starts [operator-engine](https://github.com/oceanprotocol/operator-engine), configures pods (workers), and manages the life cycle of compute 
+and [operator-engine](https://github.com/oceanprotocol/operator-engine) which configures the pods (workers), and manages the life cycle of compute 
 jobs. The APIs are as follows:
 
 - **start**: starts a new job within the context of the new/current agreement.
 - **stop**: stop running job. This requires valid agreement Id, job id, and job ownership proof (signature).
-- **status**: For a given agreement Id, and (job id -- optional) returns job status(es). Status code description below.
+- **status**: For a given agreement Id, and (job id -- optional) returns job status(es) and includes results URLs. Status code description below.
 - **restart**: calls stop API, then starts the compute job again.
 - **delete**: deletes a compute job and all resources associated with the job. If job is running it will be stopped first.
 
@@ -411,36 +415,37 @@ The following table lists all the possible status codes for a compute job
 |  60       | Publishing results |
 |  70       | Job completed      |
 
-***Restart Compute Job***
-
-![](images/7_Restart_Compute_Job.png)
-
-***Delete Compute Job***
-
-![](images/8_Delete_Compute_Job.png)
-
 For more details, please refer to [operator service APIs documentation](https://github.com/oceanprotocol/operator-service/blob/develop/API.md)
 
 #### Infrastructure Operator
 
 The PUBLISHER of computation services is in charge of defining the 
 requirements to allow the execution of algorithms on top of of the data assets.
-It means only the images specified in the DDO by the publisher with a specific DID and checksum
- will be allowed to be executed in the Runtime environment.
   
-[BRIZO](https://github.com/oceanprotocol/brizo) is in charge of setting up the runtime environment speaking with the infrastructure provider via Kubernetes.
+[BRIZO](https://github.com/oceanprotocol/brizo) is in charge of setting up the runtime 
+environment speaking with the infrastructure provider via Kubernetes.
 
-The images defined in the DDO and defined by the PUBLISHER only SHOULD include the minimum libraries specified,
-it will reduce the risk of executing unexpected software via external libraries.
-In addition to this, it's recommended that the images running in the runtime environment don't have network connectivity
-a part of the minimum required to get access to the Assets.
+##### Network isolation
+
+The runtime environment doesn't need to have network connectivity to external networks to be executed. 
+To avoid sending the internal information about the data, it's recommended to restrict the output connectivity. 
+   
 
 ##### Volumes
 
 The input assets will be added to the runtime environment as **read only** volumes. 
-The complete paths to the folders where the volumes are mounted will be given to the algorithm as parameters, using the same order of the parameters specified in the Workflow definition.
-The new derived Asset generated as a result of the execution of the algorithm MUST be written in the output volume. 
-The pods will be **destroyed** after the execution, so only the data stored in the **output** or **logs** volumes should be used.
+The path to the inputs folder where the volumes are mounted will be given to 
+the algorithm as an environment variable `INPUTS`. The inputs folder will contain a 
+folder for each asset/dataset and named using the asset DID (only one is supported 
+for now). The algorithm can access the input folder names using the list of DIDs 
+defined in the environment variable `DIDS`.
+
+The new derived Asset generated as a result of the execution of the algorithm MUST 
+be written in the output volume which is also declared in the environment variable `OUTPUTS`. 
+There is also the logs folder defined in the environment variable `LOGS`.
+
+The pods will be **destroyed** after the execution, so only the data stored in 
+the **output** or **logs** volumes should be used.
 
 | Type  | Permissions  | ENV Parameter  | Default Value  | Comment       |
 |-------|--------------|----------------|----------------|---------------|
@@ -460,7 +465,10 @@ Every algorithm has some required attributes
           }
 ```
 
-Entrypoint:  It contains a macro ($ALGO) that gets replaced in the compute server with the actual location of the algo (usually /data/transformations/algorithm).
+`image`: A docker image to run the algorithm in
+`tag`: The docker image tag/version
+`entrypoint`:  Contains a macro ($ALGO) that gets replaced in the compute 
+server with the actual location of the algorithm (usually /data/transformations/algorithm).
 
 So, if you want to run a python script, you can have the following:
 
@@ -491,12 +499,3 @@ Or a simple bash script:
             "entrypoint": "$ALGO"
           }
 ```
-
-
-#### Network isolation
-
-The runtime environment doesn't need to have network connectivity to external networks to be executed. 
-To avoid sending the internal information about the data, it's recommended to restrict the output connectivity. 
-   
-### Part-3: Agreement Finality
-
