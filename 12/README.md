@@ -45,8 +45,9 @@ Table of Contents
 # Introduction
 
 This OEP introduces the integration pattern for the usage of **Service Execution Agreements (SEA)** 
-(also called Service Agreements or Agreements) as contracts between parties interacting in the execution of a Compute Service transaction.
-This OEP using the SEA as core element, orchestrates the publishing/execution of this type of compute services.
+(also called Service Agreements or Agreements) as contracts between parties interacting in the execution of 
+a Compute Service transaction. This OEP using the SEA as core element, orchestrates the publishing/execution 
+of this type of compute services.
 
 The intention of this OEP is to describe the flow and integration pattern independently of the infrastructure Cloud Compute Service.
 This OEP MUST be valid for integrating classical infrastructure cloud providers like Amazon EC2 or Azure, 
@@ -55,7 +56,10 @@ but also can be used to integrate web3 compute providers or On-Premise infrastru
 It's out of the scope to detail the Service Execution Agreements implementation. 
 Service Agreements are described as part of the [Dev-Ocean repository](https://github.com/oceanprotocol/dev-ocean).
 
->**Disclaimer**: The current focus of this OEP is to bring compute data which assumes that the DATA PROVIDER trusts the COMPUTE PROVIDER and hence COMPUTE PROVIDER has access to data in case they are not the same entity. For this OEP, we will assume that DATA PROVIDER and COMPUTE PROVIDER are the same entity.
+>**Disclaimer**: The current focus of this OEP is to bring the compute (or algorithm) to data 
+which assumes that the DATA PROVIDER trusts the COMPUTE PROVIDER and hence COMPUTE PROVIDER has 
+access to data in case they are not the same entity. For this OEP, we will assume that 
+DATA PROVIDER and COMPUTE PROVIDER are the same entity.
 
 # Change Process
 
@@ -64,7 +68,10 @@ This document is governed by the [2/COSS](../2/README.md) (COSS).
 
 # Language
 
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", 
+"NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described 
+in [BCP 14](https://tools.ietf.org/html/bcp14) \[[RFC2119](https://tools.ietf.org/html/rfc2119)\] \
+[[RFC8174](https://tools.ietf.org/html/rfc8174)\] when, and only when, they appear in all capitals, as shown here.
 
 
 # Motivation
@@ -91,16 +98,25 @@ The different actors interacting in this flow are:
 
 The following technical components are involved in an end-to-end publishing and consumption flow:
 
-* [MARKETPLACE](https://github.com/oceanprotocol/commons) - Exposes a web interface for asset discovery and allowing users to publish / consume assets and data related services such as compute.
-* SQUID - Library encapsulating the Ocean Protocol business logic. Interacts with all the different components/APIs of the system. Currently it's provided in the following languages:
+* [MARKETPLACE](https://github.com/oceanprotocol/commons) - 
+Exposes a web interface for asset discovery and allowing users to publish / consume assets and data related services such as compute.
+* SQUID - Library encapsulating the Ocean Protocol business logic. 
+Interacts with all the different components/APIs of the system. Currently it's provided in the following languages:
   - [Squid Javascript](https://github.com/oceanprotocol/squid-js) - Javascript version of Squid to be integrated with Frontend applications.
   - [Squid Python](https://github.com/oceanprotocol/squid-py) - Python version of Squid to be integrated with Backend applications. The primary users are data scientists.
   - [Squid Java](https://github.com/oceanprotocol/squid-java) - Java version of Squid to be integrated with Backend applications. The primary users are data engineers.
-* [KEEPER CONTRACTS](https://github.com/oceanprotocol/keeper-contracts) - Provides the Service Execution Agreement (SA) business logic.
-* [BRIZO or GATEWAY](https://github.com/oceanprotocol/brizo) - Micro-service to be executed by a PROVIDER. It exposes the HTTP REST API permitting access to data assets or additional services like computation.
-* [AQUARIUS](https://github.com/oceanprotocol/aquarius) - Micro-service to be executed by the MARKETPLACES. Facilitates creating, updating, deleting and searching the Asset's metadata registered by the asset PROVIDERS. This Metadata, is included as part of a [DDO](../7/README.md), which also includes the Services associated with the Asset (Consumption, Computation, etc.).
-* [OPERATOR SERVICE](https://github.com/oceanprotocol/operator-service) - a micro-service in charge of managing the workflow executing requests. Typically the Operator Service is integrated from the Brizo proxy, but can be called independently if it.
-* [OPERATOR ENGINE](https://github.com/oceanprotocol/operator-engine) - a backend agent in charge of orchestrate the compute infrastructure using Kubernetes as backend. Typically the Operator Engine retrieve the Workflows created by the OPERATOR SERVICE, in Kubernetes and manage the infrastructure necessary to complete the execution of the compute workflows.
+* [KEEPER CONTRACTS](https://github.com/oceanprotocol/keeper-contracts) - Provides the Service Execution Agreement (SEA) business logic.
+* [BRIZO or GATEWAY](https://github.com/oceanprotocol/brizo) - Micro-service to be executed by a PROVIDER. 
+It exposes the HTTP REST API permitting access to data assets or additional services like running computation.
+* [AQUARIUS](https://github.com/oceanprotocol/aquarius) - Micro-service to be executed by the MARKETPLACE. 
+Facilitates creating, updating, deleting and searching the Asset's metadata registered by the asset PROVIDER. 
+This Metadata, is included as part of a [DDO](../7/README.md), which also includes the Services associated with 
+the Asset (Download, Computation, etc.).
+* [OPERATOR SERVICE](https://github.com/oceanprotocol/operator-service) - a micro-service in charge of managing 
+the workflow executing requests. Typically the Operator Service is integrated from the Brizo proxy, but can be called independently of it.
+* [OPERATOR ENGINE](https://github.com/oceanprotocol/operator-engine) - a backend agent in charge of orchestrating
+the compute infrastructure using Kubernetes as backend. Typically the Operator Engine retrieve the Workflows 
+created by the OPERATOR SERVICE, in Kubernetes and manage the infrastructure necessary to complete the execution of the compute workflows.
 
 
 # Compute Flow
@@ -121,19 +137,26 @@ Below are some parameters and their significance used in this flow:
   - What kind of image (Docker container) can be deployed in the infrastructure
   - What are the infrastructure resources available (CPU, memory, storage)  
   - What is the price of using the infrastructure resources
-* A COMPUTE PROVIDER defines a Compute Service in the scope of the Asset (DID/DDO) of the dataset that can be computed
+* A COMPUTE PROVIDER defines a Compute Service in the scope of the Asset (DID/DDO) of the dataset that can be analyzed or used for model training
 * A CONSUMER defines the algorithm and its requirements to run in the compute service
-* A CONSUMER can purchase a service given by a PROVIDER and execute multiple times till the timeout expires
+* A CONSUMER can purchase a service given by a PROVIDER and execute multiple times until the agreement expires
 * A CONSUMER could purchase a service and execute later, the purchase MUST be totally decoupled of execution
-* The previous two points could support to buy once a compute service and execute for example the service every night at 3 am
+* The previous two points could support to buy a compute service once and execute for example the service every night at 3 am
 
 
 
 ## Publishing an Asset including Compute Services
 The process of publishing an asset is described in [OEP-11](https://github.com/oceanprotocol/OEPs/tree/master/11/v0.2#publishing) 
-which includes the addition of a service of type "access". To enable the compute service, add a "compute` type service to the 
+which includes the addition of a service of type "access". To enable the compute service, add a service of type "compute` to the 
 asset's list of services (under the "service" attribute in the DDO document). The asset type in the metadata section is still 
 set to **dataset**.
+
+Note the following attributes:
+* type: The type of service, must be set to `compute` 
+* servicEndpoint: The URL to use to access the compute service (i.e. to run a remote compute job)
+* price: An integer, the price to pay for this service in `OCEAN` ERC20 tokens expressed in `vodka` units; where 1 `OCEAN` token = 10 ** 18 `vodka`
+* timeout: Expiry of this service agreement. The consumer can use the compute service until the agreement has expired 
+* serviceAgreementTemplate: defines the parameters to use in the `ComputeExecutionTemplate` agreement
 
 The following is an example of a "compute" type service -
 
@@ -142,7 +165,6 @@ The following is an example of a "compute" type service -
       "type": "compute",
       "index": 2,
       "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/compute",
-      "templateId": "",
       "attributes": {
         "main": {
           "name": "dataAssetComputingServiceAgreement",
@@ -163,11 +185,6 @@ The following is an example of a "compute" type service -
                   "image": "tensorflow/tensorflow",
                   "tag": "latest",
                   "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
-                },
-                {
-                  "image": "tensorflow/tensorflow",
-                  "tag": "latest",
-                  "checksum": "sha256:cb57ecfa6ebbefd8ffc7f75c0f00e57a7fa739578a429b6f72a0df19315deadc"
                 }
               ],
               "supportedServers": [
@@ -177,18 +194,8 @@ The following is an example of a "compute" type service -
                   "price": "50",
                   "cpu": "16",
                   "gpu": "0",
-                  "memory": "128gb",
+                  "memory": "24gb",
                   "disk": "160gb",
-                  "maxExecutionTime": 86400
-                },
-                {
-                  "serverId": "2",
-                  "serverType": "medium",
-                  "price": "10",
-                  "cpu": "2",
-                  "gpu": "0",
-                  "memory": "8gb",
-                  "disk": "80gb",
                   "maxExecutionTime": 86400
                 }
               ]
@@ -215,127 +222,20 @@ The following is an example of a "compute" type service -
             "escrowReward.fulfill"
           ],
           "conditionDependency": {
-            "lockReward": [],
-            "computeExecution": [],
-            "releaseReward": [
-              "lockReward",
-              "computeExecution"
-            ]
+            ...
           },
           "conditions": [
             {
               "name": "lockReward",
-              "timelock": 0,
-              "timeout": 0,
-              "contractName": "LockRewardCondition",
-              "functionName": "fulfill",
-              "parameters": [
-                {
-                  "name": "_rewardAddress",
-                  "type": "address",
-                  "value": ""
-                },
-                {
-                  "name": "_amount",
-                  "type": "uint256",
-                  "value": ""
-                }
-              ],
-              "events": [
-                {
-                  "name": "Fulfilled",
-                  "actorType": "publisher",
-                  "handler": {
-                    "moduleName": "lockRewardExecutionCondition",
-                    "functionName": "fulfillComputeExecutionCondition",
-                    "version": "0.1"
-                  }
-                }
-              ]
+              ...
             },
             {
               "name": "computeExecution",
-              "timelock": 0,
-              "timeout": 0,
-              "contractName": "ComputeExecutionCondition",
-              "functionName": "fulfill",
-              "parameters": [
-                {
-                  "name": "_documentId",
-                  "type": "bytes32",
-                  "value": ""
-                },
-                {
-                  "name": "_grantee",
-                  "type": "address",
-                  "value": ""
-                }
-              ],
-              "events": [
-                {
-                  "name": "Fulfilled",
-                  "actorType": "publisher",
-                  "handler": {
-                    "moduleName": "accessSecretStore",
-                    "functionName": "fulfillEscrowRewardCondition",
-                    "version": "0.1"
-                  }
-                },
-                {
-                  "name": "TimedOut",
-                  "actorType": "consumer",
-                  "handler": {
-                    "moduleName": "accessSecretStore",
-                    "functionName": "refundReward",
-                    "version": "0.1"
-                  }
-                }
-              ]
+              ...
             },
             {
               "name": "escrowReward",
-              "timelock": 0,
-              "timeout": 0,
-              "contractName": "EscrowReward",
-              "functionName": "fulfill",
-              "parameters": [
-                {
-                  "name": "_amount",
-                  "type": "uint256",
-                  "value": ""
-                },
-                {
-                  "name": "_receiver",
-                  "type": "address",
-                  "value": ""
-                },
-                {
-                  "name": "_sender",
-                  "type": "address",
-                  "value": ""
-                },
-                {
-                  "name": "_lockCondition",
-                  "type": "bytes32",
-                  "value": ""
-                },
-                {
-                  "name": "_releaseCondition",
-                  "type": "bytes32",
-                  "value": ""
-                }
-              ],
-              "events": [
-                {
-                  "name": "Fulfilled",
-                  "actorType": "publisher",
-                  "handler": {
-                    "moduleName": "escrowRewardCondition",
-                    "functionName": "verifyRewardTokens",
-                    "version": "0.1"
-                  }
-                }
-              ]
+              ...
             }
           ]
         }
@@ -373,9 +273,10 @@ computation request thus approving the agreement.
 ### Part-2: Running the compute job
 
 In this part, the trigger of the agreement execution goes from on-chain (the keeper) 
-to [Brizo](https://github.com/oceanprotocol/brizo) in order to handle the compute job 
-by calling the operator service. Moreover, [Brizo](https://github.com/oceanprotocol/brizo) 
-exposes the same endpoints of the operator service which will be discussed in the section below.
+to the provider service endpoint [Brizo](https://github.com/oceanprotocol/brizo) in order 
+to handle the compute job by calling the operator service. Moreover, 
+[Brizo](https://github.com/oceanprotocol/brizo) exposes the same endpoints of the operator 
+service which will be discussed in the section below.
 
 #### Infrastructure Orchestration
 The infrastructure is orchestrated by [operator service](https://github.com/oceanprotocol/operator-service) 
@@ -385,8 +286,6 @@ jobs. The APIs are as follows:
 - **start**: starts a new job within the context of the new/current agreement.
 - **stop**: stop running job. This requires valid agreement Id, job id, and job ownership proof (signature).
 - **status**: For a given agreement Id, and (job id -- optional) returns job status(es) and includes results URLs. Status code description below.
-- **restart**: calls stop API, then starts the compute job again.
-- **delete**: deletes a compute job and all resources associated with the job. If job is running it will be stopped first.
 
 ***Starting new compute job***
 
@@ -397,30 +296,54 @@ jobs. The APIs are as follows:
 
 ![](images/5_Stop_Compute_Job.png)
 
-***Get Job Status***
+***Get Job Status and result***
 
 ![](images/6_Status_of_Compute_Job.png)
 
 The following table lists all the possible status codes for a compute job
 
-| status   | Description        |
-|----------|--------------------|
-|  10       | Job started        |
-|  20       | Configuring volumes|
-|  30       | Provisioning success |
-|  31       | Data provisioning failed |
-|  32       | Algorithm provisioning failed |
-|  40       | Running algorithm   |
-|  50       | Filtering results  |
-|  60       | Publishing results |
-|  70       | Job completed      |
+| status    | Description                    |
+|-----------|--------------------------------|
+|  10       | Job started                    |
+|  20       | Configuring volumes            |
+|  30       | Provisioning success           |
+|  31       | Data provisioning failed       |
+|  32       | Algorithm provisioning failed  |
+|  40       | Running algorithm              |
+|  50       | Filtering results              |
+|  60       | Publishing results             |
+|  70       | Job completed                  |
+
+The status response is a list of matching jobIds and looks like this:
+```json
+[
+      {
+        "owner":"0x1111",
+        "agreementId":"0x2222",
+        "jobId":"3333",
+        "dateCreated":"2020-10-01T01:00:00Z",
+        "dateFinished":"2020-10-01T01:00:00Z",
+        "status": 70,
+        "statusText":"Job completed",
+        "algorithmLogUrl":"http://example.net/logs/algo.log",
+        "resultsUrls":[
+            "http://example.net/logs/output/0",
+            "http://example.net/logs/output/1"
+         ],
+         "resultsDid":"did:op:87bdaabb33354d2eb014af5091c604fb4b0f67dc6cca4d18a96547bffdc27bcf"
+       }
+]
+```
+
+Once the compute job is completed, the results can be accessed using either the `resultsUrls` 
+or the `resultsDid` (if the consumer requested publishing the results as a new asset)
 
 For more details, please refer to [operator service APIs documentation](https://github.com/oceanprotocol/operator-service/blob/develop/API.md)
 
 #### Infrastructure Operator
 
 The PUBLISHER of computation services is in charge of defining the 
-requirements to allow the execution of algorithms on top of of the data assets.
+requirements to allow the execution of algorithms on the data assets.
   
 [BRIZO](https://github.com/oceanprotocol/brizo) is in charge of setting up the runtime 
 environment speaking with the infrastructure provider via Kubernetes.
@@ -447,12 +370,13 @@ There is also the logs folder defined in the environment variable `LOGS`.
 The pods will be **destroyed** after the execution, so only the data stored in 
 the **output** or **logs** volumes should be used.
 
-| Type  | Permissions  | ENV Parameter  | Default Value  | Comment       |
-|-------|--------------|----------------|----------------|---------------|
-| Input | Read         | INPUTS         | /data/inputs   |               |
-| Output| Read, Write  | OUTPUTS        | /data/outputs  |               |
-| Logs  | Read, Write  | LOGS           | /data/logs     |               |
-| Input DIDS|  -       | DIDS           | []             | List of input DIDS|
+| Type       | Permissions  | ENV Parameter  | Default Value  | Comment            |
+|------------|--------------|----------------|----------------|--------------------|
+| Input      | Read         | INPUTS         | /data/inputs   |                    |
+| Output     | Read, Write  | OUTPUTS        | /data/outputs  |                    |
+| Logs       | Read, Write  | LOGS           | /data/logs     |                    |
+| Input DIDS |  -           | DIDS           | []             | List of input DIDS |
+
 
 ##### Compute image details
 
