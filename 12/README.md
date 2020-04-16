@@ -30,13 +30,16 @@ Table of Contents
   * [Compute Flow](#compute-flow)
  	* [Requirements](#requirements)
 	* [Publishing an Asset including Compute Services](#publishing-an-asset-including-computing-services)
- 	* [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
- 		* [Execution phase](#execution-phase)
-			* [Infrastructure Orchestration](#infrastructure-orchestration)
- 			* [Infrastructure Operator](#infrastructure-operator)
-    		* [Volumes](#volumes)
- 			* [Network isolation](#network-isolation)
-
+	* [Consuming a compute service](#consuming-a-compute-service)
+        * [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
+            * [Creating the agreement on-chain](#creating-the-agreement-on-chain)
+            * [Payment and service approval](#payment-and-service-approval)
+        * [Running the compute job](#running-the-compute-job)
+            * [Infrastructure Orchestration](#infrastructure-orchestration)
+            * [Infrastructure Operator](#infrastructure-operator)
+                * [Network isolation](#network-isolation)
+                * [Volumes](#volumes)
+                * [Compute image details](#compute-image-details)
 
 
 ---
@@ -156,7 +159,7 @@ Note the following attributes:
 * servicEndpoint: The URL to use to access the compute service (i.e. to run a remote compute job)
 * price: An integer, the price to pay for this service in `OCEAN` ERC20 tokens expressed in `vodka` units; where 1 `OCEAN` token = 10 ** 18 `vodka`
 * timeout: Expiry of this service agreement. The consumer can use the compute service until the agreement has expired 
-* serviceAgreementTemplate: defines the parameters to use in the `ComputeExecutionTemplate` agreement
+* serviceAgreementTemplate: defines the parameters to use in the `EscrowComputeExecutionTemplate` agreement
 
 The following is an example of a "compute" type service -
 
@@ -243,25 +246,29 @@ The following is an example of a "compute" type service -
     }
 ```
 
-## Setting up the Service Execution Agreement
+## Consuming a compute service
+A user can buy the compute service by creating an SEA on-chain according the service agreemnt 
+template found in the asset's `compute` service. This involves submitting the tokens payment 
+and waiting for an approval by the provider proxy.
+
+Once the provider approval is submitted on-chain, the user can use the serviceEndpoint to 
+send start compute requests.
+ 
+### Setting up the Service Execution Agreement
 The compute to data use case follows the same pattern of agreement initialization like that of dataset publish and consume,
 by pointing to the DID, consumer address, provider address and the agreement template (set of 
 predefined conditions, and actor types).
 
-### Creation phase 
+#### Creating the agreement on-chain
 To create new agreement, the consumer should follow the below sequence diagram:
 ![](images/2_createAgreement.png)
 
 For a given agreement, consumers are allowed to create ***N*** compute jobs with a time limit based on the agreement conditions.
 
-## Execution phase
-
-The execution of the agreement starts prior the agreement creation. This is described as follows:
-
-### Part-1: On-chain agreement and payment
+#### Payment and service approval
 The compute to data agreement uses `EscrowComputeExecutionTemplate` which is defined by three conditions:
 
-- **LockRewardCondition**: allows CONSUMER to lock ERC20 tokens/OCEAN tokens.
+- **LockRewardCondition**: allows CONSUMER to lock ERC20 tokens/OCEAN tokens in escrow contract.
 - **ComputeExecutionCondition**: allows COMPUTE PROVIDER to confirm and fulfill the 
 computation request thus approving the agreement.
 - **Release/RefundRewardCondition**: allows COMPUTE PROVIDER to release the payment after 
@@ -270,7 +277,7 @@ computation request thus approving the agreement.
 
 ![](images/3_executeSEAPart1.png)
 
-### Part-2: Running the compute job
+### Running the compute job
 
 In this part, the trigger of the agreement execution goes from on-chain (the keeper) 
 to the provider service endpoint [Brizo](https://github.com/oceanprotocol/brizo) in order 
@@ -284,6 +291,9 @@ and [operator-engine](https://github.com/oceanprotocol/operator-engine) which co
 jobs. The APIs are as follows:
 
 - **start**: starts a new job within the context of the new/current agreement.
+An algorithm script/code can be included in the `start` compute payload. Alternatively, a pre-published 
+algorithm DID can be used, the provider should be able to get the associated DDO document and setup the 
+algorithm for running in the compute job
 - **stop**: stop running job. This requires valid agreement Id, job id, and job ownership proof (signature).
 - **status**: For a given agreement Id, and (job id -- optional) returns job status(es) and includes results URLs. Status code description below.
 
@@ -380,7 +390,9 @@ the **output** or **logs** volumes should be used.
 
 ##### Compute image details
 
-Every algorithm has some required attributes
+Every algorithm has some required attributes which can be defined in an algorithmMeta object 
+to include in the payload. This can also be obtained from the algorithm DDO when using a 
+published algorithm Asset.
 ```
           "container": {
             "image": "node",
