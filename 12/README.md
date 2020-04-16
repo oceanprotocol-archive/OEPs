@@ -29,7 +29,7 @@ Table of Contents
   * [Technical components](#technical-components)
   * [Compute Flow](#compute-flow)
  	* [Requirements](#requirements)
-	* [Publishing an Asset including Compute Services](#publishing-an-asset-including-computing-services)
+	* [Publishing an Asset including Compute Services](#publishing-an-asset-including-compute-services)
 	* [Consuming a compute service](#consuming-a-compute-service)
         * [Setting up the Service Execution Agreement](#setting-up-the-service-execution-agreement)
             * [Creating the agreement on-chain](#creating-the-agreement-on-chain)
