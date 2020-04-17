@@ -1,0 +1,13 @@
+title Status of Compute Job
+
+alt QUERY SINGLE JOB
+    consumer -> brizo: status(agreement_id, job_id)
+    brizo -> operator-service : status(job_id)
+    operator-service -> brizo : return STATUS
+    brizo -> consumer : return STATUS
+else QUERY ALL JOBS
+    consumer -> brizo : status(agreement_id)
+    brizo -> operator-service : status()
+    operator-service -> brizo : return [STATUS,...]
+    brizo -> consumer : return [STATUS,...]
+end

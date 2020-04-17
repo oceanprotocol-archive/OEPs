@@ -1,0 +1,7 @@
+title Create new agreement
+consumer -> marketplace: create agreement
+marketplace -> consumer: sign agreement
+consumer -> keeper: createAgreement(...)
+note right of keeper: validate agreement
+note right of keeper: Event: AgreementCreated
+keeper -> consumer: agreement created

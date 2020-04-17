@@ -1,0 +1,17 @@
+title Stop Compute Job
+
+consumer -> brizo: stop(agreement_id, job_id)
+brizo -> keeper: isAgreementConsumer()
+alt YES
+    brizo -> operator-service : stop(job_id)
+    operator-service -> operator-service: isRunningJob(job_id)
+    alt YES
+        operator-service -> operator-service: stopJob(job_id)
+        operator-service -> brizo : Done
+    else NO
+        operator-service -> brizo: already stop
+    end
+    brizo -> consumer: job has been stopped
+else No
+    brizo -> consumer : invalid request
+end
