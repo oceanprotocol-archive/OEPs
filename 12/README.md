@@ -160,6 +160,10 @@ Note the following attributes:
 * price: An integer, the price to pay for this service in `OCEAN` ERC20 tokens expressed in `vodka` units; where 1 `OCEAN` token = 10 ** 18 `vodka`
 * timeout: Expiry of this service agreement. The consumer can use the compute service until the agreement has expired 
 * serviceAgreementTemplate: defines the parameters to use in the `EscrowComputeExecutionTemplate` agreement
+* privacy section: allows fine tunning of privacy:
+  * allowRawAlgorithm - if Raw Algorithms are allowed or not
+  * allowNetworkAccess - allow network access in Algorithm pod
+  * trustedAlgorithms - list of allowed DIDs of type algorithm. **If the list is empty, then any Algorithm DID is allowed.**
 
 The following is an example of a "compute" type service -
 
@@ -175,6 +179,11 @@ The following is an example of a "compute" type service -
           "datePublished": "2019-04-09T19:02:11Z",
           "price": "10",
           "timeout": 86400,
+          "privacy":{
+	  	        "allowRawAlgorithm":true,
+		          "trustedAlgorithms": [],
+		          "allowNetworkAccess":true
+	        },
           "provider": {
             "type": "Azure",
             "description": "",
