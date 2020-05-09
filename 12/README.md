@@ -180,9 +180,9 @@ The following is an example of a "compute" type service -
           "price": "10",
           "timeout": 86400,
           "privacy":{
-	  	        "allowRawAlgorithm":true,
-		          "trustedAlgorithms": [],
-		          "allowNetworkAccess":true
+            "allowRawAlgorithm":true,
+            "trustedAlgorithms": [],
+            "allowNetworkAccess":true
 	        },
           "provider": {
             "type": "Azure",
