@@ -183,7 +183,7 @@ The following is an example of a "compute" type service -
             "allowRawAlgorithm":true,
             "trustedAlgorithms": [],
             "allowNetworkAccess":true
-	        },
+          },
           "provider": {
             "type": "Azure",
             "description": "",
