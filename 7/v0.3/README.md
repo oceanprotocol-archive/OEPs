@@ -49,9 +49,7 @@ This specification is based on:
 The main motivations of this OEP are:
 
 * Design a solution to extend the current architecture to use **Decentralized Identifiers (DIDs)** and **DID Documents (DDOs)**
-* Understand how to register information on-chain with off-chain integrity associated
 * Understand how to resolve DIDs into DDOs
-* Design a solution facilitating alignment of on-chain and off-chain information
 * Establishing the mechanism to know if the DDO associated with a DID was modified
 * Defining the common mechanisms, interfaces and APIs to implemented the designed solution
 * Define how Ocean assets, agents and domains can be modeled with a DID/DDO data model
@@ -63,9 +61,7 @@ Requirements are:
 
 * The DID resolving capabilities MUST be exposed in the client libraries, enabling to resolve a DDO directly in a totally transparent way
 * ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER
-* KEEPER stores on-chain only the essential information about ASSETS
 * PROVIDERS store the ASSET metadata off-chain
-* KEEPER doesn't store any ASSET metadata
 * OCEAN doesn't store ASSET contents (e.g. files)
 * An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER and metadata stored in OCEANDB
 * ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
@@ -74,11 +70,6 @@ Requirements are:
 * Any kind of object registered in Ocean SHOULD have a DID allowing one to uniquely identify that object in the system
 * ASSET DDO (and the metadata included as part of the DDO) is associated to the ASSET information stored on-chain using a common DID
 * A DID can be resolved to get access to a DDO
-* ASSET DDOs can be updated without updating the on-chain information
-* ASSET information stored in the KEEPER will include a checksum attribute
-* The ASSET on-chain checksum attribute SHOULD include a one-way HASH calculated using the DDO content
-* After the DDO resolving, the DDO HASH can be calculated off-chain to validate if the on-chain and off-chain information is aligned
-* A HASH not matching with the checksum on-chain means the DDO was modified without the on-chain update
 * The function to calculate the HASH MUST BE standard
 
 ## Proposed Solution

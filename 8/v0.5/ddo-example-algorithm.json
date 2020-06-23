@@ -105,32 +105,13 @@
       "type": "access",
       "index": 1,
       "serviceEndpoint": "http://localhost:8030/api/v1/brizo/services/consume",
-      "templateId": "",
       "attributes": {
         "main": {
-          "name": "dataAssetAccessServiceAgreement",
+          "name": "dataAssetAccessService",
           "creator": "",
           "datePublished": "2019-02-08T08:13:49Z",
           "dtCost": "100",
           "timeout":0
-        },
-        "additionalInformation": {
-          "description": ""
-        }
-      }
-    },
-    {
-      "type": "compute",
-      "index": 2,
-      "serviceEndpoint": "http://localhost:8030/api/v1/brizo/services/compute",
-      "templateId": "",
-      "attributes": {
-        "main": {
-          "name": "ComputeService",
-          "creator": "",
-          "datePublished": "2019-02-08T08:13:49Z",
-          "dtCost": "10",
-          "timeout":3600
         },
         "additionalInformation": {
           "description": ""
