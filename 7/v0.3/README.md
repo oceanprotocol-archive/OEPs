@@ -10,7 +10,8 @@ editor:         Alex Coseru <alex@oceanprotocol.com>
 contributors:   Aitor Argomaniz <aitor@oceanprotocol.com>
                 Dimitri De Jonghe <dimi@oceanprotocol.com>,
                 Troy McConaghy <troy@oceanprotocol.com>,
-                Matthias Kretschmann <matthias@oceanprotocol.com>
+                Matthias Kretschmann <matthias@oceanprotocol.com>,
+                Ahmed Ali <ahmed@oceanprotocol.com>
 ```
 
 **Table of Contents**
@@ -26,7 +27,6 @@ contributors:   Aitor Argomaniz <aitor@oceanprotocol.com>
     - [DID Document Proof](#did-document-proof)
     - [Length of a DID](#length-of-a-did)
     - [How to compute a DID](#how-to-compute-a-did)
-  - [Registry](#registry)
   - [Resolver](#resolver)
 - [Changes Required](#changes-required)
   - [List 1](#list-1)
@@ -63,12 +63,12 @@ Requirements are:
 * ASSETS are DATA objects describing RESOURCES under control of a PUBLISHER
 * PROVIDERS store the ASSET metadata off-chain
 * OCEAN doesn't store ASSET contents (e.g. files)
-* An ASSET is modeled in OCEAN as on-chain information stored in the KEEPER and metadata stored in OCEANDB
-* ASSETS on-chain information only can be modified by OWNERS or DELEGATED USERS
-* ASSETS can be resolved using a Decentralized ID (DID) included on-chain and off-chain
+* An ASSET is modeled in OCEAN as off-chain information stored in AQUARIUS
+* ASSETS information only can be modified by OWNERS or DELEGATED USERS
+* ASSETS can be resolved using a Decentralized ID (DID) 
 * A DID Document (DDO) should include the ASSET metadata
 * Any kind of object registered in Ocean SHOULD have a DID allowing one to uniquely identify that object in the system
-* ASSET DDO (and the metadata included as part of the DDO) is associated to the ASSET information stored on-chain using a common DID
+* ASSET DDO (and the metadata included as part of the DDO) is associated to the ASSET information stored using a common DID
 * A DID can be resolved to get access to a DDO
 * The function to calculate the HASH MUST BE standard
 
@@ -175,11 +175,11 @@ Example:
 
 ### Integrity
 
-The Integrity policy for identity and metadata is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an on-chain object (initially an ASSET).
+The Integrity policy for identity and metadata is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an object (initially an ASSET).
 
 #### How to compute the integrity checksum
 
-An ASSET in the system is composed by on-chain information maintained by the DLT and off-chain Metadata information (DDO) stored by the PROVIDER.
+An ASSET in the system is composed by off-chain Metadata information (DDO) stored by AQUARIUS.
 
 Technically a user could update the DDO accessing directly to the off-chain database, modifying attributes (e.g. License information, description, etc.) relevant to a previous consumption agreement with an user.
 
@@ -199,7 +199,6 @@ This hash composing the **integrity checksum** is calculated in the following wa
 - After generating each individual checksum the complete `proof.checksum` entry is sorted, serialized and hashed as previously described in the other checksums
 - The final hash generated as a result of hashing the checksums (DID CHECKSUM or DID HASH) will be the ID part of the DID (the string after the prefix `did:op:`)
 
-Because this DID HASH will be stored on-chain and emitted as an event, a validator could use this information to check if something changed regarding the initial registration.
 
 #### DID Document Proof
 
