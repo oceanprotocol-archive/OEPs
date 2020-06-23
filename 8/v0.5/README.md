@@ -7,7 +7,12 @@ type:         Standard
 status:       Draft
 version:      0.5
 editor:       Alex Coseru <alex@oceanprotocol.com>
-contributors: 
+contributors: Aitor Argomaniz <aitor@oceanprotocol.com>
+              Enrique Ruiz <enrique@oceanprotocol.com>,
+              Matthias Kretschmann <matthias@oceanprotocol.com>,
+              Jose Pablo Fernandez <jose@oceanprotocol.com>,
+              Marcus Jones <marcus@oceanprotocol.com>,
+              Troy McConaghy <troy@oceanprotocol.com>
 ```
 
 **Table of Contents**

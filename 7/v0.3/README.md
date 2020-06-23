@@ -7,7 +7,10 @@ type:           Standard
 status:         Draft
 version:        0.3
 editor:         Alex Coseru <alex@oceanprotocol.com>
-contributors:   
+contributors:   Aitor Argomaniz <aitor@oceanprotocol.com>
+                Dimitri De Jonghe <dimi@oceanprotocol.com>,
+                Troy McConaghy <troy@oceanprotocol.com>,
+                Matthias Kretschmann <matthias@oceanprotocol.com>
 ```
 
 **Table of Contents**
