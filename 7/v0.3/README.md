@@ -100,7 +100,7 @@ A DDO document is composed of standard DDO attributes:
 * `authentication`
 * `proof`
 * `verifiableCredential`
-* `dtAddress`
+* `DataToken`
 * `service`
 
 Asset metadata can be included as one of the objects inside the `"service"` array, with type `"metadata"`.
@@ -119,7 +119,7 @@ Each service has an `attributes` section where all the information related to th
 
 A part of the `attributes.main` sub-section, other optional sub-sections can be added (like: `attributes.curation` or `attributes.extra`) depending on the service type.
 
-Each service has an `dtCost` and `timeout` (in seconds) section describing the cost and how long the sevice can be used after payment. A timeout of 0 represents no time limit.
+Each service has an `cost` and `timeout` (in seconds) section describing the cost (how much datatokens needs to be transferred) and how long the sevice can be used after payment. A timeout of 0 represents no time limit.
 
 Example:
 
@@ -141,7 +141,7 @@ Example:
     "serviceEndpoint": "http://localhost:8030/api/v1/brizo/services/consume",
     "attributes": {  
       "main": {
-        "dtcost":"10",
+        "cost":"10",
         "timeout":0
       },
       "additionalInformation": {}
@@ -153,7 +153,7 @@ Example:
     "serviceEndpoint": "http://localhost:8030/api/v1/brizo/services/compute",
     "attributes": {  
       "main": {
-        "dtcost":"10",
+        "cost":"10",
         "timeout":3600
       },
       "additionalInformation": {}
