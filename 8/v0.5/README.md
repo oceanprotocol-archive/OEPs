@@ -276,6 +276,7 @@ The `container` object has the following attributes:
 | **`entrypoint`**    | `string` | yes       | The command to execute, or script to run inside the Docker image. |
 | **`image`**         | `string` | yes       | Name of the Docker image. |
 | **`tag`**           | `string` | yes       | Tag of the Docker image. |
+| **`checksum`**      | `string` | yes       | Checksum of the Docker image. |
 
 ```json
 {
@@ -296,7 +297,8 @@ The `container` object has the following attributes:
             "container": {
               "entrypoint": "node $ALGO",
               "image": "node",
-              "tag": "10"
+              "tag": "10",
+              "checksum":"efb2c764274b745f5fc37f97c6b0e761"
             }
           },
           "files": [
@@ -329,6 +331,70 @@ The `container` object has the following attributes:
 
 ```
 
+
+#### Compute datasets attributes
+
+An asset with a service of type `compute` has the following additional attributes under `main.privacy`:
+
+| Attribute                    |   Type                |   Required  | Description                                               |
+| ---------------------------- | ----------------------| ----------- |---------------------------------------------------------- |
+| **`allowRawAlgorithm`**      | `boolean`             | yes         | If True, a drag & drop algo can be runned                 |
+| **`allowNetworkAccess`**     | `boolean`             | yes         | If True, the algo job will have network access (stil WIP) |
+| **`publisherTrustedAlgorithms `**      | Array of `Objects`     | yes         | If Empty , then any published algo is allowed. (see below) |
+
+The `publisherTrustedAlgorithms ` is an array of objects with the following structure:
+
+| Attribute                                |   Type   | Required  | Description                                         |
+| ---------------------------------------- | -------- | --------- | --------------------------------------------------- |
+| **`did`**                                | `string` | yes       | The did of the algo which is trusted by the publisher. |
+| **`filesChecksum`**                      | `string` | yes       | Hash of ( algorithm's encryptedFiles + files section (as string) )
+| **`containerSectionChecksum`**           | `string` | yes       | Hash of the algorithm container section (as string) |
+
+To produce filesChecksum:  
+```
+sha256(algorithm_ddo.service['metadata'].attributes.encryptedFiles + JSON.Stringify(algorithm_ddo.service['metadata'].attributes.main.files) )
+```
+
+To produce containerSectionChecksum: 
+```
+sha256(JSON.Stringify(algorithm_ddo.service['metadata'].attributes.main.algorithm.container))
+```
+
+Example of a compute service
+
+```json
+{
+      "type": "compute",
+      "index": 1,
+      "serviceEndpoint": "https://provider.oceanprotocol.com",
+      "attributes": {
+        "main": {
+          "name": "dataAssetComputingService",
+          "creator": "0xA32C84D2B44C041F3a56afC07a33f8AC5BF1A071",
+          "datePublished": "2021-02-17T06:31:33Z",
+          "cost": "1",
+          "timeout": 3600,
+          "privacy": {
+            "allowRawAlgorithm": true,
+            "allowNetworkAccess": false,
+            "publisherTrustedAlgorithms" : [
+                {
+                  "did": "0xxxxx",
+                  "filesChecksum":"1234",
+                  "containerSectionChecksum":"7676"
+                },
+                {
+                  "did": "0xxxxx",
+                  "filesChecksum":"1232334",
+                  "containerSectionChecksum":"98787"
+                }
+            ]
+          }
+        }
+      }
+    }
+
+```
 ## References
 
 [Schema.org](https://schema.org/) is a collaborative, community activity with a mission to create, maintain, and promote schemas for structured data on the Internet. Data types use the [Schema.org primitive data types](https://schema.org/DataType).
