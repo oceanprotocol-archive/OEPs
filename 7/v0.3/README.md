@@ -100,7 +100,7 @@ A DDO document is composed of standard DDO attributes:
 * `authentication`
 * `proof`
 * `verifiableCredential`
-* `DataToken`
+* `dataToken`
 * `service`
 
 Asset metadata can be included as one of the objects inside the `"service"` array, with type `"metadata"`.
