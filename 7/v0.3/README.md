@@ -103,7 +103,7 @@ A DDO document is composed of standard DDO attributes:
 * `dataToken`
 * `service`
 * `isDisabled`   - optional flag, if set, will disable asset consumption, but the asset will appear in searches. This a temporary flag, publisher can switch it any time.
-* `isRetired`   - optional flag, if set, will disable the display of the asset & consumption. This is permanent flag.
+
 
 Asset metadata can be included as one of the objects inside the `"service"` array, with type `"metadata"`.
 
