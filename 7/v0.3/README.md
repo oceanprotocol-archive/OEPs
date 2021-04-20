@@ -19,6 +19,7 @@ contributors:   Matthias Kretschmann <matthias@oceanprotocol.com>,
   - [Decentralized IDs (DIDs)](#decentralized-ids-dids)
   - [DID Documents (DDOs)](#did-documents-ddos)
     - [DDO Services](#ddo-services)
+    - [Credentials](#credentials)
   - [Integrity](#integrity)
     - [How to compute the integrity checksum](#how-to-compute-the-integrity-checksum)
     - [DID Document Proof](#did-document-proof)
@@ -103,6 +104,8 @@ A DDO document is composed of standard DDO attributes:
 * `dataToken`
 * `service`
 * `isDisabled`   - optional flag, if set, will disable asset consumption, but the asset will appear in searches. This a temporary flag, publisher can switch it any time.
+* `credentials`   - optional flag, which describes the credentials needed to access a dataset (see below)
+
 
 
 Asset metadata can be included as one of the objects inside the `"service"` array, with type `"metadata"`.
@@ -167,6 +170,49 @@ Example:
 - You can find a [complete example of a DDO](ddo-example.json).
 - You can find a complete reference of the asset metadata in [OEP-8](8).
 - You can find a complete [real world example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the W3C DID spec.
+
+#### Credentials
+
+In order to support credentials based access. the following optional object is used:
+
+```
+"credentials":{
+      "allow":[
+         {
+            "type":"address",
+            "values":[
+               "0x123",
+               "0x456"
+            ]
+         }
+      ]
+   },
+   "deny":[
+      {
+         "type":"address",
+         "values":[
+            "0x2222",
+            "0x333"
+         ]
+      }
+   ]
+}
+```
+
+where:
+ - "allow" - will control who can consume this asset. If array it's empty, means anyone can consume
+ - "deny" - if there is a match, consumption is denied
+
+ For future usage, we can extend that with different credentials types. Example:
+ ```
+ {
+    "type":"credential3Box",
+        "values":[
+               "profile1",
+               "profile2"
+        ]
+  }
+```
 
 
 #### DID Document Proof
