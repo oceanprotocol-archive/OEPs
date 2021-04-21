@@ -19,6 +19,7 @@ contributors:   Matthias Kretschmann <matthias@oceanprotocol.com>,
   - [Decentralized IDs (DIDs)](#decentralized-ids-dids)
   - [DID Documents (DDOs)](#did-documents-ddos)
     - [DDO Services](#ddo-services)
+    - [Credentials](#credentials)
   - [Integrity](#integrity)
     - [How to compute the integrity checksum](#how-to-compute-the-integrity-checksum)
     - [DID Document Proof](#did-document-proof)
@@ -102,6 +103,10 @@ A DDO document is composed of standard DDO attributes:
 * `verifiableCredential`
 * `dataToken`
 * `service`
+* `isDisabled`   - optional flag, if set, will disable asset consumption, but the asset will appear in searches. This a temporary flag, publisher can switch it any time.
+* `credentials`   - optional flag, which describes the credentials needed to access a dataset (see below)
+
+
 
 Asset metadata can be included as one of the objects inside the `"service"` array, with type `"metadata"`.
 
@@ -166,67 +171,53 @@ Example:
 - You can find a complete reference of the asset metadata in [OEP-8](8).
 - You can find a complete [real world example of a DDO](https://w3c-ccg.github.io/did-spec/#real-world-example) with extended services added, as part of the W3C DID spec.
 
-### Integrity
+#### Credentials
 
-The Integrity policy for identity and metadata is a sub-specification for the Ocean Protocol allowing to validate the integrity of the Metadata associated to an object (initially an ASSET).
+In order to support credentials based access. the following optional object is used:
 
-#### How to compute the integrity checksum
+```
+"credentials":{
+      "allow":[
+         {
+            "type":"address",
+            "values":[
+               "0x123",
+               "0x456"
+            ]
+         }
+      ]
+   },
+   "deny":[
+      {
+         "type":"address",
+         "values":[
+            "0x2222",
+            "0x333"
+         ]
+      }
+   ]
+}
+```
 
-An ASSET in the system is composed by off-chain Metadata information (DDO) stored by AQUARIUS.
+where:
+ - "allow" - will control who can consume this asset. If array it's empty, means anyone can consume
+ - "deny" - if there is a match, consumption is denied
 
-Technically a user could update the DDO accessing directly to the off-chain database, modifying attributes (e.g. License information, description, etc.) relevant to a previous consumption agreement with an user.
-
-The motivation of this is to facilitate a mechanism allowing to the CONSUMER of an object, to validate if the DDO was modified after a previous agreement.
-
-This hash composing the **integrity checksum** is calculated in the following way:
-
-- The complete content of the `service[index].attributes.main` is serialized in a common string
-- The string generated is is Hashed using SHA3-256 algorithm  (You might have to convert the string to bytes first.)
-- The hash generated as a result of this process is stored in the `proof.checksum[index].checksum` attribute
-- The previous 3 steps are repeated for every individual service include in the `service` array. The hash generated is always stored in the `proof.checksum` array using as key the `index` of the service computed
-- During the serialization process, the objects to serialize (`service[index].attributes.main` are prepared using the following process:
-  * The object is sorted alphabetically independently of the existing nested levels
-  * In the JSON generated, all the characters between entries are removed (`\n`, `\t`, `\r`, whitespaces, etc.)
-  * As a result must be generated a string of only one line 
-- After hashing, in the DDO, the checksums should be represented as a hex string beginning with `0x` and ending with 64 hex characters (e.g. `0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377`)
-- After generating each individual checksum the complete `proof.checksum` entry is sorted, serialized and hashed as previously described in the other checksums
-- The final hash generated as a result of hashing the checksums (DID CHECKSUM or DID HASH) will be the ID part of the DID (the string after the prefix `did:op:`)
+ For future usage, we can extend that with different credentials types. Example:
+ ```
+ {
+    "type":"credential3Box",
+        "values":[
+               "profile1",
+               "profile2"
+        ]
+  }
+```
 
 
 #### DID Document Proof
 
-A proof on a DID Document is cryptographic proof of the integrity of the DID Document. In the DID Specification the `proof` attribute is optional.
-We enforce the usage of the `proof` attribute to demonstrate the Owner of an Asset is signing the proof of integrity of some Asset attributes.
-The information to sign by the owner is the **integrity checksum** defined in the above section.
-
-```js
-const signature = Sign.signMessage(DID)
-```
-
-The DID Document (DDO) SHOULD include the following `proof` information:
-
-* `type` - Type of proof, in our case `"DDOIntegritySignature"`
-* `created` - Date and time when the proof was created
-* `creator` - Address of the user providing the proof
-* `signatureValue` - Result of the signature given by the creator
-* `checksum` - Checksums of the individual services included in the DDO 
-
-Here is an example `proof` section to add in the DDO:
-
-```json
-"proof": {
-    "type": "DDOIntegritySignature",
-    "created": "2016-02-08T16:02:20Z",
-    "creator": "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e",
-    "signatureValue": "0xc9eeb2b8106e…6abfdc5d1192641b",
-    "checksum": {
-        "0": "0x52b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3bbc3377",
-        "1": "0x999999952b5c93b82dd9e7ecc3d9fdf4755f7f69a54484941897dc517b4adfe3"
-    }    
-}
-```
-
-Using the `proof` information, a third-party with access to the DDO could validate the `creator` signed a specific integrity checksum referring to an Asset.
+Since V3, the metadata is stored on chain, so we don't need additional proofs, because we already have the transaction sender.
 
 #### Length of a DID
 
@@ -240,7 +231,7 @@ Only the hash value _needs_ to be stored, not the `did:op:` prefix, because it s
 
 The DID (`id`) string begins with `did:op:` and is followed by a string representation of a bytes32.
 
-As is described previously, the DID is calculating doing the Hash (SHA3-256) of the `DDO.proof.checksum` entry
+In V3, the DID is based on the datatoken address.
 
 
 
