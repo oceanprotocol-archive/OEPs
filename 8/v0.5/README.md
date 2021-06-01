@@ -84,7 +84,7 @@ A `metadata` object has the following attributes, all of which are objects.
 Attribute                   | Required | Description
 ----------------------------|----------|----------|
 **`main`**                  | Yes      | Main attributes used to calculate the service checksum |
-**`curation`**              | No.      | Curation attributes
+**`status`**                | No.      | Status attributes
 **`additionalInformation`** | No       | Optional attributes
 **`encryptedFiles`**        | (remote) | Encrypted string of the `attributes.main.files` object.
 **`encryptedServices`**     | (remote) | Encrypted string of the `attributes.main.services` object.
@@ -160,9 +160,9 @@ These are examples of attributes that can enhance the discoverability of a resou
 
 The publisher of a DDO MAY add additional attributes or change the above object definition.
 
-### Curation Attributes
+### Status Attributes
 
-A `curation` object has the following attributes.
+A `status` object has the following attributes.
 
 Attribute             |   Type           |   Required    | Description
 ----------------------|------------------|---------------|----------------------
@@ -200,7 +200,7 @@ Attribute             |   Type           |   Required    | Description
     "updateFrequency": null,
     "structuredMarkup": []
   },
-  "curation": {
+  "status": {
     "isListed": true,
     "isRetired": false,
     "isOrderDisabled": false
@@ -246,7 +246,7 @@ Similarly, this is how the metadata file would look as a response to querying Aq
           "updateFrequency": null,
           "structuredMarkup": []
         },
-        "curation": {
+        "status": {
           "isListed": true,
           "isRetired": false,
           "isOrderDisabled": false
