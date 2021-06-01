@@ -26,7 +26,7 @@ contributors: Aitor Argomaniz <aitor@oceanprotocol.com>
     - [File Attributes](#file-attributes)
   - [Additional Attributes](#additional-attributes)
     - [Other Suggested Additional Attributes](#other-suggested-additional-attributes)
-  - [Curation Attributes](#curation-attributes)
+  - [Status Attributes](#status-attributes)
 - [Example of Local Metadata](#example-of-local-metadata)
 - [Example of Remote Metadata](#example-of-remote-metadata)
   - [Specific attributes per asset type](#specific-attributes-per-asset-type)
