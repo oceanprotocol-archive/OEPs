@@ -84,10 +84,10 @@ A `metadata` object has the following attributes, all of which are objects.
 Attribute                   | Required | Description
 ----------------------------|----------|----------|
 **`main`**                  | Yes      | Main attributes used to calculate the service checksum |
-**`curation`**              | (remote) | Curation attributes
+**`curation`**              | No.      | Curation attributes
 **`additionalInformation`** | No       | Optional attributes
 **`encryptedFiles`**        | (remote) | Encrypted string of the `attributes.main.files` object.
-**`encryptedServices`**      | (remote) | Encrypted string of the `attributes.main.services` object.
+**`encryptedServices`**     | (remote) | Encrypted string of the `attributes.main.services` object.
 
 The `main`, `curation` and `additionalInformation` attributes are independent of the asset type, all assets have those metadata sections.
 
@@ -164,12 +164,11 @@ The publisher of a DDO MAY add additional attributes or change the above object 
 
 A `curation` object has the following attributes.
 
-Attribute       |   Type           |   Required    | Description
-----------------|------------------|---------------|----------------------
-**`rating`**      | Number (decimal) | Yes           | Decimal value between 0 and 1. 0 is the default value.
-**`numVotes`**    | Integer          | Yes           | Number of votes. 0 is the default value.
-**`schema`**      | Text             | No            | Schema applied to calculate the rating.
-**`isListed`**    | Boolean          | No            | Flag unsuitable content. False by default. If it's true, the content must not be returned.
+Attribute             |   Type           |   Required    | Description
+----------------------|------------------|---------------|----------------------
+**`isListed`**        | Boolean          | No            | Use to flag unsuitable content. True by default. If it's false, the content must not be returned.
+**`isRetired`**       | Boolean          | No            | Flag retired content. False by default. If it's true, the content may either not be returned, or returned with a note about retirement.
+**`isOrderDisabled`** | Boolean          | No            | For temporarily disabling ordering assets, e.g. when file host is in maintenance. False by default. If it's true, no ordering of assets for download or compute should be allowed.
 
 ## Example of Local Metadata
 
@@ -200,6 +199,11 @@ Attribute       |   Type           |   Required    | Description
     "tags": [],
     "updateFrequency": null,
     "structuredMarkup": []
+  },
+  "curation": {
+    "isListed": true,
+    "isRetired": false,
+    "isOrderDisabled": false
   }
 }
 ```
@@ -233,12 +237,6 @@ Similarly, this is how the metadata file would look as a response to querying Aq
           "datePublished": "2019-05-16T12:41:01Z"
         },
         "encryptedFiles": "0x7a0d1c66ae861…df43aa9",
-        "curation":{  
-          "rating": 1,
-          "numVotes": 7,
-          "schema": "BINARY",
-          "isListed": true
-        },
         "additionalInformation": {  
           "description": "Weather forecast of Europe/Madrid in XML format",
           "copyrightHolder": "Norwegian Meteorological Institute",
@@ -247,6 +245,11 @@ Similarly, this is how the metadata file would look as a response to querying Aq
           "tags": [],
           "updateFrequency": null,
           "structuredMarkup": []
+        },
+        "curation": {
+          "isListed": true,
+          "isRetired": false,
+          "isOrderDisabled": false
         }
       }
     }

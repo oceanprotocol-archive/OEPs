@@ -103,16 +103,14 @@ A DDO document is composed of standard DDO attributes:
 * `verifiableCredential`
 * `dataToken`
 * `service`
-* `isDisabled`   - optional flag, if set, will disable asset consumption, but the asset will appear in searches. This a temporary flag, publisher can switch it any time.
 * `credentials`   - optional flag, which describes the credentials needed to access a dataset (see below)
 
-
-
-Asset metadata can be included as one of the objects inside the `"service"` array, with type `"metadata"`.
+Asset metadata must be included as one of the objects inside the `"service"` array, with type `"metadata"`.
 
 #### DDO Services
 
 Each type of asset (dataset, algorithm, workflow, etc, ..) typically will have associated different kind of services. There are multiple type of services that are commonly added to all the assets:
+
 * metadata - describing the asset
 * provenance - describing the asset provenance
 * access - describing how the asset can be downloaded
