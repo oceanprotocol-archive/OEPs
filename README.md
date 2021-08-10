@@ -9,7 +9,6 @@ Short Name       | Title
 [7/DID](7)       | Decentralized Identifiers                            
 [8/ASSET-DDO](8) | Assets Metadata Ontology                                 
 [12/EXEC](12)    | Execution of Computing Services                         
-[15/IPFS](15)| Distributed Asset File Storage with IPFS (draft)           
 
 Contributors:
 
