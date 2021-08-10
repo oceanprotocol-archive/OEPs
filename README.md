@@ -6,5 +6,5 @@ Here are current OEPs. (The rest are obsolete.)
 
 Short Name       | Title                                             
 -----------------|------------------------------------------
-[7/DID](7)       | Decentralized Identifiers                            
-[8/ASSET-DDO](8) | Assets Metadata Ontology                                             
+[7/DID](7/v0.3/README.md)       | Decentralized Identifiers                            
+[8/ASSET-DDO](8/v0.5/README.md) | Assets Metadata Ontology                                             
